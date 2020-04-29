@@ -1,6 +1,8 @@
 NetCoMi
 =======
 
+[![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+
 `NetCoMi` (Network Comparison for Microbiome data) provides functions
 for constructing, analyzing, and comparing networks suitable for the
 application on microbial compositional data. The package includes
@@ -102,7 +104,7 @@ together with some information on the implementation in R.
     from `robCompositions` package))
 
 TSS, CSS, COM, VST, and the clr transformation are described in \[Badri
-et al., 2018\].
+et al., 2020\].
 
 Installation
 ------------
@@ -199,7 +201,7 @@ according to the node’s eigenvector centrality.
 plot(props_single, nodeColor = "cluster", nodeSize = "eigenvector")
 ```
 
-![](readme_files/figure-markdown_github/example4,%20-1.png)
+![](readme_files/figure-markdown_github/example4-1.png)
 
 Let’s construct another network using Pearson’s correlation coefficient
 as association measure. Since Pearson correlations may lead to
@@ -355,10 +357,10 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## Jaccard index (similarity betw. sets of most central nodes):
     ## `````````````
     ##                     Jacc   P(<=Jacc)     P(>=Jacc)   
-    ## degree             0.308   0.5520387     0.6775760   
-    ## betweenness centr. 0.455   0.8779150     0.2889973   
-    ## closeness centr.   0.375   0.7374313     0.4530638   
-    ## eigenvec. centr.   0.375   0.7374313     0.4530638   
+    ## degree             0.300   0.5592643     0.7008586   
+    ## betweenness centr. 0.538   0.9653452     0.1035392   
+    ## closeness centr.   0.467   0.9117684     0.2030389   
+    ## eigenvec. centr.   0.222   0.2310724     0.8983349   
     ## hub taxa           0.000   0.0877915 .   1.0000000   
     ## -----
     ## Jaccard index ranges from 0 (compl. different) to 1 (sets equal)
@@ -367,18 +369,18 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## Global network properties:
     ## ``````````````````````````
     ##                     group '1'   group '2'    difference
-    ## average path length     2.551       1.255         1.296
-    ## clustering coeff.       0.000       0.150         0.150
-    ## modularity              0.597       0.651         0.054
+    ## average path length     2.551       1.982         0.569
+    ## clustering coeff.       0.000       0.316         0.316
+    ## modularity              0.597       0.601         0.005
     ## vertex connectivity     0.000       0.000         0.000
     ## edge connectivity       0.000       0.000         0.000
-    ## edge density            0.032       0.019         0.013
+    ## edge density            0.032       0.040         0.008
     ## 
     ## 
     ## Adjusted Rand index (similarity betw. clusterings):
     ## ```````````````````
     ##    ARI       p-value
-    ##  0.339             0
+    ##  0.253             0
     ## -----
     ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings,
     ##                    ARI=0: expected for two random clusterings
@@ -389,19 +391,19 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## ````````````````````
     ## Degree:
     ##        group '1' group '2' difference
-    ## 364563     0.119     0.024      0.095
-    ## 259569     0.095     0.000      0.095
+    ## 188236     0.048     0.167      0.119
+    ## 326977     0.000     0.071      0.071
+    ## 259569     0.095     0.024      0.071
     ## 469709     0.000     0.048      0.048
-    ## 322235     0.119     0.071      0.048
-    ## 470239     0.048     0.000      0.048
+    ## 158660     0.024     0.071      0.048
     ## 
     ## Eigenvector centrality:
     ##        group '1' group '2' difference
-    ## 322235     0.058     0.937      0.879
+    ## 322235     0.058     0.704      0.646
     ## 188236     0.359     1.000      0.641
-    ## 364563     0.756     0.127      0.630
-    ## 469709     0.000     0.594      0.594
-    ## 194648     0.364     0.854      0.490
+    ## 184983     0.227     0.819      0.592
+    ## 364563     0.756     0.178      0.578
+    ## 326977     0.000     0.470      0.470
     ## 
     ## --------------------------------------------------------
     ## Significance codes: ***: 0.001, **: 0.01, *: 0.05, .: 0.1
@@ -438,7 +440,11 @@ diff_season2 <- diffnet(net_season2, diffMethod = "fisherTest", adjust = "lfdr")
     ## Done.
 
 ``` r
-plot(diff_season2, mar = c(2,1,7,7), cexLegend = 0.8)
+<<<<<<< Updated upstream
+plot(diff_season2, cexNodes = 0.8, cexLegend = 0.8, mar = c(7,7,7,10))
+=======
+plot(diff_season2, mar = c(2,1,7,7))
+>>>>>>> Stashed changes
 ```
 
 ![](readme_files/figure-markdown_github/example11-1.png)
@@ -522,7 +528,7 @@ col <- topo.colors(nclust)
 plot(netprops1, sameLayout = TRUE, layoutGroup = 1, colorVec = col,
      borderCol = "gray40", nodeSize = "degree", cexNodes = 35, 
      nodeSizeSpread = 0.1, edgeTranspLow = 80, edgeTranspHigh = 50,
-     groupNames = c("Warming", "Non-warming"), showTitle = TRUE, cexTitle = 0.9,
+     groupNames = c("Warming", "Non-warming"), showTitle = TRUE, cexTitle = 1.5,
      mar = c(1,1,3,1), repulsion = 0.9, labels = FALSE, rmSingles = "inboth",
      nodeFilter = "clustMin", nodeFilterPar = 10, 
      nodeTransp = 50, hubTransp = 30)
@@ -534,11 +540,11 @@ References
 \[Martín-Fernández et al., 1999\] Josep A Martín-Fernández, Mark J Bren,
 Carles Barceló-Vidal, and Vera Pawlowsky-Glahn (1999). [A measure of
 difference for compositional data based on measures of
-divergence](http://ima.udg.edu/~barcelo/index_archivos/A_mesure_of_difference.pdf),
-*Lippard, Næss, and Sinding-Larsen*, 211-216, 1999.)
+divergence](http://ima.udg.edu/~barcelo/index_archivos/A_mesure_of_difference.pdf).
+*Lippard, Næss, and Sinding-Larsen*, 211-216.)
 
-\[Badri et al., 2018\] Michelle Badri, Zachary Kurtz, Christian Müller,
-and Richard Bonneau. [Normalization methods for microbial abundance data
-strongly affect correlation
-estimates](https://www.biorxiv.org/content/10.1101/406264v1). *bioRxiv*,
-2018. doi: 406264.
+\[Badri et al., 2020\] Michelle Badri, Zachary D. Kurtz, Richard
+Bonneau, and Christian L. Müller (2020). [Shrinkage improves estimation
+of microbial associations under different normalization
+methods](https://www.biorxiv.org/content/10.1101/406264v2). *bioRxiv*,
+doi: 10.1101/406264.
