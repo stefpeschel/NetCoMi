@@ -174,7 +174,7 @@ the node sizes according to the node's eigenvector centrality.
 ?plot.microNetProps
 ```
 
-```{r example4, , fig.height=10, fig.width=10}
+```{r example4, fig.height=20, fig.width=20}
 plot(props_single, nodeColor = "cluster", nodeSize = "eigenvector")
 ```
 
@@ -186,7 +186,7 @@ transformed.
 Student's t-test is used as sparsification method, so that only OTUs with a
 correlation significantly different from zero are connected.
 
-```{r example5, fig.height=10, fig.width=10}
+```{r example5, fig.height=20, fig.width=20}
 net_single2 <- netConstruct(amgut1.filt, verbose = 0, 
                             measure = "pearson",
                             normMethod = "clr", zeroMethod = "multRepl",
@@ -313,7 +313,7 @@ net_season2 <- netConstruct(amgut_split$no, amgut_split$yes, verbose = 0,
 
 diff_season2 <- diffnet(net_season2, diffMethod = "fisherTest", adjust = "lfdr")
 
-plot(diff_season2, mar = c(2,1,7,7), cexLegend = 0.8)
+plot(diff_season2, cexNodes = 0.8, cexLegend = 0.8, mar = c(7,7,7,10))
 ```
 
 We also take a look at the association networks belonging to the differential 
@@ -356,7 +356,7 @@ For cluster detection, we use hierarchical clustering with average linkage.
 Internally, `k=3` is passed to [`cutree()`](https://www.rdocumentation.org/packages/dendextend/versions/1.13.4/topics/cutree) 
 from `stats` package so that the tree is cut into 3 clusters.
 
-```{r example14, fig.height=10, fig.width=10}
+```{r example14, fig.height=20, fig.width=20}
 props_aitchison <- netAnalyze(net_aitchison,
                               clustMethod = "hierarchical",
                               clustPar = list(method = "average", k = 3),

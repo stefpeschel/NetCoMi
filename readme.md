@@ -199,7 +199,7 @@ according to the node’s eigenvector centrality.
 plot(props_single, nodeColor = "cluster", nodeSize = "eigenvector")
 ```
 
-![](readme_files/figure-markdown_github/example4,%20-1.png)
+![](readme_files/figure-markdown_github/example4-1.png)
 
 Let’s construct another network using Pearson’s correlation coefficient
 as association measure. Since Pearson correlations may lead to
@@ -438,7 +438,7 @@ diff_season2 <- diffnet(net_season2, diffMethod = "fisherTest", adjust = "lfdr")
     ## Done.
 
 ``` r
-plot(diff_season2, mar = c(2,1,7,7), cexLegend = 0.8)
+plot(diff_season2, cexNodes = 0.8, cexLegend = 0.8, mar = c(7,7,7,10))
 ```
 
 ![](readme_files/figure-markdown_github/example11-1.png)
