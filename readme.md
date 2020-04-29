@@ -1,6 +1,8 @@
 NetCoMi
 =======
 
+[![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+
 `NetCoMi` (Network Comparison for Microbiome data) provides functions
 for constructing, analyzing, and comparing networks suitable for the
 application on microbial compositional data. The package includes
@@ -355,10 +357,10 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## Jaccard index (similarity betw. sets of most central nodes):
     ## `````````````
     ##                     Jacc   P(<=Jacc)     P(>=Jacc)   
-    ## degree             0.308   0.5520387     0.6775760   
-    ## betweenness centr. 0.455   0.8779150     0.2889973   
-    ## closeness centr.   0.375   0.7374313     0.4530638   
-    ## eigenvec. centr.   0.375   0.7374313     0.4530638   
+    ## degree             0.300   0.5592643     0.7008586   
+    ## betweenness centr. 0.538   0.9653452     0.1035392   
+    ## closeness centr.   0.467   0.9117684     0.2030389   
+    ## eigenvec. centr.   0.222   0.2310724     0.8983349   
     ## hub taxa           0.000   0.0877915 .   1.0000000   
     ## -----
     ## Jaccard index ranges from 0 (compl. different) to 1 (sets equal)
@@ -367,18 +369,18 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## Global network properties:
     ## ``````````````````````````
     ##                     group '1'   group '2'    difference
-    ## average path length     2.551       1.255         1.296
-    ## clustering coeff.       0.000       0.150         0.150
-    ## modularity              0.597       0.651         0.054
+    ## average path length     2.551       1.982         0.569
+    ## clustering coeff.       0.000       0.316         0.316
+    ## modularity              0.597       0.601         0.005
     ## vertex connectivity     0.000       0.000         0.000
     ## edge connectivity       0.000       0.000         0.000
-    ## edge density            0.032       0.019         0.013
+    ## edge density            0.032       0.040         0.008
     ## 
     ## 
     ## Adjusted Rand index (similarity betw. clusterings):
     ## ```````````````````
     ##    ARI       p-value
-    ##  0.339             0
+    ##  0.253             0
     ## -----
     ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings,
     ##                    ARI=0: expected for two random clusterings
@@ -389,19 +391,19 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## ````````````````````
     ## Degree:
     ##        group '1' group '2' difference
-    ## 364563     0.119     0.024      0.095
-    ## 259569     0.095     0.000      0.095
+    ## 188236     0.048     0.167      0.119
+    ## 326977     0.000     0.071      0.071
+    ## 259569     0.095     0.024      0.071
     ## 469709     0.000     0.048      0.048
-    ## 322235     0.119     0.071      0.048
-    ## 470239     0.048     0.000      0.048
+    ## 158660     0.024     0.071      0.048
     ## 
     ## Eigenvector centrality:
     ##        group '1' group '2' difference
-    ## 322235     0.058     0.937      0.879
+    ## 322235     0.058     0.704      0.646
     ## 188236     0.359     1.000      0.641
-    ## 364563     0.756     0.127      0.630
-    ## 469709     0.000     0.594      0.594
-    ## 194648     0.364     0.854      0.490
+    ## 184983     0.227     0.819      0.592
+    ## 364563     0.756     0.178      0.578
+    ## 326977     0.000     0.470      0.470
     ## 
     ## --------------------------------------------------------
     ## Significance codes: ***: 0.001, **: 0.01, *: 0.05, .: 0.1

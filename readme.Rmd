@@ -7,7 +7,10 @@ output:
     variant: markdown_github
 ---
 
-# NetCoMi
+# NetCoMi 
+
+[![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+
 `NetCoMi` (Network Comparison for Microbiome data) provides functions for 
 constructing, analyzing, and comparing networks suitable for the application on 
 microbial compositional data. The package includes existing methods for zero 
