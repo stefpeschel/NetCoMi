@@ -1,0 +1,62 @@
+Package: NetCoMi
+Type: Package
+Title: Network Comparison for Microbiome Data
+Version: 1.0.0
+Author: Stefanie Peschel [aut, cre]
+Maintainer: Stefanie Peschel <stefanie.peschel@mail.de>
+Description: NetCoMi offers functions for constructing, analyzing, and comparing 
+    microbial association networks as well as dissimilarity-based networks for 
+    microbial compositional data. It also includes a function for constructing 
+    differential association networks.
+License: GPL-3
+Depends: SpiecEasi (>= 1.0.6)
+Imports: 
+    Rdpack,
+    Rcpp (>= 0.12.19),
+    RcppArmadillo,
+    Biobase,
+    DESeq2,
+    huge,
+    MASS,
+    WGCNA,
+    ccrepe,
+    compositions,
+    discordant,
+    snow,
+    doSNOW,
+    fdrtool,
+    foreach,
+    gtools,
+    igraph,
+    metagenomeSeq,
+    propr,
+    qgraph,
+    SPRING,
+    vegan,
+    zCompositions,
+    stats,
+    LaplacesDemon,
+    robCompositions,
+    cccd,
+    limma,
+    phyloseq,
+    Matrix,
+    graphics,
+    grDevices
+Remotes: 
+    bioc::Biobase,
+    bioc::DESeq2, 
+    bioc::ccrepe,
+    bioc::discordant,
+    bioc::metagenomeSeq,
+    bioc::limma,
+    bioc::phyloseq, 
+    github::zdk123/SpiecEasi,
+    github::GraceYoon/SPRING
+Suggests:
+    testthat
+RdMacros: Rdpack
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+LinkingTo: Rcpp, RcppArmadillo
