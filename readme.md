@@ -104,7 +104,7 @@ together with some information on the implementation in R.
     from `robCompositions` package))
 
 TSS, CSS, COM, VST, and the clr transformation are described in \[Badri
-et al., 2018\].
+et al., 2020\].
 
 Installation
 ------------
@@ -440,7 +440,11 @@ diff_season2 <- diffnet(net_season2, diffMethod = "fisherTest", adjust = "lfdr")
     ## Done.
 
 ``` r
+<<<<<<< Updated upstream
 plot(diff_season2, cexNodes = 0.8, cexLegend = 0.8, mar = c(7,7,7,10))
+=======
+plot(diff_season2, mar = c(2,1,7,7))
+>>>>>>> Stashed changes
 ```
 
 ![](readme_files/figure-markdown_github/example11-1.png)
@@ -524,7 +528,7 @@ col <- topo.colors(nclust)
 plot(netprops1, sameLayout = TRUE, layoutGroup = 1, colorVec = col,
      borderCol = "gray40", nodeSize = "degree", cexNodes = 35, 
      nodeSizeSpread = 0.1, edgeTranspLow = 80, edgeTranspHigh = 50,
-     groupNames = c("Warming", "Non-warming"), showTitle = TRUE, cexTitle = 0.9,
+     groupNames = c("Warming", "Non-warming"), showTitle = TRUE, cexTitle = 1.5,
      mar = c(1,1,3,1), repulsion = 0.9, labels = FALSE, rmSingles = "inboth",
      nodeFilter = "clustMin", nodeFilterPar = 10, 
      nodeTransp = 50, hubTransp = 30)
@@ -536,11 +540,11 @@ References
 \[Martín-Fernández et al., 1999\] Josep A Martín-Fernández, Mark J Bren,
 Carles Barceló-Vidal, and Vera Pawlowsky-Glahn (1999). [A measure of
 difference for compositional data based on measures of
-divergence](http://ima.udg.edu/~barcelo/index_archivos/A_mesure_of_difference.pdf),
-*Lippard, Næss, and Sinding-Larsen*, 211-216, 1999.)
+divergence](http://ima.udg.edu/~barcelo/index_archivos/A_mesure_of_difference.pdf).
+*Lippard, Næss, and Sinding-Larsen*, 211-216.)
 
-\[Badri et al., 2018\] Michelle Badri, Zachary Kurtz, Christian Müller,
-and Richard Bonneau. [Normalization methods for microbial abundance data
-strongly affect correlation
-estimates](https://www.biorxiv.org/content/10.1101/406264v1). *bioRxiv*,
-2018. doi: 406264.
+\[Badri et al., 2020\] Michelle Badri, Zachary D. Kurtz, Richard
+Bonneau, and Christian L. Müller (2020). [Shrinkage improves estimation
+of microbial associations under different normalization
+methods](https://www.biorxiv.org/content/10.1101/406264v2). *bioRxiv*,
+doi: 10.1101/406264.
