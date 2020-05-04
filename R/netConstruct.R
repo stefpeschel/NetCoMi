@@ -411,7 +411,8 @@ netConstruct <- function(data,
     dataType <- "counts"
   }
 
-  if (dataType == "counts") {
+  if (dataType =="counts") {
+    
     measure <- match.arg(measure,
                          choices = c("pearson", "spearman", "bicor",
                                      "sparcc", "cclasso", "ccrepe",
@@ -419,9 +420,6 @@ netConstruct <- function(data,
                                      "spieceasi", "spring", "gcoda",
                                      "euclidean", "bray", "kld", "ckld",
                                      "jeffrey", "jsd", "aitchison"))
-  }
-
-  if (dataType =="counts") {
 
     if(class(data) == "phyloseq"){
       data_phy <- data
@@ -453,6 +451,7 @@ netConstruct <- function(data,
       }
 
   } else{
+    measure <- "none"
     assoType <- dataType
   }
 
@@ -906,12 +905,19 @@ netConstruct <- function(data,
     assoMat2 <- data2
     count1 <- NULL
     count2 <- NULL
+    count1_norm <- NULL
+    count2_norm <- NULL
     groups <- NULL
   }
 
   if(distNet){
 
     dissEst1 <- assoMat1
+    
+    if(any(is.infinite(dissEst1)) & scaleDiss){
+      scaleDiss <- FALSE
+      warning("Dissimilarity matrix contains infinite values and cannot be scaled to [0,1].")
+    }
 
     if(scaleDiss){
       assoUpper <- assoMat1[upper.tri(assoMat1)]

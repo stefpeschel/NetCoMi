@@ -1,7 +1,7 @@
 Package: NetCoMi
 Type: Package
 Title: Network Comparison for Microbiome Data
-Version: 1.0.0.9000
+Version: 1.0.1.9000
 Author: Stefanie Peschel [aut, cre]
 Maintainer: Stefanie Peschel <stefanie.peschel@mail.de>
 Description: NetCoMi offers functions for constructing, analyzing, and comparing 
