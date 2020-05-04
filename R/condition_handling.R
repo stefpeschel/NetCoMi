@@ -155,18 +155,18 @@ and normalization is not robust to compositional effects.\n")
       needfrac <- TRUE
     }
 
-  }
-
-  #-----------------------------------------------------------------------------
-  # exception handling - edge filtering and transformation
-
-  if (measure %in% c("spring", "spieceasi", "gcoda")) {
-    if (sparsMethod != "none") {
-      sparsMethod <- "none"
-      msg <- c(msg, paste0("Sparsification included in '", measure, "'."))
+    if (measure %in% c("spring", "spieceasi", "gcoda")) {
+      if (sparsMethod != "none") {
+        sparsMethod <- "none"
+        msg <- c(msg, paste0("Sparsification included in '", measure, "'."))
+      }
+      
     }
 
   }
+
+  #-----------------------------------------------------------------------------
+  # exception handling: sparsification and transformation
 
   if (assoType == "dissimilarity") {
     if (!sparsMethod %in% c("none", "threshold", "knn")) {
@@ -212,9 +212,6 @@ and normalization is not robust to compositional effects.\n")
     }
 
   }
-
-  #-----------------------------------------------------------------------------
-  # exception handling - sparsification
 
   if(sparsMethod == "softThreshold"){
     if(assoType != "correlation"){
