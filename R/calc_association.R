@@ -110,10 +110,10 @@ calc_association <- function(countMat, measure, measurePar, verbose){
 
     if(is.null(measurePar$lambdaseq)) measurePar$lambdaseq <- "data-specific"
     if(is.null(measurePar$ncores)) measurePar$ncores <- 1
-    measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
-    if(verbose == 3){
+    #measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
+    #if(verbose == 3){
       message("")
-    }
+    #}
 
     springres <- do.call("SPRING", measurePar)
 
