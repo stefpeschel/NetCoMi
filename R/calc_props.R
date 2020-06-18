@@ -174,7 +174,7 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
   if(clustMethod != "none"){
     modul <- modularity(net, (clust+1))
   } else{
-    modul <- NULL
+    modul <- NA
   }
 
 

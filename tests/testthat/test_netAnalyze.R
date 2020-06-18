@@ -14,7 +14,7 @@ clusterMethods <- c("none", "hierarchical",
 
 testnet <- netConstruct(amgut1.filt, group = groups_asso,
                         filtTax = "highestVar",
-                        filtTaxPar = list(highestVar = 30),
+                        filtTaxPar = list(highestVar = 50),
                         filtSamp = "totalReads",
                         filtSampPar = list(totalReads = 1000),
                         zeroMethod = "none", normMethod = "none",
@@ -32,6 +32,8 @@ for(i in 1:length(clusterMethods)){
                          clustMethod = clusterMethods[i],
                          hubPar = "eigenvector", hubQuant = 0.95)
 }
+
+summary(testprops, numbNodes = 10, showCentr = "degree", digits = 4)
 
 
 context("netAnalyze with dissimilarity-based network")
