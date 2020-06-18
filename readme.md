@@ -47,7 +47,7 @@ together with some information on the implementation in R.
     package)
 -   SpiecEasi ([`SpiecEasi`](https://github.com/zdk123/SpiecEasi)
     package)
--   SPRING ([`SPRING`](https://github.com/zdk123/SpiecEasi) package)
+-   SPRING ([`SPRING`](https://github.com/GraceYoon/SPRING) package)
 -   gCoda ([R script on GitHub](https://github.com/huayingfang/gCoda))
 -   propr
     ([`propr`](https://cran.r-project.org/web/packages/propr/index.html)
