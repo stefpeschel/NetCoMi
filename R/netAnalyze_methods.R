@@ -36,7 +36,10 @@ summary.microNetProps <- function(object, groupNames = NULL, showCentr = "all",
                          several.ok = TRUE)
   
   if("none" %in% showCentr) stopifnot(length(showCentr) == 1)
-  numbNodes <- as.integer(numbNodes)
+  
+  if(!is.null(numbNodes)){
+    numbNodes <- as.integer(numbNodes)
+  }
 
   if(is.numeric(numbNodes)){
     stopifnot(numbNodes >= 1 & numbNodes <= length(object$centralities$degree1))
@@ -143,8 +146,8 @@ summary.microNetProps <- function(object, groupNames = NULL, showCentr = "all",
   # hubs
   
   if(twonets){
-    hubs1 <- object$hubs$hubs1
-    hubs2 <- object$hubs$hubs2
+    hubs1 <- sort(object$hubs$hubs1)
+    hubs2 <- sort(object$hubs$hubs2)
     
     if(length(hubs1) != length(hubs2)){
       diff <- length(hubs1) - length(hubs2)
@@ -155,13 +158,13 @@ summary.microNetProps <- function(object, groupNames = NULL, showCentr = "all",
       }
     } 
     
-    hubmat <- cbind(object$hubs$hubs1, object$hubs$hubs2)
+    hubmat <- cbind(hubs1, hubs2)
     
     dimnames(hubmat) <- list(rep("", nrow(hubmat)),
                              c(group1, group2))
     hubs <- as.data.frame(hubmat)
   } else{
-    hubmat <- as.matrix(object$hubs$hubs1)
+    hubmat <- as.matrix(sort(object$hubs$hubs1))
     dimnames(hubmat) <- list(rep("", nrow(hubmat)), "")
     hubs <- hubmat
   }
@@ -287,9 +290,9 @@ print.summary.microNetProps <- function(x, ...){
     }
   }
 
-  cat("\n\nHubs:\n")
+  cat("\n\nHubs (in alphabetical order):\n")
   if(ncol(x$hubs) == 2){
-    cat("`````\n")
+    cat("````\n")
     print(x$hubs, row.names = FALSE, quote = TRUE)
   } else{
     cat("`````")
