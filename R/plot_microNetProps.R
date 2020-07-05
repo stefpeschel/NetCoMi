@@ -160,9 +160,10 @@
 #'   counts (of microbes or samples), which are exported by
 #'   \code{netConstruct}.}}
 #' @param nodeSizeSpread positive numeric value indicating the spread of node
-#'   sizes. The smaller the value, the more similar are the node sizes. For a
-#'   value of 3 (default) and \code{cexNodes = 1}, for example, the node sizes
-#'   range from 1 to 4.
+#'   sizes. The smaller the value, the more similar are the node sizes. Node 
+#'   sizes are calculated by: (x - min(x)) / (max(x) - min(x)) * nodeSizeSpread 
+#'   + cexNodes. For \code{nodeSizeSpread = 4} (default) and \code{cexNodes = 1}, 
+#'   node sizes range from 1 to 5.
 #' @param nodeColor a character specifying the node colors. Possible values are
 #'   \code{"cluster"} (colors according to determined clusters),
 #'   \code{"feature"} (colors according to node's features defined by
@@ -344,7 +345,7 @@ plot.microNetProps <- function(x,
                                nodeFilterPar = NULL,
                                rmSingles = "none",
                                nodeSize = "fix",
-                               nodeSizeSpread = 3,
+                               nodeSizeSpread = 4,
                                nodeColor = "cluster",
                                colorVec = NULL,
                                featVecCol = NULL,
