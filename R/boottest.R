@@ -47,7 +47,6 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       message("")
       progress <- function(b){
         progr <- round(b/nboot*100)
-        #if((progr %% 5) == 0)
         message(progr,"%\r",appendLF=FALSE)
       }
       opts <- list(progress=progress)

@@ -531,6 +531,9 @@ netConstruct <- function(data,
   } else{
     parallel <- FALSE
   }
+  
+  
+  if(!is.null(seed)) set.seed(seed)
 
  #==============================================================================
 

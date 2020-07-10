@@ -10,7 +10,9 @@ gcoda(
   pseudo = 0.5,
   lambda.min.ratio = 1e-04,
   nlambda = 15,
-  ebic.gamma = 0.5
+  ebic.gamma = 0.5,
+  cores = 1L,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -32,6 +34,13 @@ Defaults to 15.}
 
 \item{ebic.gamma}{numeric value specifying the gamma value of EBIC.
 Defaults to 0.5.}
+
+\item{cores}{integer indicating the number of CPU cores used for computation. 
+Defaults to 1L. For \code{cores} > 1L, \code{\link[foreach]{foreach}} is 
+used for parallel execution.}
+
+\item{verbose}{logical indicating whether a progress indicator is shown 
+(\code{TRUE} by default).}
 }
 \value{
 A list containing the following elements:
@@ -47,8 +56,8 @@ A list containing the following elements:
   \code{opt.lambda}\tab lambda with best EBIC score}
 }
 \description{
-Implementation of the gCoda approach \cite{(Fang et al., 2017)},
-  which is published on GitHub \cite{(Fang, 2016)}.
+A parallelized implementation of the gCoda approach 
+  \cite{(Fang et al., 2017)}, published on GitHub \cite{(Fang, 2016)}.
 }
 \references{
 \insertRef{fang2016gcodaGithub}{NetCoMi}\cr
@@ -56,5 +65,5 @@ Implementation of the gCoda approach \cite{(Fang et al., 2017)},
 }
 \author{
 Fang Huaying, Peking University (R-Code and documentation)\cr
-  Stefanie Peschel (Parts of the documentation)
+  Stefanie Peschel (Parts of the documentation; Parallelization)
 }
