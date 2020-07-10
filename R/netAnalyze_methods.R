@@ -19,7 +19,7 @@
 #'   highest values of the first group, and the lower part the highest values of 
 #'   the second group.
 #' @param digits integer giving the number of decimal places to which the 
-#'   results are rounded. Defaults to 5.
+#'   results are rounded. Defaults to 5L.
 #' @param ... not used.
 #'
 #' @seealso \code{\link{netConstruct}}, \code{\link{netAnalyze}}
@@ -28,7 +28,7 @@
 #' @rdname summarize.microNetProps
 #' @export
 summary.microNetProps <- function(object, groupNames = NULL, showCentr = "all", 
-                                  numbNodes = NULL, digits = 5, ...){
+                                  numbNodes = NULL, digits = 5L, ...){
 
   showCentr <- match.arg(showCentr, choices = c("all", "none", "degree",
                                                 "betweenness", "closeness",
@@ -36,6 +36,7 @@ summary.microNetProps <- function(object, groupNames = NULL, showCentr = "all",
                          several.ok = TRUE)
   
   if("none" %in% showCentr) stopifnot(length(showCentr) == 1)
+  digits <- as.integer(digits)
   
   if(!is.null(numbNodes)){
     numbNodes <- as.integer(numbNodes)

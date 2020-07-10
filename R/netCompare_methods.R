@@ -17,6 +17,10 @@
 #'   values shall be printed. Defaults to 10 which means that the first 10 taxa
 #'   with highest absolute group difference of the specific centrality
 #'   measure are shown.
+#' @param digits integer giving the number of decimal places to which the 
+#'   results are rounded. Defaults to 3L. 
+#' @param digitsPval integer giving the number of decimal places to which the 
+#'   p-values are rounded. Defaults to 6L.
 #'
 #' @seealso \code{\link{netCompare}}
 #'
@@ -24,13 +28,16 @@
 #' @rdname summarize.microNetComp
 #' @export
 summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
-                                 showCentr = "all", numbTaxa = 10L, ...){
+                                 showCentr = "all", numbTaxa = 10L, digits = 3L, 
+                                 digitsPval = 6L, ...){
 
   showCentr <- match.arg(showCentr, choices = c("all", "none", "degree", "betweenness",
                                                 "closeness", "eigenvector"),
                          several.ok = TRUE)
   if("none" %in% showCentr) stopifnot(length(showCentr) == 1)
   numbTaxa <- as.integer(numbTaxa)
+  digits <- as.integer(digits)
+  digitsPval <- as.integer(digitsPval)
 
   if(is.numeric(numbTaxa)){
     stopifnot(numbTaxa >= 1 & numbTaxa <= length(object$diffs$diffDeg))
@@ -50,13 +57,14 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   }
 
 
-  names <- c("degree", "betweenness centr.", "closeness centr.", "eigenvec. centr.",
-             "hub taxa")
+  names <- c("degree", "betweenness centr.", "closeness centr.", 
+             "eigenvec. centr.", "hub taxa")
 
   if(is.na(object$properties$vertConnect1)){
     names2 <- c("avPath", "clustCoef", "modul", "density")
   } else{
-    names2 <- c("avPath", "clustCoef", "modul", "vertConnect", "edgeConnect", "density")
+    names2 <- c("avPath", "clustCoef", "modul", "vertConnect", 
+                "edgeConnect", "density")
   }
 
   # jaccard index
@@ -79,9 +87,9 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   }
 
   for(i in 1:5){
-    jacc[i] <- round(object[[i]]["jacc"], 3)
-    p.greater[i] <- object[[i]]["p.greater"]
-    p.less[i] <- object[[i]]["p.less"]
+    jacc[i] <- round(object[[i]]["jacc"], digits)
+    p.greater[i] <- round(object[[i]]["p.greater"], digitsPval)
+    p.less[i] <- round(object[[i]]["p.less"], digitsPval)
     sig.greater[i] <- codesig(p.greater[i])
     sig.less[i] <- codesig(p.less[i])
   }
@@ -93,8 +101,8 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   # rand index
   rand <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
                                dimnames = list("", c("ARI", "      p-value"))))
-  rand[1,1] <- round(object$randInd[1], 3)
-  rand[1,2] <- object$randInd[2]
+  rand[1,1] <- round(object$randInd[1], digits)
+  rand[1,2] <- round(object$randInd[2], digitsPval)
 
   #============================================================
   # global network properties
@@ -118,14 +126,16 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                                       dimnames = list(globProps,
                                                       c(group1, paste0("  ",
                                                                        group2),
-                                                        "   difference",
+                                                        "   abs. diff.",
                                                         "    p-value", " "))))
 
     for(i in 1:length(globProps)){
-      propdiffs[i,1] <- round(as.numeric(object$properties[paste0(names2[i],1)]), 3)
-      propdiffs[i,2] <- round(as.numeric(object$properties[paste0(names2[i],2)]), 3)
-      propdiffs[i,3] <- round(object[[names2[i]]][1], 3)
-      propdiffs[i,4] <- object[[names2[i]]][2]
+      propdiffs[i,1] <- round(as.numeric(object$properties[paste0(names2[i],1)]), 
+                              digits)
+      propdiffs[i,2] <- round(as.numeric(object$properties[paste0(names2[i],2)]), 
+                              digits)
+      propdiffs[i,3] <- round(object[[names2[i]]][1], digits)
+      propdiffs[i,4] <- round(object[[names2[i]]][2], digitsPval)
       propdiffs[i,5] <- codesig(object[[names2[i]]][2])
     }
 
@@ -136,9 +146,11 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                                                                        group2),
                                                         "   difference"))))
     for(i in 1:length(globProps)){
-      propdiffs[i,1] <- round(as.numeric(object$properties[paste0(names2[i],1)]), 3)
-      propdiffs[i,2] <- round(as.numeric(object$properties[paste0(names2[i],2)]), 3)
-      propdiffs[i,3] <- round(object[[i+5]][1], 3)
+      propdiffs[i,1] <- round(as.numeric(object$properties[paste0(names2[i],1)]), 
+                              digits)
+      propdiffs[i,2] <- round(as.numeric(object$properties[paste0(names2[i],2)]), 
+                              digits)
+      propdiffs[i,3] <- round(object[[i+5]][1], digits)
     }
   }
 
@@ -149,19 +161,23 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   if(showCentr[1] != "none"){
     l <- length(object$diffs$diffDeg)
 
-    topDegNames <- names(sort(abs(object$diffs$diffDeg), decreasing = TRUE))[1:min(numbTaxa, l)]
-    topBetwNames <- names(sort(abs(object$diffs$diffBetw), decreasing = TRUE))[1:min(numbTaxa, l)]
-    topCloseNames <- names(sort(abs(object$diffs$diffClose), decreasing = TRUE))[1:min(numbTaxa, l)]
-    topEigenNames <- names(sort(abs(object$diffs$diffEigen), decreasing = TRUE))[1:min(numbTaxa, l)]
+    topDegNames <- names(sort(abs(object$diffs$diffDeg), 
+                              decreasing = TRUE))[1:min(numbTaxa, l)]
+    topBetwNames <- names(sort(abs(object$diffs$diffBetw), 
+                               decreasing = TRUE))[1:min(numbTaxa, l)]
+    topCloseNames <- names(sort(abs(object$diffs$diffClose), 
+                                decreasing = TRUE))[1:min(numbTaxa, l)]
+    topEigenNames <- names(sort(abs(object$diffs$diffEigen), 
+                                decreasing = TRUE))[1:min(numbTaxa, l)]
 
     cols <- ifelse(is.null(object$pvalDiffCentr), 3, 5)
     if(cols == 3){
-      cnames <- c(group1, group2, "difference")
+      cnames <- c(group1, group2, "abs. diff.")
     } else{
       if(pAdjust){
-        cnames <- c(group1, group2, "difference", "adj. p-value", " ")
+        cnames <- c(group1, group2, "abs. diff.", "adj. p-value", " ")
       } else{
-        cnames <- c(group1, group2, "difference", "p-value", " ")
+        cnames <- c(group1, group2, "abs. diff.", "p-value", " ")
       }
 
     }
@@ -170,14 +186,16 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
     if(any(c("all", "degree") %in% showCentr)){
       topDeg <- as.data.frame(matrix(0, nrow = numbTaxa, ncol = cols,
                                      dimnames = list(topDegNames, cnames)))
-      topDeg[,1] <- round(object$properties$deg1[topDegNames], 3)
-      topDeg[,2] <- round(object$properties$deg2[topDegNames], 3)
-      topDeg[,3] <- round(abs(object$diffs$diffDeg[topDegNames]), 3)
+      topDeg[,1] <- round(object$properties$deg1[topDegNames], digits)
+      topDeg[,2] <- round(object$properties$deg2[topDegNames], digits)
+      topDeg[,3] <- round(abs(object$diffs$diffDeg[topDegNames]), digits)
       if(cols == 5){
         if(pAdjust){
-          topDeg[,4] <- object$pvalDiffCentrAdjust$pAdjustDiffDeg[topDegNames]
+          topDeg[,4] <- round(object$pvalDiffCentrAdjust$pAdjustDiffDeg[topDegNames],
+                              digitsPval)
         } else{
-          topDeg[,4] <- object$pvalDiffCentr$pvalDiffDeg[topDegNames]
+          topDeg[,4] <- round(object$pvalDiffCentr$pvalDiffDeg[topDegNames],
+                              digitsPval)
         }
         topDeg[,5] <- sapply(1:numbTaxa, function(i){ codesig(topDeg[,4][i])})
       }
@@ -190,14 +208,16 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
     if(any(c("all", "betweenness") %in% showCentr)){
       topBetw <- as.data.frame(matrix(0, nrow = numbTaxa, ncol = cols,
                                       dimnames = list(topBetwNames, cnames)))
-      topBetw[,1] <- round(object$properties$betw1[topBetwNames], 3)
-      topBetw[,2] <- round(object$properties$betw2[topBetwNames], 3)
-      topBetw[,3] <- round(abs(object$diffs$diffBetw[topBetwNames]), 3)
+      topBetw[,1] <- round(object$properties$betw1[topBetwNames], digits)
+      topBetw[,2] <- round(object$properties$betw2[topBetwNames], digits)
+      topBetw[,3] <- round(abs(object$diffs$diffBetw[topBetwNames]), digits)
       if(cols == 5){
         if(pAdjust){
-          topBetw[,4] <- object$pvalDiffCentrAdjust$pAdjustDiffBetw[topBetwNames]
+          topBetw[,4] <- round(object$pvalDiffCentrAdjust$pAdjustDiffBetw[topBetwNames],
+                               digitsPval)
         } else{
-          topBetw[,4] <- object$pvalDiffCentr$pvalDiffBetw[topBetwNames]
+          topBetw[,4] <- round(object$pvalDiffCentr$pvalDiffBetw[topBetwNames],
+                               digitsPval)
         }
         topBetw[,5] <- sapply(1:numbTaxa, function(i){ codesig(topBetw[,4][i])})
       }
@@ -209,14 +229,16 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
     if(any(c("all", "closeness") %in% showCentr)){
       topClose <- as.data.frame(matrix(0, nrow = numbTaxa, ncol = cols,
                                        dimnames = list(topCloseNames, cnames)))
-      topClose[,1] <- round(object$properties$close1[topCloseNames], 3)
-      topClose[,2] <- round(object$properties$close2[topCloseNames], 3)
-      topClose[,3] <- round(abs(object$diffs$diffClose[topCloseNames]), 3)
+      topClose[,1] <- round(object$properties$close1[topCloseNames], digits)
+      topClose[,2] <- round(object$properties$close2[topCloseNames], digits)
+      topClose[,3] <- round(abs(object$diffs$diffClose[topCloseNames]), digits)
       if(cols == 5){
         if(pAdjust){
-          topClose[,4] <- object$pvalDiffCentrAdjust$pAdjustDiffClose[topCloseNames]
+          topClose[,4] <- round(object$pvalDiffCentrAdjust$pAdjustDiffClose[topCloseNames],
+                                digitsPval)
         } else{
-          topClose[,4] <- object$pvalDiffCentr$pvalDiffClose[topCloseNames]
+          topClose[,4] <- round(object$pvalDiffCentr$pvalDiffClose[topCloseNames],
+                                digitsPval)
         }
         topClose[,5] <- sapply(1:numbTaxa, function(i){ codesig(topClose[,4][i])})
       }
@@ -228,14 +250,16 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
     if(any(c("all", "eigenvector") %in% showCentr)){
       topEigen <- as.data.frame(matrix(0, nrow = numbTaxa, ncol = cols,
                                        dimnames = list(topEigenNames, cnames)))
-      topEigen[,1] <- round(object$properties$eigen1[topEigenNames], 3)
-      topEigen[,2] <- round(object$properties$eigen2[topEigenNames], 3)
-      topEigen[,3] <- round(abs(object$diffs$diffEigen[topEigenNames]), 3)
+      topEigen[,1] <- round(object$properties$eigen1[topEigenNames], digits)
+      topEigen[,2] <- round(object$properties$eigen2[topEigenNames], digits)
+      topEigen[,3] <- round(abs(object$diffs$diffEigen[topEigenNames]), digits)
       if(cols == 5){
         if(pAdjust){
-          topEigen[,4] <- object$pvalDiffCentrAdjust$pAdjustDiffEigen[topEigenNames]
+          topEigen[,4] <- round(object$pvalDiffCentrAdjust$pAdjustDiffEigen[topEigenNames],
+                                digitsPval)
         } else{
-          topEigen[,4] <- object$pvalDiffCentr$pvalDiffEigen[topEigenNames]
+          topEigen[,4] <- round(object$pvalDiffCentr$pvalDiffEigen[topEigenNames],
+                                digitsPval)
         }
         topEigen[,5] <- sapply(1:numbTaxa, function(i){ codesig(topEigen[,4][i])})
       }
@@ -298,7 +322,7 @@ print.summary.microNetComp <- function(x, ...){
 
 
   if(!is.null(x$topProps)){
-    cat("\n\nCentrality measures (sorted by decreasing diff.):\n")
+    cat("\n\nCentrality measures (sorted by decreasing difference):\n")
     cat("````````````````````")
 
     if(!is.null(x$topProps$topDeg)){
