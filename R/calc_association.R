@@ -60,6 +60,11 @@ calc_association <- function(countMat, measure, measurePar, verbose){
     measurePar$x <- countMat
     measurePar$counts <- FALSE
     measurePar$pseudo <- 0
+    
+    measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
+    if(verbose == 3){
+      message("")
+    }
 
     assoMat <- do.call("cclasso", measurePar)$cor.w
 

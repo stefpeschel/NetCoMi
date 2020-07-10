@@ -11,7 +11,8 @@ cclasso(
   sig = NULL,
   lams = 10^(seq(0, -8, by = -0.01)),
   K = 3,
-  kmax = 5000
+  kmax = 5000,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -36,6 +37,9 @@ Defaults to 3.}
 
 \item{kmax}{numeric value (integer) specifying the maximum iteration for
 augmented lagrangian method. Default is 5000.}
+
+\item{verbose}{logical indicating whether a progress indicator is shown 
+(\code{TRUE} by default).}
 }
 \value{
 A list containing the following elements:
@@ -46,7 +50,8 @@ A list containing the following elements:
 }
 \description{
 Implementation of the CCLasso approach \cite{(Fang et al., 2015)},
-  which is published on GitHub \cite{(Fang, 2016)}.
+  which is published on GitHub \cite{(Fang, 2016)}. The function is extended
+  by a progress message.
 }
 \references{
 \insertRef{fang2015cclasso}{NetCoMi}\cr

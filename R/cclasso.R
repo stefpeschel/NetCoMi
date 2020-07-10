@@ -1,7 +1,8 @@
 #' @title CCLasso: Correlation inference of Composition data through Lasso method
 #'
 #' @description Implementation of the CCLasso approach \cite{(Fang et al., 2015)},
-#'   which is published on GitHub \cite{(Fang, 2016)}.
+#'   which is published on GitHub \cite{(Fang, 2016)}. The function is extended
+#'   by a progress message.
 #'
 #' @param x numeric matrix (\emph{n}x\emph{p}) with samples in rows and OTUs/taxa in
 #'   columns.
@@ -18,6 +19,8 @@
 #'   Defaults to 3.
 #' @param kmax numeric value (integer) specifying the maximum iteration for
 #'   augmented lagrangian method. Default is 5000.
+#' @param verbose logical indicating whether a progress indicator is shown 
+#' (\code{TRUE} by default).
 #'
 #' @return A list containing the following elements:
 #' \tabular{ll}{
@@ -36,7 +39,8 @@
 
 cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
                     lams = 10^(seq(0, -8, by = -0.01)),
-                    K = 3, kmax = 5000) {
+                    K = 3, kmax = 5000, verbose = TRUE) {
+  
   # data dimension
   p <- ncol(x);
   n <- nrow(x);
@@ -74,6 +78,16 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   #-------------------------------------------------------------------------------
   n_lam <- length(lams);
   tol.zero <- 1e-8;
+  
+  if(verbose){
+    # Funtion for progress messages
+    progress <- function(i){
+      progr <- round(i/n_lam*100)
+      message(progr,"%\r",appendLF=FALSE)
+    }
+    
+    message("0%\r",appendLF=FALSE)
+  } 
   #-------------------------------------------------------------------------------
   # cross validation
   if(n_lam == 1) {
@@ -86,6 +100,9 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
     n.b <- floor(n / K);
     # loss <- rep(0, n_lam);
     for(i in 1:n_lam) {
+
+      if(verbose) progress(i)
+
       loss.cur <- 0;
       for(k in 1:K) {
         # testing data and training data
@@ -186,5 +203,5 @@ cclasso.sub <- function(vx, wd, lam, u.f, u0.wd, d0.wd, sig = NULL,
   #
   return(list(sig = sig, k = k));
 }
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+
+
