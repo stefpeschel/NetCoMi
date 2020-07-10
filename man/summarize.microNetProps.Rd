@@ -10,7 +10,7 @@
   groupNames = NULL,
   showCentr = "all",
   numbNodes = NULL,
-  digits = 5,
+  digits = 5L,
   ...
 )
 
@@ -38,7 +38,7 @@ highest values of the first group, and the lower part the highest values of
 the second group.}
 
 \item{digits}{integer giving the number of decimal places to which the 
-results are rounded. Defaults to 5.}
+results are rounded. Defaults to 5L.}
 
 \item{...}{not used}
 

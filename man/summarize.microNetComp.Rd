@@ -11,6 +11,8 @@
   pAdjust = TRUE,
   showCentr = "all",
   numbTaxa = 10L,
+  digits = 3L,
+  digitsPval = 6L,
   ...
 )
 
@@ -36,6 +38,12 @@ permutation tests) shall be printed. Possible values are "all", "degree",
 values shall be printed. Defaults to 10 which means that the first 10 taxa
 with highest absolute group difference of the specific centrality
 measure are shown.}
+
+\item{digits}{integer giving the number of decimal places to which the 
+results are rounded. Defaults to 3L.}
+
+\item{digitsPval}{integer giving the number of decimal places to which the 
+p-values are rounded. Defaults to 6L.}
 
 \item{...}{not used}
 
