@@ -79,15 +79,6 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   n_lam <- length(lams);
   tol.zero <- 1e-8;
   
-  if(verbose){
-    # Funtion for progress messages
-    progress <- function(i){
-      progr <- round(i/n_lam*100)
-      message(progr,"%\r",appendLF=FALSE)
-    }
-    
-    message("0%\r",appendLF=FALSE)
-  } 
   #-------------------------------------------------------------------------------
   # cross validation
   if(n_lam == 1) {
@@ -100,8 +91,6 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
     n.b <- floor(n / K);
     # loss <- rep(0, n_lam);
     for(i in 1:n_lam) {
-
-      if(verbose) progress(i)
 
       loss.cur <- 0;
       for(k in 1:K) {
@@ -124,6 +113,14 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
         # loss[i] <- loss[i] + base::norm(half.loss, "F")^2;
         loss.cur <- loss.cur + base::norm(half.loss, "F")^2;
       }
+      
+      if(verbose){
+        message("current loss diff.: ", sprintf("%.6f", round(loss.cur - loss.old, 6)), 
+                " (breaks if >= ", 
+                round(tol.loss * max(loss.cur, loss.old, 1), 6), 
+                ")\r", appendLF=FALSE)
+      }
+
       if(loss.cur - loss.old >= tol.loss * max(loss.cur, loss.old, 1)) {
         k.loss <- i - 1;
         break;
@@ -139,6 +136,8 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
       cat("Warning:", "Tuning (", lamA ,") on boundary!\n");
     }
   }
+  
+  if(verbose) message("")
   #-------------------------------------------------------------------------------
   res <- cclasso.sub(vx = vx, wd = wd, lam = lamA,
                      u.f = u.f, u0.wd = u0.wd, d0.wd = d0.wd,
