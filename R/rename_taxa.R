@@ -85,6 +85,13 @@ rename_taxa <- function(x, toRename = c("both", "cols", "rows"),
 
     labels[labels == ""] <- "-"
     labels <- substr(labels, 1, labelLength)
+    
+  } else if(!is.null(charToRm)){
+
+    for(char in charToRm){
+      labels <- gsub(char, "", labels)
+    }
+
   }
 
   if(toRename == "both"){

@@ -17,6 +17,7 @@
 #'   charToRm = NULL,
 #'   labelScale = TRUE,
 #'   labelFont = 1,
+#'   labelFile = NULL,
 #'
 #'   # Nodes:
 #'   nodeFilter = "none",
@@ -125,6 +126,9 @@
 #' @param labelScale logical. If \code{TRUE}, node labels are scaled accoring to
 #'   node size
 #' @param labelFont integer defining the font of node labels. Defaults to 1.
+#' @param labelFile optional character of the form "<file name>.txt" naming a 
+#'   file where the original and renamed node labels are stored. The file is 
+#'   stored into the current working directory.
 #' @param nodeFilter character indicating whether and how nodes should be
 #'   filtered. Possible values are:
 #'   \describe{
@@ -324,6 +328,7 @@
 #' @importFrom grDevices rainbow
 #' @importFrom stats quantile
 #' @importFrom WGCNA labels2colors
+#' @importFrom utils write.table
 #' @method plot microNetProps
 #' @export
 plot.microNetProps <- function(x,
@@ -340,6 +345,7 @@ plot.microNetProps <- function(x,
                                charToRm = NULL,
                                labelScale = TRUE,
                                labelFont = 1,
+                               labelFile = NULL,
                                #nodes
                                nodeFilter = "none",
                                nodeFilterPar = NULL,
@@ -669,25 +675,29 @@ plot.microNetProps <- function(x,
   # define size of vertices
 
   if(!is.numeric(nodeSize)){
-    nodeSize1 <- get_node_size(nodeSize = nodeSize, nodeSizeSpread = nodeSizeSpread,
-                          adja = adja1, countMat = x$input$countMat1,
-                          normCounts = x$input$normCounts1, kept = kept1,
-                          cexNodes = cexNodes, cexHubs = cexHubs,
-                          hubs = x$hubs$hubs1, highlightHubs = highlightHubs,
-                          degree = x$centralities$degree1,
-                          between = x$centralities$between1,
-                          close = x$centralities$close1,
-                          eigen = x$centralities$eigenv1)
+    nodeSize1 <- get_node_size(nodeSize = nodeSize, 
+                               nodeSizeSpread = nodeSizeSpread,
+                               adja = adja1, countMat = x$input$countMat1,
+                               normCounts = x$input$normCounts1, kept = kept1,
+                               cexNodes = cexNodes, cexHubs = cexHubs,
+                               hubs = x$hubs$hubs1, 
+                               highlightHubs = highlightHubs,
+                               degree = x$centralities$degree1,
+                               between = x$centralities$between1,
+                               close = x$centralities$close1,
+                               eigen = x$centralities$eigenv1)
     if(twoNets){
-      nodeSize2 <- get_node_size(nodeSize = nodeSize, nodeSizeSpread = nodeSizeSpread,
-                            adja = adja2, countMat = x$input$countMat2,
-                            normCounts = x$input$normCounts2, kept = kept2,
-                            cexNodes = cexNodes, cexHubs = cexHubs,
-                            hubs = x$hubs$hubs2, highlightHubs = highlightHubs,
-                            degree = x$centralities$degree2,
-                            between = x$centralities$between2,
-                            close = x$centralities$close2,
-                            eigen = x$centralities$eigenv2)
+      nodeSize2 <- get_node_size(nodeSize = nodeSize, 
+                                 nodeSizeSpread = nodeSizeSpread,
+                                 adja = adja2, countMat = x$input$countMat2,
+                                 normCounts = x$input$normCounts2, kept = kept2,
+                                 cexNodes = cexNodes, cexHubs = cexHubs,
+                                 hubs = x$hubs$hubs2, 
+                                 highlightHubs = highlightHubs,
+                                 degree = x$centralities$degree2,
+                                 between = x$centralities$between2,
+                                 close = x$centralities$close2,
+                                 eigen = x$centralities$eigenv2)
     }
   }
 
@@ -870,7 +880,8 @@ plot.microNetProps <- function(x,
   }
 
   ###############################
-  colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), dimnames = dimnames(assoMat1))
+  colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
+                    dimnames = dimnames(assoMat1))
 
 
   if(colorNegAsso){
@@ -914,24 +925,26 @@ plot.microNetProps <- function(x,
   #--------------------------------------------
   # define labels
 
-
+  labels1.orig <- rownames(adja1)
+  
   if(is.null(labels)){
 
     adja.tmp <- rename_taxa(adja1, toRename = "both", shortenLabels = shortenLabels,
                         labelLength = labelLength, labelPattern = labelPattern,
                         charToRm = charToRm)
     labels1 <- rownames(adja.tmp)
-
+    
   } else if(is.logical(labels)){
     labels1 <- labels
   } else if(is.list(labels)){
-    labels1 <- labels[[1]]
+    labels1 <- labels[[1]][1:ncol(adja1)]
   } else if(is.vector(labels)){
-    labels1 <- labels
+    labels1 <- labels[1:ncol(adja1)]
   } else{
     stop("Argument 'labels' must be either a vector with a label for each node,
          or a list of length 2 naming the nodes in each network.")
   }
+  
 
   #--------------------------------------------
   # filter edges (without influencing the layout)
@@ -997,18 +1010,62 @@ plot.microNetProps <- function(x,
 
     #--------------------------------------------
     # rename taxa
+    labels2.orig <- rownames(adja2)
+    
     if(is.null(labels)){
-      adja.tmp <- rename_taxa(adja2, toRename = "both", shortenLabels = shortenLabels,
-                              labelLength = labelLength, labelPattern = labelPattern,
+      adja.tmp <- rename_taxa(adja2, toRename = "both", 
+                              shortenLabels = shortenLabels,
+                              labelLength = labelLength, 
+                              labelPattern = labelPattern,
                               charToRm = charToRm)
       labels2 <- rownames(adja.tmp)
 
     } else if(is.logical(labels)){
       labels2 <- labels
     } else if(is.list(labels)){
-      labels2 <- labels[[2]]
+      labels2 <- labels[[2]][1:ncol(adja2)]
     } else if(is.vector(labels)){
-      labels2 <- labels
+      labels2 <- labels[1:ncol(adja2)]
+    }
+
+    # store label names to file
+    if(!is.null(labelFile) && !is.logical(labels)){
+      stopifnot(is.character(labelFile))
+      
+      labelMat <- cbind(labels1, labels1.orig)
+      labelMat <- rbind(c("Renamed", "Original"), labelMat)
+      labelMat <- rbind(c(" ", " "), labelMat)
+      labelMat <- rbind(c("Network 1:", " "), labelMat)
+      
+      dframe <- data.frame(labelMat, stringsAsFactors=FALSE)
+      
+      # apply format over each column for alignment
+      if(shortenLabels != "none"){
+        formWidth <- max(suppressWarnings(sum(as.numeric(labelPattern), 
+                                              na.rm = TRUE)),
+                         labelLength) + 4
+      } else{
+        formWidth <- 12
+      }
+      
+      dframe <- apply(dframe, 2, format, width = formWidth)
+      
+      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                  col.names = FALSE, append = FALSE)
+      
+      labelMat <- cbind(labels2, labels2.orig)
+      labelMat <- rbind(c("Renamed", "Original"), labelMat)
+      labelMat <- rbind(c(" ", " "), labelMat)
+      labelMat <- rbind(c("Network 2:", " "), labelMat)
+      labelMat <- rbind(c(" ", " "), labelMat)
+      
+      dframe <- data.frame(labelMat, stringsAsFactors=FALSE)
+      
+      # apply format over each column for alignment
+      dframe <- apply(dframe, 2, format, width = formWidth)
+      
+      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                  col.names = FALSE, append = TRUE)
     }
 
     #--------------------------------------------
@@ -1019,6 +1076,31 @@ plot.microNetProps <- function(x,
                            edgeFilterPar = edgeInvisPar)
     }
 
+  } else{ #single network
+
+    # store label names to file
+    if(!is.null(labelFile) && !is.logical(labels)){
+      stopifnot(is.character(labelFile))
+      
+      labelMat <- cbind(labels1, labels1.orig)
+      labelMat <- rbind(c("Renamed", "Original"), labelMat)
+
+      dframe <- data.frame(labelMat, stringsAsFactors=FALSE)
+      
+      # apply format over each column for alignment
+      if(shortenLabels != "none"){
+        formWidth <- max(suppressWarnings(sum(as.numeric(labelPattern), 
+                                              na.rm = TRUE)),
+                         labelLength) + 4
+      } else{
+        formWidth <- 12
+      }
+      dframe <- apply(dframe, 2, format, width = formWidth)
+      
+      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                  col.names = FALSE, append = FALSE)
+    }
+    
   }
 
 
