@@ -215,7 +215,7 @@ plot(amgut_props, sameLayout = TRUE)
 # without permutation tests:
 amgut_comp1 <- netCompare(amgut_props, permTest = FALSE)
 summary(amgut_comp1)
-summary(amgut_comp1, showCentr = "degree", numbTaxa = 20)
+summary(amgut_comp1, showCentr = "degree", numbNodes = 20)
 
 \donttest{
 # with permutation tests (with only 100 permutations to decrease runtime):
