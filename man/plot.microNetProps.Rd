@@ -19,6 +19,7 @@
   charToRm = NULL,
   labelScale = TRUE,
   labelFont = 1,
+  labelFile = NULL,
 
   # Nodes:
   nodeFilter = "none",
@@ -141,6 +142,10 @@ labels are given via \code{labels}.}
 node size}
 
 \item{labelFont}{integer defining the font of node labels. Defaults to 1.}
+
+\item{labelFile}{optional character of the form "<file name>.txt" naming a 
+file where the original and renamed node labels are stored. The file is 
+stored into the current working directory.}
 
 \item{nodeFilter}{character indicating whether and how nodes should be
 filtered. Possible values are:
