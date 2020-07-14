@@ -173,7 +173,7 @@
 #' # without permutation tests:
 #' amgut_comp1 <- netCompare(amgut_props, permTest = FALSE)
 #' summary(amgut_comp1)
-#' summary(amgut_comp1, showCentr = "degree", numbTaxa = 20)
+#' summary(amgut_comp1, showCentr = "degree", numbNodes = 20)
 #'
 #' \donttest{
 #' # with permutation tests (with only 100 permutations to decrease runtime):
@@ -199,6 +199,7 @@
 #' @importFrom snow makeCluster stopCluster
 #' @importFrom stats sd
 #' @importFrom WGCNA randIndex
+#' @importFrom utils txtProgressBar setTxtProgressBar
 #' @export
 
 netCompare <- function(x,
@@ -348,11 +349,12 @@ netCompare <- function(x,
     }
 
     if(verbose){
-      progress <- function(p){
-        progr <- round(p/nPerm*100)
-        message(progr,"%\r",appendLF=FALSE)
+      pb<-txtProgressBar(0, nPerm, style=3)
+      
+      progress<-function(n){
+        setTxtProgressBar(pb,n)
       }
-      message("0%\r",appendLF=FALSE)
+      
       opts <- list(progress=progress)
     } else{
       opts <- list()
@@ -570,7 +572,7 @@ netCompare <- function(x,
                          }
 
     if(verbose){
-      message("\nDone.")
+      close(pb)
       message("Stopping socket cluster ... ", appendLF = FALSE)
     }
 

@@ -8,7 +8,7 @@ Description: NetCoMi offers functions for constructing, analyzing, and comparing
     microbial association networks as well as dissimilarity-based networks for 
     microbial compositional data. It also includes a function for constructing 
     differential association networks.
-License: GPL-3
+License: GPL-3 + file LICENSE
 Depends: SpiecEasi (>= 1.0.6)
 Imports: 
     Rdpack,
@@ -42,7 +42,8 @@ Imports:
     phyloseq,
     Matrix,
     graphics,
-    grDevices
+    grDevices,
+    utils
 Remotes: 
     bioc::Biobase,
     bioc::DESeq2, 

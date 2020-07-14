@@ -114,14 +114,16 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
         loss.cur <- loss.cur + base::norm(half.loss, "F")^2;
       }
       
+      thresh <- tol.loss * max(loss.cur, loss.old, 1)
       if(verbose){
-        message("current loss diff.: ", sprintf("%.6f", round(loss.cur - loss.old, 6)), 
-                " (breaks if >= ", 
-                round(tol.loss * max(loss.cur, loss.old, 1), 6), 
+        
+        message("current loss diff.: ", 
+                sprintf("%.6f", round(loss.cur - loss.old, 6)), 
+                " (breaks if >= ", sprintf("%.6f", round(thresh, 6)),
                 ")\r", appendLF=FALSE)
       }
 
-      if(loss.cur - loss.old >= tol.loss * max(loss.cur, loss.old, 1)) {
+      if(loss.cur - loss.old >= thresh) {
         k.loss <- i - 1;
         break;
       }

@@ -62,31 +62,33 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   lambda <- exp(seq(log(lambda.max), log(lambda.min), length = nlambda))
 
   # Compute solution paths for gcoda
-  
   icov <- diag(p)
   if(cores > 1){
-    cl <- makeCluster(cores)
+    cl <- snow::makeCluster(cores)
+    #snow::clusterExport(cl, c("S", "icov", "lambda"), envir = environment())
     registerDoSNOW(cl)
     '%do_or_dopar%' <- get('%dopar%')
+    if(verbose) message("Start parallel foreach loop ...")
   } else{
     '%do_or_dopar%' <- get('%do%')
   }
   
   if(verbose){
-    progress <- function(i){
-      progr <- round(i/nlambda*100)
-      message(progr,"%\r",appendLF=FALSE)
+    pb<-txtProgressBar(0,nlambda,style=3)
+    progress<-function(n){
+      setTxtProgressBar(pb,n)
     }
-    message("0%\r",appendLF=FALSE)
+
     opts <- list(progress=progress)
   } else{
     opts <- list()
   }
-  
+
   fit.tmp <- foreach(i = 1:nlambda, .export = c("gcoda_sub", "obj_gcoda"), 
-                    .options.snow = opts) %do_or_dopar% {
+                     .noexport = "x", .options.snow = opts) %do_or_dopar% {
                       
                       if(verbose) progress(i)
+                      
                       
                       outlist <- list()
 
@@ -100,9 +102,20 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
                       outlist[["df"]] <- sum(outlist[["path"]]) / 2
                       
                       outlist
+                     }
+  
+  if(verbose) close(pb)
+
+  if(verbose & cores > 1){
+    message("Stopping socket cluster ... ", appendLF = FALSE)
   }
   
-  if(cores > 1) stopCluster(cl)
+  if(cores > 1) snow::stopCluster(cl)
+  
+  if(verbose & cores > 1){
+    message("Done.")
+  }
+  
   
   # Store fit result for gcoda via a series of lambda
   fit <- list()
