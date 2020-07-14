@@ -185,7 +185,73 @@ Clusters are identified using greedy modularity optimization (by
 
 ``` r
 props_single <- netAnalyze(net_single, clustMethod = "cluster_fast_greedy")
+
+summary(props_single, numbNodes = 5L)
 ```
+
+    ## 
+    ## Global network properties:
+    ## ``````````````````````````
+    ##                              
+    ## average path length   2.21645
+    ## clustering coeff.     0.31939
+    ## modularity            0.80313
+    ## edge density          0.01425
+    ## vertex connectivity   0.00000
+    ## edge connectivity     0.00000
+    ## 
+    ## 
+    ## Clusters:
+    ## `````````
+    ##                                              
+    ## name:  0  1  2 3  4  5 6 7 8 9 10 11 12 13 14
+    ## freq: 34 15 12 9 15 12 8 6 3 2  2  2  2  3  2
+    ## 
+    ## 
+    ## Hubs (in alphabetical/numerical order):
+    ## `````         
+    ##  "165261"
+    ##  "288710"
+    ##  "292134"
+    ##  "301645"
+    ##  "302025"
+    ##  "305760"
+    ##  "469991"
+    ## 
+    ## 
+    ## Centrality measures (in decreasing order):
+    ## ```````````````````
+    ## Degree:
+    ##               
+    ## 246752 0.04762
+    ## 288710 0.04762
+    ## 301645 0.04762
+    ## 329096 0.04762
+    ## 292134 0.04762
+    ## 
+    ## Betweenness centrality:
+    ##               
+    ## 329096 0.02463
+    ## 288710 0.02425
+    ## 305760 0.01867
+    ## 364563 0.01829
+    ## 469991 0.01333
+    ## 
+    ## Closeness centrality:
+    ##               
+    ## 288710 0.23454
+    ## 329096 0.23366
+    ## 292134 0.23226
+    ## 301645 0.22453
+    ## 305760 0.22084
+    ## 
+    ## Eigenvector centrality:
+    ##               
+    ## 288710 1.00000
+    ## 292134 0.98895
+    ## 165261 0.86250
+    ## 301645 0.85609
+    ## 469991 0.81980
 
 **Visualize the network**
 
@@ -314,7 +380,8 @@ props_season <- netAnalyze(net_season, clustMethod = "cluster_fast_greedy")
 
 plot(props_season, sameLayout = TRUE, layoutGroup = 1,
      nodeSize = "eigenvector", cexNodes = 1.5, cexLabels = 1.8,
-     groupNames = c("Seasonal allergies", "No seasonal allergies"))
+     groupNames = c("Seasonal allergies", "No seasonal allergies"),
+     hubBorderCol  = "gray40")
 ```
 
 ![](readme_files/figure-markdown_github/example8-1.png)
@@ -326,7 +393,8 @@ networks are removed).
 ``` r
 plot(props_season, rmSingles = "inboth", sameLayout = TRUE, layoutGroup = 1,
      nodeSize = "eigenvector", cexNodes = 1.5, cexLabels = 1.8,
-     groupNames = c("Seasonal allergies", "No seasonal allergies"))
+     groupNames = c("Seasonal allergies", "No seasonal allergies"),
+     hubBorderCol  = "gray40")
 ```
 
 ![](readme_files/figure-markdown_github/example8_2-1.png)
@@ -357,11 +425,11 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## Jaccard index (similarity betw. sets of most central nodes):
     ## `````````````
     ##                     Jacc   P(<=Jacc)     P(>=Jacc)   
-    ## degree             0.300   0.5592643     0.7008586   
-    ## betweenness centr. 0.538   0.9653452     0.1035392   
-    ## closeness centr.   0.467   0.9117684     0.2030389   
-    ## eigenvec. centr.   0.222   0.2310724     0.8983349   
-    ## hub taxa           0.000   0.0877915 .   1.0000000   
+    ## degree             0.300    0.559264      0.700859   
+    ## betweenness centr. 0.538    0.965345      0.103539   
+    ## closeness centr.   0.467    0.911768      0.203039   
+    ## eigenvec. centr.   0.222    0.231072      0.898335   
+    ## hub taxa           0.000    0.087791 .    1.000000   
     ## -----
     ## Jaccard index ranges from 0 (compl. different) to 1 (sets equal)
     ## 
@@ -387,23 +455,33 @@ summary(comp_season, showCentr = c("degree", "eigen"), numbTaxa = 5)
     ## p-value: two-tailed test with null hypothesis ARI=0
     ## 
     ## 
-    ## Centrality measures (sorted by decreasing diff.):
+    ## Centrality measures (sorted by decreasing difference):
     ## ````````````````````
     ## Degree:
-    ##        group '1' group '2' difference
+    ##        group '1' group '2' abs. diff.
     ## 188236     0.048     0.167      0.119
     ## 326977     0.000     0.071      0.071
     ## 259569     0.095     0.024      0.071
     ## 469709     0.000     0.048      0.048
     ## 158660     0.024     0.071      0.048
+    ## 10116      0.024     0.071      0.048
+    ## 184983     0.071     0.119      0.048
+    ## 363302     0.048     0.095      0.048
+    ## 364563     0.119     0.071      0.048
+    ## 470239     0.048     0.000      0.048
     ## 
     ## Eigenvector centrality:
-    ##        group '1' group '2' difference
+    ##        group '1' group '2' abs. diff.
     ## 322235     0.058     0.704      0.646
     ## 188236     0.359     1.000      0.641
     ## 184983     0.227     0.819      0.592
     ## 364563     0.756     0.178      0.578
     ## 326977     0.000     0.470      0.470
+    ## 158660     0.020     0.486      0.466
+    ## 363302     0.090     0.511      0.421
+    ## 301645     0.729     0.339      0.390
+    ## 9715       1.000     0.700      0.300
+    ## 469709     0.000     0.300      0.300
     ## 
     ## --------------------------------------------------------
     ## Significance codes: ***: 0.001, **: 0.01, *: 0.05, .: 0.1
@@ -440,11 +518,7 @@ diff_season2 <- diffnet(net_season2, diffMethod = "fisherTest", adjust = "lfdr")
     ## Done.
 
 ``` r
-<<<<<<< Updated upstream
 plot(diff_season2, cexNodes = 0.8, cexLegend = 0.8, mar = c(7,7,7,10))
-=======
-plot(diff_season2, mar = c(2,1,7,7))
->>>>>>> Stashed changes
 ```
 
 ![](readme_files/figure-markdown_github/example11-1.png)
@@ -526,8 +600,8 @@ nclust <- as.numeric(max(names(table(netprops1$clustering$clust1))))
 col <- topo.colors(nclust)
 
 plot(netprops1, sameLayout = TRUE, layoutGroup = 1, colorVec = col,
-     borderCol = "gray40", nodeSize = "degree", cexNodes = 35, 
-     nodeSizeSpread = 0.1, edgeTranspLow = 80, edgeTranspHigh = 50,
+     borderCol = "gray40", nodeSize = "degree", cexNodes = 0.9, 
+     nodeSizeSpread = 3, edgeTranspLow = 80, edgeTranspHigh = 50,
      groupNames = c("Warming", "Non-warming"), showTitle = TRUE, cexTitle = 1.5,
      mar = c(1,1,3,1), repulsion = 0.9, labels = FALSE, rmSingles = "inboth",
      nodeFilter = "clustMin", nodeFilterPar = 10, 

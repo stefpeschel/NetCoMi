@@ -224,7 +224,8 @@
 #' @param cores integer indicating the number of CPU cores used for
 #'   bootstrapping. If cores > 1, bootstrapping is performed parallel.
 #'   \code{cores} is limited to the number of available CPU cores determined by
-#'   \code{\link[parallel]{detectCores}}.
+#'   \code{\link[parallel]{detectCores}}. Then, core arguments of the function 
+#'   used for association estimation (if provided) should be set to 1.
 #' @param logFile if bootstrapping is used as sparsification method, a log file
 #'   containing the iteration numbers is stored into the current working
 #'   directory. Defaults to \code{"log.txt"}. If\code{ NULL}, no log file is
@@ -411,7 +412,8 @@ netConstruct <- function(data,
     dataType <- "counts"
   }
 
-  if (dataType == "counts") {
+  if (dataType =="counts") {
+    
     measure <- match.arg(measure,
                          choices = c("pearson", "spearman", "bicor",
                                      "sparcc", "cclasso", "ccrepe",
@@ -419,9 +421,6 @@ netConstruct <- function(data,
                                      "spieceasi", "spring", "gcoda",
                                      "euclidean", "bray", "kld", "ckld",
                                      "jeffrey", "jsd", "aitchison"))
-  }
-
-  if (dataType =="counts") {
 
     if(class(data) == "phyloseq"){
       data_phy <- data
@@ -453,6 +452,7 @@ netConstruct <- function(data,
       }
 
   } else{
+    measure <- "none"
     assoType <- dataType
   }
 
@@ -532,6 +532,9 @@ netConstruct <- function(data,
   } else{
     parallel <- FALSE
   }
+  
+  
+  if(!is.null(seed)) set.seed(seed)
 
  #==============================================================================
 
@@ -906,12 +909,19 @@ netConstruct <- function(data,
     assoMat2 <- data2
     count1 <- NULL
     count2 <- NULL
+    count1_norm <- NULL
+    count2_norm <- NULL
     groups <- NULL
   }
 
   if(distNet){
 
     dissEst1 <- assoMat1
+    
+    if(any(is.infinite(dissEst1)) & scaleDiss){
+      scaleDiss <- FALSE
+      warning("Dissimilarity matrix contains infinite values and cannot be scaled to [0,1].")
+    }
 
     if(scaleDiss){
       assoUpper <- assoMat1[upper.tri(assoMat1)]

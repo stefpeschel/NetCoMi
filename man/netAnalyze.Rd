@@ -39,9 +39,11 @@ If hierarchical clustering is used, the parameters are passed to
 network. If \code{NULL} and \code{net} contains two networks,
 \code{clustPar} is used for the second network as well.}
 
-\item{hubPar}{character vector with one or more centrality measures used
-for identifying hub nodes. Possible values are \code{degree},
-\code{betweenness}, \code{closeness}, and \code{eigenvector}. See details.}
+\item{hubPar}{character vector with one or more elements (centrality 
+measures) used for identifying hub nodes. Possible values are \code{degree},
+\code{betweenness}, \code{closeness}, and \code{eigenvector}. If multiple
+measures are given, hubs are nodes with highest centrality for all selected
+measures. See details.}
 
 \item{hubQuant}{quantile used for determining hub nodes. Defaults to 0.95.}
 
@@ -112,6 +114,10 @@ amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
 amgut_props2 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = c("degree", "betweenness", "closeness"))
+
+summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
+summary(amgut_props2)
+
 # network plot:
 plot(amgut_props1)
 plot(amgut_props2)

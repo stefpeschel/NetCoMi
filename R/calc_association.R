@@ -60,6 +60,11 @@ calc_association <- function(countMat, measure, measurePar, verbose){
     measurePar$x <- countMat
     measurePar$counts <- FALSE
     measurePar$pseudo <- 0
+    
+    measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
+    if(verbose == 3){
+      message("")
+    }
 
     assoMat <- do.call("cclasso", measurePar)$cor.w
 
@@ -110,10 +115,10 @@ calc_association <- function(countMat, measure, measurePar, verbose){
 
     if(is.null(measurePar$lambdaseq)) measurePar$lambdaseq <- "data-specific"
     if(is.null(measurePar$ncores)) measurePar$ncores <- 1
-    measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
-    if(verbose == 3){
+    #measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
+    #if(verbose == 3){
       message("")
-    }
+    #}
 
     springres <- do.call("SPRING", measurePar)
 
@@ -130,6 +135,11 @@ calc_association <- function(countMat, measure, measurePar, verbose){
     measurePar$x <- countMat
     measurePar$counts <- FALSE
     measurePar$pseudo <- 0
+    
+    measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
+    if(verbose == 3){
+      message("")
+    }
 
     gcodares <- do.call("gcoda", measurePar)
     assoMat <- gcodares$opt.icov

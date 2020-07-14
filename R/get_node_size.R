@@ -1,6 +1,10 @@
 get_node_size <- function(nodeSize, nodeSizeSpread, adja, countMat, normCounts,
                         kept, cexNodes, cexHubs, hubs, highlightHubs,
                         degree, between,  close, eigen){
+  
+  getsize <- function(x, nodeSizeSpread, cexNodes){
+    (x - min(x)) / (max(x) - min(x)) * nodeSizeSpread + cexNodes
+  }
 
   if(nodeSize == "fix"){
     nodeSize <- (7*exp(-ncol(adja)/80)+1) * cexNodes
@@ -17,20 +21,20 @@ get_node_size <- function(nodeSize, nodeSizeSpread, adja, countMat, normCounts,
 
   } else if(nodeSize == "degree"){
     degree <- abs(degree[kept])
-    nodeSize <- degree/max(degree) * nodeSizeSpread * cexNodes + 1
+    nodeSize <- getsize(degree, nodeSizeSpread, cexNodes)
 
   } else if(nodeSize == "betweenness"){
     between <- abs(between[kept])
-    nodeSize <- between/max(between) * nodeSizeSpread * cexNodes + 1
+    nodeSize <- getsize(between, nodeSizeSpread, cexNodes)
 
   } else if(nodeSize == "closeness"){
     close <- abs(close[kept])
-    nodeSize <- close/max(close) * nodeSizeSpread * cexNodes + 1
+    nodeSize <- getsize(close, nodeSizeSpread, cexNodes)
 
   } else if(nodeSize == "eigenvector"){
 
     eigen <- abs(eigen[kept])
-    nodeSize <- eigen/max(eigen) * nodeSizeSpread * cexNodes + 1
+    nodeSize <- getsize(eigen, nodeSizeSpread, cexNodes)
 
   } else if(nodeSize %in% c("counts")){
     if(ncol(adja) == ncol(countMat)){

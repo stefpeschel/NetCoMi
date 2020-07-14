@@ -45,10 +45,9 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
 
     if(verbose %in% 2:3){
       message("")
-      progress <- function(b){
-        progr <- round(b/nboot*100)
-        #if((progr %% 5) == 0)
-        message(progr,"%\r",appendLF=FALSE)
+      pb<-txtProgressBar(0, nboot, style=3)
+      progress<-function(n){
+        setTxtProgressBar(pb,n)
       }
       opts <- list(progress=progress)
     } else{
@@ -63,10 +62,14 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                        .export = c("calc_association", "sparcc_cpp", "cclasso",
                                    "cclasso.sub", "gcoda"),
                        .options.snow = opts) %dopar% {
+                         
                          if(!is.null(seed)) set.seed(seeds[b])
+                         
+                         if(verbose %in% 2:3) progress(b)
 
                          if(!is.null(logFile)){
-                           cat(paste("Iteration", b,"\n"), file=logFile, append=TRUE)
+                           cat(paste("Iteration", b,"\n"), file=logFile, 
+                               append=TRUE)
                          }
 
                          count.tmp <- sapply(1:ncol(countMat), function(i){
@@ -76,12 +79,15 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                          })
                          colnames(count.tmp) <- colnames(countMat)
 
-                         assoMat.tmp <- calc_association(count.tmp, measure = measure,
+                         assoMat.tmp <- calc_association(count.tmp, 
+                                                         measure = measure,
                                                          measurePar = measurePar)
 
                          assoMat.tmp
                        }
 
+    if(verbose %in% 2:3) close(pb)
+    
     stopCluster(cl)
     registerDoSEQ()
 
@@ -93,13 +99,18 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
 
     if(verbose %in% 2:3){
       message("")
+      pb<-txtProgressBar(0, nboot, style=3)
+      progress<-function(n){
+        setTxtProgressBar(pb,n)
+      }
     }
 
     for(b in 1:nboot){
 
       if(verbose %in% 2:3){
-        progr <- round(b/nboot*100)
-        message(progr,"%\r",appendLF=FALSE)
+        #progr <- round(b/nboot*100)
+        #message(progr,"%\r",appendLF=FALSE)
+        progress(b)
       }
 
       count.tmp <- sapply(1:ncol(countMat), function(i){
@@ -115,6 +126,9 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       reslist[[b]] <- assoMat.tmp
     }
   }
+  
+  if(verbose %in% 2:3) close(pb)
+  
   assoMat.orig <- assoMat
 
   # create matrices with logicals if bootstrap associations are at least as

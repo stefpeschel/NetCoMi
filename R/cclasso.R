@@ -1,7 +1,8 @@
 #' @title CCLasso: Correlation inference of Composition data through Lasso method
 #'
 #' @description Implementation of the CCLasso approach \cite{(Fang et al., 2015)},
-#'   which is published on GitHub \cite{(Fang, 2016)}.
+#'   which is published on GitHub \cite{(Fang, 2016)}. The function is extended
+#'   by a progress message.
 #'
 #' @param x numeric matrix (\emph{n}x\emph{p}) with samples in rows and OTUs/taxa in
 #'   columns.
@@ -18,6 +19,8 @@
 #'   Defaults to 3.
 #' @param kmax numeric value (integer) specifying the maximum iteration for
 #'   augmented lagrangian method. Default is 5000.
+#' @param verbose logical indicating whether a progress indicator is shown 
+#' (\code{TRUE} by default).
 #'
 #' @return A list containing the following elements:
 #' \tabular{ll}{
@@ -36,7 +39,8 @@
 
 cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
                     lams = 10^(seq(0, -8, by = -0.01)),
-                    K = 3, kmax = 5000) {
+                    K = 3, kmax = 5000, verbose = TRUE) {
+  
   # data dimension
   p <- ncol(x);
   n <- nrow(x);
@@ -74,6 +78,7 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   #-------------------------------------------------------------------------------
   n_lam <- length(lams);
   tol.zero <- 1e-8;
+  
   #-------------------------------------------------------------------------------
   # cross validation
   if(n_lam == 1) {
@@ -86,6 +91,7 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
     n.b <- floor(n / K);
     # loss <- rep(0, n_lam);
     for(i in 1:n_lam) {
+
       loss.cur <- 0;
       for(k in 1:K) {
         # testing data and training data
@@ -107,7 +113,17 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
         # loss[i] <- loss[i] + base::norm(half.loss, "F")^2;
         loss.cur <- loss.cur + base::norm(half.loss, "F")^2;
       }
-      if(loss.cur - loss.old >= tol.loss * max(loss.cur, loss.old, 1)) {
+      
+      thresh <- tol.loss * max(loss.cur, loss.old, 1)
+      if(verbose){
+        
+        message("current loss diff.: ", 
+                sprintf("%.6f", round(loss.cur - loss.old, 6)), 
+                " (breaks if >= ", sprintf("%.6f", round(thresh, 6)),
+                ")\r", appendLF=FALSE)
+      }
+
+      if(loss.cur - loss.old >= thresh) {
         k.loss <- i - 1;
         break;
       }
@@ -122,6 +138,8 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
       cat("Warning:", "Tuning (", lamA ,") on boundary!\n");
     }
   }
+  
+  if(verbose) message("")
   #-------------------------------------------------------------------------------
   res <- cclasso.sub(vx = vx, wd = wd, lam = lamA,
                      u.f = u.f, u0.wd = u0.wd, d0.wd = d0.wd,
@@ -186,5 +204,5 @@ cclasso.sub <- function(vx, wd, lam, u.f, u0.wd, d0.wd, sig = NULL,
   #
   return(list(sig = sig, k = k));
 }
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
+
+
