@@ -10,9 +10,9 @@
 #' @param showCentr character vector indicating for which centrality measures
 #'   the results shall be printed. Possible values are "all", "degree",
 #'   "betweenness", "closeness", "eigenvector" and "none".
-#' @param numbNodes integer indicating for how much taxa the centrality
+#' @param numbNodes integer indicating for how many nodes the centrality
 #'   values shall be printed. Defaults to 10L for a single network and 5L for 
-#'   two networks. That means that in case of a single network the first 10 
+#'   two networks. Thus, in case of a single network, the first 10 
 #'   nodes with highest centrality value of the specific centrality measure
 #'   are shown. If \code{object} contains two networks, for each centrality 
 #'   measure a splitted matrix is shown where the upper part contains the 
@@ -39,13 +39,10 @@ summary.microNetProps <- function(object, groupNames = NULL, showCentr = "all",
   digits <- as.integer(digits)
   
   if(!is.null(numbNodes)){
-    numbNodes <- as.integer(numbNodes)
+    stopifnot(numbNodes >= 1)
+    numbNodes <- min(as.integer(numbNodes), length(object$centralities$degree1))
   }
 
-  if(is.numeric(numbNodes)){
-    stopifnot(numbNodes >= 1 & numbNodes <= length(object$centralities$degree1))
-  }
-  
   twonets <- object$input$twoNets
   
   if(is.null(numbNodes)){
@@ -291,7 +288,7 @@ print.summary.microNetProps <- function(x, ...){
     }
   }
 
-  cat("\n\nHubs (in alphabetical order):\n")
+  cat("\n\nHubs (in alphabetical/numerical order):\n")
   if(ncol(x$hubs) == 2){
     cat("````\n")
     print(x$hubs, row.names = FALSE, quote = TRUE)
@@ -301,7 +298,7 @@ print.summary.microNetProps <- function(x, ...){
   }
   
   if(!is.null(x$central)){
-    show_rownames <- ifelse(ncol(x$central$degree1) == 3, FALSE, TRUE)
+    show_rownames <- ifelse(ncol(x$hubs) == 1, TRUE, FALSE)
     
     cat("\n\nCentrality measures (in decreasing order):\n")
     cat("```````````````````")

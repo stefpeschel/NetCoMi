@@ -193,7 +193,8 @@ bootstrappng is used as sparsification method.}
 \item{cores}{integer indicating the number of CPU cores used for
 bootstrapping. If cores > 1, bootstrapping is performed parallel.
 \code{cores} is limited to the number of available CPU cores determined by
-\code{\link[parallel]{detectCores}}.}
+\code{\link[parallel]{detectCores}}. Then, core arguments of the function 
+used for association estimation (if provided) should be set to 1.}
 
 \item{logFile}{if bootstrapping is used as sparsification method, a log file
 containing the iteration numbers is stored into the current working

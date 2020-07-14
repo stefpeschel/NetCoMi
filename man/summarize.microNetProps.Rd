@@ -28,9 +28,9 @@ from \code{object}. Ignored if \code{object} contains a single network.}
 the results shall be printed. Possible values are "all", "degree",
 "betweenness", "closeness", "eigenvector" and "none".}
 
-\item{numbNodes}{integer indicating for how much taxa the centrality
+\item{numbNodes}{integer indicating for how many nodes the centrality
 values shall be printed. Defaults to 10L for a single network and 5L for 
-two networks. That means that in case of a single network the first 10 
+two networks. Thus, in case of a single network, the first 10 
 nodes with highest centrality value of the specific centrality measure
 are shown. If \code{object} contains two networks, for each centrality 
 measure a splitted matrix is shown where the upper part contains the 
