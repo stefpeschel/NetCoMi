@@ -12,8 +12,6 @@ License: GPL-3 + file LICENSE
 Depends: SpiecEasi (>= 1.0.6)
 Imports: 
     Rdpack,
-    Rcpp (>= 0.12.19),
-    RcppArmadillo,
     Biobase,
     DESeq2,
     huge,
@@ -48,7 +46,6 @@ Remotes:
     bioc::DESeq2, 
     bioc::ccrepe,
     bioc::discordant,
-    bioc::metagenomeSeq,
     bioc::limma,
     bioc::phyloseq, 
     github::zdk123/SpiecEasi,

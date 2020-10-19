@@ -325,7 +325,7 @@ The function enables the construction of either a single network or
   \code{"pearson"}\tab \code{\link[stats]{cor}} \cr
   \code{"spearman"}\tab \code{\link[stats]{cor}} \cr
   \code{"bicor"}\tab \code{\link[WGCNA]{bicor}} \cr
-  \code{"sparcc"}\tab \code{\link[NetCoMi]{sparcc_cpp}} \cr
+  \code{"sparcc"}\tab \code{\link[SpiecEasi]{sparcc}} \cr
   \code{"cclasso"}\tab \code{\link[NetCoMi]{cclasso}} \cr
   \code{"ccrepe"}\tab \code{\link[ccrepe]{ccrepe}} \cr
   \code{"spieceasi"}\tab \code{\link[SpiecEasi]{spiec.easi}} \cr

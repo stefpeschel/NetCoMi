@@ -15,7 +15,7 @@
 #' @importFrom WGCNA bicor
 #' @importFrom ccrepe ccrepe
 #' @importFrom SpiecEasi spiec.easi sparseiCov getOptCov getRefit symBeta
-#'   getOptBeta
+#'   getOptBeta sparcc
 #' @importFrom SPRING SPRING
 #' @importFrom propr propr
 #' @importFrom vegan vegdist
@@ -46,14 +46,14 @@ calc_association <- function(countMat, measure, measurePar, verbose){
 
   } else if(measure == "sparcc"){
 
-    if(is.null(measurePar$exiter)) measurePar$exiter <- 20
-    if(is.null(measurePar$thresh)) measurePar$thresh <- 0.1
-    if(is.null(measurePar$repEst)) measurePar$repEst <- 100
-
-    assoMat <- sparcc_cpp(countMat,
-                          exiter = measurePar$exiter,
-                          thresh = measurePar$thresh,
-                          repEst = measurePar$repEst)$CORR
+    if(is.null(measurePar$inner_iter)) measurePar$inner_iter <- 20
+    if(is.null(measurePar$th)) measurePar$th <- 0.1
+    if(is.null(measurePar$iter)) measurePar$iter <- 100
+    
+    assoMat <- SpiecEasi::sparcc(countMat,
+                                  inner_iter = measurePar$inner_iter,
+                                  th = measurePar$th,
+                                  iter = measurePar$iter)$Cor
 
   } else if(measure == "cclasso"){
 
