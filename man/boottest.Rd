@@ -55,8 +55,7 @@ the R console}
 \description{
 Statistical significance of correlations between pairs of
   taxonomic units is tested using a bootstrap procedure as proposed by
-  \cite{Friedman and Alm (2012)}. Correlations are determined via
-  \code{\link{sparcc_cpp}}.
+  \cite{Friedman and Alm (2012)}.
 }
 \references{
 {\insertRef{friedman2012inferring}{NetCoMi}}
