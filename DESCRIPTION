@@ -40,7 +40,9 @@ Imports:
     Matrix,
     graphics,
     grDevices,
-    utils
+    utils,
+    matrixStats,
+    lattice
 Remotes: 
     bioc::Biobase,
     bioc::DESeq2, 
@@ -56,4 +58,3 @@ RdMacros: Rdpack
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-LinkingTo: Rcpp, RcppArmadillo
