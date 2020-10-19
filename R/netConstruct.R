@@ -355,7 +355,6 @@
 #' @importFrom Matrix nearPD
 #' @importFrom zCompositions multRepl lrEM cmultRepl
 #' @importFrom cccd nng
-#' @importFrom metagenomeSeq cumNormMat
 #' @importFrom stats var complete.cases pt
 #' @importFrom utils capture.output
 #' @importFrom WGCNA pickSoftThreshold TOMdist
