@@ -40,7 +40,9 @@ Imports:
     Matrix,
     graphics,
     grDevices,
-    utils
+    utils,
+    matrixStats,
+    lattice
 Remotes: 
     bioc::Biobase,
     bioc::DESeq2, 

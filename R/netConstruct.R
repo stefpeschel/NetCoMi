@@ -359,6 +359,7 @@
 #' @importFrom utils capture.output
 #' @importFrom WGCNA pickSoftThreshold TOMdist
 #' @import phyloseq
+#' @import MASS
 #' @export
 
 netConstruct <- function(data,

@@ -61,13 +61,13 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                        .export = c("calc_association", "sparcc", "cclasso",
                                    "cclasso.sub", "gcoda"),
                        .options.snow = opts) %dopar% {
-                         
+
                          if(!is.null(seed)) set.seed(seeds[b])
-                         
+
                          if(verbose %in% 2:3) progress(b)
 
                          if(!is.null(logFile)){
-                           cat(paste("Iteration", b,"\n"), file=logFile, 
+                           cat(paste("Iteration", b,"\n"), file=logFile,
                                append=TRUE)
                          }
 
@@ -78,7 +78,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                          })
                          colnames(count.tmp) <- colnames(countMat)
 
-                         assoMat.tmp <- calc_association(count.tmp, 
+                         assoMat.tmp <- calc_association(count.tmp,
                                                          measure = measure,
                                                          measurePar = measurePar)
 
@@ -86,7 +86,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                        }
 
     if(verbose %in% 2:3) close(pb)
-    
+
     stopCluster(cl)
     registerDoSEQ()
 
@@ -125,9 +125,9 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       reslist[[b]] <- assoMat.tmp
     }
   }
-  
+
   if(verbose %in% 2:3) close(pb)
-  
+
   assoMat.orig <- assoMat
 
   # create matrices with logicals if bootstrap associations are at least as
