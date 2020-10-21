@@ -73,7 +73,7 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
 
   } else if(normMethod == "VST"){
 
-    normParam$object <- countMat
+    normParam$object <- t(countMat)
 
     if(verbose %in% 2:3){
       message("Execute varianceStabilizingTransformation() for VST normalization ... ",
