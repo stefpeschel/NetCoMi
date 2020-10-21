@@ -3,8 +3,7 @@
 #'
 #' @description Statistical significance of correlations between pairs of
 #'   taxonomic units is tested using a bootstrap procedure as proposed by
-#'   \cite{Friedman and Alm (2012)}. Correlations are determined via
-#'   \code{\link{sparcc_cpp}}.
+#'   \cite{Friedman and Alm (2012)}.
 #'
 #' @param countMat matrix containing microbiome data (read counts) for which
 #'   the correlations are calculated (rows represent samples, columns represent
@@ -59,16 +58,16 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
 
     reslist <- foreach(b = 1:nboot,
                        .packages = c("gtools", "vegan", "LaplacesDemon"),
-                       .export = c("calc_association", "sparcc_cpp", "cclasso",
+                       .export = c("calc_association", "sparcc", "cclasso",
                                    "cclasso.sub", "gcoda"),
                        .options.snow = opts) %dopar% {
-                         
+
                          if(!is.null(seed)) set.seed(seeds[b])
-                         
+
                          if(verbose %in% 2:3) progress(b)
 
                          if(!is.null(logFile)){
-                           cat(paste("Iteration", b,"\n"), file=logFile, 
+                           cat(paste("Iteration", b,"\n"), file=logFile,
                                append=TRUE)
                          }
 
@@ -79,7 +78,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                          })
                          colnames(count.tmp) <- colnames(countMat)
 
-                         assoMat.tmp <- calc_association(count.tmp, 
+                         assoMat.tmp <- calc_association(count.tmp,
                                                          measure = measure,
                                                          measurePar = measurePar)
 
@@ -87,7 +86,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                        }
 
     if(verbose %in% 2:3) close(pb)
-    
+
     stopCluster(cl)
     registerDoSEQ()
 
@@ -126,9 +125,9 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       reslist[[b]] <- assoMat.tmp
     }
   }
-  
+
   if(verbose %in% 2:3) close(pb)
-  
+
   assoMat.orig <- assoMat
 
   # create matrices with logicals if bootstrap associations are at least as

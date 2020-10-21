@@ -19,9 +19,3 @@
 #' @name NetCoMi-package
 #' @docType package
 NULL
-
-## usethis namespace: start
-#' @useDynLib NetCoMi, .registration = TRUE
-#' @importFrom Rcpp sourceCpp
-## usethis namespace: end
-NULL

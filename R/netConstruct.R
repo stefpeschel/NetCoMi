@@ -31,7 +31,7 @@
 #'   \code{"pearson"}\tab \code{\link[stats]{cor}} \cr
 #'   \code{"spearman"}\tab \code{\link[stats]{cor}} \cr
 #'   \code{"bicor"}\tab \code{\link[WGCNA]{bicor}} \cr
-#'   \code{"sparcc"}\tab \code{\link[NetCoMi]{sparcc_cpp}} \cr
+#'   \code{"sparcc"}\tab \code{\link[SpiecEasi]{sparcc}} \cr
 #'   \code{"cclasso"}\tab \code{\link[NetCoMi]{cclasso}} \cr
 #'   \code{"ccrepe"}\tab \code{\link[ccrepe]{ccrepe}} \cr
 #'   \code{"spieceasi"}\tab \code{\link[SpiecEasi]{spiec.easi}} \cr
@@ -355,11 +355,11 @@
 #' @importFrom Matrix nearPD
 #' @importFrom zCompositions multRepl lrEM cmultRepl
 #' @importFrom cccd nng
-#' @importFrom metagenomeSeq cumNormMat
 #' @importFrom stats var complete.cases pt
 #' @importFrom utils capture.output
 #' @importFrom WGCNA pickSoftThreshold TOMdist
 #' @import phyloseq
+#' @import MASS
 #' @export
 
 netConstruct <- function(data,
