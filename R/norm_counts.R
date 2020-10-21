@@ -72,28 +72,32 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
     attributes(countMat_norm)$scale <- "rarefied"
 
   } else if(normMethod == "VST"){
-
-    normParam$object <- countMat
-
+    
+    normParam$object <- t(countMat)
+    
     if(verbose %in% 2:3){
       message("Execute varianceStabilizingTransformation() for VST normalization ... ",
               appendLF = FALSE)
     }
     if(zeroMethod == "none"){
-      countMat_norm <- try(do.call("varianceStabilizingTransformation",
-                                   normParam), silent = TRUE)
+      countMat_norm_t <- try(do.call("varianceStabilizingTransformation",
+                                     normParam), silent = TRUE)
       if(class(countMat_norm) == "try-error"){
         stop("Every variable contains at least one zero. ",
              "VST normalization not possible without zero replacement.")
       }
-
+      
     } else{
-      countMat_norm <- do.call("varianceStabilizingTransformation", normParam)
+      countMat_norm_t <- do.call("varianceStabilizingTransformation", normParam)
     }
+    
+    countMat_norm <- t(countMat_norm_t)
+    rm(countMat_norm_t)
+    
     if(verbose %in% 2:3) message("Done.")
-
+    
     attributes(countMat_norm)$scale <- "VST normalized"
-
+    
   } else if(normMethod == "clr"){
 
     if(attributes(countMat)$scale != "fractions"){
