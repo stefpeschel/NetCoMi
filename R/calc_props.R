@@ -24,7 +24,6 @@
 #' @param jaccard shall the Jaccard index be calculated?
 #' @param jaccQuant quantile for the Jaccard index
 #'
-#'
 #' @importFrom igraph graph_from_adjacency_matrix
 #' @importFrom stats hclust as.dist cutree qlnorm quantile
 
@@ -63,12 +62,14 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
 
       dissMat.tmp <- dissMat
       dissMat.tmp[is.infinite(dissMat.tmp)] <- 1
-      tree <- hclust(as.dist(dissMat.tmp), method = clustPar$method)
+      tree <- stats::hclust(stats::as.dist(dissMat.tmp), method = clustPar$method)
 
       if(is.null(clustPar$k) & is.null(clustPar$h)){
         clustPar$k <- 3
       }
-      clust <- do.call(cutree, list(tree = tree, k = clustPar$k, h = clustPar$h))
+      clust <- do.call(stats::cutree, list(tree = tree, 
+                                           k = clustPar$k, 
+                                           h = clustPar$h))
       names(clust) <- rownames(adjaMat)
 
     } else{
@@ -96,25 +97,25 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
 
   ### degree
   if(weightDeg){
-    deg <- deg_unnorm <- strength(net)
+    deg <- deg_unnorm <- igraph::strength(net)
 
   } else{
-    deg <- degree(net, normalized = normDeg)
-    deg_unnorm <- degree(net)
+    deg <- igraph::degree(net, normalized = normDeg)
+    deg_unnorm <- igraph::degree(net)
   }
 
   #-------------------------------
   ### betweenness centrality (based on distances)
 
-  betw <- betweenness(distnet, normalized = normBetw)
-  betw_unnorm <- betweenness(distnet)
+  betw <- igraph::betweenness(distnet, normalized = normBetw)
+  betw_unnorm <- igraph::betweenness(distnet)
 
 
   #-------------------------------
   ### closeness centrality (based on distances)
 
   # compute shortest paths
-  sPath <- distances(distnet, algorithm = "dijkstra")
+  sPath <- igraph::distances(distnet, algorithm = "dijkstra")
   sPath_rev <- 1/sPath
   diag(sPath_rev) <- NA
 
@@ -141,7 +142,8 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
 
     ev <- numeric(0)
     for(i in seq_along(dg)){
-      ev <- c(ev, eigen_centrality(dg[[i]], scale = FALSE)$vector * (dgcount[i] / vnumb))
+      ev <- c(ev, igraph::eigen_centrality(dg[[i]], scale = FALSE)$vector * 
+                (dgcount[i] / vnumb))
     }
 
     eigen_unnorm <- ev[colnames(adjaMat)]
@@ -153,8 +155,8 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
     }
 
   } else{
-    eigen <- eigen_centrality(net, scale = normEigen)$vector
-    eigen_unnorm <- eigen_centrality(net, scale = FALSE)$vector
+    eigen <- igraph::eigen_centrality(net, scale = normEigen)$vector
+    eigen_unnorm <- igraph::eigen_centrality(net, scale = FALSE)$vector
   }
 
   #-------------------------------
@@ -167,12 +169,12 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
   if(is.na(avPath)) avPath <- 0
 
   # clustering coefficient
-  clustCoef <- transitivity(net, type = "global")
+  clustCoef <- igraph::transitivity(net, type = "global")
   if(is.na(clustCoef)) clustCoef <- 0
 
   # modularity
   if(clustMethod != "none"){
-    modul <- modularity(net, (clust+1))
+    modul <- igraph::modularity(net, (clust+1))
   } else{
     modul <- NA
   }
@@ -180,10 +182,10 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
 
   if(connect){
     # vertex connectivity
-    vertconnect <- vertex_connectivity(net)
+    vertconnect <- igraph::vertex_connectivity(net)
 
     # edge connectivity
-    edgeconnect <- edge_connectivity(net)
+    edgeconnect <- igraph::edge_connectivity(net)
   } else{
     vertconnect <- NA
     edgeconnect <- NA
@@ -191,7 +193,7 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
 
 
   # relative number of edges(density)
-  density <- edge_density(net)
+  density <- igraph::edge_density(net)
 
   #== hubs and Jaccard index ================================================
 
@@ -199,48 +201,54 @@ calc_props <- function(adjaMat, dissMat, weighted, isempty, clustMethod, clustPa
   if(lnormFit){
     # identify nodes with highest centrality value
     pdeg <- try(MASS::fitdistr(deg_unnorm[deg_unnorm>0], "lognormal")$estimate, silent = TRUE)
+    
     if(class(pdeg) == "try-error"){
       topdeg <- hubdeg <- NULL
+      
     } else{
-      hubdeg <- names(deg_unnorm[deg_unnorm > qlnorm(hubQuant, pdeg[1], pdeg[2])])
+      hubdeg <- names(deg_unnorm[deg_unnorm > stats::qlnorm(hubQuant, pdeg[1], pdeg[2])])
+      
       if(jaccard){
-        topdeg <- names(deg_unnorm[deg_unnorm > qlnorm(jaccQuant, pdeg[1], pdeg[2])])
+        topdeg <- names(deg_unnorm[deg_unnorm > stats::qlnorm(jaccQuant, pdeg[1], pdeg[2])])
       } else{
         topdeg <- NULL
       }
     }
 
     pbetw <- try(MASS::fitdistr(betw_unnorm[betw_unnorm>0], "lognormal")$estimate, silent = TRUE)
+    
     if(class(pbetw) == "try-error"){
       topbetw <- hubbetw <- NULL
     } else{
-      hubbetw <- names(betw_unnorm[betw_unnorm > qlnorm(hubQuant, pbetw[1], pbetw[2])])
+      hubbetw <- names(betw_unnorm[betw_unnorm > stats::qlnorm(hubQuant, pbetw[1], pbetw[2])])
       if(jaccard){
-        topbetw <- names(betw_unnorm[betw_unnorm > qlnorm(jaccQuant, pbetw[1], pbetw[2])])
+        topbetw <- names(betw_unnorm[betw_unnorm > stats::qlnorm(jaccQuant, pbetw[1], pbetw[2])])
       } else{
         topbetw <- NULL
       }
     }
 
     pclose <- try(MASS::fitdistr(close_unnorm[close_unnorm>0], "lognormal")$estimate, silent = TRUE)
+    
     if(class(pclose) == "try-error"){
       topclose <- hubclose <- NULL
     } else{
-      hubclose <- names(close_unnorm[close_unnorm > qlnorm(hubQuant, pclose[1], pclose[2])])
+      hubclose <- names(close_unnorm[close_unnorm > stats::qlnorm(hubQuant, pclose[1], pclose[2])])
       if(jaccard){
-        topclose <- names(close_unnorm[close_unnorm > qlnorm(jaccQuant, pclose[1], pclose[2])])
+        topclose <- names(close_unnorm[close_unnorm > stats::qlnorm(jaccQuant, pclose[1], pclose[2])])
       } else{
         topclose <- NULL
       }
     }
 
     peigen <- try(MASS::fitdistr(eigen_unnorm[eigen_unnorm>0], "lognormal")$estimate, silent = TRUE)
+    
     if(class(peigen) == "try-error"){
       topeigen <- hubeigen <- NULL
     } else{
-      hubeigen <- names(eigen_unnorm[eigen_unnorm > qlnorm(hubQuant, peigen[1], peigen[2])])
+      hubeigen <- names(eigen_unnorm[eigen_unnorm > stats::qlnorm(hubQuant, peigen[1], peigen[2])])
       if(jaccard){
-        topeigen <- names(eigen_unnorm[eigen_unnorm > qlnorm(jaccQuant, peigen[1], peigen[2])])
+        topeigen <- names(eigen_unnorm[eigen_unnorm > stats::qlnorm(jaccQuant, peigen[1], peigen[2])])
       } else{
         topeigen <- NULL
       }

@@ -43,7 +43,7 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
       message("Execute cumNormMat() for cumulative sum scaling ... ",
               appendLF = FALSE)
     }
-    countMat_norm <- t(do.call("cumNormMat", normParam))
+    countMat_norm <- t(do.call(metagenomeSeq::cumNormMat, normParam))
     if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "CSS normalized"
@@ -61,12 +61,16 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
   } else if(normMethod == "rarefy"){
 
     normParam$x <- countMat
-    if(is.null(normParam$sample)) normParam$sample <- min(rowSums(countMat))
+    if(is.null(normParam$sample)){
+      normParam$sample <- min(Matrix::rowSums(countMat))
+    }
 
     if(verbose %in% 2:3){
       message("Execute rrarefy() for rarefaction ... ", appendLF = FALSE)
     }
-    countMat_norm <- do.call("rrarefy", normParam)
+    
+    countMat_norm <- do.call(vegan::rrarefy, normParam)
+    
     if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "rarefied"
@@ -80,15 +84,17 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
               appendLF = FALSE)
     }
     if(zeroMethod == "none"){
-      countMat_norm_t <- try(do.call("varianceStabilizingTransformation",
+      countMat_norm_t <- try(do.call(DESeq2::varianceStabilizingTransformation,
                                      normParam), silent = TRUE)
+      
       if(class(countMat_norm) == "try-error"){
         stop("Every variable contains at least one zero. ",
              "VST normalization not possible without zero replacement.")
       }
       
     } else{
-      countMat_norm_t <- do.call("varianceStabilizingTransformation", normParam)
+      countMat_norm_t <- do.call(DESeq2::varianceStabilizingTransformation, 
+                                 normParam)
     }
     
     countMat_norm <- t(countMat_norm_t)
@@ -100,29 +106,26 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
     
   } else if(normMethod == "clr"){
 
-    if(attributes(countMat)$scale != "fractions"){
-      countMat <- t(apply(countMat, 1, function(x) x/sum(x)))
-    }
-
+    normParam$x.f <- countMat
+    normParam$mar <- 1
+    
     if(verbose %in% 2:3){
-      message("Counts transformed to fractions.")
-    }
-
-    normParam$x <- countMat
-    if(verbose %in% 2:3){
-      message("Execute cenLR() for clr transformation ... ",
+      message("Execute clr() from SpiecEasi package ... ",
               appendLF = FALSE)
     }
 
     if(is.null(normParam$base)) normParam$base <- exp(1)
-    countMat_norm <- do.call("cenLR", normParam)$x.clr
+    
+    countMat_norm <- t(do.call(SpiecEasi::clr, normParam))
 
     if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "clr transformed"
+    
   } else{
     warning("No normalization conducted. ",
-    "'normMethod' must be one of 'none', 'pseudo', 'multRepl', 'alrEM', 'bayesMult'.")
+    "'normMethod' must be one of 'none', 'fractions', 'TSS', ", 
+    "'CSS', 'COM', 'rarefy', 'VST', 'clr.'")
   }
 
   return(countMat_norm)

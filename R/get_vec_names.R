@@ -12,12 +12,17 @@
 get_vec_names <- function(x){
 
   temp <- matrix(NA, nrow = nrow(x), ncol = nrow(x))
+  
   diag <- lower.tri(temp, diag = FALSE)
+  
   temp[diag] <- rep(1, sum(diag == TRUE))
+  
   namesMatrix <- NULL
+  
   for (i in 1:dim(temp)[2]) {
     outputCol <- temp[, i]
     index <- which(is.na(outputCol) == FALSE)
+    
     if (length(index) > 0) {
       tempMatrix <- cbind(rownames(x)[index],
                           rep(rownames(x)[i], length(index)))

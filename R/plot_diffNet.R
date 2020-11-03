@@ -126,6 +126,7 @@ plot.diffnet <- function(x,
   inputArgs <- c(as.list(environment()), list(...))
 
   outputArgs <- except_plot_diffnet(inputArgs)
+  
   for(i in 1:length(outputArgs)){
     assign(names(outputArgs)[i], outputArgs[[i]])
   }
@@ -135,11 +136,13 @@ plot.diffnet <- function(x,
   diffMat <- x$diffMat
 
   if(edgeFilter != "none"){
+    
     if(edgeFilter == "highestDiff"){
       diffabssort <- sort(abs(diffMat[lower.tri(diffMat)]), decreasing = TRUE)
       cutval <- diffabssort[edgeFilterPar]
       diffMat[diffMat < cutval] <- 0
     }
+    
   }
 
   if(rmSingles){
@@ -161,7 +164,8 @@ plot.diffnet <- function(x,
     if(length(torm) != 0) corrMat2 <- corrMat2[-torm, -torm]
     if(length(torm) != 0) diffMat <- diffMat[-torm, -torm]
 
-    kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in% colnames(diffMat))]
+    kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in% 
+                                           colnames(diffMat))]
 
   }
 
@@ -202,6 +206,7 @@ plot.diffnet <- function(x,
 
     classMat <- x$classMat
     edgeColMat <- classMat
+    
     for(i in 1:nrow(edgeColMat)){
       for(j in 1:ncol(edgeColMat)){
         if(classMat[i,j] %in% c(1,5,9)) edgeColMat[i,j] <- "black"

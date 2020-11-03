@@ -12,7 +12,7 @@ filter_nodes <- function(adja, nodeFilter, nodeFilterPar, layout,
       adja.tmp <- adja
 
       diag(adja.tmp) <- 0
-      conct <- rowSums(abs(adja.tmp))
+      conct <- Matrix::rowSums(abs(adja.tmp))
 
       conct <- names(sort(conct))[1:nodeFilterPar]
       keep <- colnames(adja)[which(colnames(adja) %in% conct)]

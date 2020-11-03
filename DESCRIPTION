@@ -1,59 +1,52 @@
 Package: NetCoMi
 Type: Package
 Title: Network Comparison for Microbiome Data
-Version: 1.0.2.9000
+Version: 1.0.2.9001
 Author: Stefanie Peschel [aut, cre]
 Maintainer: Stefanie Peschel <stefanie.peschel@mail.de>
 Description: NetCoMi offers functions for constructing, analyzing, and comparing 
     microbial association networks as well as dissimilarity-based networks for 
-    microbial compositional data. It also includes a function for constructing 
-    differential association networks.
+    microbial compositional data. It also includes functionality for 
+    constructing differential association networks.
 License: GPL-3 + file LICENSE
 Depends: SpiecEasi (>= 1.0.6)
 Imports: 
-    Rdpack,
     Biobase,
-    DESeq2,
-    huge,
-    MASS,
-    WGCNA,
-    ccrepe,
-    compositions,
-    discordant,
-    snow,
     doSNOW,
     fdrtool,
     foreach,
-    gtools,
-    igraph,
-    propr,
-    qgraph,
-    SPRING,
-    vegan,
-    zCompositions,
-    stats,
-    LaplacesDemon,
-    robCompositions,
-    cccd,
-    limma,
-    phyloseq,
-    Matrix,
     graphics,
     grDevices,
+    gtools,
+    huge,
+    igraph,
+    MASS,
+    Matrix,
+    phyloseq,
+    qgraph,
+    Rdpack,
+    snow,
+    SPRING,
+    stats,
     utils,
-    matrixStats,
-    lattice
+    vegan,
+    WGCNA
 Remotes: 
     bioc::Biobase,
-    bioc::DESeq2, 
-    bioc::ccrepe,
-    bioc::discordant,
-    bioc::limma,
     bioc::phyloseq, 
     github::zdk123/SpiecEasi,
     github::GraceYoon/SPRING
 Suggests:
-    testthat
+    cccd,
+    ccrepe,
+    DESeq2,
+    discordant,
+    LaplacesDemon,
+    limma,
+    metagenomeSeq,
+    propr,
+    testthat,
+    zCompositions
 RdMacros: Rdpack
 Encoding: UTF-8
 LazyData: true

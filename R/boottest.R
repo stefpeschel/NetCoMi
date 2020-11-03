@@ -40,13 +40,13 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
 
     cl <- makeCluster(cores, outfile = "")
 
-    registerDoSNOW(cl)
+    doSNOW::registerDoSNOW(cl)
 
     if(verbose %in% 2:3){
       message("")
-      pb<-txtProgressBar(0, nboot, style=3)
-      progress<-function(n){
-        setTxtProgressBar(pb,n)
+      pb <- utils::txtProgressBar(0, nboot, style=3)
+      progress <- function(n){
+        utils::setTxtProgressBar(pb,n)
       }
       opts <- list(progress=progress)
     } else{
@@ -88,7 +88,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
     if(verbose %in% 2:3) close(pb)
 
     stopCluster(cl)
-    registerDoSEQ()
+    foreach::registerDoSEQ()
 
     invisible(gc)
     remove(cl)
@@ -98,9 +98,9 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
 
     if(verbose %in% 2:3){
       message("")
-      pb<-txtProgressBar(0, nboot, style=3)
-      progress<-function(n){
-        setTxtProgressBar(pb,n)
+      pb <- utils::txtProgressBar(0, nboot, style=3)
+      progress <- function(n){
+        utils::setTxtProgressBar(pb,n)
       }
     }
 

@@ -348,18 +348,13 @@
 #'   \insertRef{WGCNApackage}{NetCoMi}\cr
 #'   \insertRef{zhang2005general}{NetCoMi}
 #' @importFrom Rdpack reprompt
-#' @importFrom DESeq2 varianceStabilizingTransformation
-#' @importFrom compositions clr
-#' @importFrom robCompositions cenLR
 #' @importFrom vegan vegdist rrarefy
-#' @importFrom Matrix nearPD
-#' @importFrom zCompositions multRepl lrEM cmultRepl
-#' @importFrom cccd nng
+#' @importFrom Matrix nearPD colSums rowSums
 #' @importFrom stats var complete.cases pt
-#' @importFrom utils capture.output
+#' @importFrom SPRING SPRING mclr
+#' @importFrom utils capture.output install.packages installed.packages
 #' @importFrom WGCNA pickSoftThreshold TOMdist
 #' @import phyloseq
-#' @import MASS
 #' @export
 
 netConstruct <- function(data,
@@ -510,8 +505,7 @@ netConstruct <- function(data,
   }
 
   verbose <- as.numeric(verbose)
-
-
+  
   cond <- condition_handling(dataType = dataType, assoType = assoType,
                             data2 = data2, measure = measure,
                             normMethod = normMethod, zeroMethod = zeroMethod,
@@ -525,6 +519,9 @@ netConstruct <- function(data,
   sampleSize <- cond$sampleSize
   needfrac <- cond$needfrac
   needint <- cond$needint
+  
+  checkPack(measure = measure, zeroMethod = zeroMethod, normMethod = normMethod,
+            sparsMethod = sparsMethod, adjust = adjust)
 
   if(cores > 1){
     parallel <- TRUE
@@ -732,7 +729,7 @@ netConstruct <- function(data,
 
 
     # remove samples with zero overall sum
-    rs <- rowSums(countMat1)
+    rs <- Matrix::rowSums(countMat1)
     if (any(rs == 0)) {
       rmRows <- which(rs == 0)
       if(verbose %in% 2:3){
@@ -746,7 +743,7 @@ netConstruct <- function(data,
 
 
     if(twoNets & !is.null(data2)){
-      rs <- rowSums(countMat2)
+      rs <- Matrix::rowSums(countMat2)
       if (any(rs == 0)) {
         rmRows <- which(rs == 0)
         countMat2 <- countMat2[-rmRows,]

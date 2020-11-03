@@ -227,7 +227,7 @@ netCompare <- function(x,
 
   trueNullMethod <- match.arg(trueNullMethod, c("convest", "lfdr", "mean",
                                                 "hist", "farco"))
-
+  
   nPermRand <- as.integer(nPermRand)
   cores <- as.integer(cores)
   if(!is.null(logFile)) stopifnot(is.character(logFile))
@@ -340,8 +340,8 @@ netCompare <- function(x,
     if(cores > 1){
       if(parallel::detectCores() < cores) cores <- parallel::detectCores()
 
-      cl <- makeCluster(cores, outfile = "")
-      registerDoSNOW(cl)
+      cl <- snow::makeCluster(cores, outfile = "")
+      doSNOW::registerDoSNOW(cl)
       '%do_or_dopar%' <- get('%dopar%')
 
     } else{
@@ -349,10 +349,10 @@ netCompare <- function(x,
     }
 
     if(verbose){
-      pb<-txtProgressBar(0, nPerm, style=3)
+      pb<-utils::txtProgressBar(0, nPerm, style=3)
       
       progress<-function(n){
-        setTxtProgressBar(pb,n)
+        utils::setTxtProgressBar(pb,n)
       }
       
       opts <- list(progress=progress)
@@ -370,7 +370,6 @@ netCompare <- function(x,
                                                     "ccrepe",
                                                     "vegan",
                                                     "LaplacesDemon",
-                                                    "robCompositions",
                                                     "propr",
                                                     "zCompositions",
                                                     "DESeq2",
@@ -571,7 +570,9 @@ netCompare <- function(x,
                          }
 
     if(verbose){
-      close(pb)
+      # close progress bar
+      close(pb)  
+      # stop cluster
       message("Stopping socket cluster ... ", appendLF = FALSE)
     }
 
@@ -659,6 +660,23 @@ netCompare <- function(x,
     }
 
     # adjust for multiple testing
+    
+    if(adjust == "adaptBH" && !requireNamespace("limma", quietly = TRUE)){
+      
+      message("Installing missing package 'limma' ...")
+      
+      if(!requireNamespace("BiocManager", quietly = TRUE)){
+        utils::install.packages("BiocManager")
+      }
+      
+      BiocManager::install("limma", dependencies = TRUE)
+      message("Done.")
+      
+      message("Check whether installed package can be loaded ...")
+      requireNamespace("limma")
+      message("Done.")
+    }
+    
     pAdjustDiffDeg <- multAdjust(pvals = pvalDiffDeg, adjust = adjustPerm,
                                  trueNullMethod = trueNullMethod,
                                  verbose = FALSE)

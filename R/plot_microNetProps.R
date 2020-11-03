@@ -393,6 +393,7 @@ plot.microNetProps <- function(x,
   inputArgs <- c(as.list(environment()), list(...))
 
   outputArgs <- except_plot_networks(inputArgs)
+  
   for(i in 1:length(outputArgs)){
     assign(names(outputArgs)[i], outputArgs[[i]])
   }
@@ -566,7 +567,7 @@ plot.microNetProps <- function(x,
     stopifnot(all(colnames(adja1) %in% names(featVecCol)))
 
     if(is.null(colorVec)){
-      cols <- rainbow(length(levels(featVecCol)))
+      cols <- grDevices::rainbow(length(levels(featVecCol)))
     } else{
       if(length(colorVec) < length(levels(featVecCol))){
         stop(paste("Argument 'featVecCol' has", length(levels(featVecCol)),
@@ -577,6 +578,7 @@ plot.microNetProps <- function(x,
 
     feature1 <- featVecCol[colnames(adja1)]
     nodecol1 <- character(length(feature1))
+    
     for(i in seq_along(levels(feature1))){
       nodecol1[feature1 == levels(feature1)[i]] <- cols[i]
     }
@@ -587,6 +589,7 @@ plot.microNetProps <- function(x,
 
       feature2 <- featVecCol[colnames(adja2)]
       nodecol2 <- character(length(feature2))
+      
       for(i in seq_along(levels(feature2))){
         nodecol2[feature2 == levels(feature2)[i]] <- cols[i]
       }
@@ -627,7 +630,6 @@ plot.microNetProps <- function(x,
   #==========================================================================
   # define node shapes
 
-
   if(is.null(featVecShape)){
     if(is.null(nodeShape)){
       nodeShape1 <- nodeShape2 <- "circle"
@@ -647,6 +649,7 @@ plot.microNetProps <- function(x,
 
     if(is.null(nodeShape)){
       nodeShape <- c("circle", "square", "triangle", "diamond")
+
     } else{
       if(length(nodeShape) < nlevel){
         stop(paste("Argument 'nodeShape' must have length", nlevel,
@@ -810,8 +813,10 @@ plot.microNetProps <- function(x,
     if (length(weights1) > (3 * nNodes1) || length(weights2) > (3 * nNodes2)) {
       cut1 <- max(sort(abs(weights1), decreasing = TRUE)[2 * nNodes1],
                   quantile(abs(weights1), 0.75))
-      cut2 <- ifelse(twoNets, max(sort(abs(weights2), decreasing = TRUE)[2 * nNodes2],
-                                  quantile(abs(weights2), 0.75)), 0)
+      cut2 <- ifelse(twoNets, 
+                     max(sort(abs(weights2), decreasing = TRUE)[2 * nNodes2],
+                         quantile(abs(weights2), 0.75)), 
+                     0)
 
 
     } else if (length(weights1) > 1 || length(weights2) > 1){
@@ -929,9 +934,12 @@ plot.microNetProps <- function(x,
   
   if(is.null(labels)){
 
-    adja.tmp <- rename_taxa(adja1, toRename = "both", shortenLabels = shortenLabels,
-                        labelLength = labelLength, labelPattern = labelPattern,
-                        charToRm = charToRm)
+    adja.tmp <- rename_taxa(adja1, toRename = "both", 
+                            shortenLabels = shortenLabels,
+                            labelLength = labelLength, 
+                            labelPattern = labelPattern,
+                            charToRm = charToRm)
+    
     labels1 <- rownames(adja.tmp)
     
   } else if(is.logical(labels)){
@@ -992,8 +1000,9 @@ plot.microNetProps <- function(x,
       lay2 <- layout
 
     } else if(is.function(layout)){
-      gr <- graph_from_adjacency_matrix(adja2, mode = "undirected",
-                                        weighted = TRUE, diag = FALSE)
+      gr <- igraph::graph_from_adjacency_matrix(adja2, mode = "undirected",
+                                                weighted = TRUE, diag = FALSE)
+
       lay2 <- layout(gr)
       rownames(lay2) <- colnames(adja2)
 
@@ -1004,6 +1013,7 @@ plot.microNetProps <- function(x,
                      label.font = labelFont2, label.cex = cexLabels,
                      edge.width = edgeWidth,  repulsion = repulsion, cut = cut2,
                      DoNotPlot = TRUE, shape = nodeShape2, ...)$layout
+
       rownames(lay2) <- rownames(adja2)
 
     }
@@ -1050,8 +1060,8 @@ plot.microNetProps <- function(x,
       
       dframe <- apply(dframe, 2, format, width = formWidth)
       
-      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
-                  col.names = FALSE, append = FALSE)
+      utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                         col.names = FALSE, append = FALSE)
       
       labelMat <- cbind(labels2, labels2.orig)
       labelMat <- rbind(c("Renamed", "Original"), labelMat)
@@ -1064,8 +1074,8 @@ plot.microNetProps <- function(x,
       # apply format over each column for alignment
       dframe <- apply(dframe, 2, format, width = formWidth)
       
-      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
-                  col.names = FALSE, append = TRUE)
+      utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE,
+                         col.names = FALSE, append = TRUE)
     }
 
     #--------------------------------------------
@@ -1097,20 +1107,18 @@ plot.microNetProps <- function(x,
       }
       dframe <- apply(dframe, 2, format, width = formWidth)
       
-      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
-                  col.names = FALSE, append = FALSE)
+      utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                         col.names = FALSE, append = FALSE)
     }
     
   }
 
 
-  #==========================================================================
+  #=============================================================================
   ### plot network(s)
-
 
   if(twoNets){
       par(mfrow = c(1,2))
-
 
     if(sameLayout){
       if(layoutGroup == 1){
