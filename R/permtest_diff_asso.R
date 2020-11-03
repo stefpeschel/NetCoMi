@@ -85,7 +85,7 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
 
   if(cores > 1){
     cl <- makeCluster(cores, outfile = "")
-    registerDoSNOW(cl)
+    doSNOW::registerDoSNOW(cl)
     if(!is.null(logFile)) cat("", file=logFile, append=FALSE)
     '%do_or_dopar%' <- get('%dopar%')
   } else{
@@ -179,15 +179,18 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
   #____________________________________________________
 
   output <- list()
+  
   if(verbose) message("")
 
   if("connect.pairs" %in% method){
+    
     # test statistic for original data
     connectPairsOrig <- diff_connect_pairs(assoMat1, assoMat2, fisherTrans)
 
     # test statistics for simulated data
     connectPairs <- matrix(NA, nPerm, length(connectPairsOrig),
                             dimnames = list(1:nPerm, names(connectPairsOrig)))
+    
     for(i in 1:nPerm){
       connectPairs[i, ] <- result[[i]]$connectPairs
     }
@@ -204,8 +207,8 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
     #                               nExceed = nExceed, ADalpha = 0.05)
     # }
 
-
     names(pvalsVec) <- names(connectPairsOrig)
+    
     output[["pvalsVec"]] <- pvalsVec
 
     # adjust for multiple testing
@@ -213,15 +216,19 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
       message("Adjust for multiple testing using '", adjust, "' ... ",
               appendLF = FALSE)
     }
+    
     pAdjust <- multAdjust(pvals = pvalsVec, adjust = adjust,
                           trueNullMethod = trueNullMethod, verbose = verbose)
+    
     if(verbose & adjust != "none") message("Done.")
+    
     output[["pAdjustVec"]] <- pAdjust
 
     mat.tmp <- assoMat1
     mat.tmp[lower.tri(mat.tmp)] <- pvalsVec
     mat.tmp[upper.tri(mat.tmp)] <- t(mat.tmp)[upper.tri(t(mat.tmp))]
     pvalsMat <- mat.tmp
+    
     output[["pvalsMat"]] <- pvalsMat
 
     if(adjust == "none"){
@@ -236,11 +243,13 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
 
   if("connect.variables" %in% method){
 
-    connectVariablesOrig <- diff_connect_variables(assoMat1, assoMat2, nVars, fisherTrans)
+    connectVariablesOrig <- diff_connect_variables(assoMat1, assoMat2, nVars, 
+                                                   fisherTrans)
 
     connectVariables <- matrix(NA, nPerm, length(connectVariablesOrig),
                                 dimnames = list(1:nPerm,
                                                 names(connectVariablesOrig)))
+    
     for(i in 1:nPerm){
       connectVariables[i, ] <- result[[i]]$connectVariables
     }
@@ -250,22 +259,28 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
     })
 
     names(pvalsConnectVariables) <- names(connectVariablesOrig)
+    
     output[["pvalsConnectVariables"]] <- pvalsConnectVariables
 
     # adjust for multiple testing
     if(adjust2 == "none"){
       output[["pAdjustConnectVariables"]] <- NULL
+      
     } else if(adjust == "lfdr"){
-      lfdr <- fdrtool(pvalsConnectVariables, statistic = "pvalue", plot = FALSE)$lfdr
+      lfdr <- fdrtool::fdrtool(pvalsConnectVariables, statistic = "pvalue", 
+                               plot = FALSE)$lfdr
       output[["pAdjustConnectVariables"]] <- lfdr
+      
     } else{
       p.adj <- p.adjust(pvalsConnectVariables, adjust2)
       output[["pAdjustConnectVariables"]] <- p.adj
     }
+
   }
 
   if("connect.network" %in% method){
-    connectNetworkOrig <- diff_connect_network(assoMat1, assoMat2, nVars, fisherTrans)
+    connectNetworkOrig <- diff_connect_network(assoMat1, assoMat2, nVars, 
+                                               fisherTrans)
 
     connectNetwork <- numeric(nPerm)
 
@@ -276,7 +291,6 @@ permtest_diff_asso <- function(countMat1, countMat2, assoMat1, assoMat2,
     pvalConnectNetwork <- sum(connectNetwork >= connectNetworkOrig) / nPerm
     output[["pvalConnectNetwork"]] <- pvalConnectNetwork
   }
-
 
   assoPerm1 <- assoPerm2 <- list()
   for(i in 1:nPerm){
@@ -325,6 +339,7 @@ diff_connect_variables <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE
     # build matrix with absolute differences of z-values
     diff <- abs(Z1 - Z2)
     diag(diff) <- 0
+
   } else{
     diff <- abs(assoMat1 - assoMat2)
   }
@@ -336,6 +351,7 @@ diff_connect_variables <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE
   for(i in 1:nVars){
     d_vec[i] <- sum(diff[i, -i]) / (nVars - 1)
   }
+
   names(d_vec) <- colnames(assoMat1)
   return(d_vec)
 }

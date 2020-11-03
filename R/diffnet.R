@@ -152,10 +152,8 @@
 #'   \insertRef{farcomeni2007some}{NetCoMi} \cr
 #'   \insertRef{fisher1992statistical}{NetCoMi} \cr
 #'   \insertRef{gill2010statistical}{NetCoMi}
-#' @importFrom discordant discordantRun
-#' @importFrom Biobase ExpressionSet exprs
+#' @importFrom Biobase ExpressionSet
 #' @importFrom Rdpack reprompt
-#' @importFrom limma propTrueNull
 #' @importFrom stats p.adjust.methods
 #' @importFrom stats pnorm
 #' @export
@@ -214,6 +212,23 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
 
   trueNullMethod <- match.arg(trueNullMethod, c("convest", "lfdr", "mean",
                                                 "hist", "farco"))
+  
+  if(diffMethod != "discordant" && adjust == "adaptBH" && 
+     !requireNamespace("limma", quietly = TRUE)){
+    
+    message("Installing missing package 'limma' ...")
+    
+    if(!requireNamespace("BiocManager", quietly = TRUE)){
+      utils::install.packages("BiocManager")
+    }
+    
+    BiocManager::install("limma", dependencies = TRUE)
+    message("Done.")
+    
+    message("Check whether installed package can be loaded ...")
+    requireNamespace("limma")
+    message("Done.")
+  }
 
   #-----------------------------------------------------------------------------
 
@@ -224,10 +239,27 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
   assoMat2 <- x$assoEst2
 
   if(diffMethod == "discordant"){
+
+    if(!requireNamespace("discordant", quietly = TRUE)){
+      
+      message("Installing missing package 'discordant' ...")
+      
+      if(!requireNamespace("BiocManager", quietly = TRUE)){
+        utils::install.packages("BiocManager")
+      }
+      
+      BiocManager::install("discordant", dependencies = TRUE)
+      message("Done.")
+      
+      message("Check whether installed package can be loaded ...")
+      requireNamespace("discordant")
+      message("Done.")
+    }
+    
     if(!is.null(seed)) set.seed(seed)
 
     # create object of class ExpressionSet
-    x_expr <- ExpressionSet(assayData = t(rbind(countMat1, countMat2)))
+    x_expr <- Biobase::ExpressionSet(assayData = t(rbind(countMat1, countMat2)))
 
     groups <- c(rep(1, nrow(countMat1)), rep(2, nrow(countMat2)))
 
@@ -240,7 +272,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     names(corrVector2) <- vector_names
 
     # Erzeugen der Klassen mit Wahrscheinlichkeiten mittels 'discordant'-Methode
-    discord <- discordantRun(corrVector1, corrVector2, x_expr)
+    discord <- discordant::discordantRun(corrVector1, corrVector2, x_expr)
 
     # Matrix mit zugeordneten Klassen (Klassen mit höchster Wsk.)
     classMat <- discord$classMatrix

@@ -38,9 +38,9 @@ get_node_size <- function(nodeSize, nodeSizeSpread, adja, countMat, normCounts,
 
   } else if(nodeSize %in% c("counts")){
     if(ncol(adja) == ncol(countMat)){
-      absfreq <- apply(countMat, 2, median)[kept]
+      absfreq <- apply(countMat, 2, stats::median)[kept]
     } else{
-      absfreq <- apply(countMat, 1, median)[kept]
+      absfreq <- apply(countMat, 1, stats::median)[kept]
     }
 
     names(absfreq) <- colnames(adja)
@@ -51,9 +51,9 @@ get_node_size <- function(nodeSize, nodeSizeSpread, adja, countMat, normCounts,
   } else if(nodeSize %in% c("normCounts")){
 
     if(ncol(adja) == ncol(countMat)){
-      normfreq <- apply(normCounts, 2, median) + 0.01
+      normfreq <- apply(normCounts, 2, stats::median) + 0.01
     } else{
-      normfreq <- apply(normCounts, 1, median) + 0.01
+      normfreq <- apply(normCounts, 1, stats::median) + 0.01
     }
 
     normfreq <- normfreq[kept]

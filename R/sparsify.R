@@ -31,7 +31,7 @@ sparsify <- function(assoMat, countMat, sampleSize, measure, measurePar, assoTyp
       }
 
       tstat <- (assoVec * sqrt(df)) / sqrt(1 - assoVec^2)
-      pvals <- 2 * (1 - pt(abs(tstat), df))
+      pvals <- 2 * (1 - stats::pt(abs(tstat), df))
       pvals[pvals] <- 1
 
     } else{   #bootstrap procedure
@@ -93,17 +93,17 @@ sparsify <- function(assoMat, countMat, sampleSize, measure, measurePar, assoTyp
 
       if(verbose == 3){
         message("\nExecute pickSoftThreshold() ...")
-        softthresh1 <- pickSoftThreshold(simMat, dataIsExpr = FALSE,
-                                        networkType = softThreshType,
-                                        RsquaredCut = softThreshCut,
-                                        verbose = 5)
+        softthresh1 <- WGCNA::pickSoftThreshold(simMat, dataIsExpr = FALSE,
+                                                networkType = softThreshType,
+                                                RsquaredCut = softThreshCut,
+                                                verbose = 5)
       } else{
-        invisible(capture.output(softthresh1 <-
-                                   pickSoftThreshold(simMat,
-                                                     dataIsExpr = FALSE,
-                                                     networkType = softThreshType,
-                                                     RsquaredCut = softThreshCut,
-                                                     verbose = 2)))
+        invisible(capture.output(softthresh1 <- 
+                         WGCNA::pickSoftThreshold(simMat,
+                                                  dataIsExpr = FALSE,
+                                                  networkType = softThreshType,
+                                                  RsquaredCut = softThreshCut,
+                                                  verbose = 2)))
       }
 
       power <-  softthresh1$powerEstimate

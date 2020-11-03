@@ -20,19 +20,19 @@
 #'   \insertRef{farcomeni2007some}{NetCoMi}
 #'
 #' @importFrom fdrtool fdrtool
-#' @importFrom limma propTrueNull
 #' @importFrom stats p.adjust
 
 multAdjust <- function(pvals, adjust, trueNullMethod, verbose){
 
   if(adjust == "lfdr"){
+    
     if(verbose){
       message("")
       message("Execute fdrtool() ...")
     }
 
-    pAdjust <- fdrtool(pvals, statistic = "pvalue", plot = FALSE,
-                       verbose = verbose)$lfdr
+    pAdjust <- fdrtool::fdrtool(pvals, statistic = "pvalue", plot = FALSE,
+                                verbose = verbose)$lfdr
     names(pAdjust) <- names(pvals)
 
   } else if(adjust == "adaptBH"){
@@ -70,7 +70,7 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose){
     names(pAdjust) <- names(pvals)
 
   } else{
-    pAdjust <- p.adjust(pvals, adjust)
+    pAdjust <- stats::p.adjust(pvals, adjust)
   }
 
   return(pAdjust)

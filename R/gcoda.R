@@ -41,7 +41,6 @@
 #'   \insertRef{fang2016gcodaGithub}{NetCoMi}\cr
 #'   \insertRef{fang2017gcoda}{NetCoMi}
 #'
-#' @import huge
 #' @export
 
 gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
@@ -50,12 +49,12 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   # Counts or fractions?
   if(counts) {
     x <- x + pseudo
-    x <- x / rowSums(x)
+    x <- x / Matrix::rowSums(x)
   }
   n <- nrow(x)
   p <- ncol(x)
   # Log transformation for compositional data
-  S <- var(log(x) - rowMeans(log(x)))
+  S <- var(log(x) - Matrix::rowMeans(log(x)))
   # Generate lambda via lambda.min.ratio and nlambda
   lambda.max <- max(max(S - diag(p)), -min(S - diag(p)))
   lambda.min <- lambda.min.ratio * lambda.max
@@ -66,7 +65,7 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   if(cores > 1){
     cl <- snow::makeCluster(cores)
     #snow::clusterExport(cl, c("S", "icov", "lambda"), envir = environment())
-    registerDoSNOW(cl)
+    doSNOW::registerDoSNOW(cl)
     '%do_or_dopar%' <- get('%dopar%')
     if(verbose) message("Start parallel foreach loop ...")
   } else{
@@ -74,8 +73,8 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   }
   
   if(verbose){
-    pb<-txtProgressBar(0,nlambda,style=3)
-    progress<-function(n){
+    pb <- utils::txtProgressBar(0,nlambda,style=3)
+    progress <- function(n){
       setTxtProgressBar(pb,n)
     }
 
@@ -181,13 +180,14 @@ gcoda_sub <- function(A, iSig = NULL, lambda = 0.1, tol_err = 1e-4,
   fval_cur <- Inf
 
   while(err > tol_err && k < k_max) {
-    iSig_O <- rowSums(iSig)
+    iSig_O <- Matrix::rowSums(iSig)
     iS_iSig <- 1 / sum(iSig_O)
     iSig_O2 <- iSig_O * iS_iSig
-    A_iSig_O2 <- rowSums(A * rep(iSig_O2, each = p))
+    A_iSig_O2 <- Matrix::rowSums(A * rep(iSig_O2, each = p))
     A2 <- A - A_iSig_O2 - rep(A_iSig_O2, each = p) +
       sum(iSig_O2 * A_iSig_O2) + iS_iSig
-    iSig2 <- huge::huge(x = A2, lambda = lambda, method = "glasso", verbose = FALSE)$icov[[1]]
+    iSig2 <- huge::huge(x = A2, lambda = lambda, method = "glasso", 
+                        verbose = FALSE)$icov[[1]]
 
     fval_new <- obj_gcoda(iSig = iSig2, A = A, lambda = lambda)
     xerr <- max(abs(iSig2 - iSig) / (abs(iSig2) + 1))
@@ -210,10 +210,10 @@ gcoda_sub <- function(A, iSig = NULL, lambda = 0.1, tol_err = 1e-4,
 # Objective function value of gcoda (negative log likelihood + penalty)
 obj_gcoda <- function(iSig, A, lambda) {
   p <- ncol(A)
-  iSig_O <- rowSums(iSig)
+  iSig_O <- Matrix::rowSums(iSig)
   S_iSig <- sum(iSig_O)
   nloglik <- - log(det(iSig)) + sum(iSig * A) + log(S_iSig) -
-    sum(iSig_O * rowSums(A * rep(iSig_O, each = p))) / S_iSig
+    sum(iSig_O * Matrix::rowSums(A * rep(iSig_O, each = p))) / S_iSig
   pen <- lambda * sum(abs(iSig))
   return(nloglik + pen)
 }

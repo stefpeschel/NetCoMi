@@ -27,7 +27,8 @@ filter_taxa <- function(countMat, filter, filterParam){
     if (length(filter) > 1) {
       stop('Filter method "highestFreq" not comparable with other filter methods.')
     }
-    keepCols <- names(sort(colSums(countMat), decreasing = TRUE)[1:highestFreq])
+    keepCols <- names(sort(Matrix::colSums(countMat), 
+                           decreasing = TRUE)[1:highestFreq])
     #countMat <- countMat[, names_highFreq]
 
   } else{
@@ -37,7 +38,7 @@ filter_taxa <- function(countMat, filter, filterParam){
                0.01,
                filterParam$relFreq)
       idx_relfreq <-
-        which(colSums(countMat) >= sum(colSums(countMat)) * relFreq)
+        which(Matrix::colSums(countMat) >= sum(Matrix::colSums(countMat)) * relFreq)
     } else{
       idx_relfreq <- 1:ncol(countMat)
     }
@@ -48,7 +49,7 @@ filter_taxa <- function(countMat, filter, filterParam){
         ifelse(is.null(filterParam$totalReads),
                1000,
                filterParam$totalReads)
-      idx_totalreads <- which(colSums(countMat) >= totalReads)
+      idx_totalreads <- which(Matrix::colSums(countMat) >= totalReads)
     } else{
       idx_totalreads <- 1:ncol(countMat)
     }

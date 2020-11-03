@@ -8,7 +8,7 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
 
   } else{
 
-    rsums <- rowSums(countMat)
+    rsums <- Matrix::rowSums(countMat)
 
     if(needfrac || needint){
       countMat <- t(apply(countMat, 1, function(x) x/sum(x)))
@@ -28,7 +28,7 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
 
       if(verbose %in% 2:3) message("Execute multRepl() ... ", appendLF = FALSE)
 
-      countMat_repl <- as.matrix(do.call("multRepl", zeroParam))
+      countMat_repl <- as.matrix(do.call(zCompositions::multRepl, zeroParam))
 
       if(verbose %in% 2:3) message("Done.")
 
@@ -69,7 +69,7 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
         if(verbose %in% 2:3) message("Execute lrEM() ... ", appendLF = FALSE)
         if(verbose == 3) message("")
 
-        countMat_repl <- as.matrix(do.call("lrEM", zeroParam))
+        countMat_repl <- as.matrix(do.call(zCompositions::lrEM, zeroParam))
         countMat_repl <- countMat_repl[-nrow(countMat_repl), ]
 
         if(verbose %in% 2:3) message("Done.")
@@ -78,7 +78,7 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
         zeroParam$X <- countMat
         if(verbose %in% 2:3) message("Execute lrEM() ... ", appendLF = FALSE)
         if(verbose == 3) message("")
-        countMat_repl <- as.matrix(do.call("lrEM", zeroParam))
+        countMat_repl <- as.matrix(do.call(zCompositions::lrEM, zeroParam))
         if(verbose %in% 2:3) message("Done.")
       }
 
@@ -90,11 +90,13 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
         # GBM does not work if the data set contains taxa with a positive number of
         # read counts in only one sample
         nonzerocols <- apply(countMat, 2, function(x) sum(x > 0))
+        
         if(any(nonzerocols <= 1)){
           torm <- which(nonzerocols <= 1)
           zeroParam$X <- countMat[, -torm]
           warning('Taxa with only one positive observation removed
                   (needed for bayesian zero replacement method "GBM".')
+          
         } else{
           zeroParam$X <- countMat
         }
@@ -103,20 +105,19 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
         zeroParam$X <- countMat
       }
 
-
       zeroParam$suppress.print <- ifelse(verbose == 3, FALSE, TRUE)
-
 
       if(verbose %in% 2:3) message("Execute cmultRepl() ... ", appendLF = FALSE)
       if(verbose == 3) message("")
-      countMat_repl <- tryCatch(do.call("cmultRepl", zeroParam),
-                                error=function(e){
-                                  print(paste("Function for zero replacement caused an error:  ", e))
-                                })
+      
+      countMat_repl <- tryCatch(do.call(zCompositions::cmultRepl, zeroParam),
+          error=function(e){
+            print(paste("Function for zero replacement caused an error:  ", e))
+          })
+      
       if(verbose %in% 2:3) message("Done.")
 
       countMat_repl <- as.matrix(countMat_repl)
-
 
     } else{
       warning("No zero treatment conducted. 'zeroMethod' must be one of",
