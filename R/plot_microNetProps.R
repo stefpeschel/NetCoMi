@@ -184,17 +184,35 @@
 #'   \code{featVecCol}), \code{"colorVec"} (the vector \code{colorVec}). For the
 #'   former two cases, the colors can be specified via \code{colorVec}. If
 #'   \code{colorVec} is not defined, the \code{rainbow} function from
-#'   \code{grDevices} package  is used. Also accecpted is a character value
+#'   \code{grDevices} package  is used. Also accepted is a character value
 #'   defining a color, which is used for all nodes. If \code{NULL}, "grey40" is
 #'   used for all nodes.
-#' @param colorVec a vector specifying the node colors. If \code{nodeColor}
-#'   is set to \code{"colorVec"}, the vector defines a color for each node
-#'   implying that its names must match the node's names (ensured if names match
-#'   the colnames of the original count matrix).
+#' @param colorVec a vector or list with two vectors used to specify node colors. 
+#'   Different usage depending on the "nodeColor" argument:
+#'   \describe{
+#'   \item{\code{nodeColor = "cluster"}}{\code{colorVec} must be a vector. 
+#'   Depending on the \code{sameClustCol} argument, the colors are used only in 
+#'   one or both networks. If the vector is not long enough, a warning is 
+#'   returned and colors from \code{rainbow()} are used for the remaining 
+#'   clusters.}
+#'   \item{\code{nodeColor = "feature"}}{Defines a color for each level of 
+#'   \code{featVecCol}. Can be a list with two vectors used for the two networks 
+#'   (for a single network, only the first element is used) or a vector, which 
+#'   is used for both groups if two networks are plotted.}
+#'   \item{\code{nodeColor = "colorVec"}}{\code{colorVec} defines a color for 
+#'   each node implying that its names must match the node's names (which is 
+#'   also ensured if names match the colnames of the original count matrix). 
+#'   Can be a list with two vectors used for the two networks (for a single 
+#'   network, only the first element is used) or a vector, which is used for 
+#'   both groups if two networks are plotted.}}
 #' @param featVecCol  a vector with a feature for each node. Used for coloring
 #'   nodes if \code{nodeColor} is set to \code{"feature"}. Is coerced to a
 #'   factor. If \code{colorVec} is given, its length must be larger than or
 #'   equal to the number of feature levels.
+#' @param sameFeatCol logical indicating wether the same color should be used 
+#'   for same features in both networks (only used if two networks are plottet, 
+#'   \code{nodeColor = "feature"}, and no color vector/list is given (via 
+#'   \code{featVecCol})).
 #' @param sameClustCol if TRUE (default) and two networks are plotted, clusters
 #'   having at least \code{sameColThresh} nodes in common have the same color.
 #'   Only used if \code{nodeColor} is set to \code{"cluster"}.
@@ -312,11 +330,14 @@
 #' amgut_props <- netAnalyze(amgut_net, clustMethod = "hierarchical",
 #'                           clustPar = list(k=2))
 #'
-#' # network plots:
+#' ### network plots
+#' # clusters are used for node coloring: 
 #' plot(amgut_props, nodeColor = "cluster")
+#' 
+#' # a higher repulsion places nodes with high edge weight closer together:
 #' plot(amgut_props, nodeColor = "cluster", repulsion = 1.3)
 #'
-#' # with feature vector according to which nodes are colored
+#' # a feature vector is used for node coloring:
 #' set.seed(123456)
 #' colVec <- sample(1:5, nrow(amgut1.filt), replace = TRUE)
 #' names(colVec) <- rownames(amgut1.filt)
@@ -325,7 +346,6 @@
 #'      colorVec = heat.colors(5))
 #'
 #' # with a further feature vector for node shapes
-#' # with feature vector according to which nodes are colored
 #' shapeVec <- sample(1:3, nrow(amgut1.filt), replace = TRUE)
 #' names(shapeVec) <- rownames(amgut1.filt)
 #'
@@ -361,10 +381,12 @@ plot.microNetProps <- function(x,
                                nodeFilterPar = NULL,
                                rmSingles = "none",
                                nodeSize = "fix",
+                               normPar = NULL,
                                nodeSizeSpread = 4,
                                nodeColor = "cluster",
                                colorVec = NULL,
                                featVecCol = NULL,
+                               sameFeatCol = TRUE,
                                sameClustCol = TRUE,
                                sameColThresh = 2L,
                                nodeShape = NULL,
@@ -547,6 +569,12 @@ plot.microNetProps <- function(x,
   # node colors
 
   if(nodeColor == "cluster"){
+    
+    
+    if(!is.null(colorVec)){
+      stopifnot(is.vector(colorVec))
+    }
+
     clust1 <- x$clustering$clust1
     clust2 <- x$clustering$clust2
 
@@ -577,21 +605,43 @@ plot.microNetProps <- function(x,
     stopifnot(all(colnames(adja1) %in% names(featVecCol)))
 
     if(is.null(colorVec)){
-      cols <- grDevices::rainbow(length(levels(featVecCol)))
-    } else{
-      if(length(colorVec) < length(levels(featVecCol))){
-        stop(paste("Argument 'featVecCol' has", length(levels(featVecCol)),
-                   "levels but 'colorVec' has only length ", length(colorVec)))
+      if(sameFeatCol){
+        colorVec1 <- colorVec2 <- grDevices::rainbow(length(levels(featVecCol)))
+      } else{
+        cols <- grDevices::rainbow(2 * length(levels(featVecCol)))
+        colorVec1 <- cols[seq.int(1L, length(cols), 2L)]
+        colorVec2 <- cols[seq.int(2L, length(cols), 2L)]
       }
-      cols <- colorVec
+      
+    } else{
+      if(is.list(colorVec)){
+        stopifnot(length(colorVec) == 2)
+        colorVec1 <- colorVec[[1]]
+        colorVec2 <- colorVec[[2]]
+        
+        if(length(colorVec1) < length(levels(featVecCol)) || 
+           length(colorVec2) < length(levels(featVecCol))){
+          stop("Length of color vector(s) (argument 'colorVec') shorter than
+               number of levels of 'featVecCol'.")
+        }
+        
+      } else{
+        if(length(colorVec) < length(levels(featVecCol))){
+          stop(paste("Argument 'featVecCol' has", length(levels(featVecCol)),
+                     "levels but 'colorVec' has only length ", length(colorVec)))
+        }
+        
+        colorVec1 <- colorVec2 <- colorVec
+      }
     }
 
     feature1 <- featVecCol[colnames(adja1)]
     nodecol1 <- character(length(feature1))
     
     for(i in seq_along(levels(feature1))){
-      nodecol1[feature1 == levels(feature1)[i]] <- cols[i]
+      nodecol1[feature1 == levels(feature1)[i]] <- colorVec1[i]
     }
+    
     nodecol2 <- NULL
 
     if(twoNets){
@@ -601,18 +651,29 @@ plot.microNetProps <- function(x,
       nodecol2 <- character(length(feature2))
       
       for(i in seq_along(levels(feature2))){
-        nodecol2[feature2 == levels(feature2)[i]] <- cols[i]
+        nodecol2[feature2 == levels(feature2)[i]] <- colorVec2[i]
       }
     }
 
   } else if(nodeColor == "colorVec"){
-    stopifnot(all(colnames(adja1) %in% names(colorVec)))
-    nodecol1 <- colorVec[colnames(adja1)]
+    
+    if(is.list(colorVec)){
+      stopifnot(length(colorVec) == 2)
+      colorVec1 <- colorVec[[1]]
+      colorVec2 <- colorVec[[2]]
+      
+    } else{
+      colorVec1 <- colorVec2 <- colorVec
+    }
+    
+    stopifnot(all(colnames(adja1) %in% names(colorVec1)))
+    nodecol1 <- colorVec1[colnames(adja1)]
+    
     nodecol2 <- NULL
 
     if(twoNets){
-      stopifnot(all(colnames(adja2) %in% names(colorVec)))
-      nodecol2 <- colorVec[colnames(adja2)]
+      stopifnot(all(colnames(adja2) %in% names(colorVec2)))
+      nodecol2 <- colorVec2[colnames(adja2)]
     }
 
   } else if(is.character(nodeColor)){
