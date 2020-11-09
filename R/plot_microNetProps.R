@@ -24,10 +24,12 @@
 #'   nodeFilterPar = NULL,
 #'   rmSingles = "none",
 #'   nodeSize = "fix",
+#'   normPar = NULL,
 #'   nodeSizeSpread = 4,
 #'   nodeColor = "cluster",
 #'   colorVec = NULL,
 #'   featVecCol = NULL,
+#'   sameFeatCol = TRUE,
 #'   sameClustCol = TRUE,
 #'   sameColThresh = 2L,
 #'   nodeShape = NULL,
@@ -149,7 +151,7 @@
 #'   \code{nodeFilter}.
 #' @param rmSingles character value indicating how to handle unconnected nodes.
 #'   Possible values are \code{"all"} (all single nodes are deleted),
-#'   \code{"inBoth"} (only nodes that are unconnected in both networks are
+#'   \code{"inboth"} (only nodes that are unconnected in both networks are
 #'   removed) or \code{"none"} (default; no nodes are removed). Cannot be set to
 #'   \code{"all"}, if the same layout is used for both networks.
 #' @param nodeSize  character indicating how node sizes should be determined.
@@ -157,12 +159,20 @@
 #'   \item{\code{"fix"}}{Default. All nodes have same size (hub size can be
 #'   defined separately via \code{cexHubs}).}
 #'   \item{\code{"degree"}, \code{"betweenness"}, \code{"closeness"},
-#'   \code{"eigenvector"}}{Size scaled according to node's degree.}
+#'   \code{"eigenvector"}}{Size scaled according to node's centrality}
 #'   \item{\code{"counts"}}{Size scaled according to the sum of counts (of
 #'   microbes or samples, depending on what nodes express).}
 #'   \item{\code{"normCounts"}}{Size scaled according to the sum of normalized
 #'   counts (of microbes or samples), which are exported by
-#'   \code{netConstruct}.}}
+#'   \code{netConstruct}.}
+#'   \item{\code{"TSS", "fractions", "CSS", "COM", "rarefy", "VST", "clr", 
+#'   "mclr"}}{Size scaled according to the sum of normalized
+#'   counts. Available are the same options as for \code{normMethod} in
+#'   \code{\link{netConstruct}}. Parameters are set via \code{normPar}.}
+#'   }
+#' @param normPar list with parameters passed to the function for normalization
+#'   if \code{nodeSize} is set to a normalization method. Used analogously to
+#'   \code{normPar} of \code{\link{netConstruct}()}.
 #' @param nodeSizeSpread positive numeric value indicating the spread of node
 #'   sizes. The smaller the value, the more similar are the node sizes. Node 
 #'   sizes are calculated by: (x - min(x)) / (max(x) - min(x)) * nodeSizeSpread 
@@ -678,10 +688,11 @@ plot.microNetProps <- function(x,
   # define size of vertices
 
   if(!is.numeric(nodeSize)){
-    nodeSize1 <- get_node_size(nodeSize = nodeSize, 
+    nodeSize1 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
                                nodeSizeSpread = nodeSizeSpread,
                                adja = adja1, countMat = x$input$countMat1,
-                               normCounts = x$input$normCounts1, kept = kept1,
+                               normCounts = x$input$normCounts1,
+                               assoType = x$input$assoType, kept = kept1,
                                cexNodes = cexNodes, cexHubs = cexHubs,
                                hubs = x$hubs$hubs1, 
                                highlightHubs = highlightHubs,
@@ -690,10 +701,11 @@ plot.microNetProps <- function(x,
                                close = x$centralities$close1,
                                eigen = x$centralities$eigenv1)
     if(twoNets){
-      nodeSize2 <- get_node_size(nodeSize = nodeSize, 
+      nodeSize2 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
                                  nodeSizeSpread = nodeSizeSpread,
                                  adja = adja2, countMat = x$input$countMat2,
-                                 normCounts = x$input$normCounts2, kept = kept2,
+                                 normCounts = x$input$normCounts2, 
+                                 assoType = x$input$assoType, kept = kept2,
                                  cexNodes = cexNodes, cexHubs = cexHubs,
                                  hubs = x$hubs$hubs2, 
                                  highlightHubs = highlightHubs,
@@ -792,7 +804,7 @@ plot.microNetProps <- function(x,
   if(!is.null(cut) & (length(cut) == 1)){
     stopifnot(is.numeric(cut))
     cut1 <- cut2 <- cut
-  } else if(!is.null(cut) & (length(cut) == 1)){
+  } else if(!is.null(cut) & (length(cut) == 2)){
     stopifnot(is.numeric(cut))
     cut1 <- cut[1]
     cut2 <- cut[2]

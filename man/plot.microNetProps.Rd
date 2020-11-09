@@ -26,10 +26,12 @@
   nodeFilterPar = NULL,
   rmSingles = "none",
   nodeSize = "fix",
+  normPar = NULL,
   nodeSizeSpread = 4,
   nodeColor = "cluster",
   colorVec = NULL,
   featVecCol = NULL,
+  sameFeatCol = TRUE,
   sameClustCol = TRUE,
   sameColThresh = 2L,
   nodeShape = NULL,
@@ -169,7 +171,7 @@ Necessary parameters (e.g. "x") are given via the argument
 
 \item{rmSingles}{character value indicating how to handle unconnected nodes.
 Possible values are \code{"all"} (all single nodes are deleted),
-\code{"inBoth"} (only nodes that are unconnected in both networks are
+\code{"inboth"} (only nodes that are unconnected in both networks are
 removed) or \code{"none"} (default; no nodes are removed). Cannot be set to
 \code{"all"}, if the same layout is used for both networks.}
 
@@ -178,12 +180,21 @@ Possible values are: \describe{
 \item{\code{"fix"}}{Default. All nodes have same size (hub size can be
 defined separately via \code{cexHubs}).}
 \item{\code{"degree"}, \code{"betweenness"}, \code{"closeness"},
-\code{"eigenvector"}}{Size scaled according to node's degree.}
+\code{"eigenvector"}}{Size scaled according to node's centrality}
 \item{\code{"counts"}}{Size scaled according to the sum of counts (of
 microbes or samples, depending on what nodes express).}
 \item{\code{"normCounts"}}{Size scaled according to the sum of normalized
 counts (of microbes or samples), which are exported by
-\code{netConstruct}.}}}
+\code{netConstruct}.}
+\item{\code{"TSS", "fractions", "CSS", "COM", "rarefy", "VST", "clr", 
+"mclr"}}{Size scaled according to the sum of normalized
+counts. Available are the same options as for \code{normMethod} in
+\code{\link{netConstruct}}. Parameters are set via \code{normPar}.}
+}}
+
+\item{normPar}{list with parameters passed to the function for normalization
+if \code{nodeSize} is set to a normalization method. Used analogously to
+\code{normPar} of \code{\link{netConstruct}()}.}
 
 \item{nodeSizeSpread}{positive numeric value indicating the spread of node
 sizes. The smaller the value, the more similar are the node sizes. Node 
