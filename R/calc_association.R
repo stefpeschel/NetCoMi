@@ -51,6 +51,8 @@ calc_association <- function(countMat, measure, measurePar, verbose){
                                   inner_iter = measurePar$inner_iter,
                                   th = measurePar$th,
                                   iter = measurePar$iter)$Cor
+    
+    colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
 
   } else if(measure == "cclasso"){
 

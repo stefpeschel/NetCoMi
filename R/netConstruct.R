@@ -427,7 +427,7 @@ netConstruct <- function(data,
       }
 
     } else{
-      if (all(colnames(data) %in% rownames(data))) {
+      if(identical(colnames(data), rownames(data))) {
         warning(paste0("Row names and column names of 'data' are equal. ",
                        "Ensure 'data' is a count matrix."))
       }
