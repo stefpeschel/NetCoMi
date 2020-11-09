@@ -79,6 +79,13 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
           clustcol2[clust2 == c] <- clustcols[i]
           i = i+1
         }
+        
+        if(!is.null(colorVec) && (i-1) > length(colorVec)){
+          
+          warning(i-1, " colors needed but 'colorVec' has only length ", 
+                  length(colorVec), ". Missing colors are filled up with colors from rainbow().")
+          
+        }
 
         clustcol1[noclust1] <- "grey80"
         clustcol2[noclust2] <- "grey80"
