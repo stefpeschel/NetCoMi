@@ -75,7 +75,10 @@ and \code{"euclidean"}, \code{"bray"}, \code{"kld"}, \code{"jeffrey"},
 measures. Parameters are set via \code{measurePar}.}
 
 \item{measurePar}{list with parameters passed to the function for computing
-associations/dissimilarities. See details for the respective functions.}
+associations/dissimilarities. See details for the respective functions. 
+For SpiecEasi or SPRING as association measure, an additional list element
+"symBetaMode" is accepted to define the "mode" argument of 
+\code{\link[SpiecEasi]{symBeta}}.}
 
 \item{filtTax}{character indicating how taxa shall be filtered. Possible
 options are:
@@ -410,11 +413,13 @@ data("amgut2.filt.phy")
 # network construction:
 amgut_net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
                            measurePar = list(method = "mb",
-                           pulsar.params = list(rep.num = 10)),
+                                             pulsar.params = list(rep.num = 10),
+                                             symBetaMode = "ave"),
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
                            filtSamp = "totalReads",
-                           filtSampPar = list(totalReads = 1000))
+                           filtSampPar = list(totalReads = 1000),
+                           verbose = 3)
 
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy")
 

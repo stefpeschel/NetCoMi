@@ -83,15 +83,23 @@ calc_association <- function(countMat, measure, measurePar, verbose){
     diag(assoMat) <- 1
 
   } else if(measure == "spieceasi"){
+    
+    if(!is.null(measurePar$symBetaMode)){
+      symBetaMode <- measurePar$symBetaMode
+      measurePar$symBetaMode <- NULL
+    } else{
+      symBetaMode <- "ave"
+    }
 
     measurePar$data <- countMat
 
     if(is.null(measurePar$method)) measurePar$method <- "mb"
-
-    measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
     
     if(verbose == 3){
+      measurePar$verbose <- TRUE
       message("")
+    } else{
+      measurePar$verbose <- FALSE
     }
 
     spiecres <- do.call(SpiecEasi::spiec.easi, measurePar)
@@ -100,7 +108,8 @@ calc_association <- function(countMat, measure, measurePar, verbose){
       secor <- stats::cov2cor(as.matrix(getOptCov(spiecres)))
       assoMat <- secor * SpiecEasi::getRefit(spiecres)
     } else{
-      assoMat <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiecres), mode = "ave")
+      assoMat <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiecres), 
+                                    mode = symBetaMode)
     }
 
     assoMat <- as.matrix(assoMat)
@@ -109,22 +118,32 @@ calc_association <- function(countMat, measure, measurePar, verbose){
     diag(assoMat) <- 1
 
   } else if(measure == "spring"){
+    
+    if(!is.null(measurePar$symBetaMode)){
+      symBetaMode <- measurePar$symBetaMode
+      measurePar$symBetaMode <- NULL
+    } else{
+      symBetaMode <- "ave"
+    }
 
     measurePar$data <- countMat
 
     if(is.null(measurePar$lambdaseq)) measurePar$lambdaseq <- "data-specific"
     if(is.null(measurePar$ncores)) measurePar$ncores <- 1
-    #measurePar$verbose <- ifelse(verbose == 3, TRUE, FALSE)
-    #if(verbose == 3){
+    
+    if(verbose == 3){
+      measurePar$verbose <- TRUE
       message("")
-    #}
+    } else{
+      measurePar$verbose <- FALSE
+    }
 
     springres <- do.call(SPRING::SPRING, measurePar)
 
     opt.K <- springres$output$stars$opt.index
 
     assoMat <- as.matrix(SpiecEasi::symBeta(springres$output$est$beta[[opt.K]],
-                                            mode = "ave"))
+                                            mode = symBetaMode))
 
     colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
     diag(assoMat) <- 1
