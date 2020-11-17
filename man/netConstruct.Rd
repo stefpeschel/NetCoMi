@@ -132,8 +132,8 @@ function for details.}
 \item{normMethod}{character indicating the normalization method (in order to
 make counts of different samples comparable). Possible options are:
 \code{"none"} (default), \code{"TSS"} (or \code{"fractions"}), \code{"CSS"},
-\code{"COM"}, \code{"rarefy"}, \code{"VST"}, \code{"clr"}.
-The corresponding parameters are set via \code{normPar}.}
+\code{"COM"}, \code{"rarefy"}, \code{"VST"}, \code{"clr"}, and 
+\code{"mclr"}. The corresponding parameters are set via \code{normPar}.}
 
 \item{normPar}{list with parameters passed to the function for normalization
 (defined by \code{normMethod}).}
@@ -297,28 +297,37 @@ Constructing microbial association networks and dissimilarity
   based networks (where nodes are subjects) from compositional count data.
 }
 \details{
-The function enables the construction of either a single network or
+The object returned from \code{netConstruct} can either be passed to
+  \code{\link{netAnalyze}} for network analysis, or to
+  \code{\link{diffnet}} to construct a differential network from the
+  estimated associations.
+  \cr
+  The function enables the construction of either a single network or
   two networks that can be compared using the function
   \code{\link{netCompare}}. Four types of association  measures are
   available: correlation, conditional dependence, proportionality, and
   dissimilarity.  Depending on the measure, nodes are either taxa or subjects
   in the resulting network: In association-based networks (correlation,
   partial correlation, conditional dependence, proportionality) nodes are
-  taxa, whereas in dissimilarity-based networks nodes are subjects.\cr\cr
-  In order to conduct a network comparison, two networks can be  constructed
-  by: \tabular{ll}{
-  (1)\tab passing a group vector to \code{group} (of length
-  \code{nrow(data)} for association networks and of length \code{ncol(data)}
-  for dissimilarity-based networks), or\cr
-  (2)\tab passing a second count matrix to \code{data2} (column names must
-  match for constructing association networks and row names must match for
-  dissimilarity-based networks), or \cr
-  (3)\tab passing a second association/dissimilarity matrix to \code{data2}.}
+  taxa, whereas in dissimilarity-based networks nodes are subjects.
   \cr
-  The object returned from \code{netConstruct} can either be passed to
-  \code{\link{netAnalyze}} for network analysis, or to
-  \code{\link{diffnet}} to construct a differential network from the
-  estimated associations.\cr\cr
+  \cr
+  In order to conduct a network comparison, the following options for 
+  constructing two networks are available:
+  \enumerate{
+    \item Passing the combined count matrix to \code{data} and a group 
+    vector to \code{group} (of length \code{nrow(data)} for association 
+    networks and of length \code{ncol(data)} for dissimilarity-based 
+    networks).
+    \item Passing the count data for group 1 to \code{data} (matrix or
+    phyloseq object) and the count data for group2 to \code{data2} (matrix or
+    phyloseq object). For association networks, the colum names must match, 
+    and for dissimilarity networks the row names.
+    \item Passing an association/dissimilarity matrix for group 1 to 
+    \code{data} and an association/dissimilarity matrix for group 2 to 
+    \code{data2}.
+  }
+  \cr
   \strong{Association measures:}
   \tabular{ll}{
   Argument \tab Function\cr
@@ -376,7 +385,9 @@ The function enables the construction of either a single network or
   \code{"VST"} \tab Variance stabilizing transformation\tab
   \code{\link[DESeq2]{varianceStabilizingTransformation}}\cr
   \code{"clr"} \tab Centered log-ratio transformation\tab
-  \code{\link[robCompositions]{cenLR}}
+  \code{\link[SpiecEasi]{clr}}\cr
+  \code{"mclr"} \tab Modified central log ratio transformation\tab
+  \code{\link[SPRING]{mclr}}
   }
   These methods (except rarefying) are described in
   \cite{Badri et al.(2018)}.
