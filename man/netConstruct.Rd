@@ -9,6 +9,7 @@ netConstruct(
   data2 = NULL,
   dataType = "counts",
   group = NULL,
+  matchDesign = NULL,
   measure = "spieceasi",
   measurePar = NULL,
   filtTax = "none",
@@ -59,9 +60,19 @@ class \code{\link[phyloseq:phyloseq-class]{phyloseq}}. Further options
 are "correlation", "partialCorr" (partial correlation), "condDependence"
 (conditional dependence), "proportionality" and "dissimilarity".}
 
-\item{group}{optional binary vector used or splitting the data into two
+\item{group}{optional binary vector used for splitting the data into two
 groups. If \code{group} is \code{NULL} (default), a single network is
 constructed. See details.}
+
+\item{matchDesign}{Numeric vector with two elements specifying an optional 
+matched-group (i.e. matched-pair) design, which is used for the permutation 
+tests in \code{\link{netCompare}} and \code{\link{diffnet}}. \code{c(1,1)} 
+corresponds to a matched-pair design. A 1:2 matching, for instance, is 
+defined by \code{c(1,2)}, which means that the first sample of group 1 is 
+matched to the first two samples of group 2 and so on. 
+The appropriate order of samples must be ensured. If 
+\code{NULL}, the group memberships are shuffled randomly while group sizes
+identical to the original data set are ensured.}
 
 \item{measure}{character specifying the method used for either computing the
 associations between taxa or dissimilarities between subjects.

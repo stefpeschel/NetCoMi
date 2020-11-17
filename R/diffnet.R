@@ -291,6 +291,8 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
                    diffMat = diffMat, classMat = classMat, diffProbs = diffProbs)
 
   } else if(diffMethod == "permute"){
+    
+    matchDesign <- x$matchDesign
 
     pvalsVecInput <- pvalsVec
 
@@ -314,6 +316,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
                                        adjust = adjust, adjust2 = "none",
                                        alpha = alpha, lfdrThresh = lfdrThresh,
                                        verbose = verbose, nPerm = nPerm,
+                                       matchDesign = matchDesign,
                                        cores = cores, logFile = logFile,
                                        seed = seed, assoPerm = assoPerm)
 
