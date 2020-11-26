@@ -91,7 +91,7 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
       countMat_norm_t <- try(do.call(DESeq2::varianceStabilizingTransformation,
                                      normParam), silent = TRUE)
       
-      if(class(countMat_norm) == "try-error"){
+      if(class(countMat_norm_t) == "try-error"){
         stop("Every variable contains at least one zero. ",
              "VST normalization not possible without zero replacement.")
       }

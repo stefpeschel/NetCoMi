@@ -30,6 +30,7 @@ trans_to_diss <- function(x, dissFunc, dissFuncPar = NULL){
     diag(x) <- 0
     dissMat <- do.call(WGCNA::TOMdist, c(list(adjMat = x), dissFuncPar))
     dissMat[dissMat == 1] <- Inf
+    dimnames(dissMat) <- dimnames(x)
 
   } else{
     stop("Argument 'dissFunc' not specified correctly.")

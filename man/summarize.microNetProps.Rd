@@ -8,6 +8,7 @@
 \method{summary}{microNetProps}(
   object,
   groupNames = NULL,
+  clusterLCC = FALSE,
   showCentr = "all",
   numbNodes = NULL,
   digits = 5L,
@@ -23,6 +24,9 @@
 \item{groupNames}{character vector with two elements giving the group names
 corresponding to the two networks. If \code{NULL}, the names are adopted
 from \code{object}. Ignored if \code{object} contains a single network.}
+
+\item{clusterLCC}{logical. If \code{TRUE}, clusters are printed only for the
+largest connected component. Defaults to \code{FALSE} (whole network).}
 
 \item{showCentr}{character vector indicating for which centrality measures
 the results shall be printed. Possible values are "all", "degree",

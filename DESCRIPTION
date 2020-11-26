@@ -1,7 +1,7 @@
 Package: NetCoMi
 Type: Package
 Title: Network Comparison for Microbiome Data
-Version: 1.0.2.9005
+Version: 1.0.2.9006
 Author: Stefanie Peschel [aut, cre]
 Maintainer: Stefanie Peschel <stefanie.peschel@mail.de>
 Description: NetCoMi offers functions for constructing, analyzing, and comparing 
@@ -14,6 +14,7 @@ Imports:
     Biobase,
     doSNOW,
     fdrtool,
+    filematrix,
     foreach,
     graphics,
     grDevices,
@@ -23,6 +24,7 @@ Imports:
     MASS,
     Matrix,
     phyloseq,
+    pulsar,
     qgraph,
     Rdpack,
     snow,

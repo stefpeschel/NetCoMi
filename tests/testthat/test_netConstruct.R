@@ -4,24 +4,48 @@ data("amgut2.filt.phy")
 context("netConstruct with different association measures")
 
 measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
-              "propr","gcoda", "spieceasi", "spring" )
+              "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
 for(i in 1:length(measures)){
 
   context(measures[i])
-
+  
+  measure.tmp <- measures[i]
+  
+  if(measure.tmp == "spieceasi_gl"){
+    measurePar <- list(method = "glasso",
+                      nlambda=5,
+                      pulsar.params = list(rep.num=5))
+    measure.tmp <- "spieceasi"
+  } else if(measure.tmp == "spieceasi_mb"){
+    measurePar <- list(method = "mb",
+                       nlambda=5,
+                       pulsar.params = list(rep.num=5))
+    measure.tmp <- "spieceasi"
+  } else if(measure.tmp == "spring"){
+    measurePar <- list(nlambda = 5, rep.num = 5)
+  } else if(measure.tmp == "gcoda"){
+    measurePar <- list(nlambda = 5)
+  } else{
+    measurePar <- NULL
+  }
+  
   testnet <- netConstruct(amgut1.filt,
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 20),
                           filtSamp = "totalReads",
                           filtSampPar = list(totalReads = 1000),
                           zeroMethod = "none", normMethod = "none",
-                          measure = measures[i],
+                          measure = measure.tmp,
+                          measurePar = measurePar,
                           sparsMethod = "threshold", thresh = 0.3,
                           seed = 20190101)
 
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                             hubPar = "eigenvector")
+  
+  plot(testprops)
+  mtext(measures[i], side = 3, cex = 1.5)
 }
 
 context("test plot.microNetProps")
@@ -87,6 +111,9 @@ testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector")
 
+plot(testprops)
+mtext("phyloseq", side = 3, cex = 1.5)
+
 
 #===============================================================================
 context("netConstruct with different dissimilarity measures")
@@ -109,6 +136,9 @@ for(i in 1:length(measures)){
 
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
                             hubPar = "eigenvector")
+  
+  plot(testprops)
+  mtext(measures[i], side = 3, cex = 1.5)
 }
 
 context("test plot.microNetProps")
@@ -139,6 +169,9 @@ for(i in 1:length(sparsMethod)){
                             clustMethod = "cluster_fast_greedy",
                             hubPar = "eigenvector", normDeg = FALSE,
                             hubQuant = 0.95, lnormFit = FALSE)
+  
+  plot(testprops)
+  mtext(sparsMethod[i], side = 3, cex = 1.5)
 }
 
 
@@ -163,12 +196,15 @@ for(i in 1:length(zeroMethod)){
 
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                             hubPar = "eigenvector")
+  
+  plot(testprops)
+  mtext(zeroMethod[i], side = 3, cex = 1.5)
 }
 
 
 #===============================================================================
 context("netConstruct with different normalization methods")
-normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr")
+normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr", "mclr")
 zeroMethod <- c("none", "pseudo", "multRepl")
 
 for(i in 1:length(normMethod)){
@@ -189,6 +225,9 @@ for(i in 1:length(normMethod)){
 
     testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
+    
+    plot(testprops)
+    mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
   }
 
 }
@@ -204,23 +243,52 @@ groups_asso <- sample(0:1, nrow(amgut1.filt), replace = TRUE)
 context("netConstruct with different association measures")
 
 measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
-              "propr","gcoda", "spieceasi", "spring" )
+              "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
 for(i in 1:length(measures)){
+  
   context(measures[i])
-
+  
+  measure.tmp <- measures[i]
+  
+  if(measure.tmp == "spieceasi_gl"){
+    measurePar <- list(method = "glasso",
+                       nlambda=5,
+                       pulsar.params = list(rep.num=5))
+    measure.tmp <- "spieceasi"
+  } else if(measure.tmp == "spieceasi_mb"){
+    measurePar <- list(method = "mb",
+                       nlambda=5,
+                       pulsar.params = list(rep.num=5))
+    measure.tmp <- "spieceasi"
+  } else if(measure.tmp == "spring"){
+    measurePar <- list(nlambda = 5, rep.num = 5)
+  } else if(measure.tmp == "gcoda"){
+    measurePar <- list(nlambda = 5)
+  } else{
+    measurePar <- NULL
+  }
+  
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 20),
                           filtSamp = "totalReads",
                           filtSampPar = list(totalReads = 1000),
                           zeroMethod = "none", normMethod = "none",
-                          measure = measures[i],
+                          measure = measure.tmp,
+                          measurePar = measurePar,
                           sparsMethod = "threshold", thresh = 0.3,
                           seed = 20190101)
 
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector")
+  
+  plot(testprops)
+  mtext(measures[i], side = 3, cex = 1.5)
+  
+  if(i < 7){
+    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+  }
 }
 
 context("test plot.microNetProps")
@@ -247,6 +315,11 @@ for(i in 1:length(measures)){
 
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector")
+  
+  plot(testprops)
+  mtext(measures[i], side = 3, cex = 1.5)
+  
+  netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
 }
 
 #===============================================================================
@@ -273,6 +346,13 @@ for(i in 1:length(sparsMethod)){
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
                          hubQuant = 0.95, lnormFit = FALSE)
+  
+  plot(testprops)
+  mtext(sparsMethod[i], side = 3, cex = 1.5)
+  
+  if(i != 3){
+    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+  }
 }
 
 
@@ -297,12 +377,17 @@ for(i in 1:length(zeroMethod)){
 
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector")
+  
+  plot(testprops)
+  mtext(zeroMethod[i], side = 3, cex = 1.5)
+  
+  netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
 }
 
 
 #===============================================================================
 context("netConstruct with different normalization methods")
-normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr")
+normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr", "mclr")
 zeroMethod <- c("none", "pseudo", "multRepl")
 
 for(i in 1:length(normMethod)){
@@ -324,6 +409,11 @@ for(i in 1:length(normMethod)){
 
     testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
+    
+    plot(testprops)
+    mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
+    
+    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
   }
 }
 

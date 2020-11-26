@@ -296,9 +296,9 @@
 #'   is given instead of a count matrix and if, in addition, Student's t-test is
 #'   used for edge selection.
 #' @param verbose integer indicating the level of verbosity. Possible values:
-#'   \code{"0"}: no messages, \code{"1"}: only important messages shown,
-#'   \code{"2"}(default): all progress messages shown, \code{"3"} messages
-#'   returned from external functions are shown in addition. Can also be logical.
+#'   \code{"0"}: no messages, \code{"1"}: only important messages,
+#'   \code{"2"}(default): all progress messages, \code{"3"} messages returned 
+#'   from external functions are shown in addition. Can also be logical.
 #' @param seed integer giving a seed for reproducibility of the results.
 #' @return An object of class \code{microNet} containing the following elements:
 #'   \tabular{ll}{
@@ -317,8 +317,8 @@
 #'   association networks)\cr
 #'   \code{countMat1, countMat2}\tab Count matrices, where taxa and samples are
 #'   filtered according to \code{filtTax} and \code{filtSamp}\cr
-#'   \code{normCounts1, normCounts2}\tab Counts that are normalized according to
-#'   \code{normMethod}\cr
+#'   \code{normCounts1, normCounts2}\tab Count matrices after zero handling and
+#'   normalization\cr
 #'   \code{groups}\tab Names of the factor levels according to which the groups
 #'   have been built\cr
 #'   \code{softThreshPower}\tab Determined (or given) power for
@@ -587,6 +587,7 @@ netConstruct <- function(data,
     data_orig <- data
     data <-  t(apply(data_orig, 1, function(x) as.numeric(x)))
     colnames(data) <- colnames(data_orig)
+    rm(data_orig)
 
     if(twoNets){
       
@@ -721,7 +722,7 @@ netConstruct <- function(data,
           countMat1 <- data[keepRows, ]
           countMat2 <- data2[keepRows, ]
           if(verbose %in% 2:3) message(dim(data)[1] - dim(countMat1)[1],
-                                       " samples removed in each data sets.")
+                                       " samples removed in each data set.")
         } else{
           countMat1 <- data[keepRows1, ]
           countMat2 <- data2[keepRows2, ]
@@ -766,9 +767,9 @@ netConstruct <- function(data,
           countMat2 <- countMat2[, keepCols2]
           if(verbose %in% 2:3){
             message(dim(data)[2] - dim(countMat1)[2],
-                    " samples removed in data set 1.")
+                    " taxa removed in data set 1.")
             message(dim(data2)[2] - dim(countMat2)[2],
-                    " samples removed in data set 2.")
+                    " taxa removed in data set 2.")
           }
         }
       }
@@ -784,6 +785,13 @@ netConstruct <- function(data,
     rs <- Matrix::rowSums(countMat1)
     if (any(rs == 0)) {
       rmRows <- which(rs == 0)
+      
+      if(!is.null(matchDesign)){
+        stop(paste0("The following samples of 'data' have a zero overall sum, ",
+                    "but cannot be removed if a matched-group design is used: "),
+                    paste0(rmRows, sep = ","))
+      }
+      
       if(verbose %in% 2:3){
         message(paste(length(rmRows), "rows with zero sum removed."))
       }
@@ -798,6 +806,13 @@ netConstruct <- function(data,
       rs <- Matrix::rowSums(countMat2)
       if (any(rs == 0)) {
         rmRows <- which(rs == 0)
+        
+        if(!is.null(matchDesign)){
+          stop(paste0("The following samples of 'data2' have a zero overall sum, ",
+                      "but cannot be removed if a matched-group design is used: "),
+               paste0(rmRows, sep = ","))
+        }
+        
         countMat2 <- countMat2[-rmRows,]
 
         if(distNet & length(rmRows)!=0){
@@ -822,106 +837,136 @@ netConstruct <- function(data,
         message(ncol(countMat2), " taxa and ", nrow(countMat2),
                 " samples remaining in data set 2.")
       }
-
     } else{
       if(verbose %in% 1:3) message(ncol(countMat1), " taxa and ",
                                    nrow(countMat1), " samples remaining.")
     }
 
-
-
     #---------------------------------------------------------------------------
+    # split data if a group vector is given and measure is a dissimilarity
+    
+    if(!is.null(group) && distNet){
+      
+      splitcount <- split(as.data.frame(t(countMat1)), as.factor(group))
+      
+      if (length(splitcount) != 2)
+        stop("Argument 'group' has to be binary.")
+      
+      groups <- names(splitcount)
+      
+      countMat1 <- t(as.matrix(splitcount[[1]]))
+      countMat2 <- t(as.matrix(splitcount[[2]]))
+    }
+    
+    #---------------------------------------------------------------------------
+    # store original counts
+    
+    countMatOrig1 <- countMat1
+    attributes(countMatOrig1)$scale <- "counts"
+    
     # zero treatment
     if (zeroMethod != "none") {
       if(verbose %in% 2:3) message("\nZero treatment:")
       countMat1 <- zero_treat(countMat = countMat1, zeroMethod = zeroMethod,
                               zeroParam = zeroPar, needfrac = needfrac,
                               needint = needint, verbose = verbose)
-
+      
     } else{
       attributes(countMat1)$scale <- "counts"
     }
-
+    
     #---------------------------------------------------------------------------
     # normalization
-
+    
     if(verbose %in% 2:3 & (normMethod != "none" || needfrac)){
       message("\nNormalization:")
     }
-    count1_norm <- norm_counts(countMat = countMat1, normMethod = normMethod,
-                               normParam = normPar, zeroMethod = zeroMethod,
-                               needfrac = needfrac, verbose = verbose)
-    countMat1 <- count1_norm
-    count2_norm <- NULL
+    counts1_norm <- norm_counts(countMat = countMat1, normMethod = normMethod,
+                                normParam = normPar, zeroMethod = zeroMethod,
+                                needfrac = needfrac, verbose = verbose)
+    countMat1 <- counts1_norm
+    rm(counts1_norm)
     #---------------------------------------------------------------------------
-
-    if(!is.null(group)){
-
-      # split count data into two groups
-      if(distNet){
-        splitcount <- split(as.data.frame(t(countMat1)), as.factor(group))
-        if (length(splitcount) != 2)
-          stop("Argument 'group' has to be binary.")
-        groups <- names(splitcount)
-        count1 <- t(as.matrix(splitcount[[1]]))
-        count2 <- t(as.matrix(splitcount[[2]]))
-
-      } else{
-        splitcount <- split(as.data.frame(countMat1), as.factor(group))
-        if (length(splitcount) != 2)
-          stop("Argument 'group' has to be binary.")
-        groups <- names(splitcount)
-        count1 <- as.matrix(splitcount[[1]])
-        count2 <- as.matrix(splitcount[[2]])
-      }
-
-      sampleSize <- c(nrow(count1), nrow(count2))
-
-    } else if(!is.null(data2)){
-      count1 <- countMat1
-      count2 <- countMat2
-
+    
+    if(!twoNets){
+      counts1 <- countMat1
+      counts_orig1 <- countMatOrig1
+      attributes(counts_orig1)$scale <- "counts"
+      
+      rm(countMat1, countMatOrig1)
+      
+      counts2 <- NULL
+      counts_orig2 <- NULL
+      groups <- NULL
+      sampleSize <- nrow(counts1)
+      
+    } else if(!is.null(group) && !distNet){
+      splitcount <- split(as.data.frame(countMat1), as.factor(group))
+      
+      if (length(splitcount) != 2)
+        stop("Argument 'group' has to be binary.")
+      
+      groups <- names(splitcount)
+      
+      counts1 <- as.matrix(splitcount[[1]])
+      counts2 <- as.matrix(splitcount[[2]])
+      
+      counts_orig1 <- countMatOrig1[rownames(counts1), ]
+      counts_orig2 <- countMatOrig1[rownames(counts2), ]
+      
+      attributes(counts_orig1)$scale <- "counts"
+      attributes(counts_orig1)$scale <- "counts"
+      
+      sampleSize <- c(nrow(counts1), nrow(counts2))
+      
+      rm(countMat1, countMatOrig1)
+      
+    } else{
+      counts1 <- countMat1
+      counts2 <- countMat2
+      
+      counts_orig1 <- countMatOrig1
+      counts_orig2 <- countMat2
+      
+      attributes(counts_orig1)$scale <- "counts"
+      attributes(counts_orig1)$scale <- "counts"
+      
       # zero treatment
       if (zeroMethod != "none") {
-        if(verbose %in% 2:3) message("\nZero treatment for data2:")
-        count2 <- zero_treat(countMat = count2, zeroMethod = zeroMethod,
-                             zeroParam = zeroPar, needfrac = needfrac,
-                             needint = needint, verbose = verbose)
-
+        if(verbose %in% 2:3) message("\nZero treatment in group 2:")
+        counts2 <- zero_treat(countMat = counts2, zeroMethod = zeroMethod,
+                              zeroParam = zeroPar, needfrac = needfrac,
+                              needint = needint, verbose = verbose)
+        
       } else{
-        attributes(count2)$scale <- "counts"
+        attributes(counts2)$scale <- "counts"
       }
-
+      
       # normalization
       if(verbose %in% 2:3 & (normMethod != "none" || needfrac)){
-        message("\nNormalization for data2:")
+        message("\nNormalization in group 2:")
       }
-      count2_norm <- norm_counts(countMat = count2, normMethod = normMethod,
-                                 normParam = normPar, zeroMethod = zeroMethod,
-                                 needfrac = needfrac, verbose = verbose)
-      count2 <- count2_norm
-
+      
+      counts2_norm <- norm_counts(countMat = counts2, normMethod = normMethod,
+                                  normParam = normPar, zeroMethod = zeroMethod,
+                                  needfrac = needfrac, verbose = verbose)
+      counts2 <- counts2_norm
+      
+      rm(countMatOrig1, counts2_norm)
+      
       if(distNet){
-        keep <- intersect(rownames(count1), rownames(count2))
-        count1 <- count1[keep, ]
-        count2 <- count2[keep, ]
+        keep <- intersect(rownames(counts1), rownames(counts2))
+        counts1 <- counts1[keep, ]
+        counts2 <- counts2[keep, ]
       }else{
-        keep <- intersect(colnames(count1), colnames(count2))
-        count1 <- count1[, keep]
-        count2 <- count2[, keep]
+        keep <- intersect(colnames(counts1), colnames(counts2))
+        counts1 <- counts1[, keep]
+        counts2 <- counts2[, keep]
       }
-
+      
       groups <- c("1", "2")
-      sampleSize <- c(nrow(count1), nrow(count2))
-
-    } else{
-      count1 <- countMat1
-      count2 <- NULL
-      groups <- NULL
-      sampleSize <- nrow(count1)
+      sampleSize <- c(nrow(counts1), nrow(counts2))
     }
-
-
 
     if(verbose %in% 2:3){
       if(distNet){
@@ -932,7 +977,7 @@ netConstruct <- function(data,
       message("\nCalculate '", measure, "' ", txt.tmp, " ... ", appendLF = FALSE)
     }
 
-    assoMat1 <- calc_association(countMat = count1, measure = measure,
+    assoMat1 <- calc_association(countMat = counts1, measure = measure,
                                  measurePar = measurePar, verbose = verbose)
 
     if(verbose %in% 2:3) message("Done.")
@@ -941,11 +986,11 @@ netConstruct <- function(data,
     if(twoNets){
 
       if(verbose %in% 2:3){
-        message("\nCalculate ", txt.tmp, " for group 2 ... ",
+        message("\nCalculate ", txt.tmp, " in group 2 ... ",
                 appendLF = FALSE)
       }
 
-      assoMat2 <- calc_association(countMat = count2, measure = measure,
+      assoMat2 <- calc_association(countMat = counts2, measure = measure,
                                    measurePar = measurePar, verbose = verbose)
       if(verbose %in% 2:3) message("Done.")
 
@@ -956,10 +1001,10 @@ netConstruct <- function(data,
   } else{
     assoMat1 <- data
     assoMat2 <- data2
-    count1 <- NULL
-    count2 <- NULL
-    count1_norm <- NULL
-    count2_norm <- NULL
+    counts1 <- NULL
+    counts2 <- NULL
+    counts_orig1 <- NULL
+    counts_orig2 <- NULL
     groups <- NULL
   }
 
@@ -987,7 +1032,7 @@ netConstruct <- function(data,
       }
     }
 
-    sparsReslt <- sparsify(assoMat = assoMat1, countMat = count1,
+    sparsReslt <- sparsify(assoMat = assoMat1, countMat = counts1,
                            sampleSize = sampleSize[1], measure = measure,
                            measurePar = measurePar,
                            assoType = assoType, sparsMethod = sparsMethod,
@@ -1019,11 +1064,11 @@ netConstruct <- function(data,
 
       if(verbose %in% 2:3){
         if(sparsMethod != "none"){
-          message("\nSparsify dissimilarities for group 2 ... ",
+          message("\nSparsify dissimilarities in group 2 ... ",
                   appendLF = FALSE)
         }
       }
-      sparsReslt <- sparsify(assoMat = assoMat2, countMat = count2,
+      sparsReslt <- sparsify(assoMat = assoMat2, countMat = counts2,
                              sampleSize = sampleSize[2], measure = measure,
                              measurePar = measurePar,
                              assoType = assoType, sparsMethod = sparsMethod,
@@ -1058,7 +1103,7 @@ netConstruct <- function(data,
                 appendLF = FALSE)
       }
     }
-    sparsReslt <- sparsify(assoMat = assoMat1, countMat = count1,
+    sparsReslt <- sparsify(assoMat = assoMat1, countMat = counts1,
                            sampleSize = sampleSize[1], measure = measure,
                            measurePar = measurePar,
                            assoType = assoType, sparsMethod = sparsMethod,
@@ -1092,11 +1137,11 @@ netConstruct <- function(data,
     if(twoNets){
       if(verbose %in% 2:3){
         if(sparsMethod != "none"){
-          message("\nSparsify associations for group 2 ... ",
+          message("\nSparsify associations in group 2 ... ",
                   appendLF = FALSE)
         }
       }
-      sparsReslt <- sparsify(assoMat = assoMat2, countMat = count2,
+      sparsReslt <- sparsify(assoMat = assoMat2, countMat = counts2,
                              sampleSize = sampleSize[2], measure = measure,
                              measurePar = measurePar,
                              assoType = assoType, sparsMethod = sparsMethod,
@@ -1155,10 +1200,10 @@ netConstruct <- function(data,
   output$dissScale1 <- dissScale1
   output$dissScale2 <- dissScale2
 
-  output$countMat1 <- count1
-  output$countMat2 <- count2
-  output$normCounts1 <- count1_norm
-  output$normCounts2 <- count2_norm
+  output$countMat1 <- counts_orig1
+  output$countMat2 <- counts_orig2
+  output$normCounts1 <- counts1
+  output$normCounts2 <- counts2
   output$groups <- groups
   output$matchDesign <- matchDesign
   output$sampleSize <- sampleSize
@@ -1175,6 +1220,8 @@ netConstruct <- function(data,
     filtSampPar = filtSampPar,
     zeroMethod = zeroMethod,
     zeroPar = zeroPar,
+    needfrac = needfrac,
+    needint = needint,
     normMethod = normMethod,
     normPar = normPar,
     measure = measure,
@@ -1198,6 +1245,8 @@ netConstruct <- function(data,
     weighted = weighted,
     sampleSize = sampleSize
   )
+  
+  output$call = match.call()
 
   class(output) <- "microNet"
   return(output)

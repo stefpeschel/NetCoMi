@@ -51,7 +51,7 @@ filter_nodes <- function(adja, nodeFilter, nodeFilterPar, layout,
 
     } else if(nodeFilter == "names"){
       stopifnot(all(nodeFilterPar %in% colnames(adja)))
-      keep <- nodeFilterPar
+      keep <- colnames(adja)[which(colnames(adja) %in% nodeFilterPar)]
     }
 
   } else{
@@ -80,7 +80,9 @@ filter_nodes <- function(adja, nodeFilter, nodeFilterPar, layout,
   #
   # taxalabels <- list(all_taxa = names_alltaxa, selected_taxa = names_selected_taxa)
 
-  return(list(adja = adja, keep = keep))
+  rm(adja.alltax)
+  
+  return(keep = keep)
 
 }
 

@@ -3,7 +3,12 @@
 #' Plot method for objects of class \code{diffnet} inheriting from a call to
 #' \code{\link{diffnet}}.
 #'
-#' @param x object of class \code{diffnet}
+#' @param x object of class \code{diffnet} containing the adjacency matrix 
+#'   (absolute differences between associations)
+#' @param adjusted logical indicating whether the adjacency matrix based on 
+#'   adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
+#'   the adjacency matrix is based on non-adjusted p-values. Ignored 
+#'   for the discordant method.
 #' @param layout indicates the layout used for defining node positions. Can be
 #'   a character with one of the layouts provided by
 #'   \code{\link[qgraph]{qgraph}}: \code{"spring"}(default), \code{"circle"},
@@ -85,10 +90,11 @@
 #'   a value lower than 1, nodes are placed further apart
 #' @seealso \code{\link{diffnet}}, \code{\link{netConstruct}}
 #' @importFrom qgraph qgraph
+#' @method plot diffnet
 #' @export
-#'
 
 plot.diffnet <- function(x,
+                         adjusted = TRUE,
                          layout = NULL,
                          repulsion = 1,
                          labels = NULL,
@@ -119,10 +125,6 @@ plot.diffnet <- function(x,
                          mar = c(2,2,4,6),
                          ...){
 
-  if(all(x$diffMat == 0)){
-    stop("Network is empty.")
-  }
-
   inputArgs <- c(as.list(environment()), list(...))
 
   outputArgs <- except_plot_diffnet(inputArgs)
@@ -133,7 +135,21 @@ plot.diffnet <- function(x,
 
   corrMat1 <- x$assoMat1
   corrMat2 <- x$assoMat2
-  diffMat <- x$diffMat
+  
+  if(is.null(x$diffAdjustMat)){
+    diffMat <- x$diffMat
+    
+  } else{
+    if(adjusted){
+      diffMat <- x$diffAdjustMat
+    } else{
+      diffMat <- x$diffMat
+    }
+  }
+  
+  if(all(diffMat == 0)){
+    stop("Network is empty.")
+  }
 
   if(edgeFilter != "none"){
     
@@ -186,12 +202,10 @@ plot.diffnet <- function(x,
     }
   }
 
-
-
   #=============================================================================
   # define edge colors
 
-  if(x$call$diffMethod == "discordant"){
+  if(x$diffMethod == "discordant"){
 
     # create color matrix
     if(is.null(edgeCol)){
@@ -324,7 +338,7 @@ plot.diffnet <- function(x,
 
   if(legend){
 
-    if(x$call$diffMethod %in% c("discordant")){
+    if(x$diffMethod %in% c("discordant")){
       legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
                                     "    0             -",
                                     "    0             +",

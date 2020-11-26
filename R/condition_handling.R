@@ -141,7 +141,7 @@ and normalization is not robust to compositional effects.\n")
       needfrac <- TRUE
     }
 
-    if(normMethod %in% c("VST", "rarefy") & !zeroMethod %in% c("none", "pseudo")){
+    if(normMethod %in% c("VST", "rarefy") & !zeroMethod %in% c("none")){
       needint <- TRUE
     }
 

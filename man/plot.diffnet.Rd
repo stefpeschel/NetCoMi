@@ -6,6 +6,7 @@
 \usage{
 \method{plot}{diffnet}(
   x,
+  adjusted = TRUE,
   layout = NULL,
   repulsion = 1,
   labels = NULL,
@@ -38,7 +39,13 @@
 )
 }
 \arguments{
-\item{x}{object of class \code{diffnet}}
+\item{x}{object of class \code{diffnet} containing the adjacency matrix 
+(absolute differences between associations)}
+
+\item{adjusted}{logical indicating whether the adjacency matrix based on 
+adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
+the adjacency matrix is based on non-adjusted p-values. Ignored 
+for the discordant method.}
 
 \item{layout}{indicates the layout used for defining node positions. Can be
 a character with one of the layouts provided by
