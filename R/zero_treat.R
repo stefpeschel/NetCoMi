@@ -1,11 +1,37 @@
 zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbose){
 
-  if(zeroMethod =="pseudo"){
-    if(verbose %in% 2:3) message("Pseudo counts added.")
-    countMat_repl <- countMat + 1
-    #countMat_repl[countMat_repl == 0] <- 1
+  if(zeroMethod == "none"){
+    countMat_repl <- countMat
     attributes(countMat_repl)$scale <- "counts"
+    
+  } else if(zeroMethod =="pseudo"){
+    
+    if(is.null(zeroParam$pseudocount)){
+      zeroParam$pseudocount <- 1
+    }
+    
+    countMat_repl <- countMat + zeroParam$pseudocount
 
+    if(verbose %in% 2:3){
+      message("Pseudo count of ", zeroParam$pseudocount, " added.")
+    } 
+
+    if(needint){
+      if(zeroParam$pseudocount != 1){
+        message("Counts coerced to integer mode (for normalization method).
+   Consider using unit pseudo counts for zero treatment:
+   'zeroMethod = pseudo', zeroPar = list(pseudocount = 1)")
+      }
+      countMat.tmp <- ceiling(countMat_repl)
+      countMat_repl <- apply(countMat.tmp, 2, as.integer)
+      rownames(countMat_repl) <- rownames(countMat.tmp)
+      
+      attributes(countMat_repl)$scale <- "integer"
+
+    } else{
+      attributes(countMat_repl)$scale <- "pseudo-counts"
+    }
+    
   } else{
 
     rsums <- Matrix::rowSums(countMat)
@@ -119,10 +145,7 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
 
       countMat_repl <- as.matrix(countMat_repl)
 
-    } else{
-      warning("No zero treatment conducted. 'zeroMethod' must be one of",
-              "'none', 'pseudo', 'multRepl', 'alrEM', 'bayesMult.'")
-    }
+    } 
 
     if(needfrac){
       attributes(countMat_repl)$scale <- "fractions"

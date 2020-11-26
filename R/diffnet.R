@@ -70,7 +70,31 @@
 #' @param pvalsVec vector with p-values used for permutation tests. Can be used
 #'   for performing another method for multiple testing adjustment without
 #'   executing the complete permutation process again. See the example.
-#' @param assoPerm a list with two elements used for the permutation procedure.
+#' @param fileLoadAssoPerm character giving the name (without extenstion) 
+#'   or path of the file storing the "permuted" association/dissimilarity 
+#'   matrices that have been exported by setting \code{storeAssoPerm} to 
+#'   \code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
+#'   existing associations should be used.
+#' @param fileLoadCountsPerm character giving the name (without extenstion) 
+#'   or path of the file storing the "permuted" count matrices that have been 
+#'   exported by setting \code{storeCountsPerm} to \code{TRUE}. 
+#'   Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
+#'   Set to \code{NULL} if no existing count matrices should be used.
+#' @param storeAssoPerm logical indicating whether the association (or
+#'   dissimilarity) matrices for the permuted data should be stored in a file.
+#'   The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE}, 
+#'   the computed "permutation" association/dissimilarity matrices can be reused
+#'   via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.
+#' @param fileStoreAssoPerm character giving the file name to store a matrix
+#'   containing a matrix with associations/dissimilarities for the permuted 
+#'   data. Can also be a path.
+#' @param storeCountsPerm logical indicating whether the permuted count matrices
+#'   should be stored in an external file. Defaults to \code{FALSE}.
+#' @param fileStoreCountsPerm character vector with two elements giving the 
+#'   names of two files storing the permuted count matrices belonging to the 
+#'   two groups.
+#' @param assoPerm only needed for output generated with NetCoMi v1.0.1! A 
+#'   list with two elements used for the permutation procedure.
 #'   Each entry must contain association matrices for \code{"nPerm"}
 #'   permutations. This can be either the \code{"assoPerm"} value as part of the
 #'   output returned from \code{diffnet} or from \code{\link{netCompare}}. See
@@ -80,13 +104,21 @@
 #'   elements:\cr\cr
 #'   \strong{Permutation tests:}
 #'   \tabular{ll}{
-#'   \code{assoMat1,assoMat2}\tab matrices with estimated associations\cr
+#'   \code{diffMat}\tab matrix with absolute differences of associations that are
+#'   significantly different from zero; optional adjacency matrix\cr
+#'   \code{diffAdjustMat}\tab matrix with absolute differences of associations 
+#'   that are significantly different from zero (after multiple testing 
+#'   correction); optional adjacency matrix\cr
 #'   \code{pvalsVec}\tab vector with p-values\cr
 #'   \code{pAdjustVec}\tab vector with adjusted p-values\cr
-#'   \code{diffMat}\tab adjacency matrix (absolute difference of associations)\cr
-#'   \code{assoPerm}\tab list with two elements containing the association
-#'   matrices for the permuted data for each group (can be passed to
-#'   \code{diffnet} again)}
+#'   \code{pvalsMat}\tab matrix with p-values\cr
+#'   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
+#'   \code{testStatData}\tab vector with test statistics (absolute differences 
+#'   of associations) for the original data\cr
+#'   \code{testStatPerm}\tab matrix with test statistics (absolute differences 
+#'   of associations) for the permuted data\cr
+#'   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
+#'   original data)}
 #'   \strong{Discordant:}
 #'   \tabular{ll}{
 #'   \code{assoMat1,assoMat2}\tab matrices with estimated correlations\cr
@@ -96,54 +128,79 @@
 #'   is differentially correlated between the groups}
 #'   \strong{Fisher's z-test:}
 #'   \tabular{ll}{
-#'   \code{assoMat1,assoMat2}\tab matrices with estimated correlations\cr
+#'   \code{diffMat}\tab matrix with absolute differences of associations that are
+#'   significantly different from zero; optional adjacency matrix\cr
+#'   \code{diffAdjustMat}\tab matrix with absolute differences of associations 
+#'   that are significantly different from zero (after multiple testing 
+#'   correction); optional adjacency matrix\cr
 #'   \code{pvalsVec}\tab vector with p-values\cr
 #'   \code{pAdjustVec}\tab vector with adjusted p-values\cr
-#'   \code{diffMat}\tab adjacency matrix (absolute difference of correlations)}
+#'   \code{pvalsMat}\tab matrix with p-values\cr
+#'   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
+#'   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
+#'   original data)}
 #'
 #' @examples
-#' # load data sets from American Gut Project (from SpiecEasi package)
+#' # Load data sets from American Gut Project (from SpiecEasi package)
 #' data("amgut1.filt")
-#'
-#' # generate a random group vector
+#' 
+#' # Generate a random group vector
 #' set.seed(123456)
 #' group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
-#'
-#' # network construction:
+#' 
+#' # Network construction:
 #' amgut_net <- netConstruct(amgut1.filt, group = group,
 #'                           measure = "pearson",
 #'                           filtTax = "highestVar",
 #'                           filtTaxPar = list(highestVar = 30),
 #'                           zeroMethod = "pseudo", normMethod = "clr")
-#'
-#' ### differential network
+#' 
+#' #---------------------
+#' # Differential network
+#' 
 #' # Fisher's z-test
 #' amgut_diff1 <- diffnet(amgut_net, diffMethod = "fisherTest")
-#'
-#' # network contains no differentially correlated taxa:
+#' 
+#' # Network contains no differentially correlated taxa:
 #' \dontrun{
 #'   plot(amgut_diff1)
 #' }
-#'
-#' # without multiple testing correction (statistically not correct!)
+#' 
+#' # Without multiple testing correction (statistically not correct!)
 #' amgut_diff2 <- diffnet(amgut_net, diffMethod = "fisherTest", adjust = "none")
 #' plot(amgut_diff2)
-#'
+#' 
 #' \dontrun{
-#' # Permutation test
-#' amgut_diff3 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
-#'                        cores = 6L, adjust = "lfdr")
-#'
-#' # use the p-values again (different adjustment method possible), but without
-#' # estimating the associations again
-#' amgut_diff4 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
-#'                        adjust = "none", pvalsVec = amgut_diff3$pvalsVec)
-#' plot(amgut_diff4)
-#'
-#' # use the permutation associations again (same result as amgut_diff4)
-#' amgut_diff5 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
-#'                        adjust = "none", assoPerm = amgut_diff3$assoPerm)
-#' plot(amgut_diff5)
+#'   # Permutation test (permutation matrices are stored)
+#'   amgut_diff3 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+#'                          cores = 4L, adjust = "lfdr",
+#'                          storeCountsPerm = TRUE, 
+#'                          fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
+#'                          storeAssoPerm = TRUE,
+#'                          fileStoreAssoPerm = "assoPerm",
+#'                          seed = 123456)
+#'   
+#'   # Use the p-values again (different adjustment method possible), but without
+#'   # re-estimating the associations
+#'   amgut_diff4 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+#'                          adjust = "none", pvalsVec = amgut_diff3$pvalsVec)
+#'   x11()
+#'   plot(amgut_diff4)
+#'   
+#'   # Use the permutation associations again (same result as amgut_diff4)
+#'   amgut_diff5 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+#'                          adjust = "none", 
+#'                          fileLoadAssoPerm = "assoPerm")
+#'   x11()
+#'   plot(amgut_diff5)
+#'   
+#'   # Use the permuted count matrices again (same result as amgut_diff4)
+#'   amgut_diff6 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+#'                          adjust = "none", 
+#'                          fileLoadCountsPerm = c("countsPerm1", "countsPerm2"),
+#'                          seed = 123456)
+#'   x11()
+#'   plot(amgut_diff6)
 #' }
 #'
 #' @seealso \code{\link{plot.diffnet}}
@@ -164,7 +221,14 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
                     cores = 1L, verbose = TRUE, logFile = NULL,
                     seed = NULL, alpha = 0.05, adjust = "lfdr",
                     lfdrThresh = 0.2, trueNullMethod = "convest",
-                    pvalsVec = NULL, assoPerm = NULL){
+                    pvalsVec = NULL,
+                    fileLoadAssoPerm  = NULL,
+                    fileLoadCountsPerm = NULL,
+                    storeAssoPerm = FALSE,
+                    fileStoreAssoPerm = "assoPerm",
+                    storeCountsPerm = FALSE,
+                    fileStoreCountsPerm = c("countsPerm1", "countsPerm2"), 
+                    assoPerm = NULL){
 
   stopifnot(class(x) == "microNet")
 
@@ -234,6 +298,9 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
 
   countMat1 <- x$countMat1
   countMat2 <- x$countMat2
+  
+  normCounts1 <- x$normCounts1
+  normCounts2 <- x$normCounts2
 
   assoMat1 <- x$assoEst1
   assoMat2 <- x$assoEst2
@@ -293,6 +360,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
   } else if(diffMethod == "permute"){
     
     matchDesign <- x$matchDesign
+    callNetConstr <- x$call
 
     pvalsVecInput <- pvalsVec
 
@@ -306,10 +374,11 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
 
       permResult <- permtest_diff_asso(countMat1 = countMat1,
                                        countMat2 = countMat2,
+                                       normCounts1 = normCounts1, 
+                                       normCounts2 = normCounts2,
                                        assoMat1 = assoMat1,
                                        assoMat2 = assoMat2,
-                                       measure = x$parameters$measure,
-                                       measurePar = x$parameters$measurePar,
+                                       paramsNetConstruct = x$parameters,
                                        method = "connect.pairs",
                                        fisherTrans = fisherTrans,
                                        pvalsMethod = permPvalsMethod,
@@ -317,14 +386,22 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
                                        alpha = alpha, lfdrThresh = lfdrThresh,
                                        verbose = verbose, nPerm = nPerm,
                                        matchDesign = matchDesign,
+                                       callNetConstr = callNetConstr,
                                        cores = cores, logFile = logFile,
-                                       seed = seed, assoPerm = assoPerm)
+                                       seed = seed, 
+                                       fileLoadAssoPerm = fileLoadAssoPerm,
+                                       fileLoadCountsPerm = fileLoadCountsPerm,
+                                       storeAssoPerm = storeAssoPerm,
+                                       fileStoreAssoPerm = fileStoreAssoPerm,
+                                       storeCountsPerm = storeCountsPerm,
+                                       fileStoreCountsPerm = fileStoreCountsPerm,
+                                       assoPerm = assoPerm)
 
       pvalsVec <- permResult$pvalsVec
-      pAdjust <- permResult$pAdjustVec
-
-      assoPerm1 <- permResult$assoPerm1
-      assoPerm2 <- permResult$assoPerm2
+      pAdjustVec <- permResult$pAdjustVec
+      
+      testStatData <- permResult$testStatData
+      testStatPerm <- permResult$testStatPerm
 
       nExceedsVec <- permResult$nExceedsVec
 
@@ -335,36 +412,62 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
         message("Adjust for multiple testing using '", adjust, "' ... ",
                 appendLF = FALSE)
       }
-      pAdjust <- multAdjust(pvals = pvalsVec, adjust = adjust,
+      pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
                             trueNullMethod = trueNullMethod, verbose = verbose)
       if(verbose & adjust != "none") message("Done.")
 
-      assoPerm1 <- assoPerm2 <- nExceedsVec <- NULL
+      testStatData <- NULL
+      testStatPerm <- NULL
+      
+      nExceedsVec <- NULL
     }
 
-    output = list(assoMat1 = assoMat1, assoMat2 = assoMat2)
-    output[["pvalsVec"]] <- pvalsVec
-    output[["pAdjustVec"]] <- pAdjust
-    #output[["nExceedsVec"]] <- nExceedsVec
-
-    diffMat <- abs(assoMat1 - assoMat2)
-    diffVec <- diffMat[lower.tri(diffMat)]
-
+    diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
+    diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
+    
     # identify links
+    diffVec[pvalsVec > alpha] <- 0
+    
     if(adjust == "none"){
-      diffVec[pvalsVec > alpha] <- 0
+      diffVecAdjust <- diffVec
     } else if(adjust == "lfdr"){
-      diffVec[pAdjust > lfdrThresh] <- 0
+      diffVecAdjust[pAdjustVec > lfdrThresh] <- 0
     } else{
-      diffVec[pAdjust > alpha] <- 0
+      diffVecAdjust[pAdjustVec > alpha] <- 0
     }
 
     diffMat[lower.tri(diffMat)] <- diffVec
     diffMat[upper.tri(diffMat)] <- t(diffMat)[upper.tri(t(diffMat))]
+    
+    diffAdjustMat[lower.tri(diffAdjustMat)] <- diffVecAdjust
+    diffAdjustMat[upper.tri(diffAdjustMat)] <- 
+      t(diffAdjustMat)[upper.tri(t(diffAdjustMat))]
+    
+    pvalsMat <- diffMat
+    pvalsMat[lower.tri(pvalsMat)] <- pvalsVec
+    pvalsMat[upper.tri(pvalsMat)] <- t(pvalsMat)[upper.tri(t(pvalsMat))]
+    
+    pAdjustMat <- diffMat
+    pAdjustMat[lower.tri(pAdjustMat)] <- pAdjustVec
+    pAdjustMat[upper.tri(pAdjustMat)] <- t(pAdjustMat)[upper.tri(t(pAdjustMat))]
+    
+    output = list()
 
     output[["diffMat"]] <- diffMat
-
-    output[["assoPerm"]] <- list(assoPerm1 = assoPerm1, assoPerm2 = assoPerm2)
+    output[["diffAdjustMat"]] <- diffAdjustMat
+    
+    output[["pvalsVec"]] <- pvalsVec
+    output[["pAdjustVec"]] <- pAdjustVec
+    #output[["nExceedsVec"]] <- nExceedsVec
+    
+    output[["pvalsMat"]] <- pvalsMat
+    output[["pAdjustMat"]] <- pAdjustMat
+    
+    output[["testStatData"]] <- testStatData
+    output[["testStatPerm"]] <- testStatPerm
+    
+    output[["assoMat1"]] <- assoMat1
+    output[["assoMat2"]] <- assoMat2
 
   }else{ #Fisher's z-test
 
@@ -388,28 +491,60 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
       message("Adjust for multiple testing using '", adjust, "' ... ",
               appendLF = FALSE)
     }
-    pAdjust <- multAdjust(pvals = pvalsVec, adjust = adjust,
-                          trueNullMethod = trueNullMethod, verbose = verbose)
+    
+    pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
+                             trueNullMethod = trueNullMethod, verbose = verbose)
+    
     if(verbose & adjust != "none") message("Done.")
 
-    output = list(assoMat1 = assoMat1, assoMat2 = assoMat2)
-    output[["pvalsVec"]] <- pvalsVec
-    output[["pAdjustVec"]] <- pAdjust
-
-    diffMat <- abs(assoMat1 - assoMat2)
-    diag(diffMat) <- 0
-    diffVec <- diffMat[lower.tri(diffMat)]
+    diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
+    diag(diffMat) <- diag(diffAdjustMat) <- 0
+    
+    diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
+    
+    diffVec[pvalsVec > alpha] <- 0
 
     # identify links
-    if(adjust == "lfdr"){
-      diffVec[pAdjust > lfdrThresh] <- 0
+    if(adjust == "none"){
+      diffVecAdjust <- diffVec
+      
+    } else if(adjust == "lfdr"){
+      diffVecAdjust[pAdjustVec > lfdrThresh] <- 0
     } else{
-      diffVec[pAdjust > alpha] <- 0
+      diffVecAdjust[pAdjustVec > alpha] <- 0
     }
 
     diffMat[lower.tri(diffMat)] <- diffVec
     diffMat[upper.tri(diffMat)] <- t(diffMat)[upper.tri(t(diffMat))]
+    
+    diffAdjustMat[lower.tri(diffAdjustMat)] <- diffVecAdjust
+    diffAdjustMat[upper.tri(diffAdjustMat)] <- 
+      t(diffAdjustMat)[upper.tri(t(diffAdjustMat))]
+    
+    
+    pvalsMat <- diffMat
+    pvalsMat[lower.tri(pvalsMat)] <- pvalsVec
+    pvalsMat[upper.tri(pvalsMat)] <- t(pvalsMat)[upper.tri(t(pvalsMat))]
+    
+    pAdjustMat <- diffMat
+    pAdjustMat[lower.tri(pAdjustMat)] <- pAdjustVec
+    pAdjustMat[upper.tri(pAdjustMat)] <- t(pAdjustMat)[upper.tri(t(pAdjustMat))]
+    
+    output <- list()
+    
     output[["diffMat"]] <- diffMat
+    
+    output[["diffAdjustMat"]] <- diffAdjustMat
+    
+    output[["pvalsVec"]] <- pvalsVec
+    output[["pAdjustVec"]] <- pAdjustVec
+    #output[["nExceedsVec"]] <- nExceedsVec
+    
+    output[["pvalsMat"]] <- pvalsMat
+    output[["pAdjustMat"]] <- pAdjustMat
+    
+    output[["assoMat1"]] <- assoMat1
+    output[["assoMat2"]] <- assoMat2
 
   }
 
@@ -418,6 +553,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
   }
 
   output[["groups"]] <- x$groups
+  output[["diffMethod"]] <- diffMethod
   output[["call"]] <- match.call()
   class(output) <- "diffnet"
   return(output)

@@ -13,7 +13,7 @@
   groupNames = NULL,
   groupsChanged = FALSE,
   labels = NULL,
-  shortenLabels = "intelligent",
+  shortenLabels = "simple",
   labelLength = 6L,
   labelPattern = c(5,"'",3),
   charToRm = NULL,
@@ -108,11 +108,12 @@ plotted.}
 plotted. If \code{TRUE}, the order is exchanged. See details. Defaults to
 \code{FALSE}.}
 
-\item{labels}{defines the node labels. Can be a character vector, which is
-used for both groups (then, the adjacency matrices in \code{x} must contain
-the same variables). Can also be list with two vectors. If \code{FALSE}, no
-labels are plotted. Defaults to the row/column names of the adjacency
-matrices.}
+\item{labels}{defines the node labels. Can be a named character vector, which 
+is used for both groups (then, the adjacency matrices in \code{x} must 
+contain the same variables). 
+Can also be list with two named vectors (names must match the row/column 
+names of the adjacency matrices). If \code{FALSE}, no labels are plotted. 
+Defaults to the row/column names of the adjacency matrices.}
 
 \item{shortenLabels}{options to shorten node labels. Ignored if node labels
 are defined via \code{labels}. Possible options are:
@@ -329,7 +330,8 @@ second for edges with absolute weight above \code{cut}. If a single value
 is given, it is used for both cases. Ignored if \code{colorNegAsso} is
 \code{FALSE}. Defaults to \code{c("red", "#BF0000")}.}
 
-\item{cut}{defines the \code{"cut"} parameter of \code{\link[qgraph]{qgraph}}. Can
+\item{cut}{defines the \code{"cut"} parameter of 
+\code{\link[qgraph]{qgraph}}. Can
 be either a numeric value (is used for both groups if two networks are
 plotted) or vector of length two. The default is set analogous to that in
 \code{\link[qgraph]{qgraph}}: "0 for graphs with less then 20 nodes. For
