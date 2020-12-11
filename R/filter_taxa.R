@@ -9,6 +9,8 @@ filter_taxa <- function(countMat, filter, filterParam){
       ifelse(is.null(filterParam$highestVar),
              100,
              filterParam$highestVar)
+    
+    highestVar <- min(ncol(countMat), highestVar)
 
     if (length(filter) > 1) {
       stop('Filter method "highestVar" not comparable with other filter methods.')
@@ -23,6 +25,8 @@ filter_taxa <- function(countMat, filter, filterParam){
       ifelse(is.null(filterParam$highestFreq),
              100,
              filterParam$highestFreq)
+    
+    highestFreq <- min(ncol(countMat), highestFreq)
 
     if (length(filter) > 1) {
       stop('Filter method "highestFreq" not comparable with other filter methods.')

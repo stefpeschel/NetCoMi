@@ -4,6 +4,11 @@ zero_treat <- function(countMat, zeroMethod, zeroParam, needfrac, needint, verbo
     countMat_repl <- countMat
     attributes(countMat_repl)$scale <- "counts"
     
+  } else if(all(countMat != 0)){
+    message("Data contains no zeros.")
+    countMat_repl <- countMat
+    attributes(countMat_repl)$scale <- "counts"
+    
   } else if(zeroMethod =="pseudo"){
     
     if(is.null(zeroParam$pseudocount)){

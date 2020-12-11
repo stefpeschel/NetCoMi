@@ -24,6 +24,7 @@ netCompare(
   storeCountsPerm = FALSE,
   fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
   returnPermProps = FALSE,
+  returnPermCentr = FALSE,
   assoPerm = NULL,
   dissPerm = NULL
 )
@@ -85,13 +86,13 @@ to \code{NULL} so that no log file is generated.}
 
 \item{verbose}{logical. If \code{TRUE} (default), status messages are shown.}
 
-\item{fileLoadAssoPerm}{character giving the name (without extenstion) 
+\item{fileLoadAssoPerm}{character giving the name (without extension) 
 or path of the file storing the "permuted" association/dissimilarity 
 matrices that have been exported by setting \code{storeAssoPerm} to 
 \code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
 existing associations should be used.}
 
-\item{fileLoadCountsPerm}{character giving the name (without extenstion) 
+\item{fileLoadCountsPerm}{character giving the name (without extension) 
 or path of the file storing the "permuted" count matrices that have been 
 exported by setting \code{storeCountsPerm} to \code{TRUE}. 
 Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
@@ -116,9 +117,11 @@ Ignored if \code{fileLoadCountsPerm} is not \code{NULL}.}
 names of two files storing the permuted count matrices belonging to the 
 two groups.}
 
-\item{returnPermProps}{logical. If \code{TRUE}, the absolute differences of
-network properties for the permuted data are returned (via 
-\code{permDiffGlobal, permDiffGlobalLCC}, and \code{permDiffCentr}).}
+\item{returnPermProps}{logical. If \code{TRUE}, the global properties and 
+their absolute differences for the permuted data are returned.}
+
+\item{returnPermCentr}{logical. If \code{TRUE}, the centralities and 
+their absolute differences for the permuted data are returned.}
 
 \item{assoPerm}{only needed for output generated with NetCoMi v1.0.1! A list 
 with two elements used for the permutation procedure.
@@ -193,9 +196,9 @@ Calculate and compare network properties for microbial networks
   To generate a sampling distribution of the differences under \eqn{H_0},
   the group labels are randomly reassigned to the samples while the group
   sizes are kept. The associations are then re-estimated for each permuted
-  data set. The p-values are calcutated as the proportion of
+  data set. The p-values are calculated as the proportion of
   "permutation-differences" being larger than the observed difference. A
-  pseudocount is added to the numerator and denominator in order to avoid
+  pseudo-count is added to the numerator and denominator in order to avoid
   zero p-values. The p-values should be adjusted for multiple testing.
 
   \strong{Jaccard's index:}\cr

@@ -11,9 +11,9 @@
 #'   To generate a sampling distribution of the differences under \eqn{H_0},
 #'   the group labels are randomly reassigned to the samples while the group
 #'   sizes are kept. The associations are then re-estimated for each permuted
-#'   data set. The p-values are calcutated as the proportion of
+#'   data set. The p-values are calculated as the proportion of
 #'   "permutation-differences" being larger than the observed difference. A
-#'   pseudocount is added to the numerator and denominator in order to avoid
+#'   pseudo-count is added to the numerator and denominator in order to avoid
 #'   zero p-values. The p-values should be adjusted for multiple testing.
 #'
 #' @param x an object of class \code{microNet} inheriting from a call to
@@ -46,7 +46,7 @@
 #'   created when permutation tests are conducted (therein the current iteration
 #'   numbers are stored). Defaults to \code{NULL} so that no file is created.
 #' @param seed integer giving a seed for reproducibility of the results.
-#' @param alpha numeric value between 0 and 1 giving the significance niveau.
+#' @param alpha numeric value between 0 and 1 giving the significance level.
 #'   Significantly different correlations are connected in the network. Defaults
 #'   to 0.05.
 #' @param adjust character indicating the method used for multiple testing
@@ -70,12 +70,12 @@
 #' @param pvalsVec vector with p-values used for permutation tests. Can be used
 #'   for performing another method for multiple testing adjustment without
 #'   executing the complete permutation process again. See the example.
-#' @param fileLoadAssoPerm character giving the name (without extenstion) 
+#' @param fileLoadAssoPerm character giving the name (without extension) 
 #'   or path of the file storing the "permuted" association/dissimilarity 
 #'   matrices that have been exported by setting \code{storeAssoPerm} to 
 #'   \code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
 #'   existing associations should be used.
-#' @param fileLoadCountsPerm character giving the name (without extenstion) 
+#' @param fileLoadCountsPerm character giving the name (without extension) 
 #'   or path of the file storing the "permuted" count matrices that have been 
 #'   exported by setting \code{storeCountsPerm} to \code{TRUE}. 
 #'   Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
@@ -298,6 +298,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
 
   countMat1 <- x$countMat1
   countMat2 <- x$countMat2
+  countsJoint <- x$countsJoint
   
   normCounts1 <- x$normCounts1
   normCounts2 <- x$normCounts2
@@ -374,6 +375,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
 
       permResult <- permtest_diff_asso(countMat1 = countMat1,
                                        countMat2 = countMat2,
+                                       countsJoint = countsJoint,
                                        normCounts1 = normCounts1, 
                                        normCounts2 = normCounts2,
                                        assoMat1 = assoMat1,
@@ -479,8 +481,8 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     assoVec1[assoVec1 == -1] <- -0.9999
     assoVec2[assoVec2 == -1] <- -0.9999
 
-    n1 <- nrow(countMat1)
-    n2 <- nrow(countMat2)
+    n1 <- nrow(normCounts1)
+    n2 <- nrow(normCounts2)
     z1 <- atanh(assoVec1)
     z2 <- atanh(assoVec2)
     diff_z <- (z1 - z2)/sqrt(1/(n1 - 3) + (1/(n2 - 3)))

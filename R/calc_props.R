@@ -63,7 +63,7 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
                    vertconnect = 0, vertconnect_lcc = 0, edgeconnect = 0, 
                    edgeconnect_lcc = 0, clustCoef = 0, clustCoef_lcc = 0,
                    density = 0, density_lcc = 0, modul = 0, modul_lcc = 0,
-                   pnRatio = 0, pnRatio_lcc = 0,  hubs = NULL, topdeg = NULL, 
+                   pep = 0, pep_lcc = 0,  hubs = NULL, topdeg = NULL, 
                    topbetw = NULL, topclose = NULL, topeigen = NULL)
     return(output)
   }
@@ -406,25 +406,20 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
   
   # Complete network
   if(is.null(assoMat)){ # no negative dissimilarities possible
-    pnRatio <- 1
-    pnRatio_lcc <- 1
+    pep <- 100
+    pep_lcc <- 100
     
   } else{
-    posAsso <- sum(assoMat[lower.tri(assoMat)] > 0)
-    negAsso <- sum(assoMat[lower.tri(assoMat)] < 0)
-    pnRatio <- posAsso / negAsso
-    if(is.infinite(pnRatio) || is.nan(pnRatio)){
-      pnRatio <- posAsso
-    }
-    
+    edge_all <- sum(assoMat[lower.tri(assoMat)] != 0)
+    edge_pos <- sum(assoMat[lower.tri(assoMat)] > 0)
+    pep <- edge_pos / edge_all * 100
+
     # LCC
     assoMat_lcc <- assoMat[rownames(dissMat_lcc), colnames(dissMat_lcc)]
-    posAsso <- sum(assoMat_lcc[lower.tri(assoMat_lcc)] > 0)
-    negAsso <- sum(assoMat_lcc[lower.tri(assoMat_lcc)] < 0)
-    pnRatio_lcc <- posAsso / negAsso
-    if(is.infinite(pnRatio_lcc) || is.nan(pnRatio_lcc)){
-      pnRatio_lcc <- posAsso
-    }
+    
+    edge_all <- sum(assoMat_lcc[lower.tri(assoMat_lcc)] != 0)
+    edge_pos <- sum(assoMat_lcc[lower.tri(assoMat_lcc)] > 0)
+    pep_lcc <- edge_pos / edge_all * 100
   }
 
   if(verbose == 2){
@@ -742,7 +737,7 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
                  clustCoef = clustCoef, clustCoef_lcc = clustCoef_lcc,
                  density = density, density_lcc = density_lcc,
                  modul = modul, modul_lcc = modul_lcc,
-                 pnRatio = pnRatio, pnRatio_lcc = pnRatio_lcc,
+                 pep = pep, pep_lcc = pep_lcc,
                  hubs = hubs, 
                  topdeg = topdeg, topbetw = topbetw, 
                  topclose = topclose, topeigen = topeigen)

@@ -64,15 +64,15 @@ testnet1 <- netConstruct(amgut1.filt,
                         sparsMethod = "threshold", thresh = 0.3,
                         seed = 20190101)
 
-expect_that(netConstruct(testnet1$assoEst1, dataType = "correlation",
+testthat::expect_that(netConstruct(testnet1$assoEst1, dataType = "correlation",
                          sparsMethod = "threshold", thresh = 0.3,
                          seed = 20190101)$assoMat1, 
-            equals(testnet1$assoMat1))
+                      testthat::equals(testnet1$assoMat1))
 
-expect_that(netConstruct(testnet1$assoEst1, dataType = "correlation",
+testthat::expect_that(netConstruct(testnet1$assoEst1, dataType = "correlation",
                          sparsMethod = "threshold", thresh = 0.3,
                          seed = 20190101)$adjaMat1, 
-            equals(testnet1$adjaMat1))
+                      testthat::equals(testnet1$adjaMat1))
 
 
 testnet1 <- netConstruct(amgut1.filt,
@@ -84,13 +84,13 @@ testnet1 <- netConstruct(amgut1.filt,
                          measure = "ckld",
                          sparsMethod = "knn", seed = 20190101)
 
-expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity",
+testthat::expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity",
                          sparsMethod = "knn", seed = 20190101)$dissMat1, 
-            equals(testnet1$dissMat1))
+                      testthat::equals(testnet1$dissMat1))
 
-expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity",
+testthat::expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity",
                          sparsMethod = "knn", seed = 20190101)$adjaMat1, 
-            equals(testnet1$adjaMat1))
+                      testthat::equals(testnet1$adjaMat1))
 
 
 context("netConstruct with phyloseq object as input")
@@ -307,7 +307,7 @@ for(i in 1:length(measures)){
                            filtTax = "totalReads",
                            filtTaxPar = list(totalReads = 1000),
                            filtSamp = "highestFreq",
-                           filtSampPar = list(highestFreq = 30),
+                           filtSampPar = list(highestFreq = 100),
                            zeroMethod = "none", normMethod = "none",
                            measure = measures[i],
                            sparsMethod = "knn", thresh = 0.3,

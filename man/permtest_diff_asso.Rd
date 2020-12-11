@@ -7,6 +7,7 @@
 permtest_diff_asso(
   countMat1,
   countMat2,
+  countsJoint,
   normCounts1,
   normCounts2,
   assoMat1,
@@ -40,6 +41,8 @@ permtest_diff_asso(
 \item{countMat1, countMat2}{matrices containing microbiome data (read counts)
 of group 1 and group 2 (rows represent samples and columns taxonomic units,
 respectively).}
+
+\item{countsJoint}{joint count matrices before preprocessing}
 
 \item{normCounts1, normCounts2}{normalized count matrices.}
 
