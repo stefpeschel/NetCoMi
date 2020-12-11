@@ -72,14 +72,14 @@ summary.microNetProps <- function(object, groupNames = NULL,
   glob_rnames <- c("Number of components", 
                    "Clustering coefficient",
                    "Moduarity",
-                   "Positive-to-negative ratio",
+                   "Positive edge percentage",
                    "Edge density",
                    "Natural connectivity")
   
   glob_rnames_lcc <- c("Relative LCC size", 
                        "Clustering coefficient",
                        "Moduarity",
-                       "Positive-to-negative ratio",
+                       "Positive edge percentage",
                        "Edge density",
                        "Natural connectivity",
                        "Vertex connectivity",
@@ -87,10 +87,10 @@ summary.microNetProps <- function(object, groupNames = NULL,
                        "Average dissimilarity*",
                        "Average path length**")
   
-  glob_names <- c("nComp", "clustCoef", "modularity", "pnRatio", "density", 
+  glob_names <- c("nComp", "clustCoef", "modularity", "pep", "density", 
                   "natConnect")
   
-  glob_names_lcc <- c("lccSizeRel", "clustCoef", "modularity", "pnRatio", 
+  glob_names_lcc <- c("lccSizeRel", "clustCoef", "modularity", "pep", 
                       "density", "natConnect", "vertConnect", "edgeConnect",
                       "avDiss", "avPath")
   
@@ -334,16 +334,16 @@ summary.microNetProps <- function(object, groupNames = NULL,
 #' @export
 print.summary.microNetProps <- function(x, ...){
 
-  cat("\nLCC sizes\n")
+  cat("\nComponent sizes\n")
 
   if(is.list(x$compSize)){
-    cat("`````````\n")
+    cat("```````````````\n")
     cat("Group 1:")
     print(x$compSize[[1]])
     cat("\nGroup 2:")
     print(x$compSize[[2]])
   } else{
-    cat("`````````")
+    cat("```````````````")
     print(x$compSize)
   }
   

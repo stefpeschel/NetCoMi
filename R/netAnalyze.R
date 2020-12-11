@@ -30,9 +30,8 @@
 #'   \code{\link[igraph]{transitivity}} with type = "global".}
 #'   \item{Modularity}{The modularity score for the determined clustering is 
 #'   computed using \code{\link[igraph]{modularity.igraph}}.}
-#'   \item{Positive-to-negative ratio}{= (# edges with positive estimated 
-#'   association) / (# edges with negative estimated association)\cr 
-#'   Equals one for sample similarity networks.}
+#'   \item{Positive edge percentage}{Percentage of edges with positive estimated
+#'   association of the total number of edges.}
 #'   \item{Edge density}{Computed using \code{\link[igraph]{edge_density}}.}
 #'   \item{Natural connectivity}{Computed using 
 #'   \code{\link[pulsar]{natural.connectivity}}. The "norm" parameter is 
@@ -431,8 +430,8 @@ netAnalyze <- function(net,
                              natConnect2 = props2$natConnect,
                              density1 = props1$density,
                              density2 = props2$density,
-                             pnRatio1 = props1$pnRatio,
-                             pnRatio2 = props2$pnRatio)
+                             pep1 = props1$pep,
+                             pep2 = props2$pep)
   
   output$globalPropsLCC <- list(lccSize1 = props1$lccSize, 
                                 lccSize2 = props2$lccSize,
@@ -454,8 +453,8 @@ netAnalyze <- function(net,
                                 natConnect2 = props2$natConnect_lcc,
                                 density1 = props1$density_lcc,
                                 density2 = props2$density_lcc,
-                                pnRatio1 = props1$pnRatio_lcc,
-                                pnRatio2 = props2$pnRatio_lcc)
+                                pep1 = props1$pep_lcc,
+                                pep2 = props2$pep_lcc)
   
   output$paramsProperties <- list(centrLCC = centrLCC,
                                   avDissIgnoreInf = avDissIgnoreInf,
@@ -494,6 +493,7 @@ netAnalyze <- function(net,
                        dissScale2 = x$dissScale2,
                        countMat1 = x$countMat1,
                        countMat2 = x$countMat2,
+                       countsJoint = x$countsJoint,
                        normCounts1 = x$normCounts1,
                        normCounts2 = x$normCounts2,
                        twoNets = twoNets,

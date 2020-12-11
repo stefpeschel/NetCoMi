@@ -31,7 +31,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                                  showCentr = "all", 
                                  numbNodes = 10L, digits = 3L, 
                                  digitsPval = 6L, ...){
-  
+
   showCentr <- match.arg(showCentr, choices = c("all", "none", "degree", 
                                                 "betweenness", "closeness", 
                                                 "eigenvector"),
@@ -97,35 +97,35 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   #============================================================
   # global network properties
   
-  glob_rnames <- c("Number of connected components", 
+  glob_rnames <- c("Number of components", 
                    "Clustering coefficient",
                    "Moduarity",
-                   "Positive-to-negative ratio",
+                   "Positive edge percentage",
                    "Edge density",
                    "Natural connectivity")
   
   glob_rnames_lcc <- c("Relative LCC size", 
                        "Clustering coefficient",
                        "Moduarity",
-                       "Positive-to-negative ratio",
+                       "Positive edge percentage",
                        "Edge density",
                        "Natural connectivity",
                        "Vertex connectivity",
                        "Edge connectivity",
                        "Average dissimilarity*",
-                       "Average (shortest) path length**")
+                       "Average path length**")
   
-  glob_names <- c("nComp", "clustCoef", "modularity", "pnRatio", "density", 
+  glob_names <- c("nComp", "clustCoef", "modularity", "pep", "density", 
                   "natConnect")
   
-  glob_names2 <- c("nComp", "ClustCoef", "Modul", "pnRatio", "Density", 
+  glob_names2 <- c("nComp", "ClustCoef", "Modul", "PEP", "Density", 
                    "NatConnect")
   
-  glob_names_lcc <- c("lccSizeRel", "clustCoef", "modularity", "pnRatio", 
+  glob_names_lcc <- c("lccSizeRel", "clustCoef", "modularity", "pep", 
                       "density", "natConnect", "vertConnect", "edgeConnect",
                       "avDiss", "avPath")
   
-  glob_names_lcc2 <- c("lccSizeRel", "ClustCoef", "Modul", "pnRatio", 
+  glob_names_lcc2 <- c("lccSizeRel", "ClustCoef", "Modul", "PEP", 
                        "Density", "NatConnect", "VertConnect", "EdgeConnect",
                        "avDiss", "avPath")
   

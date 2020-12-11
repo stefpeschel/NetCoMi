@@ -118,7 +118,7 @@
 #'   be shortened if \code{shortenLabels} is used. Defaults to 6.
 #' @param labelPattern vector of three elements, which is only used if argument
 #'   \code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label
-#'   to length \code{labelLength} leads to duplicates, the label is shortend
+#'   to length \code{labelLength} leads to duplicates, the label is shortened
 #'   according to \code{labelPattern}, where the first entry gives the length of
 #'   the first part, the second entry is used a separator, and the third entry
 #'   is the length of the second part. Defaults to c(5, "'", 3). If the data
@@ -126,7 +126,7 @@
 #'   they are by default shortened to "Strep'coc" and "Strep'myc".
 #' @param charToRm vector with characters to remove from node names. Ignored if
 #'   labels are given via \code{labels}.
-#' @param labelScale logical. If \code{TRUE}, node labels are scaled accoring to
+#' @param labelScale logical. If \code{TRUE}, node labels are scaled according to
 #'   node size
 #' @param labelFont integer defining the font of node labels. Defaults to 1.
 #' @param labelFile optional character of the form "<file name>.txt" naming a 
@@ -210,8 +210,8 @@
 #'   nodes if \code{nodeColor} is set to \code{"feature"}. Is coerced to a
 #'   factor. If \code{colorVec} is given, its length must be larger than or
 #'   equal to the number of feature levels.
-#' @param sameFeatCol logical indicating wether the same color should be used 
-#'   for same features in both networks (only used if two networks are plottet, 
+#' @param sameFeatCol logical indicating whether the same color should be used 
+#'   for same features in both networks (only used if two networks are plotted, 
 #'   \code{nodeColor = "feature"}, and no color vector/list is given (via 
 #'   \code{featVecCol})).
 #' @param sameClustCol if TRUE (default) and two networks are plotted, clusters
@@ -220,7 +220,7 @@
 #' @param sameColThresh indicates how many nodes a cluster must have in common
 #'   in the two groups to have the same color. See argument \code{sameClustCol}.
 #'   Defaults to 2.
-#' @param nodeShape character vector specifiying node shapes. Possible values
+#' @param nodeShape character vector specifying node shapes. Possible values
 #'   are \code{"circle"} (default), \code{"square"}, \code{"triangle"}, and
 #'   \code{"diamond"}. If \code{featVecShape} is not \code{NULL}, the length of
 #'   \code{nodeShape} must equal the number of factor levels given by
@@ -239,9 +239,9 @@
 #' @param borderCol character specifying the color of node borders. Defaults to
 #'   "gray80"
 #' @param highlightHubs logical indicating if hubs should be highlighted. If
-#'   \code{TRUE}, the following features can be defined seperately for hubs:
+#'   \code{TRUE}, the following features can be defined separately for hubs:
 #'   transparency (by \code{hubTransp}), label font (by \code{hubLabelFont}),
-#'   border width (by \code{hubBorderWidth}), and boder color (by
+#'   border width (by \code{hubBorderWidth}), and border color (by
 #'   \code{hubBorderCol}).
 #' @param hubTransp numeric between 0 and 100 specifying the color transparency
 #'   of hub nodes. See argument \code{nodeTransp}. Defaults to

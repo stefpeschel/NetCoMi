@@ -7,6 +7,7 @@ filter_samples <- function(countMat, filter, filterParam){
       ifelse(is.null(filterParam$highestFreq),
              100,
              filterParam$highestFreq)
+    highestFreq <- min(nrow(countMat), highestFreq)
 
     if (length(filter) > 1) {
       stop('Filter method "highestFreq" not comparable with other filter methods.')

@@ -157,9 +157,8 @@ Determine network properties for objects of class
   \code{\link[igraph]{transitivity}} with type = "global".}
   \item{Modularity}{The modularity score for the determined clustering is 
   computed using \code{\link[igraph]{modularity.igraph}}.}
-  \item{Positive-to-negative ratio}{= (# edges with positive estimated 
-  association) / (# edges with negative estimated association)\cr 
-  Equals one for sample similarity networks.}
+  \item{Positive edge percentage}{Percentage of edges with positive estimated
+  association of the total number of edges.}
   \item{Edge density}{Computed using \code{\link[igraph]{edge_density}}.}
   \item{Natural connectivity}{Computed using 
   \code{\link[pulsar]{natural.connectivity}}. The "norm" parameter is 

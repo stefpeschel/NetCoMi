@@ -79,7 +79,7 @@ be shortened if \code{shortenLabels} is used. Defaults to 6.}
 
 \item{labelPattern}{vector of three elements, which is only used if argument
 \code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label to
-length \code{labelLength} leads to duplicates, the label is shortend
+length \code{labelLength} leads to duplicates, the label is shortened
 according to \code{labelPattern}, where the first entry gives the length of
 the first part, the second entry is used a separator, and the third entry
 is the length of the second part. Defaults to c(5, "'", 3). If the data
@@ -89,7 +89,7 @@ they are by default shortened to "Strep'coc" and "Strep'myc".}
 \item{charToRm}{vector with characters to remove from node names. Ignored if
 labels are given via \code{labels}.}
 
-\item{labelScale}{logical. If \code{TRUE}, node labels are scaled accoring to
+\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according to
 node size}
 
 \item{labelFont}{integer defining the font of node labels. Defaults to 1.}

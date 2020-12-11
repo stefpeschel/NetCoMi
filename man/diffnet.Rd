@@ -70,7 +70,7 @@ numbers are stored). Defaults to \code{NULL} so that no file is created.}
 
 \item{seed}{integer giving a seed for reproducibility of the results.}
 
-\item{alpha}{numeric value between 0 and 1 giving the significance niveau.
+\item{alpha}{numeric value between 0 and 1 giving the significance level.
 Significantly different correlations are connected in the network. Defaults
 to 0.05.}
 
@@ -99,13 +99,13 @@ the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.}
 for performing another method for multiple testing adjustment without
 executing the complete permutation process again. See the example.}
 
-\item{fileLoadAssoPerm}{character giving the name (without extenstion) 
+\item{fileLoadAssoPerm}{character giving the name (without extension) 
 or path of the file storing the "permuted" association/dissimilarity 
 matrices that have been exported by setting \code{storeAssoPerm} to 
 \code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
 existing associations should be used.}
 
-\item{fileLoadCountsPerm}{character giving the name (without extenstion) 
+\item{fileLoadCountsPerm}{character giving the name (without extension) 
 or path of the file storing the "permuted" count matrices that have been 
 exported by setting \code{storeCountsPerm} to \code{TRUE}. 
 Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
@@ -190,9 +190,9 @@ Constructs a differential network for objects of class
   To generate a sampling distribution of the differences under \eqn{H_0},
   the group labels are randomly reassigned to the samples while the group
   sizes are kept. The associations are then re-estimated for each permuted
-  data set. The p-values are calcutated as the proportion of
+  data set. The p-values are calculated as the proportion of
   "permutation-differences" being larger than the observed difference. A
-  pseudocount is added to the numerator and denominator in order to avoid
+  pseudo-count is added to the numerator and denominator in order to avoid
   zero p-values. The p-values should be adjusted for multiple testing.
 }
 \examples{

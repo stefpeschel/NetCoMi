@@ -8,6 +8,7 @@
 #' @param countMat1,countMat2 matrices containing microbiome data (read counts)
 #'   of group 1 and group 2 (rows represent samples and columns taxonomic units,
 #'   respectively).
+#' @param countsJoint joint count matrices before preprocessing
 #' @param normCounts1,normCounts2 normalized count matrices.
 #' @param assoMat1,assoMat2 association matrices corresponding to the two count
 #'   matrices. The associations must have been estimated from the count matrices
@@ -86,7 +87,7 @@
 #'
 #' @seealso \code{\link{diffnet}}
 
-permtest_diff_asso <- function(countMat1, countMat2, 
+permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
                                normCounts1, normCounts2,
                                assoMat1, assoMat2, 
                                paramsNetConstruct,
@@ -116,25 +117,6 @@ permtest_diff_asso <- function(countMat1, countMat2,
                                                        "countsPerm2"),
                                assoPerm = NULL){
 
-  if(!is.null(seed)){
-    set.seed(seed)
-  }
-
-  is_norm <- FALSE
-  nVars <- ncol(assoMat1)
-  n1 <- nrow(countMat1)
-  n2 <- nrow(countMat2)
-  n <- n1 + n2
-
-  if(!is.null(callNetConstr$group)){
-    counts <- rbind(normCounts1, normCounts2)
-    is_norm <- TRUE
-  } else{
-    counts <- rbind(countMat1, countMat2)
-  }
-  
-  nNodes <- ncol(assoMat1)
-  
   measure <- paramsNetConstruct$measure
   measurePar <- paramsNetConstruct$measurePar
   zeroMethod <- paramsNetConstruct$zeroMethod
@@ -143,6 +125,28 @@ permtest_diff_asso <- function(countMat1, countMat2,
   needint <- paramsNetConstruct$needint
   normMethod <- paramsNetConstruct$normMethod
   normPar <- paramsNetConstruct$normPar
+  jointPrepro <- paramsNetConstruct$jointPrepro
+  
+  
+  if(!is.null(seed)){
+    set.seed(seed)
+  }
+
+  if(jointPrepro){
+    n1 <- nrow(normCounts1)
+    n2 <- nrow(normCounts2)
+    
+    xbind <- rbind(normCounts1, normCounts2)
+    
+  } else{
+    n1 <- nrow(countMat1)
+    n2 <- nrow(countMat2)
+    
+    xbind <- rbind(countMat1, countMat2)
+  }
+  
+  n <- n1 + n2
+  nVar <- ncol(assoMat1)
 
   #_____________________________________________________
 
@@ -153,7 +157,7 @@ permtest_diff_asso <- function(countMat1, countMat2,
     fmat <- fm.open(filenamebase = fileLoadAssoPerm, 
                     readonly = TRUE)
     
-    if(!(dim(fmat)[1] == nNodes * nPerm && dim(fmat)[2] == nNodes * 2)){
+    if(!(dim(fmat)[1] == nVar * nPerm && dim(fmat)[2] == nVar * 2)){
       stop("fileLoadAssoPerm has wrong dimensions. 
   Maybe 'nPerm' is not correct (must equal the number of permutation matrices in 'fileLoadAssoPerm').")
     }
@@ -196,9 +200,9 @@ permtest_diff_asso <- function(countMat1, countMat2,
     stopifnot(length(fileStoreCountsPerm) == 2)
     
     fmat_counts1 <- fm.create(filenamebase = fileStoreCountsPerm[1], 
-                              nrow = (n1 * nPerm), ncol = nNodes)
+                              nrow = (n1 * nPerm), ncol = nVar)
     fmat_counts2 <- fm.create(filenamebase = fileStoreCountsPerm[2], 
-                              nrow = (n2 * nPerm), ncol = nNodes)
+                              nrow = (n2 * nPerm), ncol = nVar)
     
     if(verbose){
       message("Files '", 
@@ -218,7 +222,7 @@ permtest_diff_asso <- function(countMat1, countMat2,
     stopifnot(length(fileStoreAssoPerm) == 1)
     
     fmat = fm.create(filenamebase = fileStoreAssoPerm, 
-                     nrow = (nNodes * nPerm), ncol = (2 * nNodes))
+                     nrow = (nVar * nPerm), ncol = (2 * nVar))
     
     if(verbose){
       message("Files '", 
@@ -291,10 +295,10 @@ permtest_diff_asso <- function(countMat1, countMat2,
                                         readonly = TRUE)
                         
                         # load permutation asso/diss matrices
-                        assoMat1.tmp <- fmat[(p-1) * nNodes + (1:nNodes), 
-                                             1:nNodes]
-                        assoMat2.tmp <- fmat[(p-1) * nNodes + (1:nNodes), 
-                                             nNodes + (1:nNodes)]
+                        assoMat1.tmp <- fmat[(p-1) * nVar + (1:nVar), 
+                                             1:nVar]
+                        assoMat2.tmp <- fmat[(p-1) * nVar + (1:nVar), 
+                                             nVar + (1:nVar)]
                         
                         dimnames(assoMat1.tmp) <- dimnames(assoMat1)
                         dimnames(assoMat2.tmp) <- dimnames(assoMat2)
@@ -317,10 +321,10 @@ permtest_diff_asso <- function(countMat1, countMat2,
                           
                           # load permutation count matrices
                           count1.tmp <- 
-                            fmat_counts1[(p-1) * n1 + (1:n1), 1:nNodes]
+                            fmat_counts1[(p-1) * n1 + (1:n1), 1:nVar]
                           
                           count2.tmp <- 
-                            fmat_counts2[(p-1) * n2 + (1:n2), 1:nNodes]
+                            fmat_counts2[(p-1) * n2 + (1:n2), 1:nVar]
                           
                           close(fmat_counts1)
                           close(fmat_counts2)
@@ -329,12 +333,12 @@ permtest_diff_asso <- function(countMat1, countMat2,
                           # generate permutation count matrices
                           
                           count1.tmp <- 
-                            counts[which(perm_group_mat[p, ] == 1), ]
+                            xbind[which(perm_group_mat[p, ] == 1), ]
                           
                           count2.tmp <- 
-                            counts[which(perm_group_mat[p, ] == 2), ]
+                            xbind[which(perm_group_mat[p, ] == 2), ]
                           
-                          if(!is_norm){
+                          if(!jointPrepro){
                             # zero treatment and normalization necessary if
                             # in network construction two count matrices 
                             # were given or dissimilarity network is created
@@ -380,9 +384,9 @@ permtest_diff_asso <- function(countMat1, countMat2,
                                                       fileStoreCountsPerm[2])
                             
                             fmat_counts1[(p-1) * n1 + (1:n1), 
-                                         1:nNodes] <- count1.tmp
+                                         1:nVar] <- count1.tmp
                             fmat_counts2[(p-1) * n2 + (1:n2), 
-                                         1:nNodes] <- count2.tmp
+                                         1:nVar] <- count2.tmp
                             
                             close(fmat_counts1)
                             close(fmat_counts2)
@@ -405,10 +409,10 @@ permtest_diff_asso <- function(countMat1, countMat2,
                         if(storeAssoPerm){
                           fmat <- fm.open(filenamebase = fileStoreAssoPerm)
                           
-                          fmat[(p-1) * nNodes + (1:nNodes), 
-                               1:nNodes] <- assoMat1.tmp
-                          fmat[(p-1) * nNodes + (1:nNodes), 
-                               nNodes + (1:nNodes)] <- assoMat2.tmp
+                          fmat[(p-1) * nVar + (1:nVar), 
+                               1:nVar] <- assoMat1.tmp
+                          fmat[(p-1) * nVar + (1:nVar), 
+                               nVar + (1:nVar)] <- assoMat2.tmp
                           
                           close(fmat)
                         }
@@ -426,14 +430,14 @@ permtest_diff_asso <- function(countMat1, countMat2,
                       if("connect.variables" %in% method){
                         connectVariables <- diff_connect_variables(assoMat1.tmp,
                                                                    assoMat2.tmp,
-                                                                   nVars,
+                                                                   nVar,
                                                                    fisherTrans)
                         returnlist[["connectVariables"]] <- connectVariables
                       }
                       if("connect.network" %in% method){
                         connectNetwork <- diff_connect_network(assoMat1.tmp,
                                                                assoMat2.tmp,
-                                                               nVars,
+                                                               nVar,
                                                                fisherTrans)
                         returnlist[["connectNetwork"]] <- connectNetwork
                       }
@@ -514,7 +518,7 @@ permtest_diff_asso <- function(countMat1, countMat2,
 
   if("connect.variables" %in% method){
 
-    connectVariablesOrig <- diff_connect_variables(assoMat1, assoMat2, nVars, 
+    connectVariablesOrig <- diff_connect_variables(assoMat1, assoMat2, nVar, 
                                                    fisherTrans)
 
     connectVariables <- matrix(NA, nPerm, length(connectVariablesOrig),
@@ -550,7 +554,7 @@ permtest_diff_asso <- function(countMat1, countMat2,
   }
 
   if("connect.network" %in% method){
-    connectNetworkOrig <- diff_connect_network(assoMat1, assoMat2, nVars, 
+    connectNetworkOrig <- diff_connect_network(assoMat1, assoMat2, nVar, 
                                                fisherTrans)
 
     connectNetwork <- numeric(nPerm)
@@ -591,7 +595,7 @@ diff_connect_pairs <- function(assoMat1, assoMat2, fisherTrans = TRUE){
 
 # calculate test statistic for difference in connectivity between a single
 # variable and all other variables
-diff_connect_variables <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE){
+diff_connect_variables <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE){
 
   if(fisherTrans){
     # Fisher transformation of correlation coefficients
@@ -607,11 +611,11 @@ diff_connect_variables <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE
   }
 
   ### test statistic
-  d_vec <- numeric(nVars)
+  d_vec <- numeric(nVar)
 
   # calculate test statistics for all variables
-  for(i in 1:nVars){
-    d_vec[i] <- sum(diff[i, -i]) / (nVars - 1)
+  for(i in 1:nVar){
+    d_vec[i] <- sum(diff[i, -i]) / (nVar - 1)
   }
 
   names(d_vec) <- colnames(assoMat1)
@@ -620,7 +624,7 @@ diff_connect_variables <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE
 
 
 # calculate test statistic for difference in connectivity for the whole network
-diff_connect_network <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE){
+diff_connect_network <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE){
 
   if(fisherTrans){
     # Fisher transformation of correlation coefficients
@@ -635,7 +639,7 @@ diff_connect_network <- function(assoMat1, assoMat2, nVars, fisherTrans = TRUE){
   }
 
   # test statistic
-  d <- (sum(diff) - sum(diag(diff))) / (nVars * (nVars-1))
+  d <- (sum(diff) - sum(diag(diff))) / (nVar * (nVar-1))
   return(d)
 }
 

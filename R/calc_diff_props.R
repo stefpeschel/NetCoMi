@@ -167,8 +167,8 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   
   #--------------------------------------------------------------------------
   # positive-to-negative ratio
-  diffpnratio <- abs(props1$pnRatio - props2$pnRatio)
-  diffpnratio_lcc <- abs(props1$pnRatio_lcc - props2$pnRatio_lcc)
+  diffpep <- abs(props1$pep - props2$pep)
+  diffpep_lcc <- abs(props1$pep_lcc - props2$pep_lcc)
   
   #--------------------------------------------------------------------------
   # number of connected components
@@ -232,7 +232,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                                     diffVertConnect = diffvertconnect,
                                     diffEdgeConnect = diffedgconnect,
                                     diffNatConnect = diffnatconnect,
-                                    diffpnRatio = diffpnratio,
+                                    diffPEP = diffpep,
                                     diffClustCoef = diffclustcoef,
                                     diffModul = diffmod),
                  diffsGlobalLCC = list(difflccSize = difflccsize,
@@ -243,7 +243,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                                        diffVertConnect = diffvertconnect_lcc,
                                        diffEdgeConnect = diffedgconnect_lcc,
                                        diffNatConnect = diffnatconnect_lcc,
-                                       diffpnRatio = diffpnratio_lcc,
+                                       diffPEP = diffpep_lcc,
                                        diffClustCoef = diffclustcoef_lcc,
                                        diffModul = diffmod_lcc),
                  diffsCentr = list(diffDeg = diffdeg, 
@@ -278,8 +278,8 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                               edgeConnect2 = props2$edgeconnect,
                               natConnect1 = props1$natConnect,
                               natConnect2 = props2$natConnect,
-                              pnRatio1 = props1$pnRatio,
-                              pnRatio2 = props2$pnRatio,
+                              pep1 = props1$pep,
+                              pep2 = props2$pep,
                               clustCoef1 = clustCoef1, 
                               clustCoef2 = clustCoef2,
                               modularity1 = modul1, 
@@ -302,8 +302,8 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                                  edgeConnect2 = props2$edgeconnect_lcc,
                                  natConnect1 = props1$natConnect_lcc,
                                  natConnect2 = props2$natConnect_lcc,
-                                 pnRatio1 = props1$pnRatio_lcc,
-                                 pnRatio2 = props2$pnRatio_lcc,
+                                 pep1 = props1$pep_lcc,
+                                 pep2 = props2$pep_lcc,
                                  clustCoef1 = clustCoef1_lcc, 
                                  clustCoef2 = clustCoef2_lcc,
                                  modularity1 = modul1_lcc, 

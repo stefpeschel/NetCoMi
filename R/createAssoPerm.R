@@ -117,10 +117,10 @@ createAssoPerm <- function(x,
   if(!is.null(logFile)) stopifnot(is.character(logFile))
   
   measure <- measurePar <- zeroMethod <- zeroPar <- needfrac <- needint <- 
-    normMethod <- normPar <- NULL
+    normMethod <- normPar <- jointPrepro <- NULL
   
   parnames <- c("measure", "measurePar", "zeroMethod", "zeroPar", "needfrac", 
-                "needint", "normMethod", "normPar")
+                "needint", "normMethod", "normPar", "jointPrepro")
   
   for(i in 1:length(parnames)){
     assign(parnames[i], x$paramsNetConstruct[[parnames[i]]])
@@ -136,6 +136,7 @@ createAssoPerm <- function(x,
   
   count1 <- x$input$countMat1
   count2 <- x$input$countMat2
+  countsJoint <- x$input$countsJoint
   
   count_norm1 <- x$input$normCounts1
   count_norm2 <- x$input$normCounts2
@@ -148,28 +149,31 @@ createAssoPerm <- function(x,
   if(!is.null(seed)) set.seed(seed)
   
   # create combined data matrix
-  
-  is_norm <- FALSE
-  
   if(assoType == "dissimilarity"){
     n1 <- ncol(count1)
     n2 <- ncol(count2)
     n <- n1 + n2
     nVar <- nrow(count1)
+    
     xbind <- cbind(count1, count2)
     
   } else{
-    n1 <- nrow(count1)
-    n2 <- nrow(count2)
-    n <- n1 + n2
-    nVar <- ncol(count1)
-    
-    if(!is.null(callNetConstr$group)){
+    if(jointPrepro){
+      n1 <- nrow(count_norm1)
+      n2 <- nrow(count_norm2)
+      nVar <- ncol(count_norm1)
+      
       xbind <- rbind(count_norm1, count_norm2)
-      is_norm <- TRUE
+      
     } else{
+      n1 <- nrow(count1)
+      n2 <- nrow(count2)
+      nVar <- ncol(count1)
+      
       xbind <- rbind(count1, count2)
     }
+    
+    n <- n1 + n2
   }
 
   
@@ -391,7 +395,7 @@ createAssoPerm <- function(x,
                              count2.tmp <- xbind[which(perm_group_mat[p, ] == 2), ]
                            }
                            
-                           if(!is_norm){
+                           if(!jointPrepro){
                              # zero treatment and normalization necessary if
                              # in network construction two count matrices 
                              # were given or dissimilarity network is created

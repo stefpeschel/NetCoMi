@@ -12,6 +12,7 @@ netConstruct(
   matchDesign = NULL,
   measure = "spieceasi",
   measurePar = NULL,
+  jointPrepro = NULL,
   filtTax = "none",
   filtTaxPar = NULL,
   filtSamp = "none",
@@ -90,6 +91,13 @@ associations/dissimilarities. See details for the respective functions.
 For SpiecEasi or SPRING as association measure, an additional list element
 "symBetaMode" is accepted to define the "mode" argument of 
 \code{\link[SpiecEasi]{symBeta}}.}
+
+\item{jointPrepro}{logical indicating whether data preprocessing (filtering,
+zero treatment, normalization) should be done for the combined data sets,
+or each data set separately. Ignored if a single network is constructed.
+Defaults to \code{TRUE} if \code{group} is given, and to \code{FALSE} if
+\code{data2} is given. Joint preprocessing is not possible for 
+dissimilarity networks.}
 
 \item{filtTax}{character indicating how taxa shall be filtered. Possible
 options are:
@@ -176,11 +184,11 @@ arguments are \code{kNeighbor}, and \code{knnMutual}.}}}
 \item{thresh}{numeric value defining the threshold if \code{sparsMethod} is
 set to \code{"threshold"}. Defaults to 0.3.}
 
-\item{alpha}{significance niveau. Only used if Student's t-test or bootstrap
+\item{alpha}{significance level. Only used if Student's t-test or bootstrap
 procedure is used as sparsification method. Defaults to 0.05.}
 
 \item{adjust}{character indicating the method used for multiple testing
-adjustment (if tudent's t-test or bootstrap procedure is used for edge
+adjustment (if Student's t-test or bootstrap procedure is used for edge
 selection). Possible values are \code{"lfdr"} (default) for local
 false discovery rate correction (via \code{\link[fdrtool]{fdrtool}}),
 \code{"adaptBH"} for the adaptive Benjamini-Hochberg method
@@ -202,7 +210,7 @@ corresponding local FDR less than or equal to 0.2 are identified as
 significant.}
 
 \item{nboot}{integer indicating the number of bootstrap samples, if
-bootstrappng is used as sparsification method.}
+bootstrapping is used as sparsification method.}
 
 \item{cores}{integer indicating the number of CPU cores used for
 bootstrapping. If cores > 1, bootstrapping is performed parallel.
@@ -236,14 +244,15 @@ minimum scale free topology fitting index (corresponds to the argument
 \item{kNeighbor}{integer specifying the number of neighbors if the k-nearest
 neighbor method is used for sparsification.}
 
-\item{knnMutual}{logical used for k-nearest neigbor sparsification. If
+\item{knnMutual}{logical used for k-nearest neighbor sparsification. If
 \code{TRUE}, the neighbors must be mutual.}
 
-\item{dissFunc}{method used for transforming associations to dissimilarities.
-Can be a character with one of the following values: \code{"signed"}
-(default), \code{"unsigned"}, \code{"signedPos"}, \code{"TOMdiss"}.
+\item{dissFunc}{method used for transforming associations into 
+dissimilarities. Can be a character with one of the following values: 
+\code{"signed"}(default), \code{"unsigned"}, \code{"signedPos"}, 
+\code{"TOMdiss"}.
 Alternatively, a function is accepted with the association matrix as first
-argument and optional further arguments, which can be set viel
+argument and optional further arguments, which can be set via
 \code{dissFuncPar}. Ignored for dissimilarity measures. See details.}
 
 \item{dissFuncPar}{optional list with parameters if a function is passed to
@@ -281,20 +290,24 @@ from external functions are shown in addition. Can also be logical.}
 An object of class \code{microNet} containing the following elements:
   \tabular{ll}{
   \code{assoMat1, assoMat2}\tab Sparsified associations (\code{NULL} for
-  dissimlarity based networks)\cr
+  dissimilarity based networks)\cr
   \code{dissMat1, dissMat2}\tab Sparsified dissimilarities (for association
   networks, these are the sparsified associations transformed to
   dissimilarities)\cr
   \code{simMat1, simMat2}\tab Sparsified similarities\cr
   \code{adjamat1, adjamat2}\tab Adjacency matrices\cr
   \code{assoEst1, assoEst2}\tab Estimated associations (\code{NULL} for
-  dissimlarity based networks)\cr
+  dissimilarity based networks)\cr
   \code{dissEst1, dissEst2}\tab Estimated dissimilarities (\code{NULL} for
   association networks)\cr
   \code{dissScale1, dissScale2}\tab Scaled dissimilarities (\code{NULL} for
   association networks)\cr
-  \code{countMat1, countMat2}\tab Count matrices, where taxa and samples are
-  filtered according to \code{filtTax} and \code{filtSamp}\cr
+  \code{countMat1, countMat2}\tab Count matrices after filtering but before
+  zero replacement and normalization. Only returned if \code{jointPrepro}
+  is \code{FALSE} or for a single network.\cr
+  \code{countsJoint}\tab Joint count matrix after filtering but before
+  zero replacement and normalization. Only returned if \code{jointPrepro}
+  is \code{TRUE}.\cr
   \code{normCounts1, normCounts2}\tab Count matrices after zero handling and
   normalization\cr
   \code{groups}\tab Names of the factor levels according to which the groups
@@ -335,7 +348,7 @@ The object returned from \code{netConstruct} can either be passed to
     networks).
     \item Passing the count data for group 1 to \code{data} (matrix or
     phyloseq object) and the count data for group2 to \code{data2} (matrix or
-    phyloseq object). For association networks, the colum names must match, 
+    phyloseq object). For association networks, the column names must match, 
     and for dissimilarity networks the row names.
     \item Passing an association/dissimilarity matrix for group 1 to 
     \code{data} and an association/dissimilarity matrix for group 2 to 
