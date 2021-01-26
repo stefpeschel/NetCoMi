@@ -1,4 +1,5 @@
 trans_to_diss <- function(x, dissFunc, dissFuncPar = NULL){
+
   if(is.function(dissFunc)){
     dissMat <- do.call(dissFunc, c(list(x), dissFuncPar))
     return(dissMat)

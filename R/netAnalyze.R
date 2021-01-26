@@ -230,7 +230,9 @@
 #'
 #' @seealso \code{\link{netConstruct}} for network construction,
 #'   \code{\link{netCompare}} for network comparison,
-#'   \code{\link{diffnet}} for constructing differential networks.
+#'   \code{\link{diffnet}} for constructing differential networks,
+#'   \code{\link{plot.microNetProps}} for the plot method, and
+#'   \code{\link{summary.microNetProps}} for the summary method.
 #' @import igraph
 #' @importFrom MASS fitdistr
 #' @export

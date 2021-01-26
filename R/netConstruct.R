@@ -274,9 +274,9 @@
 #'   minimum scale free topology fitting index (corresponds to the argument
 #'   "RsquaredCut" in \code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.
 #' @param kNeighbor integer specifying the number of neighbors if the k-nearest
-#'   neighbor method is used for sparsification.
+#'   neighbor method is used for sparsification.Defaults to 3L.
 #' @param knnMutual logical used for k-nearest neighbor sparsification. If
-#'   \code{TRUE}, the neighbors must be mutual.
+#'   \code{TRUE}, the neighbors must be mutual. Defaults to \code{FALSE}.
 #' @param dissFunc method used for transforming associations into 
 #'   dissimilarities. Can be a character with one of the following values: 
 #'   \code{"signed"}(default), \code{"unsigned"}, \code{"signedPos"}, 
@@ -286,7 +286,7 @@
 #'   \code{dissFuncPar}. Ignored for dissimilarity measures. See details.
 #' @param dissFuncPar optional list with parameters if a function is passed to
 #'   \code{dissFunc}.
-#' @param simFunc alternative function for transforming dissimilarities to
+#' @param simFunc function for transforming dissimilarities to
 #'   similarities. Defaults to f(x)=1-x for dissimilarities in [0,1], and
 #'   f(x)=1/(1 + x) otherwise.
 #' @param simFuncPar optional list with parameters for the function passed to
@@ -458,7 +458,7 @@ netConstruct <- function(data,
     # handle phyloseq objects
     
     
-    if(class(data) == "phyloseq"){
+    if("phyloseq" %in% class(data)){
       
       otutab <- data@otu_table
       taxtab <- data@tax_table@.Data
@@ -531,8 +531,10 @@ netConstruct <- function(data,
                            choices = c("none", "t-test", "bootstrap",
                                        "threshold", "softThreshold", "knn"))
 
-  dissFunc <- match.arg(dissFunc, choices = c("signed", "unsigned", "signedPos",
-                                              "TOMdiss"))
+  if(!is.function(dissFunc)){
+    dissFunc <- match.arg(dissFunc, choices = c("signed", "unsigned", "signedPos",
+                                                "TOMdiss"))
+  }
 
   softThreshType <- match.arg(softThreshType,
                               choices = c("signed", "unsigned", "signed hybrid"))
@@ -634,7 +636,7 @@ netConstruct <- function(data,
     
     #--------------------------------
     # set parameters needed for sparsification
-    
+
     if(length(thresh) == 1) thresh <- c(thresh, thresh)
     if(length(alpha) == 1) alpha <- c(alpha, alpha)
     if(length(lfdrThresh) == 1) lfdrThresh <- c(lfdrThresh, lfdrThresh)
@@ -833,7 +835,7 @@ netConstruct <- function(data,
       countMatJoint <- countMat1
       countMat2 <- NULL
     }
-    
+
     #---------------------------------------------------------------------------
     # sample filtering
 
@@ -841,12 +843,18 @@ netConstruct <- function(data,
       keepRows <- filter_samples(countMat = countMatJoint, filter = filtSamp,
                                  filterParam = filtSampPar)
       
+      if(length(keepRows) == 0){
+        stop("No samples remaining after filtering.")
+      }
+      
       if(length(keepRows) != nrow(countMatJoint)){
         n_old <- nrow(countMatJoint)
         countMatJoint <- countMatJoint[keepRows, , drop = FALSE]
         if(!distNet) group <- group[keepRows]
         
-        if(verbose %in% 2:3) message(n_old - nrow(countMatJoint), " samples removed.")
+        if(verbose %in% 2:3){
+          message(n_old - nrow(countMatJoint), " samples removed.")
+        }
       }
       
     } else{
@@ -864,21 +872,40 @@ netConstruct <- function(data,
         countMat1 <- countMat1[keepRows, , drop = FALSE]
         countMat2 <- countMat2[keepRows, , drop = FALSE]
         
-        if(verbose %in% 2:3) message(n_old1 - nrow(countMat1),
-                                     " samples removed in each data set.")
+        if(n_old1 - nrow(countMat1) != 0 && verbose %in% 2:3){
+          message(n_old1 - nrow(countMat1),
+                  " samples removed in each data set.")
+        } 
+        
+        if(length(keepRows) == 0){
+          stop("No samples remaining after filtering and building the intercept ",
+               "of the remaining samples.")
+        }
         
       } else{
         countMat1 <- countMat1[keepRows1, , drop = FALSE]
         countMat2 <- countMat2[keepRows2, , drop = FALSE]
-        
-        if(verbose %in% 2:3){
-          message(n_old1 - nrow(countMat1),
-                  " samples removed in data set 1.")
-          message(n_old2 - nrow(countMat2),
-                  " samples removed in data set 2.")
+
+        if(n_old1 - nrow(countMat1) != 0 || n_old2 - nrow(countMat2)){
+          if(verbose %in% 2:3){
+            message(n_old1 - nrow(countMat1),
+                    " samples removed in data set 1.")
+            message(n_old2 - nrow(countMat2),
+                    " samples removed in data set 2.")
+          }
         }
       }
+      
+      if(length(keepRows1) == 0){
+        stop("No samples remaining in group 1 after filtering.")
+      }
+      
+      if(length(keepRows2) == 0){
+        stop("No samples remaining in group 2 after filtering.")
+      }
+
     }
+
     
     #---------------------------------------------------------------------------
     # taxa filtering
@@ -895,7 +922,9 @@ netConstruct <- function(data,
         if(distNet) group <- group[keepCols]
       }
       
-      
+      if(length(keepCols) == 0){
+        stop("No taxa remaining after filtering.")
+      }
       
     } else{
       p_old1 <- ncol(countMat1)
@@ -909,17 +938,37 @@ netConstruct <- function(data,
         keepCols <- intersect(keepCols1, keepCols2)
         countMat1 <- countMat1[, keepCols, drop = FALSE]
         countMat2 <- countMat2[, keepCols, drop = FALSE]
-        if(verbose %in% 2:3) message(p_old1 - dim(countMat1)[2],
-                                     " taxa removed in each data set.")
+        
+        if(length(keepCols) == 0){
+          stop("No taxa remaining after filtering and building the intercept ",
+               "of the remaining taxa.")
+        }
+        
+        if(p_old1 - dim(countMat1)[2] != 0 && verbose %in% 2:3){
+          message(p_old1 - dim(countMat1)[2],
+                  " taxa removed in each data set.")
+        }
+        
       } else{
         countMat1 <- countMat1[, keepCols1, drop = FALSE]
         countMat2 <- countMat2[, keepCols2, drop = FALSE]
-        if(verbose %in% 2:3){
-          message(p_old1 - dim(countMat1)[2],
-                  " taxa removed in data set 1.")
-          message(p_old2 - dim(countMat2)[2],
-                  " taxa removed in data set 2.")
+        
+        if(p_old1 - dim(countMat1)[2] != 0 || p_old2 - dim(countMat2)[2]!= 0){
+          if(verbose %in% 2:3){
+            message(p_old1 - dim(countMat1)[2],
+                    " taxa removed in data set 1.")
+            message(p_old2 - dim(countMat2)[2],
+                    " taxa removed in data set 2.")
+          }
         }
+      }
+      
+      if(length(keepCols1) == 0){
+        stop("No samples remaining in group 1 after filtering.")
+      }
+      
+      if(length(keepCols2) == 0){
+        stop("No samples remaining in group 2 after filtering.")
       }
     }
     
@@ -1150,7 +1199,7 @@ netConstruct <- function(data,
     #===========================================================================
     #===========================================================================
     # association / dissimilarity estimation
-    
+
     if(verbose %in% 2:3){
       if(distNet){
         txt.tmp <- "dissimilarities"
@@ -1203,8 +1252,15 @@ netConstruct <- function(data,
 
     if(scaleDiss){
       assoUpper <- assoMat1[upper.tri(assoMat1)]
-      assoMat1 <- (assoMat1 - min(assoUpper)) / (max(assoUpper) - min(assoUpper))
-      diag(assoMat1) <- 0
+      
+      if(length(assoUpper) == 1){
+        warning("Network consists of only two nodes.")
+        assoMat1[1,2] <- assoMat1[2,1] <- 1
+        
+      } else{
+        assoMat1 <- (assoMat1 - min(assoUpper)) / (max(assoUpper) - min(assoUpper))
+        diag(assoMat1) <- 0
+      }
     }
 
     dissScale1 <- assoMat1
@@ -1242,7 +1298,16 @@ netConstruct <- function(data,
 
       if(scaleDiss){
         assoUpper <- assoMat2[upper.tri(assoMat2)]
+        
+        if(length(assoUpper) == 1){
+          warning("Network consists of only two nodes.")
+          assoMat2[1,2] <- assoMat2[2,1] <- 1
+          
+        } else{
         assoMat2 <- (assoMat2 - min(assoUpper)) / (max(assoUpper) - min(assoUpper))
+        diag(assoMat2) <- 0
+        }
+        
       }
       dissScale2 <- assoMat2
 

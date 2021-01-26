@@ -242,10 +242,10 @@ minimum scale free topology fitting index (corresponds to the argument
 "RsquaredCut" in \code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.}
 
 \item{kNeighbor}{integer specifying the number of neighbors if the k-nearest
-neighbor method is used for sparsification.}
+neighbor method is used for sparsification.Defaults to 3L.}
 
 \item{knnMutual}{logical used for k-nearest neighbor sparsification. If
-\code{TRUE}, the neighbors must be mutual.}
+\code{TRUE}, the neighbors must be mutual. Defaults to \code{FALSE}.}
 
 \item{dissFunc}{method used for transforming associations into 
 dissimilarities. Can be a character with one of the following values: 
@@ -258,7 +258,7 @@ argument and optional further arguments, which can be set via
 \item{dissFuncPar}{optional list with parameters if a function is passed to
 \code{dissFunc}.}
 
-\item{simFunc}{alternative function for transforming dissimilarities to
+\item{simFunc}{function for transforming dissimilarities to
 similarities. Defaults to f(x)=1-x for dissimilarities in [0,1], and
 f(x)=1/(1 + x) otherwise.}
 
