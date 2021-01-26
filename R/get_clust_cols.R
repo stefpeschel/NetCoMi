@@ -106,15 +106,14 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
       }
 
     } else{
-      clust1 <- clust1
-      clust2 <- clust2
-      nc1 <- max(clust1)
-      nc2 <- max(clust2)
 
       if(isempty1){
         clustcol1 <- rep("grey80", ncol(adja1))
 
       } else{
+        clust1 <- clust1
+        nc1 <- max(clust1)
+
         clustcols <- grDevices::rainbow(nc1)
 
         if(length(noclust1) != 0){
@@ -128,6 +127,9 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
       if(isempty2){
         clustcol2 <- rep("grey80", ncol(adja2))
       } else{
+        clust2 <- clust2
+        nc2 <- max(clust2)
+        
         clustcols <- grDevices::rainbow(nc2)
 
         if(length(noclust2) != 0){
