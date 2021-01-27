@@ -340,3 +340,57 @@ summary(testprops)
 }
 
 
+#===============================================================================
+context("plot.microNetProps: test different layouts")
+
+testprops<- netAnalyze(net_asso_two, clustMethod = "cluster_fast_greedy",
+                       hubPar = "eigenvector")
+
+plot(testprops, sameLayout = FALSE)
+plot(testprops, sameLayout = TRUE)
+plot(testprops, sameLayout = TRUE, layoutGroup = 1)
+plot(testprops, sameLayout = TRUE, layout = "layout_with_fr")
+
+graph.tmp <- graph_from_adjacency_matrix(testprops$input$adjaMat1, weighted = TRUE)
+lay.tmp <- layout_with_fr(graph.tmp)
+rownames(lay.tmp) <- rownames(testprops$input$adjaMat1)
+plot(testprops, layout = lay.tmp)
+
+# unweighted network
+testprops<- netAnalyze(net_unweight_two, clustMethod = "cluster_fast_greedy",
+                       hubPar = "eigenvector")
+
+plot(testprops, sameLayout = FALSE)
+plot(testprops, sameLayout = TRUE)
+plot(testprops, sameLayout = TRUE, layoutGroup = 1)
+plot(testprops, sameLayout = TRUE, layout = "layout_with_fr")
+
+graph.tmp <- graph_from_adjacency_matrix(testprops$input$adjaMat1, weighted = TRUE)
+lay.tmp <- layout_with_fr(graph.tmp)
+rownames(lay.tmp) <- rownames(testprops$input$adjaMat1)
+plot(testprops, layout = lay.tmp)
+
+
+# dissimilarity network
+testprops<- netAnalyze(net_diss_two, clustMethod = "cluster_fast_greedy",
+                       hubPar = "eigenvector")
+
+plot(testprops, sameLayout = FALSE)
+plot(testprops, sameLayout = TRUE, repulsion = 0.7)
+plot(testprops, sameLayout = TRUE, layoutGroup = 1)
+plot(testprops, sameLayout = TRUE, layout = "layout_with_fr")
+
+graph.tmp <- graph_from_adjacency_matrix(testprops$input$adjaMat1, weighted = TRUE)
+lay.tmp <- layout_with_fr(graph.tmp)
+rownames(lay.tmp) <- rownames(testprops$input$adjaMat1)
+plot(testprops, layout = lay.tmp)
+
+
+
+
+
+
+
+
+
+

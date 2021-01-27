@@ -13,7 +13,11 @@ except_plot_networks<- function(args){
     layout.tmp <- try(match.fun(layout), silent = TRUE)
 
     if(class(layout.tmp) == "try-error"){
-      if(!is.matrix(layout)){
+      if(is.matrix(layout)){
+        if(!any(rownames(layout) %in% rownames(args$x$input$adjaMat1))){
+          warning("Rownames of layout matrix don't match node names.")
+        }
+      } else {
         stopifnot(layout %in% c("spring", "circle", "groups"))
       }
     } else{
@@ -27,13 +31,8 @@ except_plot_networks<- function(args){
   stopifnot(is.logical(sameLayout))
 
   # layoutGroup
-
   if(sameLayout & twoNets){
-    if(is.null(args$layoutGroup)){
-      args$layoutGroup <- 1
-    } else{
-      stopifnot(args$layoutGroup %in% c(1,2))
-    }
+    stopifnot(args$layoutGroup %in% c(1,2, "union"))
   }
 
   # repulsion
