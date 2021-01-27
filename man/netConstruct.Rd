@@ -135,8 +135,8 @@ combined. The values x are set via \code{filtSampPar}.}
 
 \item{zeroMethod}{character indicating the method used for zero replacement.
 Possible values are: \code{"none"} (default), \code{"pseudo"}
-(a unit pseudo count is added to the original count data),
-\code{"multRepl"} (multiplicative replacement using
+(a predefined pseudo count (1 by default) is added to the original count 
+data), \code{"multRepl"} (multiplicative replacement using
 \code{\link[zCompositions]{multRepl}}), \code{"alrEM"} (modified EM
 alr-algorithm using \code{\link[zCompositions]{lrEM}}), \code{"bayesMult"}
 (Bayesian-multiplicative replacement using
@@ -149,7 +149,9 @@ required.}
 
 \item{zeroPar}{list with parameters passed to the function for zero
 replacement (\code{zeroMethod}). See the help page of the respective
-function for details.}
+function for details. If \code{zeroMethod = "pseudo"}, the pseudocount can
+be specified using \code{pseudocount = x} as list element (where x is 
+numeric).}
 
 \item{normMethod}{character indicating the normalization method (in order to
 make counts of different samples comparable). Possible options are:
@@ -224,7 +226,7 @@ directory. Defaults to \code{"log.txt"}. If\code{ NULL}, no log file is
 created.}
 
 \item{softThreshType}{character indicating the method used for transforming
-correlations to similarities if soft thresholding is used as sparsification
+correlations into similarities if soft thresholding is used as sparsification
 method (\code{sparsMethod = "softThreshold"}). Possible values are
 \code{"signed"}, \code{"unsigned"}, and \code{"signed hybrid"} (according
 to the available options for the argument \code{type} of
@@ -258,7 +260,7 @@ argument and optional further arguments, which can be set via
 \item{dissFuncPar}{optional list with parameters if a function is passed to
 \code{dissFunc}.}
 
-\item{simFunc}{function for transforming dissimilarities to
+\item{simFunc}{function for transforming dissimilarities into
 similarities. Defaults to f(x)=1-x for dissimilarities in [0,1], and
 f(x)=1/(1 + x) otherwise.}
 
@@ -292,7 +294,7 @@ An object of class \code{microNet} containing the following elements:
   \code{assoMat1, assoMat2}\tab Sparsified associations (\code{NULL} for
   dissimilarity based networks)\cr
   \code{dissMat1, dissMat2}\tab Sparsified dissimilarities (for association
-  networks, these are the sparsified associations transformed to
+  networks, these are the sparsified associations transformed into
   dissimilarities)\cr
   \code{simMat1, simMat2}\tab Sparsified similarities\cr
   \code{adjamat1, adjamat2}\tab Adjacency matrices\cr
@@ -410,6 +412,22 @@ The object returned from \code{netConstruct} can either be passed to
   vector of ratios x/y.}
   \item{Aitchison distance:}{Euclidean distance of the clr-transformed data.}
   }\cr
+  \strong{Methods for zero replacement:}
+  \tabular{lll}{
+  Argument \tab Method \tab Function\cr
+  \code{"none"} \tab No zero replacement (only available if no zero
+  replacement is needed for the chosen normalization method and 
+  association/dissimilarity measure).\tab -\cr
+  \code{"pseudo"} \tab A pseudo count (defined by \code{pseudocount} as 
+  optional element of \code{zeroPar}) is added to all counts. A unit zero 
+  count is used by default.\tab -\cr
+  \code{"multRepl"} \tab Multiplicative simple replacement \tab
+ \code{\link[zCompositions:multRepl]{multRepl}}\cr
+  \code{"alrEM"} \tab Modified EM alr-algorithm 
+  \tab \code{\link[zCompositions:lrEM]{lrEM}}\cr
+  \code{"bayesMult"} \tab Bayesian-multiplicative replacement\tab
+  \code{\link[zCompositions:cmultRepl]{cmultRepl}}\cr
+  }
   \strong{Normalization methods:}
   \tabular{lll}{
   Argument \tab Method \tab Function\cr
@@ -430,7 +448,7 @@ The object returned from \code{netConstruct} can either be passed to
   These methods (except rarefying) are described in
   \cite{Badri et al.(2018)}.
   \cr\cr
-  \strong{Transforming associations to dissimilarities:}
+  \strong{Transforming associations into dissimilarities:}
   \tabular{ll}{
   Argument \tab Function\cr
   \code{"signed"} \tab sqrt(0.5 * (1 - x))\cr
@@ -441,11 +459,15 @@ The object returned from \code{netConstruct} can either be passed to
   }
 }
 \examples{
-# load data sets from American Gut Project (from SpiecEasi package)
+# Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 data("amgut2.filt.phy")
 
-# network construction:
+# Single network with the following specifications:
+# - Association measure: SpiecEasi
+# - Only the 50 taxa with highest variance are selected
+# - Only samples with a total number of reads of at least 1000 included
+
 amgut_net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
                            measurePar = list(method = "mb",
                                              pulsar.params = list(rep.num = 10),
@@ -456,22 +478,56 @@ amgut_net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
                            filtSampPar = list(totalReads = 1000),
                            verbose = 3)
 
+# Network analysis
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy")
 
+# Network plot
 plot(amgut_props1)
 
-# constructing two networks according to a random group variable
+#----------------------------------------------------------------------------
+# Single network with the following specifications:
+# - Association measure: Pearson correlation
+# - Only the 50 taxa with highest frequency are selected
+# - Only samples with a total number of reads of at least 1000 and with
+#   at least 10 taxa with a non-zero count are included
+# - Pseudocounts of 0.5 are added for zero replacement
+# - The clr transformation is used as normalization method
+# - A threshold of 0.3 is chosen for sparsification
+
+amgut_net2 <- netConstruct(amgut2.filt.phy, 
+                           measure = "pearson",
+                           filtTax = "highestFreq",
+                           filtTaxPar = list(highestFreq = 50),
+                           filtSamp = c("numbTaxa", "totalReads"),
+                           filtSampPar = list(totalReads = 1000, numbTaxa = 10),
+                           zeroMethod = "pseudo", 
+                           zeroPar = list(pseudocount = 0.5),
+                           normMethod = "clr",
+                           sparsMethod = "threshold",
+                           thresh = 0.3,
+                           verbose = 3)
+
+amgut_props2 <- netAnalyze(amgut_net2, clustMethod = "cluster_fast_greedy")
+
+plot(amgut_props2)
+
+#----------------------------------------------------------------------------
+# Constructing two networks according to a random group variable
 set.seed(123456)
 group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
-amgut_net2 <- netConstruct(amgut1.filt, group = group,
+amgut_net3 <- netConstruct(amgut1.filt, group = group,
                            measure = "pearson",
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
                            filtSamp = "totalReads",
                            filtSampPar = list(totalReads = 1000),
-                           zeroMethod = "multRepl", normMethod = "clr")
-amgut_props2 <- netAnalyze(amgut_net2, clustMethod = "cluster_fast_greedy")
-plot(amgut_props2)
+                           zeroMethod = "multRepl", 
+                           normMethod = "clr",
+                           sparsMethod = "t-test")
+                           
+amgut_props3 <- netAnalyze(amgut_net3, clustMethod = "cluster_fast_greedy")
+
+plot(amgut_props3)
 
 }
 \references{
