@@ -347,14 +347,25 @@ The object returned from \code{netConstruct} can either be passed to
     networks and of length \code{ncol(data)} for dissimilarity-based 
     networks).
     \item Passing the count data for group 1 to \code{data} (matrix or
-    phyloseq object) and the count data for group2 to \code{data2} (matrix or
-    phyloseq object). For association networks, the column names must match, 
-    and for dissimilarity networks the row names.
+    phyloseq object) and the count data for group 2 to \code{data2} (matrix 
+    or phyloseq object). For association networks, the column names must 
+    match, and for dissimilarity networks the row names.
     \item Passing an association/dissimilarity matrix for group 1 to 
     \code{data} and an association/dissimilarity matrix for group 2 to 
     \code{data2}.
   }
   \cr
+  \strong{Note:}\cr 
+  If two networks are generated, the network belonging to \code{data} 
+  is always denoted by "group 1" and the network belonging to \code{data2} 
+  by "group 2".\cr
+  If a group vector is used for splitting the data into two groups, the group
+  names are assigned according to the order of group levels. If \code{group}
+  contains the levels 0 and 1, for instance, "group 1" is assigned to level 0
+  and "group 2" is assigned to level 1. \cr
+  In the network plot, group 1 is shown on the left and group 2 on the 
+  right if not defined otherwise (see \code{\link{plot.microNetProps}}).
+  \cr\cr
   \strong{Association measures:}
   \tabular{ll}{
   Argument \tab Function\cr

@@ -8,7 +8,7 @@
 \method{plot}{microNetProps}(x,
   layout = "spring",
   sameLayout = FALSE,
-  layoutGroup = NULL,
+  layoutGroup = "union",
   repulsion = 1,
   groupNames = NULL,
   groupsChanged = FALSE,
@@ -87,10 +87,12 @@ and y coordinate.}
 for both networks. Ignored if \code{x} contains only one network. See
 argument \code{layoutGroup}.}
 
-\item{layoutGroup}{numeric. Indicates the group from which the layout is
-taken if argument \code{sameLayout} is \code{TRUE}. The layout is computed
-for the first network if set to "1" (default) and for the second network if
-set to "2".}
+\item{layoutGroup}{numeric or character. Indicates the group, where the 
+layout is taken from if argument \code{sameLayout} is \code{TRUE}. 
+The layout is computed for group 1 (and adopted for group 2) if set to "1" 
+and it is computed for group 2 if set to "2". Can alternatively be set to
+"union" (default) to compute a union of both layouts, where the nodes are 
+placed as optimal as possible equally for both networks.}
 
 \item{repulsion}{positive numeric value indicating the strength of repulsive
 forces in the "spring" layout. Nodes are placed closer together for smaller

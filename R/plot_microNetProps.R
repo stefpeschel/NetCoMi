@@ -6,7 +6,7 @@
 #' @usage \method{plot}{microNetProps}(x,
 #'   layout = "spring",
 #'   sameLayout = FALSE,
-#'   layoutGroup = NULL,
+#'   layoutGroup = "union",
 #'   repulsion = 1,
 #'   groupNames = NULL,
 #'   groupsChanged = FALSE,
@@ -81,10 +81,12 @@
 #' @param sameLayout logical. Indicates whether the same layout should be used
 #'   for both networks. Ignored if \code{x} contains only one network. See
 #'   argument \code{layoutGroup}.
-#' @param layoutGroup  numeric. Indicates the group from which the layout is
-#'   taken if argument \code{sameLayout} is \code{TRUE}. The layout is computed
-#'   for the first network if set to "1" (default) and for the second network if
-#'   set to "2".
+#' @param layoutGroup  numeric or character. Indicates the group, where the 
+#'   layout is taken from if argument \code{sameLayout} is \code{TRUE}. 
+#'   The layout is computed for group 1 (and adopted for group 2) if set to "1" 
+#'   and it is computed for group 2 if set to "2". Can alternatively be set to
+#'   "union" (default) to compute a union of both layouts, where the nodes are 
+#'   placed as optimal as possible equally for both networks. 
 #' @param repulsion positive numeric value indicating the strength of repulsive
 #'   forces in the "spring" layout. Nodes are placed closer together for smaller
 #'   values and further apart for higher values. See the \code{repulsion}
@@ -366,7 +368,7 @@
 plot.microNetProps <- function(x,
                                layout = "spring",
                                sameLayout = FALSE,
-                               layoutGroup = NULL,
+                               layoutGroup = "union",
                                repulsion = 1,
                                groupNames = NULL,
                                groupsChanged = FALSE,
@@ -451,10 +453,12 @@ plot.microNetProps <- function(x,
     xgroups[2] <- deletespace(xgroups[2])
   }
 
-  #=============================================================================
   opar <- par()
-
+  
   adja1_orig <- x$input$adjaMat1
+  
+  #=============================================================================
+  # Edge and node filtering
 
   adja1 <- filter_edges(adja = adja1_orig, edgeFilter = edgeFilter,
                             edgeFilterPar = edgeFilterPar)
@@ -564,7 +568,7 @@ plot.microNetProps <- function(x,
   kept2 <- which(colnames(adja2_orig) %in% colnames(adja2))
 
   #==========================================================================
-  # node colors
+  # Node colors
 
   if(nodeColor == "cluster"){
     
@@ -702,7 +706,7 @@ plot.microNetProps <- function(x,
   }
 
   #==========================================================================
-  # define node shapes
+  # Node shapes
 
   if(is.null(featVecShape)){
     if(is.null(nodeShape)){
@@ -746,10 +750,8 @@ plot.microNetProps <- function(x,
     }
   }
 
-
-
   #==========================================================================
-  # define size of vertices
+  # Node sizes
 
   if(!is.numeric(nodeSize)){
     nodeSize1 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
@@ -781,7 +783,7 @@ plot.microNetProps <- function(x,
   }
 
   #===============================================
-  # define border colors and fonts
+  # Border colors and fonts
 
   border1 <- rep(borderCol, nrow(adja1))
   labelFont1 <- rep(labelFont, nrow(adja1))
@@ -833,7 +835,8 @@ plot.microNetProps <- function(x,
   }
 
   #==========================================================================
-
+  # Title
+  
   if(showTitle){
     if(twoNets){
       if(is.null(title1) || is.null(title2)){
@@ -861,9 +864,8 @@ plot.microNetProps <- function(x,
 
   }
 
-
   #==========================================================================
-  # define cut parameter for qgraph
+  # Define cut parameter for qgraph()
 
   if(!is.null(cut) & (length(cut) == 1)){
     stopifnot(is.numeric(cut))
@@ -906,7 +908,100 @@ plot.microNetProps <- function(x,
   }
 
   #==========================================================================
-  # define edge colors
+  # Layout
+
+  if(twoNets & sameLayout & layoutGroup == "union"){
+    graph1 <- igraph::graph_from_adjacency_matrix(adja1, weighted = TRUE)
+    graph2 <- igraph::graph_from_adjacency_matrix(adja2, weighted = TRUE)
+    
+    graph_u <- igraph::union(graph1, graph2)
+    
+    # element-wise minimum of edge weights
+    E(graph_u)$weight <- pmin(E(graph_u)$weight_1, 
+                              E(graph_u)$weight_2, 
+                              na.rm = TRUE) 
+    
+    graph_u <- igraph::delete_edge_attr(graph_u, "weight_1")
+    graph_u <- igraph::delete_edge_attr(graph_u, "weight_2")
+    
+    if(is.function(layout)){
+      lay1 <- layout(graph_u)
+
+    } else{
+      adja_u <- as.matrix(as_adjacency_matrix(graph_u, attr = "weight",
+                                              sparse = T))
+      
+      lay1 <- qgraph(adja_u, color = nodecol1, layout = layout, 
+                     vsize = nodeSize1, labels = colnames(adja1),
+                     label.scale = labelScale, 
+                     border.color = border1, border.width = borderWidth1,
+                     label.font = labelFont1, label.cex = cexLabels,
+                     edge.width = edgeWidth, repulsion = repulsion, cut = cut1,
+                     shape = nodeShape1, DoNotPlot = TRUE, ...)$layout
+    }
+    
+    rownames(lay1) <- rownames(adja1)
+    lay2 <- lay1
+    
+  } else{
+    # Group 1
+    if(is.matrix(layout)){
+      lay1 <- layout
+      
+    } else if(is.function(layout)){
+      gr <- graph_from_adjacency_matrix(adja1, mode = "undirected",
+                                        weighted = TRUE, diag = FALSE)
+      lay1 <- layout(gr)
+      rownames(lay1) <- colnames(adja1)
+    } else{
+      lay1 <- qgraph(adja1, color = nodecol1, layout = layout, vsize = nodeSize1,
+                     labels = colnames(adja1),label.scale = labelScale,
+                     border.color = border1, border.width = borderWidth1,
+                     label.font = labelFont1, label.cex = cexLabels,
+                     edge.width = edgeWidth, repulsion = repulsion, cut = cut1,
+                     DoNotPlot = TRUE, shape = nodeShape1, ...)$layout
+      rownames(lay1) <- rownames(adja1)
+    }
+    lay2 <- NULL
+    
+    #--------------------------------------------
+    # Group 2
+
+    if(twoNets){
+      if(is.matrix(layout)){
+        lay2 <- layout
+        
+      } else if(is.function(layout)){
+        gr <- igraph::graph_from_adjacency_matrix(adja2, mode = "undirected",
+                                                  weighted = TRUE, diag = FALSE)
+        
+        lay2 <- layout(gr)
+        rownames(lay2) <- colnames(adja2)
+        
+      } else{
+        lay2 <- qgraph(adja2, color = nodecol2, layout = layout, vsize = nodeSize2,
+                       labels = colnames(adja2), label.scale = labelScale,
+                       border.color = border2, border.width = borderWidth2,
+                       label.font = labelFont2, label.cex = cexLabels,
+                       edge.width = edgeWidth,  repulsion = repulsion, cut = cut2,
+                       DoNotPlot = TRUE, shape = nodeShape2, ...)$layout
+        
+        rownames(lay2) <- rownames(adja2)
+        
+      }
+      
+      if(sameLayout){
+        if(layoutGroup == 1){
+          lay2 <- lay1
+        } else{
+          lay1 <- lay2
+        }
+      }
+    }
+  }
+
+  #==========================================================================
+  # Edge colors
 
   if(is.null(posCol)){
     poscol1 <- "#009900"
@@ -952,18 +1047,17 @@ plot.microNetProps <- function(x,
     assoMat1 <- x$input$dissScale1
   }
 
+  #--------------------------------------------
+  # Edge colors (group 1)
 
-  ###############################
   if(x$input$assoType == "dissimilarity"){
     assoMat1 <- x$input$dissEst1
   } else{
     assoMat1 <- x$input$assoEst1
   }
-
-  ###############################
+  
   colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
                     dimnames = dimnames(assoMat1))
-
 
   if(colorNegAsso){
     colmat1[assoMat1 < 0] <- negcol1
@@ -989,33 +1083,9 @@ plot.microNetProps <- function(x,
   #   adja2 <- 1-adja2
   #   adja2[adja2 == 1] <- 0
   # }
-  
-  #--------------------------------------------
-  # define layout
-
-  diag(adja1) <- 0
-
-  if(is.matrix(layout)){
-    lay1 <- layout
-
-  } else if(is.function(layout)){
-    gr <- graph_from_adjacency_matrix(adja1, mode = "undirected",
-                                      weighted = TRUE, diag = FALSE)
-    lay1 <- layout(gr)
-    rownames(lay1) <- colnames(adja1)
-  } else{
-    lay1 <- qgraph(adja1, color = nodecol1, layout = layout, vsize = nodeSize1,
-                   labels = colnames(adja1),label.scale = labelScale,
-                   border.color = border1, border.width = borderWidth1,
-                   label.font = labelFont1, label.cex = cexLabels,
-                   edge.width = edgeWidth, repulsion = repulsion, cut = cut1,
-                   DoNotPlot = TRUE, shape = nodeShape1, ...)$layout
-    rownames(lay1) <- rownames(adja1)
-  }
-  lay2 <- NULL
 
   #--------------------------------------------
-  # define labels
+  # Labels (group 1)
 
   labels1.orig <- rownames(adja1)
   
@@ -1046,7 +1116,7 @@ plot.microNetProps <- function(x,
   }
   
   #--------------------------------------------
-  # filter edges (without influencing the layout)
+  # Filter edges without influencing the layout (group 1)
 
   if(edgeInvisFilter != "none"){
     adja1 <- filter_edges(adja1, edgeFilter = edgeInvisFilter,
@@ -1055,7 +1125,7 @@ plot.microNetProps <- function(x,
 
   #==========================================================================
   if(twoNets){
-    # define edge colors
+    # Edge colors (group 2)
 
     if(x$input$assoType == "dissimilarity"){
       assoMat2 <- x$input$dissEst2
@@ -1081,35 +1151,7 @@ plot.microNetProps <- function(x,
     }
 
     #--------------------------------------------
-    # define layout
-    
-    diag(adja2) <- 0
-
-    if(is.matrix(layout)){
-
-      lay2 <- layout
-
-    } else if(is.function(layout)){
-      gr <- igraph::graph_from_adjacency_matrix(adja2, mode = "undirected",
-                                                weighted = TRUE, diag = FALSE)
-
-      lay2 <- layout(gr)
-      rownames(lay2) <- colnames(adja2)
-
-    } else{
-      lay2 <- qgraph(adja2, color = nodecol2, layout = layout, vsize = nodeSize2,
-                     labels = colnames(adja2), label.scale = labelScale,
-                     border.color = border2, border.width = borderWidth2,
-                     label.font = labelFont2, label.cex = cexLabels,
-                     edge.width = edgeWidth,  repulsion = repulsion, cut = cut2,
-                     DoNotPlot = TRUE, shape = nodeShape2, ...)$layout
-
-      rownames(lay2) <- rownames(adja2)
-
-    }
-
-    #--------------------------------------------
-    # rename taxa
+    # Labels (group 2)
     labels2.orig <- rownames(adja2)
     
     if(is.null(labels)){
@@ -1173,7 +1215,7 @@ plot.microNetProps <- function(x,
     }
 
     #--------------------------------------------
-    # filter edges (without influencing the layout)
+    # Filter edges without influencing the layout (group 2)
 
     if(edgeInvisFilter != "none"){
       adja2 <- filter_edges(adja2, edgeFilter = edgeInvisFilter,
@@ -1207,20 +1249,13 @@ plot.microNetProps <- function(x,
     
   }
 
-
   #=============================================================================
-  ### plot network(s)
-  
+  # Plot network(s)
+
   if(twoNets){
       par(mfrow = c(1,2))
 
-    if(sameLayout){
-      if(layoutGroup == 1){
-        lay2 <- lay1
-      } else{
-        lay1 <- lay2
-      }
-    }
+
 
     if(groupsChanged){
       q2 <- qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
