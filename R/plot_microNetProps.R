@@ -62,6 +62,7 @@
 #'   cexNodes = 1,
 #'   cexHubs = 1.2,
 #'   cexLabels = 1,
+#'   cexHubLabels = NULL,
 #'   cexTitle = 1.2,
 #'   showTitle = NULL,
 #'   title1 = NULL,
@@ -302,6 +303,8 @@
 #' @param cexHubs numeric scaling hub sizes. Only used if \code{nodeSize} is set
 #'   to \code{"hubs"}.
 #' @param cexLabels numeric scaling node labels. Defaults to 1.
+#' @param cexHubLabels numeric scaling the node labels of hub nodes. Equals 
+#'   \code{cexLabels} by default. Ignored, if \code{highlightHubs = FALSE}.
 #' @param cexTitle numeric scaling title(s). Defaults to 1.2.
 #' @param showTitle if \code{TRUE}, a title is shown for each network, which is
 #'   either defined via \code{groupNames}, or \code{title1} and \code{title2}.
@@ -419,6 +422,7 @@ plot.microNetProps <- function(x,
                                cexNodes = 1,
                                cexHubs = 1.2,
                                cexLabels = 1,
+                               cexHubLabels = NULL,
                                cexTitle = 1.2,
                                showTitle = NULL,
                                title1 = NULL,
@@ -1055,11 +1059,10 @@ plot.microNetProps <- function(x,
   } else{
     assoMat1 <- x$input$assoEst1
   }
-  
-  colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
-                    dimnames = dimnames(assoMat1))
 
   if(colorNegAsso){
+    colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
+                      dimnames = dimnames(assoMat1))
     colmat1[assoMat1 < 0] <- negcol1
     colmat1[assoMat1 >= 0] <- poscol1
 
@@ -1067,8 +1070,10 @@ plot.microNetProps <- function(x,
 
     colmat1[abs(adja1) >= cut1 & colmat1 == poscol1] <- poscol2
     colmat1[abs(adja1) >= cut1 & colmat1 == negcol1] <- negcol2
+    
   } else{
-    colmat1 <- poscol1
+    colmat1 <- matrix(poscol1, ncol(assoMat1), ncol(assoMat1), 
+                      dimnames = dimnames(assoMat1))
     colmat1 <- colmat1[kept1, kept1]
     colmat1[abs(adja1) >= cut1 & colmat1 == poscol1] <- poscol2
   }
@@ -1116,6 +1121,21 @@ plot.microNetProps <- function(x,
   }
   
   #--------------------------------------------
+  # Label size (group 1)
+  
+  if(highlightHubs){
+    if(is.null(cexHubLabels)){
+      cexHubLabels <- cexLabels
+    }
+    
+    cexLabels1 <- rep(cexLabels, length(labels1))
+    cexLabels1[match(hubs1, rownames(adja1))] <- cexHubLabels
+    
+  } else{
+    cexLabels1 <- cexLabels
+  }
+  
+  #--------------------------------------------
   # Filter edges without influencing the layout (group 1)
 
   if(edgeInvisFilter != "none"){
@@ -1133,10 +1153,11 @@ plot.microNetProps <- function(x,
       assoMat2 <- x$input$assoEst2
     }
 
-    colmat2 <- matrix(NA, ncol(assoMat2), ncol(assoMat2),
-                      dimnames = dimnames(assoMat2))
 
     if(colorNegAsso){
+      colmat2 <- matrix(NA, ncol(assoMat2), ncol(assoMat2),
+                        dimnames = dimnames(assoMat2))
+      
       colmat2[assoMat2 < 0] <- negcol1
       colmat2[assoMat2 >= 0] <- poscol1
 
@@ -1144,8 +1165,11 @@ plot.microNetProps <- function(x,
 
       colmat2[abs(adja2) >= cut2 & colmat2 == poscol1] <- poscol2
       colmat2[abs(adja2) >= cut2 & colmat2 == negcol1] <- negcol2
+      
     } else{
-      colmat2 <- poscol1
+      colmat2 <- matrix(poscol1, ncol(assoMat2), ncol(assoMat2),
+                        dimnames = dimnames(assoMat2))
+      
       colmat2 <- colmat2[kept2, kept2]
       colmat2[abs(adja2) >= cut2 & colmat2 == poscol1] <- poscol2
     }
@@ -1213,6 +1237,17 @@ plot.microNetProps <- function(x,
       utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE,
                          col.names = FALSE, append = TRUE)
     }
+    
+    #--------------------------------------------
+    # Label size (group 1)
+    
+    if(highlightHubs){
+      cexLabels2 <- rep(cexLabels, length(labels2))
+      cexLabels2[match(hubs2, rownames(adja2))] <- cexHubLabels
+      
+    } else{
+      cexLabels2 <- cexLabels
+    }
 
     #--------------------------------------------
     # Filter edges without influencing the layout (group 2)
@@ -1246,7 +1281,6 @@ plot.microNetProps <- function(x,
       utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
                          col.names = FALSE, append = FALSE)
     }
-    
   }
 
   #=============================================================================
@@ -1255,13 +1289,11 @@ plot.microNetProps <- function(x,
   if(twoNets){
       par(mfrow = c(1,2))
 
-
-
     if(groupsChanged){
       q2 <- qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
                    labels = labels2, label.scale = labelScale,
                    border.color = border2, border.width = borderWidth2,
-                   label.font = labelFont2, label.cex = cexLabels,
+                   label.font = labelFont2, label.cex = cexLabels2,
                    edge.width = edgeWidth, edge.color = colmat2,
                    repulsion = repulsion, cut = cut2,
                    mar = mar, shape = nodeShape2, ...)
@@ -1271,7 +1303,7 @@ plot.microNetProps <- function(x,
     q1 <- qgraph(adja1, color = nodecol1, layout = lay1, vsize = nodeSize1,
                  labels = labels1,label.scale = labelScale,
                  border.color = border1, border.width = borderWidth1,
-                 label.font = labelFont1, label.cex = cexLabels,
+                 label.font = labelFont1, label.cex = cexLabels1,
                  edge.width = edgeWidth, edge.color = colmat1,
                  repulsion = repulsion, cut = cut1,
                  mar = mar,  shape = nodeShape1, ...)
@@ -1281,7 +1313,7 @@ plot.microNetProps <- function(x,
       q2 <-  qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
                     labels = labels2, label.scale = labelScale,
                     border.color = border2, border.width = borderWidth2,
-                    label.font = labelFont2, label.cex = cexLabels,
+                    label.font = labelFont2, label.cex = cexLabels2,
                     edge.width = edgeWidth, edge.color = colmat2,
                     repulsion = repulsion, cut = cut2,
                     mar = mar,  shape = nodeShape2, ...)

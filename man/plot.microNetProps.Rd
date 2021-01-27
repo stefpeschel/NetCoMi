@@ -64,6 +64,7 @@
   cexNodes = 1,
   cexHubs = 1.2,
   cexLabels = 1,
+  cexHubLabels = NULL,
   cexTitle = 1.2,
   showTitle = NULL,
   title1 = NULL,
@@ -355,6 +356,9 @@ with weight ABOVE \code{cut}.}
 to \code{"hubs"}.}
 
 \item{cexLabels}{numeric scaling node labels. Defaults to 1.}
+
+\item{cexHubLabels}{numeric scaling the node labels of hub nodes. Equals 
+\code{cexLabels} by default. Ignored, if \code{highlightHubs = FALSE}.}
 
 \item{cexTitle}{numeric scaling title(s). Defaults to 1.2.}
 
