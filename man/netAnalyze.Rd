@@ -229,20 +229,21 @@ Determine network properties for objects of class
   }
 }
 \examples{
-# load data sets from American Gut Project (from SpiecEasi package)
+# Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
-# network construction:
+# Network construction:
 amgut_net1 <- netConstruct(amgut1.filt, measure = "pearson",
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
                            zeroMethod = "pseudo", normMethod = "clr",
                            sparsMethod = "threshold", thresh = 0.4)
 
-### network analysis
+### Network analysis
 # Using eigenvector centrality as hub score:
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
+                           
 summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
 
 # Using degree, betweenness and closeness centrality as hub scores:
@@ -258,12 +259,12 @@ amgut_props3 <- netAnalyze(amgut_net1, centrLCC = TRUE,
 
 summary(amgut_props3, showCentr = "none", clusterLCC = TRUE)
 
-# network plot:
+# Network plot:
 plot(amgut_props1)
 plot(amgut_props2)
+plot(amgut_props3)
 
-
-# dissimilarity-based network (where nodes are subjects):
+# Dissimilarity-based network (where nodes are subjects):
 amgut_net4 <- netConstruct(amgut1.filt, measure = "aitchison",
                            filtSamp = "highestFreq",
                            filtSampPar = list(highestFreq = 30),
