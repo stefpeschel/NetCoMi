@@ -7,7 +7,7 @@
 multAdjust(pvals, adjust, trueNullMethod, verbose)
 }
 \arguments{
-\item{pvals}{vector with p-values}
+\item{pvals}{numeric vector with p-values}
 
 \item{adjust}{character specifying the method used for adjustment.
 Can be \code{"lfdr"}, \code{"adaptBH"}, or one of the methods provided by

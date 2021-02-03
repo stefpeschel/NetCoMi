@@ -215,7 +215,7 @@ plot.diffnet <- function(x,
     }
 
     if(edgeTransp > 0){
-      colVec <- col_to_transp(colVec, edgeTransp)
+      colVec <- colToTransp(colVec, edgeTransp)
     }
 
     classMat <- x$classMat
@@ -273,7 +273,7 @@ plot.diffnet <- function(x,
     }
 
     if(edgeTransp > 0){
-      colVec <- col_to_transp(colVec, edgeTransp)
+      colVec <- colToTransp(colVec, edgeTransp)
     }
 
     edgeColMat <- corrMat1
@@ -322,7 +322,7 @@ plot.diffnet <- function(x,
   #=============================================================================
   # node colors
   if(nodeTransp > 0){
-    nodeColor <- col_to_transp(nodeColor, nodeTransp)
+    nodeColor <- colToTransp(nodeColor, nodeTransp)
   }
 
   #=============================================================================

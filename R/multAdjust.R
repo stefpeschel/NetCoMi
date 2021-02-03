@@ -2,7 +2,7 @@
 #'
 #' The functions adjusts a vector of p-values for multiple testing
 #'
-#' @param pvals vector with p-values
+#' @param pvals numeric vector with p-values
 #' @param adjust character specifying the method used for adjustment.
 #'   Can be \code{"lfdr"}, \code{"adaptBH"}, or one of the methods provided by
 #'   \code{\link[stats]{p.adjust}}.
@@ -21,6 +21,7 @@
 #'
 #' @importFrom fdrtool fdrtool
 #' @importFrom stats p.adjust
+#' @export
 
 multAdjust <- function(pvals, adjust, trueNullMethod, verbose){
 
