@@ -70,23 +70,4 @@ first_unequal_element <- function(x,y){
 }
 
 
-#' Adding transparancy to a color
-#'
-#' @param col color vector specified similar to the \code{col} argument in
-#'   \code{\link[grDevices]{col2rgb}}
-#' @param percent numeric between 0 and 100 giving the level of transparency
-#'
-#' @importFrom grDevices col2rgb rgb
-
-col_to_transp <- function(col, percent) {
-  rgbVal <- grDevices::col2rgb(col)
-
-  transpcol <- grDevices::rgb(red = rgbVal[1,], green = rgbVal[2,], 
-                              blue = rgbVal[3,], alpha = (100-percent)*255/100, 
-                              maxColorValue = 255)
-  
-  names(transpcol) <- colnames(rgbVal)
-
-  return(transpcol)
-}
 

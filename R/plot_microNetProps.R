@@ -703,9 +703,9 @@ plot.microNetProps <- function(x,
   }
 
   if(nodeTransp > 0){
-    nodecol1 <- col_to_transp(nodecol1, nodeTransp)
+    nodecol1 <- colToTransp(nodecol1, nodeTransp)
     if(twoNets){
-      nodecol2 <- col_to_transp(nodecol2, nodeTransp)
+      nodecol2 <- colToTransp(nodecol2, nodeTransp)
     }
   }
 
@@ -812,7 +812,7 @@ plot.microNetProps <- function(x,
     borderWidth1[match(hubs1, rownames(adja1))] <- hubBorderWidth
 
     if(nodeTransp != hubTransp){
-      hubcol1 <- col_to_transp(nodecol1, hubTransp)
+      hubcol1 <- colToTransp(nodecol1, hubTransp)
       nodecol1[rownames(adja1) %in% hubs1] <- hubcol1[rownames(adja1) %in% hubs1]
     }
 
@@ -832,7 +832,7 @@ plot.microNetProps <- function(x,
       borderWidth2[match(hubs2, rownames(adja2))] <- hubBorderWidth
 
       if(nodeTransp != hubTransp){
-        hubcol2 <- col_to_transp(nodecol2, hubTransp)
+        hubcol2 <- colToTransp(nodecol2, hubTransp)
         nodecol2[rownames(adja2) %in% hubs2] <- hubcol2[rownames(adja2) %in% hubs2]
       }
     }
@@ -1036,13 +1036,13 @@ plot.microNetProps <- function(x,
   }
 
   if(edgeTranspLow > 0){  # transparency for values below cut
-    poscol1 <- col_to_transp(poscol1, edgeTranspLow)
-    negcol1 <- col_to_transp(negcol1, edgeTranspLow)
+    poscol1 <- colToTransp(poscol1, edgeTranspLow)
+    negcol1 <- colToTransp(negcol1, edgeTranspLow)
   }
 
   if(edgeTranspHigh > 0){  # transparency for values above cut
-    poscol2 <- col_to_transp(poscol2, edgeTranspHigh)
-    negcol2 <- col_to_transp(negcol2, edgeTranspHigh)
+    poscol2 <- colToTransp(poscol2, edgeTranspHigh)
+    negcol2 <- colToTransp(negcol2, edgeTranspHigh)
   }
 
   if(!is.null(x$input$assoEst1)){
