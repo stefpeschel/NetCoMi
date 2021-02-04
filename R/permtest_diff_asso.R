@@ -174,14 +174,14 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
     fmat_counts2 <- fm.open(filenamebase = fileLoadCountsPerm[2], 
                             readonly = TRUE)
     
-    if(!(nrow(fmat_counts1) == nPerm * nrow(countMat1) && 
-       ncol(fmat_counts1) == ncol(countMat1))){
+    if(!(nrow(fmat_counts1) == nPerm * n1 && 
+       ncol(fmat_counts1) == nVar)){
       stop("fileLoadCountsPerm has wrong dimensions. 
   Maybe 'nPerm' is not correct (must equal the number of permutation matrices in 'fileLoadCountsPerm').")
     }
     
-    if(!(nrow(fmat_counts2) == nPerm * nrow(countMat2) && 
-         ncol(fmat_counts2) == ncol(countMat2))){
+    if(!(nrow(fmat_counts2) == nPerm * n2 && 
+         ncol(fmat_counts2) == nVar)){
       stop("fileLoadCountsPerm has wrong dimensions. 
   Maybe 'nPerm' is not correct (must equal the number of permutation matrices in 'fileLoadCountsPerm').")
     }

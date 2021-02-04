@@ -100,7 +100,7 @@ except_plot_networks<- function(args){
                                               "eigenvector", "counts",
                                               "normCounts", "TSS", "fractions", 
                                               "CSS", "COM", "rarefy", "VST", 
-                                              "clr"))
+                                              "clr", "mclr"))
 
   # nodeSizeSpread
   stopifnot(is.numeric(args$nodeSizeSpread) & args$nodeSizeSpread >= 0)

@@ -593,7 +593,10 @@ testnet <- netConstruct(amgut1.filt, group = groups_diss,
                         seed = 20190101)
 
 context("netConstruct with data and data2 (dissimilarity)")
-testnet <- netConstruct(amgut1.filt[ , 1:63], amgut1.filt[ , 64:127],
+amgut_diss1 <- amgut1.filt[, groups_diss == 0]
+amgut_diss2 <- amgut1.filt[, groups_diss == 1]
+
+testnet <- netConstruct(amgut_diss1, data2 = amgut_diss2,
                         filtTax = "highestVar",
                         filtTaxPar = list(highestVar = 50),
                         filtSamp = "totalReads",

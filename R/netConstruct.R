@@ -590,7 +590,7 @@ netConstruct <- function(data,
                         choices = c("totalReads", "numbTaxa", "highestFreq",
                                     "none"), several.ok = TRUE)
   
-  if(filtSamp != "none" && !is.null(matchDesign)){
+  if((!"none" %in% filtSamp) && !is.null(matchDesign)){
     stop("Filtering samples is not possible for matched subjects.")
   }
 
@@ -762,6 +762,11 @@ netConstruct <- function(data,
         } else{ # assoNet
           stopifnot((is.vector(group) || is.factor(group)) &
                       length(group) == nrow(countMat1))
+          
+          if(is.character(group)){
+            group <- as.factor(group)
+          }
+          
           group <- as.numeric(group)
           
           if(is.null(names(group))){
@@ -1042,7 +1047,7 @@ netConstruct <- function(data,
     #---------------------------------------------------------------------------
     # remove samples with zero overall sum
     
-    rmZeroSum <- function(countMat, matchDesign){
+    rmZeroSum <- function(countMat, group, matchDesign){
       rs <- Matrix::rowSums(countMat)
       if (any(rs == 0)) {
         rmRows <- which(rs == 0)
@@ -1058,13 +1063,16 @@ netConstruct <- function(data,
           group <- group[-rmRows]
         }
       }
-      return(countMat)
+      return(list(countMat = countMat, group = group))
     }
     
     if(!twoNets || jointPrepro){
       n_old <- nrow(countMatJoint)
       
-      countMatJoint <- rmZeroSum(countMatJoint, matchDesign = matchDesign)
+      rmZeroSum_res <- rmZeroSum(countMatJoint, group = group, 
+                                 matchDesign = matchDesign)
+      countMatJoint <- rmZeroSum_res$countMat
+      group <- rmZeroSum_res$group
       
       if(verbose %in% 2:3 && n_old != nrow(countMatJoint)){
         message(paste(n_old - nrow(countMatJoint), 
@@ -1075,9 +1083,11 @@ netConstruct <- function(data,
       n_old1 <- nrow(countMat1)
       n_old2 <- nrow(countMat2)
       
-      countMat1 <- rmZeroSum(countMat1, matchDesign = matchDesign)
+      countMat1 <- rmZeroSum(countMat1, group = group, 
+                             matchDesign = matchDesign)$countMat
       
-      countMat2 <- rmZeroSum(countMat2, matchDesign = matchDesign)
+      countMat2 <- rmZeroSum(countMat2, group = group, 
+                             matchDesign = matchDesign)$countMat
       
       
       if(distNet){
@@ -1143,9 +1153,10 @@ netConstruct <- function(data,
       
     } else{
       countsOrig1 <- countMat1
+      attributes(countsOrig1)$scale <- "counts"
       countsOrig2 <- NULL
     }
-    
+
     #---------------------------------------------------------------------------
     # zero treatment
     if (zeroMethod != "none") {
