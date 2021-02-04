@@ -2,13 +2,14 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
                            isempty2, colorVec, sameClustCol, sameColThresh,
                            twoNets){
 
-
   if(twoNets){
     clust1 <- clust1[kept1]
     clust2 <- clust2[kept2]
 
+    #-----------------------------------------
+    # Ensure that cluster names are numbers
     if(!isempty1){
-      noclust1 <- which(clust1 == 0)
+      noclust1 <- which(clust1 %in% c(0, NA))
       clusttab <- table(clust1)
       cnames <- names(clusttab)
       cnames <- cnames[cnames != "0"]
@@ -18,7 +19,7 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
     }
 
     if(!isempty2){
-      noclust2 <- which(clust2 == 0)
+      noclust2 <- which(clust2 %in% c(0, NA))
 
       clusttab <- table(clust2)
       cnames <- names(clusttab)
@@ -27,6 +28,7 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
         clust2[clust2 == cnames[i]] <- i
       }
     }
+    #-----------------------------------------
 
     if(!(isempty1 | isempty2)){
 
@@ -91,18 +93,17 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
         clustcol2[noclust2] <- "grey80"
 
       } else{
-        nc1 <- max(clust1)
 
-        if(length(noclust2) != 0){
-          clust2 <- clust2 + nc1 + 1
-        } else{
-          clust2 <- clust2 + nc1
-        }
+        clustcols <- c("grey80", clustcols)
+        
+        nc1 <- max(clust1)
+        clust1 <- clust1 + 1
+        
+        clust2 <- clust2 + nc1 + 1
+        clust2[noclust2] <- 1
 
         clustcol1 <- clustcols[clust1]
         clustcol2 <- clustcols[clust2]
-        clustcol1[noclust1] <- "grey80"
-        clustcol2[noclust2] <- "grey80"
       }
 
     } else{

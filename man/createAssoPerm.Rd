@@ -91,36 +91,38 @@ The function creates and returns a matrix with permuted group
   # Use 'createAssoPerm' to create "permuted" count and association matrices,
   # which can be reused by netCompare() and diffNet()
   
-  createAssoPerm(amgut_props, nPerm = 1000L, 
+  createAssoPerm(amgut_props, nPerm = 100L, 
                  computeAsso = TRUE,
                  fileStoreAssoPerm = "assoPerm",
                  storeCountsPerm = TRUE, 
                  fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
                  append = FALSE, seed = 123456)
   
-  # Load the stored permutation count matrices 
+  # Run netcompare using the stored permutation count matrices 
   # (association matrices are still computed within netCompare):
-  amgut_comp1 <- netCompare(amgut_props, permTest = TRUE, nPerm = 1000L, 
+  amgut_comp1 <- netCompare(amgut_props, permTest = TRUE, nPerm = 100L, 
                             fileLoadCountsPerm = c("countsPerm1", "countsPerm2"),
                             seed = 123456)
                             
-  # Load the stored permutation association matrices:
-  amgut_comp2 <- netCompare(amgut_props, permTest = TRUE, nPerm = 1000L, 
+  # Run netcompare using the stored permutation association matrices:
+  amgut_comp2 <- netCompare(amgut_props, permTest = TRUE, nPerm = 100L, 
                             fileLoadAssoPerm = "assoPerm")
   
   summary(amgut_comp1)
   summary(amgut_comp2)
   all.equal(amgut_comp1$properties, amgut_comp2$properties)
   
-  # Use the stored permutation count matrices in diffnet()
-  diff1 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L, 
+  # Run diffnet using the stored permutation count matrices in diffnet()
+  diff1 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 100L, 
                   fileLoadCountsPerm = c("countsPerm1", "countsPerm2"))
                   
-  # Use the stored permutation association matrices 
-  diff2 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L, 
+  # Run diffnet using the stored permutation association matrices 
+  diff2 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 100L, 
                   fileLoadAssoPerm = "assoPerm")
                  
-  plot(diff1)
-  plot(diff2)
+ #plot(diff1)
+ #plot(diff2)
+ # Note: Networks are empty (no significantly different associations) 
+ # for only 100 permutations
 }
 }
