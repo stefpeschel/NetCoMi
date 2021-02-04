@@ -51,7 +51,7 @@
 #'   edgeInvisFilter = "none",
 #'   edgeInvisPar = NULL,
 #'   edgeWidth = 1,
-#'   colorNegAsso = TRUE,
+#'   negDiffCol = TRUE,
 #'   posCol = NULL,
 #'   negCol = NULL,
 #'   cut = NULL,
@@ -268,14 +268,14 @@
 #' @param edgeInvisPar numeric specifying the "x" in \code{edgeInvisFilter}.
 #' @param edgeWidth numeric specifying the edge width. See argument
 #'   \code{"edge.width"} of \code{\link[qgraph]{qgraph}}.
-#' @param colorNegAsso logical indicating if edges with a negative corresponding
-#'   association should be colored different. If \code{TRUE}, argument
-#'   \code{posCol} is used for edges with positive association and \code{netCol}
+#' @param negDiffCol logical indicating if edges with a negative corresponding
+#'   association should be colored different. If \code{TRUE} (default), argument
+#'   \code{posCol} is used for edges with positive association and \code{negCol}
 #'   for those with negative association. If \code{FALSE} and for dissimilarity
 #'   networks, only \code{posCol} is used.
 #' @param posCol vector (character or numeric) with one or two elements
 #'   specifying the color of edges with positive weight and also for edges with
-#'   negative weight if \code{colorNegAsso} is set to \code{FALSE}. The first
+#'   negative weight if \code{negDiffCol} is set to \code{FALSE}. The first
 #'   element is used for edges with weight below \code{cut} and the second for
 #'   edges with weight above \code{cut}. If a single value is given, it is used
 #'   for both cases. Defaults to \code{c("#009900", "darkgreen")}.
@@ -283,7 +283,7 @@
 #'   specifying the color of edges with negative weight. The first
 #'   element is used for edges with absolute weight below \code{cut} and the
 #'   second for edges with absolute weight above \code{cut}. If a single value
-#'   is given, it is used for both cases. Ignored if \code{colorNegAsso} is
+#'   is given, it is used for both cases. Ignored if \code{negDiffCol} is
 #'   \code{FALSE}. Defaults to \code{c("red", "#BF0000")}.
 #' @param cut defines the \code{"cut"} parameter of 
 #'   \code{\link[qgraph]{qgraph}}. Can
@@ -315,7 +315,8 @@
 #' @param mar a numeric vector of the form c(bottom, left, top, right) defining
 #'   the plot margins. Works similar to the \code{mar} argument in
 #'   \code{\link[graphics]{par}}. Defaults to c(1,3,3,3).
-#' @param ... further arguments being passed to \code{\link[qgraph]{qgraph}}.
+#' @param ... further arguments being passed to \code{\link[qgraph]{qgraph}}, 
+#'   which is used for network plotting.
 #'
 #' @return Returns (invisibly) a list with the following elements: \tabular{ll}{
 #'   \code{q1,q2}\tab the qgraph object(s)\cr
@@ -413,7 +414,7 @@ plot.microNetProps <- function(x,
                                edgeInvisFilter = "none",
                                edgeInvisPar = NULL,
                                edgeWidth = 1,
-                               colorNegAsso = TRUE,
+                               negDiffCol = TRUE,
                                posCol = NULL,
                                negCol = NULL,
                                cut = NULL,
@@ -758,9 +759,14 @@ plot.microNetProps <- function(x,
   # Node sizes
 
   if(!is.numeric(nodeSize)){
+    if(is.null(x$input$countMat1)){
+      counts.tmp <- x$input$countsJoint
+    } else{
+      counts.tmp <- x$input$countMat1
+    }
     nodeSize1 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
                                nodeSizeSpread = nodeSizeSpread,
-                               adja = adja1, countMat = x$input$countMat1,
+                               adja = adja1, countMat = counts.tmp,
                                normCounts = x$input$normCounts1,
                                assoType = x$input$assoType, kept = kept1,
                                cexNodes = cexNodes, cexHubs = cexHubs,
@@ -771,9 +777,14 @@ plot.microNetProps <- function(x,
                                close = x$centralities$close1,
                                eigen = x$centralities$eigenv1)
     if(twoNets){
+      if(is.null(x$input$countMat2)){
+        counts.tmp <- x$input$countsJoint
+      } else{
+        counts.tmp <- x$input$countMat2
+      }
       nodeSize2 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
                                  nodeSizeSpread = nodeSizeSpread,
-                                 adja = adja2, countMat = x$input$countMat2,
+                                 adja = adja2, countMat = counts.tmp,
                                  normCounts = x$input$normCounts2, 
                                  assoType = x$input$assoType, kept = kept2,
                                  cexNodes = cexNodes, cexHubs = cexHubs,
@@ -784,6 +795,7 @@ plot.microNetProps <- function(x,
                                  close = x$centralities$close2,
                                  eigen = x$centralities$eigenv2)
     }
+    rm(counts.tmp)
   }
 
   #===============================================
@@ -1060,7 +1072,7 @@ plot.microNetProps <- function(x,
     assoMat1 <- x$input$assoEst1
   }
 
-  if(colorNegAsso){
+  if(negDiffCol){
     colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
                       dimnames = dimnames(assoMat1))
     colmat1[assoMat1 < 0] <- negcol1
@@ -1122,7 +1134,7 @@ plot.microNetProps <- function(x,
   
   #--------------------------------------------
   # Label size (group 1)
-  
+
   if(highlightHubs){
     if(is.null(cexHubLabels)){
       cexHubLabels <- cexLabels
@@ -1154,7 +1166,7 @@ plot.microNetProps <- function(x,
     }
 
 
-    if(colorNegAsso){
+    if(negDiffCol){
       colmat2 <- matrix(NA, ncol(assoMat2), ncol(assoMat2),
                         dimnames = dimnames(assoMat2))
       
@@ -1326,7 +1338,7 @@ plot.microNetProps <- function(x,
     q1 <- qgraph(adja1, color = nodecol1, layout = lay1, vsize = nodeSize1,
                  labels = labels1, label.scale = labelScale,
                  border.color = border1, border.width = borderWidth1,
-                 label.font = labelFont1, label.cex = cexLabels,
+                 label.font = labelFont1, label.cex = cexLabels1,
                  edge.width = edgeWidth, edge.color = colmat1,
                  repulsion = repulsion, cut = cut1,
                  mar = mar,  shape = nodeShape1, ...)

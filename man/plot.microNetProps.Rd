@@ -53,7 +53,7 @@
   edgeInvisFilter = "none",
   edgeInvisPar = NULL,
   edgeWidth = 1,
-  colorNegAsso = TRUE,
+  negDiffCol = TRUE,
   posCol = NULL,
   negCol = NULL,
   cut = NULL,
@@ -313,15 +313,15 @@ layout. Defaults to \code{"none"}.}
 \item{edgeWidth}{numeric specifying the edge width. See argument
 \code{"edge.width"} of \code{\link[qgraph]{qgraph}}.}
 
-\item{colorNegAsso}{logical indicating if edges with a negative corresponding
-association should be colored different. If \code{TRUE}, argument
-\code{posCol} is used for edges with positive association and \code{netCol}
+\item{negDiffCol}{logical indicating if edges with a negative corresponding
+association should be colored different. If \code{TRUE} (default), argument
+\code{posCol} is used for edges with positive association and \code{negCol}
 for those with negative association. If \code{FALSE} and for dissimilarity
 networks, only \code{posCol} is used.}
 
 \item{posCol}{vector (character or numeric) with one or two elements
 specifying the color of edges with positive weight and also for edges with
-negative weight if \code{colorNegAsso} is set to \code{FALSE}. The first
+negative weight if \code{negDiffCol} is set to \code{FALSE}. The first
 element is used for edges with weight below \code{cut} and the second for
 edges with weight above \code{cut}. If a single value is given, it is used
 for both cases. Defaults to \code{c("#009900", "darkgreen")}.}
@@ -330,7 +330,7 @@ for both cases. Defaults to \code{c("#009900", "darkgreen")}.}
 specifying the color of edges with negative weight. The first
 element is used for edges with absolute weight below \code{cut} and the
 second for edges with absolute weight above \code{cut}. If a single value
-is given, it is used for both cases. Ignored if \code{colorNegAsso} is
+is given, it is used for both cases. Ignored if \code{negDiffCol} is
 \code{FALSE}. Defaults to \code{c("red", "#BF0000")}.}
 
 \item{cut}{defines the \code{"cut"} parameter of 
@@ -375,7 +375,8 @@ a single network.}
 the plot margins. Works similar to the \code{mar} argument in
 \code{\link[graphics]{par}}. Defaults to c(1,3,3,3).}
 
-\item{...}{further arguments being passed to \code{\link[qgraph]{qgraph}}.}
+\item{...}{further arguments being passed to \code{\link[qgraph]{qgraph}}, 
+which is used for network plotting.}
 }
 \value{
 Returns (invisibly) a list with the following elements: \tabular{ll}{
