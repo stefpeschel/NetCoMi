@@ -75,9 +75,15 @@
 #'   "magenta", "orange", "red", "blue", "black", "purple")).
 #' @param title optional character string for the main title.
 #' @param legend logical. If \code{TRUE}, a legend is plotted.
+#' @param legendPos either a character specifying the legend's position or a 
+#'   numeric vector with two elements giving the x and y coordinates of the 
+#'   legend. See the description of the x and y arguments of 
+#'   \code{\link[graphics]{legend}} for details.
 #' @param legendGroupnames a vector with two elements giving the group names
 #'   shown in the legend.
 #' @param legendTitle character specifying the legend title.
+#' @param legendArgs list with further arguments passed to 
+#'   \code{\link[graphics]{legend}}.
 #' @param cexNodes numeric scaling node sizes. Defaults to 1.
 #' @param cexLabels numeric scaling node labels. Defaults to 1.
 #' @param cexTitle numeric scaling the title. Defaults to 1.2.
@@ -116,8 +122,10 @@ plot.diffnet <- function(x,
                          edgeCol = NULL,
                          title = NULL,
                          legend = TRUE,
+                         legendPos = "topright",
                          legendGroupnames = NULL,
                          legendTitle = NULL,
+                         legendArgs = NULL,
                          cexNodes = 1,
                          cexLabels = 1,
                          cexTitle = 1.2,
@@ -239,7 +247,6 @@ plot.diffnet <- function(x,
     if(is.null(edgeCol)){
       edgeCol <- c("chartreuse2", "chartreuse4", "cyan", "magenta", "orange",
                    "red", "blue", "black", "purple")
-      #plot(1:9, 1:9, col = edgeCol, cex=6, pch=16)
     } else{
       stopifnot(length(edgeCol) == 9)
     }
@@ -335,43 +342,54 @@ plot.diffnet <- function(x,
               edge.color = edgeColMat, edge.width = edgeWidth,
               repulsion = repulsion, mar = mar, ...)
 
-
   if(legend){
 
+    leg_args <- as.list(legendArgs)
+    
+    if(is.character(legendPos)){
+      leg_args$x <- legendPos
+      leg_args$y <- NULL
+    } else{
+      if(length(legendPos) != 2 || !is.numeric(legendPos)){
+        stop("'legendPos' must be either a character value or a numeric vector ",
+             "with two elements.")
+      }
+      leg_args$x <- legendPos[1]
+      leg_args$y <- legendPos[2]
+    }
+
     if(x$diffMethod %in% c("discordant")){
-      legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
-                                    "    0             -",
-                                    "    0             +",
-                                    "    -             0",
-                                    "    -             +",
-                                    "    +             0",
-                                    "    +             -"),
-             col = c("white", edgeCol),
-             lty = rep(1,7), lwd = 2, cex = cexLegend, title = legendTitle)
+      
+      leg_args$legend <- c(legtitle1, 0, 0, "-", "-", "+", "+", 
+                    legtitle2, "-", "+", 0, "+", 0, "-")
+      leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 7))
+      leg_args$lty <- c(rep(1,7), rep(-1,7))
+      leg_args$pch <- c(rep(-1, 7), rep(20,7))
+      
     } else {
       if(length(edgeCol) == 9){
-        legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
-                                      "    +             +",
-                                      "    +             0",
-                                      "    +             -",
-                                      "    -             +",
-                                      "    -             0",
-                                      "    -             -",
-                                      "    0             +",
-                                      "    0             0",
-                                      "    0             -"),
-               col = c("white", edgeCol),
-               lty = rep(1,9), lwd = 2, cex = cexLegend, title = legendTitle)
+        
+        leg_args$legend <- c(legtitle1, "+", "+", "+", "-", "-", "-", 0, 0, 0, 
+                      legtitle2, "+", 0, "-", "+", 0, "-", "+", 0, "-")
+        leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 10))
+        leg_args$lty <- c(rep(1,10), rep(-1,10))
+        leg_args$pch <- c(rep(-1, 10), rep(20,10))
+
       } else{
-        legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
-                                      "    +             +",
-                                      "    +             -",
-                                      "    -             +",
-                                      "    -             -"),
-               col = c("white", edgeCol),
-               lty = rep(1,9), lwd = 2, cex = cexLegend, title = legendTitle)
+        leg_args$legend <- c(legtitle1, "+", "+", "-", "-", 
+                      legtitle2, "+", "-", "+", "-")
+        leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 5))
+        leg_args$lty <- c(rep(1,5), rep(-1,5))
+        leg_args$pch <- c(rep(-1, 5), rep(20,5))
       }
     }
+    
+    leg_args$cex <- cexLegend
+    leg_args$title <- legendTitle
+    leg_args$ncol <- 2
+    if(is.null(leg_args$lwd)) leg_args$lwd <- 2
+
+    do.call("legend", leg_args)
   }
 
   if(main != ""){

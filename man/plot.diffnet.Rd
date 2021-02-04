@@ -28,8 +28,10 @@
   edgeCol = NULL,
   title = NULL,
   legend = TRUE,
+  legendPos = "topright",
   legendGroupnames = NULL,
   legendTitle = NULL,
+  legendArgs = NULL,
   cexNodes = 1,
   cexLabels = 1,
   cexTitle = 1.2,
@@ -132,10 +134,18 @@ Fisher's z-test (default: c("chartreuse2", "chartreuse4", "cyan",
 
 \item{legend}{logical. If \code{TRUE}, a legend is plotted.}
 
+\item{legendPos}{either a character specifying the legend's position or a 
+numeric vector with two elements giving the x and y coordinates of the 
+legend. See the description of the x and y arguments of 
+\code{\link[graphics]{legend}} for details.}
+
 \item{legendGroupnames}{a vector with two elements giving the group names
 shown in the legend.}
 
 \item{legendTitle}{character specifying the legend title.}
+
+\item{legendArgs}{list with further arguments passed to 
+\code{\link[graphics]{legend}}.}
 
 \item{cexNodes}{numeric scaling node sizes. Defaults to 1.}
 
