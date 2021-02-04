@@ -166,8 +166,13 @@ except_plot_networks<- function(args){
   args$edgeInvisFilter <- match.arg(args$edgeInvisFilter,
                                choices = c("none", "threshold", "highestWeight"))
 
-  # colorNegAsso
-  stopifnot(is.logical(args$colorNegAsso))
+  # negDiffCol
+  if(!is.null(args$colorNegAsso)){
+    warning("Name of 'colorNegAsso' has changed to 'negDiffCol'")
+    args$negDiffCol <- args$colorNegAsso
+    args$colorNegAsso <- NULL
+  }
+  stopifnot(is.logical(args$negDiffCol))
 
   # posCol, negCol
   if(!is.null(args$posCol)){
