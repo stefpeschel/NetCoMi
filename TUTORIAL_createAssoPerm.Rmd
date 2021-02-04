@@ -1,0 +1,393 @@
+---
+output: github_document
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(fig.path="man/figures/tutorial_create/")
+```
+
+## Tutorial: How to use createAssoPerm() <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+
+This tutorial is meant to demonstrate the options for storing and reloading 
+count tables, association matrices and network properties of the permuted data 
+if **permutation tests** are performed with `netCompare()` or `diffnet()`.
+
+NetCoMi (>=1.0.2) includes the function `createAssoPerm()` for creating either 
+only a matrix with permuted group labels or storing count tables and association 
+matrices of the permuted data. The stored files can be passed to 
+`netCompare()` and `diffnet()` so that users can repeatedly run these two
+functions with varying arguments, without the need to recompute the associations
+each time.
+`createAssoPerm()` additionally enables to compute the permutation associations 
+block-wise (for a subset of permutations) and store them in separate files. 
+These files can then be combined to one large matrix (with all permutations) 
+and passed to `netCompare()` or `diffnet()`.
+
+The tutorial furthermore explains NetCoMi's ability to handle **matched data sets**.
+
+#### Network construction and analysis
+
+We use data from the American Gut Project and conduct a network comparison 
+between subjects with and without lactose intolerance. 
+To demonstrate NetCoMi's functionality for matched data, we build 
+a "fake" 1:2 matched data set, where each two samples of the `LACTOSE = "no"` 
+group are assigned to one sample of the `LACTOSE = "yes"` group.
+We use a subset of 150 samples, leading to 50 samples in group "yes" and 100 
+samples in group "no". 
+```{r load packages, results='hide', message=FALSE, warning=FALSE}
+library(NetCoMi)
+library(phyloseq)
+
+```
+
+
+```{r network construction, fig.width=40, fig.height=18}
+
+set.seed(123456)
+
+# Load American Gut Data (from SpiecEasi package)
+data("amgut2.filt.phy")
+
+#table(amgut2.filt.phy@sam_data@.Data[[which(amgut2.filt.phy@sam_data@names == "LACTOSE")]])
+
+# Divide samples into two groups: with and without lactose intolerance
+lact_yes <- phyloseq::subset_samples(amgut2.filt.phy, LACTOSE == "yes")
+lact_no  <- phyloseq::subset_samples(amgut2.filt.phy, LACTOSE == "no")
+
+# Extract count tables
+counts_yes <- t(as.matrix(otu_table(lact_yes)))
+counts_no <- t(as.matrix(otu_table(lact_no)))
+
+# Build the 1:2 matched data set
+counts_matched <- matrix(NA, nrow = 150, ncol = ncol(counts_yes))
+colnames(counts_matched) <- colnames(counts_yes)
+rownames(counts_matched) <- 1:150
+ind_yes <- ind_no <- 1
+
+for(i in 1:150){
+  if((i-1)%%3 == 0){
+    counts_matched[i, ] <- counts_yes[ind_yes, ]
+    rownames(counts_matched)[i] <- rownames(counts_yes)[ind_yes]
+    ind_yes <- ind_yes + 1
+  } else{
+    counts_matched[i, ] <- counts_no[ind_no, ]
+    rownames(counts_matched)[i] <- rownames(counts_no)[ind_no]
+    ind_no <- ind_no + 1
+  }
+}
+
+# The corresponding group vector used for splitting the data into two subsets.
+group_vec <- rep(c(1,2,2), 50)
+# Note: group "1" belongs to "yes", group "2" belongs to "no"
+
+# Network construction
+net_amgut <- netConstruct(counts_matched, 
+                          group = group_vec,
+                          matchDesign = c(1,2),
+                          filtTax = "highestFreq",
+                          filtTaxPar = list(highestFreq = 50),
+                          measure = "pearson",
+                          zeroMethod = "pseudo", 
+                          normMethod = "clr",
+                          sparsMethod = "threshold", 
+                          thresh = 0.4,
+                          seed = 123456)
+
+# Network analysis with default values
+props_amgut <- netAnalyze(net_amgut)
+
+#summary(props_amgut)
+
+# Network plot
+plot(props_amgut, sameLayout = TRUE, layoutGroup = "union", 
+     nodeSize = "clr", repulsion = 0.9, cexTitle = 3.7, cexNodes = 2,
+     cexLabels = 2, groupNames = c("LACTOSE = yes", "LACTOSE = no"))
+
+legend("bottom", title = "estimated correlation:", legend = c("+","-"), 
+       col = c("#009900","red"), inset = 0.02, cex = 4, lty = 1, lwd = 4, 
+       bty = "n", horiz = TRUE)
+```
+
+#### Network comparison via the "classical way"
+
+We conduct a network comparison with permutation tests to examine whether group 
+differences are significant. In order to reduce the execution time, only 100 
+permutations are used. For real data sets, the number of permutations should be 
+at least 1000 to get reliable results.
+
+The matrices with estimated associations for the permuted data are stored in an 
+external file (in the current working directory) named `"assoPerm_comp"`.
+
+```{r netcomp 1}
+# Network comparison
+comp_amgut_orig <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
+                          storeAssoPerm = TRUE,
+                          fileStoreAssoPerm = "assoPerm_comp",
+                          storeCountsPerm = FALSE, 
+                          seed = 123456)
+
+summary(comp_amgut_orig)
+```
+
+The network comparison is repeated, but this time, the stored permutation 
+associations are loaded by `netCompare()`. This option might be useful to 
+rerun the function with alternative multiple testing adjustment, without the 
+need of re-estimating all associations.
+
+```{r netcomp 2}
+# Network comparison
+comp_amgut1 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
+                          fileLoadAssoPerm = "assoPerm_comp",
+                          storeCountsPerm = FALSE, 
+                          seed = 123456)
+
+# Check whether the second comparison leads to equal results
+all.equal(comp_amgut_orig$properties, comp_amgut1$properties)
+```
+
+The stored permutation associations can also be passed to `diffnet()` to 
+construct a differential network. 
+
+```{r diffnet, error=TRUE}
+# Construct differential network
+diffnet_amgut <- diffnet(net_amgut, diffMethod = "permute", nPerm = 100, 
+                          fileLoadAssoPerm = "assoPerm_comp",
+                          storeCountsPerm = FALSE)
+
+plot(diffnet_amgut)
+```
+
+As expected for a number of permutations of only 100, there are no differential 
+associations after multiple testing adjustment. 
+
+Just to take a look how the differential network could look like, we plot the 
+differential network based on non-adjusted p-values. Note that this approach is 
+statistically not correct!
+
+```{r diffnet 2}
+plot(diffnet_amgut, adjusted = FALSE,
+     mar = c(2, 2, 5, 15), legendPos = c(1.2,1.2),
+     legendArgs = list(bty = "n"),
+     legendGroupnames = c("yes", "no"),
+     legendTitle = "Correlations:")
+```
+
+
+#### Network comparison using createAssoPerm()
+
+This time, the permutation association matrices are generated using 
+`createAssoPerm()` and then passed to `netCompare()`. 
+
+The output should be written to a variable because `createAssoPerm()` generally 
+returns the matrix with permuted group labels.
+
+```{r createAssoPerm 1, results='hide', message=FALSE, warning=FALSE}
+permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, 
+                               computeAsso = TRUE,
+                               fileStoreAssoPerm = "assoPerm",
+                               storeCountsPerm = TRUE, 
+                               append = FALSE, seed = 123456)
+```
+
+Let's take a look at the permuted group labels. To interpret the group labels 
+correctly, it is important to know, that within `netConstruct()`, the data 
+set is divided into two matrices belonging to the two groups. For the permutation
+tests, the two matrices are combined by rows and for each permutation, the 
+samples are reassigned to one of the two groups while keeping the matching design
+for matched data.
+
+In our case, the `permGroupMat` matrix consists of 100 rows (`nPerm = 100`) and 
+150 columns (our sample size). The first 50 columns belong to the first group 
+(group "yes" in our case) and columns 51 to 150 belong to the second group. 
+
+Since each two samples of group 2 are matched to one sample of group 1, we number
+the group label matrix accordingly. Now, we can see that the matching design is 
+kept: Since sample 3 is assigned to group 1, samples 1 and 2 have to be assigned 
+to group 2 and so on (entries [1,1] and [1,51:52] of `permGroupMat`).
+
+```{r createAssoPerm 2}
+seq1 <- seq(1,150, by = 3)
+seq2 <- seq(1:150)[!seq(1:150)%in%seq1]
+
+colnames(permGroupMat) <- c(seq1, seq2)
+
+permGroupMat[1:5, 1:10]
+permGroupMat[1:5, 51:71]
+```
+
+As before, the stored permutation association matrices are passed to 
+`netCompare()`.
+
+```{r createAssoPerm 3}
+comp_amgut2 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
+                          fileLoadAssoPerm = "assoPerm",
+                          seed = 123456)
+
+# Are the network properties equal?
+all.equal(comp_amgut_orig$properties, comp_amgut2$properties)
+```
+
+Using the `fm.open` function, we take a look at the stored matrices themselves.
+
+```{r createAssoPerm 4}
+# Open stored files and check whether they are equal
+assoPerm1 <- filematrix::fm.open(filenamebase = "assoPerm_comp" , readonly = TRUE)
+assoPerm2 <- filematrix::fm.open(filenamebase = "assoPerm" , readonly = TRUE)
+
+identical(as.matrix(assoPerm1), as.matrix(assoPerm2))
+
+dim(as.matrix(assoPerm1))
+dim(as.matrix(assoPerm2))
+
+# Close files 
+filematrix::close(assoPerm1)
+filematrix::close(assoPerm2)
+```
+
+#### Block-wise execution
+
+Due to limited resources, it might be meaningful to estimate the associations 
+in blocks, that is, for a subset of permutations instead of all permutations at 
+once. We'll now see how to perform such a block-wise network comparison using 
+NetCoMi's functions.
+Note that in this approach, the external file is extended in each iteration, 
+which is why it is not parallelizable.
+
+In the first step, `createAssoPerm` is used to generate the matrix with 
+permuted group labels (for all permutations!). Hence, we set the `computeAsso` 
+parameter to `FALSE`.
+
+
+```{r blocks 1}
+permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, 
+                               computeAsso = FALSE, seed = 123456)
+
+```
+We now compute the association matrices in blocks of 10 permutations in each loop.
+Note: The `nPerm` argument must be set to the block size.
+
+The external file (containing the association matrices) must be extended in each loop,
+except for the first iteration, where the file is created. Thus, `append` is set 
+to `TRUE` for `i >=2 `.
+
+```{r blocks 2}
+nPerm_all <- 100
+blocksize <- 20
+repetitions <- nPerm_all / blocksize
+
+for(i in 1:repetitions){
+  print(i)
+  if(i == 1){
+    # Create a new file in the first run
+    tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
+                          permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
+                          computeAsso = TRUE,
+                          fileStoreAssoPerm = "assoPerm",
+                          storeCountsPerm = FALSE, append = FALSE)
+  } else{
+    tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
+                          permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
+                          computeAsso = TRUE,
+                          fileStoreAssoPerm = "assoPerm",
+                          storeCountsPerm = FALSE, append = TRUE)
+  }
+  
+}
+```
+
+The stored file, which now contains the associations of all 100 permutations, 
+can be passed to `netCompare()` as before. 
+
+```{r blocks 3}
+comp_amgut3 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
+                          storeAssoPerm = TRUE,
+                          fileLoadAssoPerm = "assoPerm",
+                          storeCountsPerm = FALSE, seed = 123456)
+
+# Are the network properties equal to the first comparison?
+all.equal(comp_amgut_orig$properties, comp_amgut3$properties)
+
+# Open stored files and check whether they are equal
+assoPerm1 <- fm.open(filenamebase = "assoPerm_comp" , readonly = TRUE)
+assoPerm3 <- fm.open(filenamebase = "assoPerm" , readonly = TRUE)
+
+all.equal(as.matrix(assoPerm1), as.matrix(assoPerm3))
+
+dim(as.matrix(assoPerm1))
+dim(as.matrix(assoPerm3))
+
+# Close files 
+close(assoPerm1)
+close(assoPerm3)
+```
+
+#### Block-wise execution (executable in parallel)
+
+If the blocks should be computed in parallel, extending the `"assoPerm"` file 
+in each iteration would not work. To be able to run the blocks in parallel, 
+we have to create a separate file in each iteration and combine them at the end.
+
+```{r blocks 4}
+# Create the matrix with permuted group labels (as before)
+permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, computeAsso = FALSE,
+                               seed = 123456)
+
+
+nPerm_all <- 100
+blocksize <- 20
+repetitions <- nPerm_all / blocksize
+
+# This code can easily be parallelized:
+for(i in 1:repetitions){
+  tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
+                        permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
+                        computeAsso = TRUE,
+                        fileStoreAssoPerm = paste0("assoPerm", i),
+                        storeCountsPerm = FALSE, append = FALSE)
+  
+}
+
+# Combine the matrices and store them into a new file (because netCompare() 
+# needs an external file)
+assoPerm_all <- NULL
+
+for(i in 1:repetitions){
+  
+  assoPerm_tmp <- fm.open(filenamebase = paste0("assoPerm", i) , readonly = TRUE)
+  
+  assoPerm_all <- rbind(assoPerm_all, as.matrix(assoPerm_tmp))
+  
+  close(assoPerm_tmp)
+}
+
+dim(assoPerm_all)
+
+# Combine the permutation association matrices
+fm.create.from.matrix(filenamebase = "assoPerm", mat = assoPerm_all)
+```
+
+As last step, we pass the file containing the combined matrix to `netCompare()`.
+
+```{r blocks 5}
+comp_amgut4 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
+                          fileLoadAssoPerm = "assoPerm",
+                          storeCountsPerm = FALSE, seed = 123456)
+
+# Are the network properties equal to those of the first comparison?
+all.equal(comp_amgut_orig$properties, comp_amgut4$properties)
+
+# Open stored files and check whether they are equal
+assoPerm1 <- fm.open(filenamebase = "assoPerm_comp" , readonly = TRUE)
+assoPerm4 <- fm.open(filenamebase = "assoPerm" , readonly = TRUE)
+identical(as.matrix(assoPerm1), as.matrix(assoPerm4))
+
+dim(as.matrix(assoPerm1))
+dim(as.matrix(assoPerm4))
+
+# Close files 
+close(assoPerm1)
+close(assoPerm4)
+```
+
+
+
