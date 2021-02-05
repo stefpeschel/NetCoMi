@@ -13,7 +13,11 @@ except_plot_networks<- function(args){
     layout.tmp <- try(match.fun(layout), silent = TRUE)
 
     if(class(layout.tmp) == "try-error"){
-      if(!is.matrix(layout)){
+      if(is.matrix(layout)){
+        if(!any(rownames(layout) %in% rownames(args$x$input$adjaMat1))){
+          warning("Rownames of layout matrix don't match node names.")
+        }
+      } else {
         stopifnot(layout %in% c("spring", "circle", "groups"))
       }
     } else{
@@ -27,13 +31,8 @@ except_plot_networks<- function(args){
   stopifnot(is.logical(sameLayout))
 
   # layoutGroup
-
   if(sameLayout & twoNets){
-    if(is.null(args$layoutGroup)){
-      args$layoutGroup <- 1
-    } else{
-      stopifnot(args$layoutGroup %in% c(1,2))
-    }
+    stopifnot(args$layoutGroup %in% c(1,2, "union"))
   }
 
   # repulsion
@@ -99,7 +98,9 @@ except_plot_networks<- function(args){
   args$nodeSize <- match.arg(args$nodeSize, c("fix", "hubs", "degree",
                                               "betweenness", "closeness",
                                               "eigenvector", "counts",
-                                              "normCounts"))
+                                              "normCounts", "TSS", "fractions", 
+                                              "CSS", "COM", "rarefy", "VST", 
+                                              "clr", "mclr"))
 
   # nodeSizeSpread
   stopifnot(is.numeric(args$nodeSizeSpread) & args$nodeSizeSpread >= 0)
@@ -165,8 +166,13 @@ except_plot_networks<- function(args){
   args$edgeInvisFilter <- match.arg(args$edgeInvisFilter,
                                choices = c("none", "threshold", "highestWeight"))
 
-  # colorNegAsso
-  stopifnot(is.logical(args$colorNegAsso))
+  # negDiffCol
+  if(!is.null(args$colorNegAsso)){
+    warning("Name of 'colorNegAsso' has changed to 'negDiffCol'")
+    args$negDiffCol <- args$colorNegAsso
+    args$colorNegAsso <- NULL
+  }
+  stopifnot(is.logical(args$negDiffCol))
 
   # posCol, negCol
   if(!is.null(args$posCol)){

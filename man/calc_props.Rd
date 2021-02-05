@@ -7,27 +7,53 @@
 calc_props(
   adjaMat,
   dissMat,
+  assoMat,
+  avDissIgnoreInf,
+  sPathNorm,
+  sPathAlgo,
+  connectivity,
+  normNatConnect,
   weighted,
   isempty,
   clustMethod,
   clustPar,
+  weightClustCoef,
   hubPar,
   hubQuant,
   lnormFit,
-  connect,
   weightDeg,
   normDeg,
   normBetw,
   normClose,
   normEigen,
+  centrLCC,
   jaccard = FALSE,
-  jaccQuant = NULL
+  jaccQuant = NULL,
+  verbose = 0
 )
 }
 \arguments{
 \item{adjaMat}{adjacency matrix}
 
 \item{dissMat}{dissimilarity matrix}
+
+\item{assoMat}{association matrix}
+
+\item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
+calculating the average dissimilarity. If \code{FALSE}, infinity values 
+are set to 1.}
+
+\item{sPathNorm}{logical. If TRUE, shortest paths are normalized by 
+average dissimilarity.}
+
+\item{sPathAlgo}{character indicating the algorithm used for shortest path
+calculation.}
+
+\item{connectivity}{logical indicating whether edge and vertex connectivity 
+should be calculated. Might be disabled to reduce execution time.}
+
+\item{normNatConnect}{logical indicating whether natural connectivity should
+be normalized.}
 
 \item{weighted}{indicated whether the network is weighted}
 
@@ -36,6 +62,9 @@ calc_props(
 \item{clustMethod}{character indicating the clustering algorithm.}
 
 \item{clustPar}{list with parameters passed to the clustering functions.}
+
+\item{weightClustCoef}{logical. If \code{TRUE}, the weighted clustering
+coefficient is used.}
 
 \item{hubPar}{character vector with one or more centrality measures used
 for identifying hub nodes. Possible values are \code{degree},
@@ -47,18 +76,23 @@ for identifying hub nodes. Possible values are \code{degree},
 quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
 or of the empirical distribution of centrality values.}
 
-\item{connect}{logical indicating whether edge and vertex connectivity should
-be calculated. Might be disabled to reduce execution time.}
-
 \item{weightDeg}{if \code{TRUE}, the weighted degree is used.}
 
 \item{normDeg, normBetw, normClose, normEigen}{if \code{TRUE}, a normalized
 version of the respective centrality values is returned. By default, all
 centralities are normalized.}
 
+\item{centrLCC}{logical indicating whether centralities should only be 
+computed for the largest connected component (LCC). If \code{TRUE} 
+(default), centrality values of disconnected components are zero.}
+
 \item{jaccard}{shall the Jaccard index be calculated?}
 
 \item{jaccQuant}{quantile for the Jaccard index}
+
+\item{verbose}{integer indicating the level of verbosity. Possible values:
+\code{"0"}: no messages, \code{"1"}: only important messages,
+\code{"2"}(default): all progress messages are shown. Can also be logical.}
 }
 \description{
 Calculates network properterties for a given adjacency matrix

@@ -3,7 +3,12 @@
 #' Plot method for objects of class \code{diffnet} inheriting from a call to
 #' \code{\link{diffnet}}.
 #'
-#' @param x object of class \code{diffnet}
+#' @param x object of class \code{diffnet} containing the adjacency matrix 
+#'   (absolute differences between associations)
+#' @param adjusted logical indicating whether the adjacency matrix based on 
+#'   adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
+#'   the adjacency matrix is based on non-adjusted p-values. Ignored 
+#'   for the discordant method.
 #' @param layout indicates the layout used for defining node positions. Can be
 #'   a character with one of the layouts provided by
 #'   \code{\link[qgraph]{qgraph}}: \code{"spring"}(default), \code{"circle"},
@@ -33,7 +38,7 @@
 #'   be shortened if \code{shortenLabels} is used. Defaults to 6.
 #' @param labelPattern vector of three elements, which is only used if argument
 #'   \code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label to
-#'   length \code{labelLength} leads to duplicates, the label is shortend
+#'   length \code{labelLength} leads to duplicates, the label is shortened
 #'   according to \code{labelPattern}, where the first entry gives the length of
 #'   the first part, the second entry is used a separator, and the third entry
 #'   is the length of the second part. Defaults to c(5, "'", 3). If the data
@@ -41,7 +46,7 @@
 #'   they are by default shortened to "Strep'coc" and "Strep'myc".
 #' @param charToRm vector with characters to remove from node names. Ignored if
 #'   labels are given via \code{labels}.
-#' @param labelScale logical. If \code{TRUE}, node labels are scaled accoring to
+#' @param labelScale logical. If \code{TRUE}, node labels are scaled according to
 #'   node size
 #' @param labelFont integer defining the font of node labels. Defaults to 1.
 #' @param rmSingles logical. If \code{TRUE}, unconnected nodes are removed.
@@ -70,9 +75,15 @@
 #'   "magenta", "orange", "red", "blue", "black", "purple")).
 #' @param title optional character string for the main title.
 #' @param legend logical. If \code{TRUE}, a legend is plotted.
+#' @param legendPos either a character specifying the legend's position or a 
+#'   numeric vector with two elements giving the x and y coordinates of the 
+#'   legend. See the description of the x and y arguments of 
+#'   \code{\link[graphics]{legend}} for details.
 #' @param legendGroupnames a vector with two elements giving the group names
 #'   shown in the legend.
 #' @param legendTitle character specifying the legend title.
+#' @param legendArgs list with further arguments passed to 
+#'   \code{\link[graphics]{legend}}.
 #' @param cexNodes numeric scaling node sizes. Defaults to 1.
 #' @param cexLabels numeric scaling node labels. Defaults to 1.
 #' @param cexTitle numeric scaling the title. Defaults to 1.2.
@@ -85,10 +96,11 @@
 #'   a value lower than 1, nodes are placed further apart
 #' @seealso \code{\link{diffnet}}, \code{\link{netConstruct}}
 #' @importFrom qgraph qgraph
+#' @method plot diffnet
 #' @export
-#'
 
 plot.diffnet <- function(x,
+                         adjusted = TRUE,
                          layout = NULL,
                          repulsion = 1,
                          labels = NULL,
@@ -110,8 +122,10 @@ plot.diffnet <- function(x,
                          edgeCol = NULL,
                          title = NULL,
                          legend = TRUE,
+                         legendPos = "topright",
                          legendGroupnames = NULL,
                          legendTitle = NULL,
+                         legendArgs = NULL,
                          cexNodes = 1,
                          cexLabels = 1,
                          cexTitle = 1.2,
@@ -119,27 +133,40 @@ plot.diffnet <- function(x,
                          mar = c(2,2,4,6),
                          ...){
 
-  if(all(x$diffMat == 0)){
-    stop("Network is empty.")
-  }
-
   inputArgs <- c(as.list(environment()), list(...))
 
   outputArgs <- except_plot_diffnet(inputArgs)
+  
   for(i in 1:length(outputArgs)){
     assign(names(outputArgs)[i], outputArgs[[i]])
   }
 
   corrMat1 <- x$assoMat1
   corrMat2 <- x$assoMat2
-  diffMat <- x$diffMat
+  
+  if(is.null(x$diffAdjustMat)){
+    diffMat <- x$diffMat
+    
+  } else{
+    if(adjusted){
+      diffMat <- x$diffAdjustMat
+    } else{
+      diffMat <- x$diffMat
+    }
+  }
+  
+  if(all(diffMat == 0)){
+    stop("Network is empty.")
+  }
 
   if(edgeFilter != "none"){
+    
     if(edgeFilter == "highestDiff"){
       diffabssort <- sort(abs(diffMat[lower.tri(diffMat)]), decreasing = TRUE)
       cutval <- diffabssort[edgeFilterPar]
       diffMat[diffMat < cutval] <- 0
     }
+    
   }
 
   if(rmSingles){
@@ -161,7 +188,8 @@ plot.diffnet <- function(x,
     if(length(torm) != 0) corrMat2 <- corrMat2[-torm, -torm]
     if(length(torm) != 0) diffMat <- diffMat[-torm, -torm]
 
-    kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in% colnames(diffMat))]
+    kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in% 
+                                           colnames(diffMat))]
 
   }
 
@@ -182,12 +210,10 @@ plot.diffnet <- function(x,
     }
   }
 
-
-
   #=============================================================================
   # define edge colors
 
-  if(x$call$diffMethod == "discordant"){
+  if(x$diffMethod == "discordant"){
 
     # create color matrix
     if(is.null(edgeCol)){
@@ -197,11 +223,12 @@ plot.diffnet <- function(x,
     }
 
     if(edgeTransp > 0){
-      colVec <- col_to_transp(colVec, edgeTransp)
+      colVec <- colToTransp(colVec, edgeTransp)
     }
 
     classMat <- x$classMat
     edgeColMat <- classMat
+    
     for(i in 1:nrow(edgeColMat)){
       for(j in 1:ncol(edgeColMat)){
         if(classMat[i,j] %in% c(1,5,9)) edgeColMat[i,j] <- "black"
@@ -220,7 +247,6 @@ plot.diffnet <- function(x,
     if(is.null(edgeCol)){
       edgeCol <- c("chartreuse2", "chartreuse4", "cyan", "magenta", "orange",
                    "red", "blue", "black", "purple")
-      #plot(1:9, 1:9, col = edgeCol, cex=6, pch=16)
     } else{
       stopifnot(length(edgeCol) == 9)
     }
@@ -254,7 +280,7 @@ plot.diffnet <- function(x,
     }
 
     if(edgeTransp > 0){
-      colVec <- col_to_transp(colVec, edgeTransp)
+      colVec <- colToTransp(colVec, edgeTransp)
     }
 
     edgeColMat <- corrMat1
@@ -303,7 +329,7 @@ plot.diffnet <- function(x,
   #=============================================================================
   # node colors
   if(nodeTransp > 0){
-    nodeColor <- col_to_transp(nodeColor, nodeTransp)
+    nodeColor <- colToTransp(nodeColor, nodeTransp)
   }
 
   #=============================================================================
@@ -316,43 +342,54 @@ plot.diffnet <- function(x,
               edge.color = edgeColMat, edge.width = edgeWidth,
               repulsion = repulsion, mar = mar, ...)
 
-
   if(legend){
 
-    if(x$call$diffMethod %in% c("discordant")){
-      legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
-                                    "    0             -",
-                                    "    0             +",
-                                    "    -             0",
-                                    "    -             +",
-                                    "    +             0",
-                                    "    +             -"),
-             col = c("white", edgeCol),
-             lty = rep(1,7), lwd = 2, cex = cexLegend, title = legendTitle)
+    leg_args <- as.list(legendArgs)
+    
+    if(is.character(legendPos)){
+      leg_args$x <- legendPos
+      leg_args$y <- NULL
+    } else{
+      if(length(legendPos) != 2 || !is.numeric(legendPos)){
+        stop("'legendPos' must be either a character value or a numeric vector ",
+             "with two elements.")
+      }
+      leg_args$x <- legendPos[1]
+      leg_args$y <- legendPos[2]
+    }
+
+    if(x$diffMethod %in% c("discordant")){
+      
+      leg_args$legend <- c(legtitle1, 0, 0, "-", "-", "+", "+", 
+                    legtitle2, "-", "+", 0, "+", 0, "-")
+      leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 7))
+      leg_args$lty <- c(rep(1,7), rep(-1,7))
+      leg_args$pch <- c(rep(-1, 7), rep(20,7))
+      
     } else {
       if(length(edgeCol) == 9){
-        legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
-                                      "    +             +",
-                                      "    +             0",
-                                      "    +             -",
-                                      "    -             +",
-                                      "    -             0",
-                                      "    -             -",
-                                      "    0             +",
-                                      "    0             0",
-                                      "    0             -"),
-               col = c("white", edgeCol),
-               lty = rep(1,9), lwd = 2, cex = cexLegend, title = legendTitle)
+        
+        leg_args$legend <- c(legtitle1, "+", "+", "+", "-", "-", "-", 0, 0, 0, 
+                      legtitle2, "+", 0, "-", "+", 0, "-", "+", 0, "-")
+        leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 10))
+        leg_args$lty <- c(rep(1,10), rep(-1,10))
+        leg_args$pch <- c(rep(-1, 10), rep(20,10))
+
       } else{
-        legend("topright", legend = c(paste0(legtitle1, "  ", legtitle2),
-                                      "    +             +",
-                                      "    +             -",
-                                      "    -             +",
-                                      "    -             -"),
-               col = c("white", edgeCol),
-               lty = rep(1,9), lwd = 2, cex = cexLegend, title = legendTitle)
+        leg_args$legend <- c(legtitle1, "+", "+", "-", "-", 
+                      legtitle2, "+", "-", "+", "-")
+        leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 5))
+        leg_args$lty <- c(rep(1,5), rep(-1,5))
+        leg_args$pch <- c(rep(-1, 5), rep(20,5))
       }
     }
+    
+    leg_args$cex <- cexLegend
+    leg_args$title <- legendTitle
+    leg_args$ncol <- 2
+    if(is.null(leg_args$lwd)) leg_args$lwd <- 2
+
+    do.call("legend", leg_args)
   }
 
   if(main != ""){

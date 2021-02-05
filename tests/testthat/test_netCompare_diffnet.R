@@ -1,3 +1,4 @@
+set.seed(123456)
 data("amgut1.filt")
 
 groups_diss <- sample(0:1, ncol(amgut1.filt), replace = TRUE)

@@ -6,6 +6,7 @@
 \usage{
 \method{plot}{diffnet}(
   x,
+  adjusted = TRUE,
   layout = NULL,
   repulsion = 1,
   labels = NULL,
@@ -27,8 +28,10 @@
   edgeCol = NULL,
   title = NULL,
   legend = TRUE,
+  legendPos = "topright",
   legendGroupnames = NULL,
   legendTitle = NULL,
+  legendArgs = NULL,
   cexNodes = 1,
   cexLabels = 1,
   cexTitle = 1.2,
@@ -38,7 +41,13 @@
 )
 }
 \arguments{
-\item{x}{object of class \code{diffnet}}
+\item{x}{object of class \code{diffnet} containing the adjacency matrix 
+(absolute differences between associations)}
+
+\item{adjusted}{logical indicating whether the adjacency matrix based on 
+adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
+the adjacency matrix is based on non-adjusted p-values. Ignored 
+for the discordant method.}
 
 \item{layout}{indicates the layout used for defining node positions. Can be
 a character with one of the layouts provided by
@@ -72,7 +81,7 @@ be shortened if \code{shortenLabels} is used. Defaults to 6.}
 
 \item{labelPattern}{vector of three elements, which is only used if argument
 \code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label to
-length \code{labelLength} leads to duplicates, the label is shortend
+length \code{labelLength} leads to duplicates, the label is shortened
 according to \code{labelPattern}, where the first entry gives the length of
 the first part, the second entry is used a separator, and the third entry
 is the length of the second part. Defaults to c(5, "'", 3). If the data
@@ -82,7 +91,7 @@ they are by default shortened to "Strep'coc" and "Strep'myc".}
 \item{charToRm}{vector with characters to remove from node names. Ignored if
 labels are given via \code{labels}.}
 
-\item{labelScale}{logical. If \code{TRUE}, node labels are scaled accoring to
+\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according to
 node size}
 
 \item{labelFont}{integer defining the font of node labels. Defaults to 1.}
@@ -125,10 +134,18 @@ Fisher's z-test (default: c("chartreuse2", "chartreuse4", "cyan",
 
 \item{legend}{logical. If \code{TRUE}, a legend is plotted.}
 
+\item{legendPos}{either a character specifying the legend's position or a 
+numeric vector with two elements giving the x and y coordinates of the 
+legend. See the description of the x and y arguments of 
+\code{\link[graphics]{legend}} for details.}
+
 \item{legendGroupnames}{a vector with two elements giving the group names
 shown in the legend.}
 
 \item{legendTitle}{character specifying the legend title.}
+
+\item{legendArgs}{list with further arguments passed to 
+\code{\link[graphics]{legend}}.}
 
 \item{cexNodes}{numeric scaling node sizes. Defaults to 1.}
 

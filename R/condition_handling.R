@@ -15,7 +15,7 @@ condition_handling <- function(dataType, assoType, data2, measure, normMethod,
   }
 
   if(measure %in% c("pearson", "spearman", "bicor")){
-    if(!normMethod %in% c("VST", "clr")){
+    if(!normMethod %in% c("VST", "clr", "mclr")){
       if(verbose > 0){
         message("Attention! The chosen combination of association measure
 and normalization is not robust to compositional effects.\n")
@@ -24,7 +24,7 @@ and normalization is not robust to compositional effects.\n")
   }
 
   if(measure %in% c("bray", "euclidean")){
-    if(!normMethod %in% c("VST", "clr")){
+    if(!normMethod %in% c("VST", "clr", "mclr")){
       if(verbose > 0){
         message("Attention! The chosen combination of dissimilarity measure
 and normalization is not robust to compositional effects.\n")
@@ -141,7 +141,7 @@ and normalization is not robust to compositional effects.\n")
       needfrac <- TRUE
     }
 
-    if(normMethod %in% c("VST", "rarefy") & !zeroMethod %in% c("none", "pseudo")){
+    if(normMethod %in% c("VST", "rarefy") & !zeroMethod %in% c("none")){
       needint <- TRUE
     }
 
@@ -227,7 +227,7 @@ and normalization is not robust to compositional effects.\n")
 
   if(length(msg) != 0 & verbose > 0){
     msg_new <- as.vector(rbind(msg, rep("\n", length(msg))))
-    message("Infos regarding changed arguments:")
+    message("Infos about changed arguments:")
     message(msg_new)
 
   }

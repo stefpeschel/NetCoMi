@@ -6,12 +6,12 @@
 #' @usage \method{plot}{microNetProps}(x,
 #'   layout = "spring",
 #'   sameLayout = FALSE,
-#'   layoutGroup = NULL,
+#'   layoutGroup = "union",
 #'   repulsion = 1,
 #'   groupNames = NULL,
 #'   groupsChanged = FALSE,
 #'   labels = NULL,
-#'   shortenLabels = "intelligent",
+#'   shortenLabels = "simple",
 #'   labelLength = 6L,
 #'   labelPattern = c(5,"'",3),
 #'   charToRm = NULL,
@@ -24,10 +24,12 @@
 #'   nodeFilterPar = NULL,
 #'   rmSingles = "none",
 #'   nodeSize = "fix",
+#'   normPar = NULL,
 #'   nodeSizeSpread = 4,
 #'   nodeColor = "cluster",
 #'   colorVec = NULL,
 #'   featVecCol = NULL,
+#'   sameFeatCol = TRUE,
 #'   sameClustCol = TRUE,
 #'   sameColThresh = 2L,
 #'   nodeShape = NULL,
@@ -49,7 +51,7 @@
 #'   edgeInvisFilter = "none",
 #'   edgeInvisPar = NULL,
 #'   edgeWidth = 1,
-#'   colorNegAsso = TRUE,
+#'   negDiffCol = TRUE,
 #'   posCol = NULL,
 #'   negCol = NULL,
 #'   cut = NULL,
@@ -60,6 +62,7 @@
 #'   cexNodes = 1,
 #'   cexHubs = 1.2,
 #'   cexLabels = 1,
+#'   cexHubLabels = NULL,
 #'   cexTitle = 1.2,
 #'   showTitle = NULL,
 #'   title1 = NULL,
@@ -79,10 +82,12 @@
 #' @param sameLayout logical. Indicates whether the same layout should be used
 #'   for both networks. Ignored if \code{x} contains only one network. See
 #'   argument \code{layoutGroup}.
-#' @param layoutGroup  numeric. Indicates the group from which the layout is
-#'   taken if argument \code{sameLayout} is \code{TRUE}. The layout is computed
-#'   for the first network if set to "1" (default) and for the second network if
-#'   set to "2".
+#' @param layoutGroup  numeric or character. Indicates the group, where the 
+#'   layout is taken from if argument \code{sameLayout} is \code{TRUE}. 
+#'   The layout is computed for group 1 (and adopted for group 2) if set to "1" 
+#'   and it is computed for group 2 if set to "2". Can alternatively be set to
+#'   "union" (default) to compute a union of both layouts, where the nodes are 
+#'   placed as optimal as possible equally for both networks. 
 #' @param repulsion positive numeric value indicating the strength of repulsive
 #'   forces in the "spring" layout. Nodes are placed closer together for smaller
 #'   values and further apart for higher values. See the \code{repulsion}
@@ -96,11 +101,12 @@
 #' @param groupsChanged logical. Indicates the order in which the networks are
 #'   plotted. If \code{TRUE}, the order is exchanged. See details. Defaults to
 #'   \code{FALSE}.
-#' @param labels defines the node labels. Can be a character vector, which is
-#'   used for both groups (then, the adjacency matrices in \code{x} must contain
-#'   the same variables). Can also be list with two vectors. If \code{FALSE}, no
-#'   labels are plotted. Defaults to the row/column names of the adjacency
-#'   matrices.
+#' @param labels defines the node labels. Can be a named character vector, which 
+#'   is used for both groups (then, the adjacency matrices in \code{x} must 
+#'   contain the same variables). 
+#'   Can also be list with two named vectors (names must match the row/column 
+#'   names of the adjacency matrices). If \code{FALSE}, no labels are plotted. 
+#'   Defaults to the row/column names of the adjacency matrices.
 #' @param shortenLabels options to shorten node labels. Ignored if node labels
 #'   are defined via \code{labels}. Possible options are:
 #'   \describe{
@@ -115,7 +121,7 @@
 #'   be shortened if \code{shortenLabels} is used. Defaults to 6.
 #' @param labelPattern vector of three elements, which is only used if argument
 #'   \code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label
-#'   to length \code{labelLength} leads to duplicates, the label is shortend
+#'   to length \code{labelLength} leads to duplicates, the label is shortened
 #'   according to \code{labelPattern}, where the first entry gives the length of
 #'   the first part, the second entry is used a separator, and the third entry
 #'   is the length of the second part. Defaults to c(5, "'", 3). If the data
@@ -123,7 +129,7 @@
 #'   they are by default shortened to "Strep'coc" and "Strep'myc".
 #' @param charToRm vector with characters to remove from node names. Ignored if
 #'   labels are given via \code{labels}.
-#' @param labelScale logical. If \code{TRUE}, node labels are scaled accoring to
+#' @param labelScale logical. If \code{TRUE}, node labels are scaled according to
 #'   node size
 #' @param labelFont integer defining the font of node labels. Defaults to 1.
 #' @param labelFile optional character of the form "<file name>.txt" naming a 
@@ -149,7 +155,7 @@
 #'   \code{nodeFilter}.
 #' @param rmSingles character value indicating how to handle unconnected nodes.
 #'   Possible values are \code{"all"} (all single nodes are deleted),
-#'   \code{"inBoth"} (only nodes that are unconnected in both networks are
+#'   \code{"inboth"} (only nodes that are unconnected in both networks are
 #'   removed) or \code{"none"} (default; no nodes are removed). Cannot be set to
 #'   \code{"all"}, if the same layout is used for both networks.
 #' @param nodeSize  character indicating how node sizes should be determined.
@@ -157,12 +163,20 @@
 #'   \item{\code{"fix"}}{Default. All nodes have same size (hub size can be
 #'   defined separately via \code{cexHubs}).}
 #'   \item{\code{"degree"}, \code{"betweenness"}, \code{"closeness"},
-#'   \code{"eigenvector"}}{Size scaled according to node's degree.}
+#'   \code{"eigenvector"}}{Size scaled according to node's centrality}
 #'   \item{\code{"counts"}}{Size scaled according to the sum of counts (of
 #'   microbes or samples, depending on what nodes express).}
 #'   \item{\code{"normCounts"}}{Size scaled according to the sum of normalized
 #'   counts (of microbes or samples), which are exported by
-#'   \code{netConstruct}.}}
+#'   \code{netConstruct}.}
+#'   \item{\code{"TSS", "fractions", "CSS", "COM", "rarefy", "VST", "clr", 
+#'   "mclr"}}{Size scaled according to the sum of normalized
+#'   counts. Available are the same options as for \code{normMethod} in
+#'   \code{\link{netConstruct}}. Parameters are set via \code{normPar}.}
+#'   }
+#' @param normPar list with parameters passed to the function for normalization
+#'   if \code{nodeSize} is set to a normalization method. Used analogously to
+#'   \code{normPar} of \code{\link{netConstruct}()}.
 #' @param nodeSizeSpread positive numeric value indicating the spread of node
 #'   sizes. The smaller the value, the more similar are the node sizes. Node 
 #'   sizes are calculated by: (x - min(x)) / (max(x) - min(x)) * nodeSizeSpread 
@@ -174,24 +188,42 @@
 #'   \code{featVecCol}), \code{"colorVec"} (the vector \code{colorVec}). For the
 #'   former two cases, the colors can be specified via \code{colorVec}. If
 #'   \code{colorVec} is not defined, the \code{rainbow} function from
-#'   \code{grDevices} package  is used. Also accecpted is a character value
+#'   \code{grDevices} package  is used. Also accepted is a character value
 #'   defining a color, which is used for all nodes. If \code{NULL}, "grey40" is
 #'   used for all nodes.
-#' @param colorVec a vector specifying the node colors. If \code{nodeColor}
-#'   is set to \code{"colorVec"}, the vector defines a color for each node
-#'   implying that its names must match the node's names (ensured if names match
-#'   the colnames of the original count matrix).
+#' @param colorVec a vector or list with two vectors used to specify node colors. 
+#'   Different usage depending on the "nodeColor" argument:
+#'   \describe{
+#'   \item{\code{nodeColor = "cluster"}}{\code{colorVec} must be a vector. 
+#'   Depending on the \code{sameClustCol} argument, the colors are used only in 
+#'   one or both networks. If the vector is not long enough, a warning is 
+#'   returned and colors from \code{rainbow()} are used for the remaining 
+#'   clusters.}
+#'   \item{\code{nodeColor = "feature"}}{Defines a color for each level of 
+#'   \code{featVecCol}. Can be a list with two vectors used for the two networks 
+#'   (for a single network, only the first element is used) or a vector, which 
+#'   is used for both groups if two networks are plotted.}
+#'   \item{\code{nodeColor = "colorVec"}}{\code{colorVec} defines a color for 
+#'   each node implying that its names must match the node's names (which is 
+#'   also ensured if names match the colnames of the original count matrix). 
+#'   Can be a list with two vectors used for the two networks (for a single 
+#'   network, only the first element is used) or a vector, which is used for 
+#'   both groups if two networks are plotted.}}
 #' @param featVecCol  a vector with a feature for each node. Used for coloring
 #'   nodes if \code{nodeColor} is set to \code{"feature"}. Is coerced to a
 #'   factor. If \code{colorVec} is given, its length must be larger than or
 #'   equal to the number of feature levels.
+#' @param sameFeatCol logical indicating whether the same color should be used 
+#'   for same features in both networks (only used if two networks are plotted, 
+#'   \code{nodeColor = "feature"}, and no color vector/list is given (via 
+#'   \code{featVecCol})).
 #' @param sameClustCol if TRUE (default) and two networks are plotted, clusters
 #'   having at least \code{sameColThresh} nodes in common have the same color.
 #'   Only used if \code{nodeColor} is set to \code{"cluster"}.
 #' @param sameColThresh indicates how many nodes a cluster must have in common
 #'   in the two groups to have the same color. See argument \code{sameClustCol}.
 #'   Defaults to 2.
-#' @param nodeShape character vector specifiying node shapes. Possible values
+#' @param nodeShape character vector specifying node shapes. Possible values
 #'   are \code{"circle"} (default), \code{"square"}, \code{"triangle"}, and
 #'   \code{"diamond"}. If \code{featVecShape} is not \code{NULL}, the length of
 #'   \code{nodeShape} must equal the number of factor levels given by
@@ -210,9 +242,9 @@
 #' @param borderCol character specifying the color of node borders. Defaults to
 #'   "gray80"
 #' @param highlightHubs logical indicating if hubs should be highlighted. If
-#'   \code{TRUE}, the following features can be defined seperately for hubs:
+#'   \code{TRUE}, the following features can be defined separately for hubs:
 #'   transparency (by \code{hubTransp}), label font (by \code{hubLabelFont}),
-#'   border width (by \code{hubBorderWidth}), and boder color (by
+#'   border width (by \code{hubBorderWidth}), and border color (by
 #'   \code{hubBorderCol}).
 #' @param hubTransp numeric between 0 and 100 specifying the color transparency
 #'   of hub nodes. See argument \code{nodeTransp}. Defaults to
@@ -236,14 +268,14 @@
 #' @param edgeInvisPar numeric specifying the "x" in \code{edgeInvisFilter}.
 #' @param edgeWidth numeric specifying the edge width. See argument
 #'   \code{"edge.width"} of \code{\link[qgraph]{qgraph}}.
-#' @param colorNegAsso logical indicating if edges with a negative corresponding
-#'   association should be colored different. If \code{TRUE}, argument
-#'   \code{posCol} is used for edges with positive association and \code{netCol}
+#' @param negDiffCol logical indicating if edges with a negative corresponding
+#'   association should be colored different. If \code{TRUE} (default), argument
+#'   \code{posCol} is used for edges with positive association and \code{negCol}
 #'   for those with negative association. If \code{FALSE} and for dissimilarity
 #'   networks, only \code{posCol} is used.
 #' @param posCol vector (character or numeric) with one or two elements
 #'   specifying the color of edges with positive weight and also for edges with
-#'   negative weight if \code{colorNegAsso} is set to \code{FALSE}. The first
+#'   negative weight if \code{negDiffCol} is set to \code{FALSE}. The first
 #'   element is used for edges with weight below \code{cut} and the second for
 #'   edges with weight above \code{cut}. If a single value is given, it is used
 #'   for both cases. Defaults to \code{c("#009900", "darkgreen")}.
@@ -251,9 +283,10 @@
 #'   specifying the color of edges with negative weight. The first
 #'   element is used for edges with absolute weight below \code{cut} and the
 #'   second for edges with absolute weight above \code{cut}. If a single value
-#'   is given, it is used for both cases. Ignored if \code{colorNegAsso} is
+#'   is given, it is used for both cases. Ignored if \code{negDiffCol} is
 #'   \code{FALSE}. Defaults to \code{c("red", "#BF0000")}.
-#' @param cut defines the \code{"cut"} parameter of \code{\link[qgraph]{qgraph}}. Can
+#' @param cut defines the \code{"cut"} parameter of 
+#'   \code{\link[qgraph]{qgraph}}. Can
 #'   be either a numeric value (is used for both groups if two networks are
 #'   plotted) or vector of length two. The default is set analogous to that in
 #'   \code{\link[qgraph]{qgraph}}: "0 for graphs with less then 20 nodes. For
@@ -270,6 +303,8 @@
 #' @param cexHubs numeric scaling hub sizes. Only used if \code{nodeSize} is set
 #'   to \code{"hubs"}.
 #' @param cexLabels numeric scaling node labels. Defaults to 1.
+#' @param cexHubLabels numeric scaling the node labels of hub nodes. Equals 
+#'   \code{cexLabels} by default. Ignored, if \code{highlightHubs = FALSE}.
 #' @param cexTitle numeric scaling title(s). Defaults to 1.2.
 #' @param showTitle if \code{TRUE}, a title is shown for each network, which is
 #'   either defined via \code{groupNames}, or \code{title1} and \code{title2}.
@@ -280,7 +315,8 @@
 #' @param mar a numeric vector of the form c(bottom, left, top, right) defining
 #'   the plot margins. Works similar to the \code{mar} argument in
 #'   \code{\link[graphics]{par}}. Defaults to c(1,3,3,3).
-#' @param ... further arguments being passed to \code{\link[qgraph]{qgraph}}.
+#' @param ... further arguments being passed to \code{\link[qgraph]{qgraph}}, 
+#'   which is used for network plotting.
 #'
 #' @return Returns (invisibly) a list with the following elements: \tabular{ll}{
 #'   \code{q1,q2}\tab the qgraph object(s)\cr
@@ -302,11 +338,14 @@
 #' amgut_props <- netAnalyze(amgut_net, clustMethod = "hierarchical",
 #'                           clustPar = list(k=2))
 #'
-#' # network plots:
+#' ### network plots
+#' # clusters are used for node coloring: 
 #' plot(amgut_props, nodeColor = "cluster")
+#' 
+#' # a higher repulsion places nodes with high edge weight closer together:
 #' plot(amgut_props, nodeColor = "cluster", repulsion = 1.3)
 #'
-#' # with feature vector according to which nodes are colored
+#' # a feature vector is used for node coloring:
 #' set.seed(123456)
 #' colVec <- sample(1:5, nrow(amgut1.filt), replace = TRUE)
 #' names(colVec) <- rownames(amgut1.filt)
@@ -315,7 +354,6 @@
 #'      colorVec = heat.colors(5))
 #'
 #' # with a further feature vector for node shapes
-#' # with feature vector according to which nodes are colored
 #' shapeVec <- sample(1:3, nrow(amgut1.filt), replace = TRUE)
 #' names(shapeVec) <- rownames(amgut1.filt)
 #'
@@ -334,12 +372,12 @@
 plot.microNetProps <- function(x,
                                layout = "spring",
                                sameLayout = FALSE,
-                               layoutGroup = NULL,
+                               layoutGroup = "union",
                                repulsion = 1,
                                groupNames = NULL,
                                groupsChanged = FALSE,
                                labels = NULL,
-                               shortenLabels = "intelligent",
+                               shortenLabels = "simple",
                                labelLength = 6L,
                                labelPattern = c(5,"'",3),
                                charToRm = NULL,
@@ -351,10 +389,12 @@ plot.microNetProps <- function(x,
                                nodeFilterPar = NULL,
                                rmSingles = "none",
                                nodeSize = "fix",
+                               normPar = NULL,
                                nodeSizeSpread = 4,
                                nodeColor = "cluster",
                                colorVec = NULL,
                                featVecCol = NULL,
+                               sameFeatCol = TRUE,
                                sameClustCol = TRUE,
                                sameColThresh = 2L,
                                nodeShape = NULL,
@@ -374,7 +414,7 @@ plot.microNetProps <- function(x,
                                edgeInvisFilter = "none",
                                edgeInvisPar = NULL,
                                edgeWidth = 1,
-                               colorNegAsso = TRUE,
+                               negDiffCol = TRUE,
                                posCol = NULL,
                                negCol = NULL,
                                cut = NULL,
@@ -383,6 +423,7 @@ plot.microNetProps <- function(x,
                                cexNodes = 1,
                                cexHubs = 1.2,
                                cexLabels = 1,
+                               cexHubLabels = NULL,
                                cexTitle = 1.2,
                                showTitle = NULL,
                                title1 = NULL,
@@ -393,6 +434,7 @@ plot.microNetProps <- function(x,
   inputArgs <- c(as.list(environment()), list(...))
 
   outputArgs <- except_plot_networks(inputArgs)
+  
   for(i in 1:length(outputArgs)){
     assign(names(outputArgs)[i], outputArgs[[i]])
   }
@@ -416,23 +458,23 @@ plot.microNetProps <- function(x,
     xgroups[2] <- deletespace(xgroups[2])
   }
 
-  #=============================================================================
   opar <- par()
-
+  
   adja1_orig <- x$input$adjaMat1
+  
+  #=============================================================================
+  # Edge and node filtering
 
   adja1 <- filter_edges(adja = adja1_orig, edgeFilter = edgeFilter,
                             edgeFilterPar = edgeFilterPar)
-
-  adja1List <- filter_nodes(adja = adja1, nodeFilter = nodeFilter,
+  
+  keep1 <- filter_nodes(adja = adja1, nodeFilter = nodeFilter,
                            nodeFilterPar = nodeFilterPar, layout = layout,
                            degree = x$centralities$degree1,
                            between = x$centralities$between1,
                            close = x$centralities$close1,
                            eigen = x$centralities$eigenv1,
                            cluster = x$clustering$clust1)
-  adja1 <- adja1List$adja
-  keep1 <- adja1List$keep
 
   if(twoNets){
     adja2_orig <- x$input$adjaMat2
@@ -440,15 +482,13 @@ plot.microNetProps <- function(x,
     adja2 <- filter_edges(adja = adja2_orig, edgeFilter = edgeFilter,
                          edgeFilterPar = edgeFilterPar)
 
-    adja2List <- filter_nodes(adja = adja2_orig, nodeFilter = nodeFilter,
+    keep2 <- filter_nodes(adja = adja2_orig, nodeFilter = nodeFilter,
                              nodeFilterPar = nodeFilterPar, layout = layout,
                              degree = x$centralities$degree2,
                              between = x$centralities$between2,
                              close = x$centralities$close2,
                              eigen = x$centralities$eigenv2,
                              cluster = x$clustering$clust2)
-    adja2 <- adja2List$adja
-    keep2 <- adja2List$keep
 
     if(length(keep1) == 0 & length(keep2) == 0){
       stop("No nodes remaining in both networks after node filtering.")
@@ -533,9 +573,20 @@ plot.microNetProps <- function(x,
   kept2 <- which(colnames(adja2_orig) %in% colnames(adja2))
 
   #==========================================================================
-  # node colors
+  # Node colors
 
   if(nodeColor == "cluster"){
+    
+    if(!is.null(colorVec)){
+      
+      if(is.list(colorVec)){
+        stop("'colorVec' must be a vector if clusters are used for node colors.
+             Set 'sameColThresh' to a high value for different colors in the two networks.")
+      }
+      
+      stopifnot(is.vector(colorVec))
+    }
+
     clust1 <- x$clustering$clust1
     clust2 <- x$clustering$clust2
 
@@ -552,7 +603,7 @@ plot.microNetProps <- function(x,
       nodecol2 <- clustcolors$clustcol2
 
     } else{
-      warning('No clusterings returned from "netAnalyze".')
+      message('No clusterings returned from "netAnalyze".')
       nodecol1 <- rep("grey40", ncol(adja1))
       if(twoNets){
         nodecol2 <- rep("grey40", ncol(adja2))
@@ -566,20 +617,43 @@ plot.microNetProps <- function(x,
     stopifnot(all(colnames(adja1) %in% names(featVecCol)))
 
     if(is.null(colorVec)){
-      cols <- rainbow(length(levels(featVecCol)))
-    } else{
-      if(length(colorVec) < length(levels(featVecCol))){
-        stop(paste("Argument 'featVecCol' has", length(levels(featVecCol)),
-                   "levels but 'colorVec' has only length ", length(colorVec)))
+      if(sameFeatCol){
+        colorVec1 <- colorVec2 <- grDevices::rainbow(length(levels(featVecCol)))
+      } else{
+        cols <- grDevices::rainbow(2 * length(levels(featVecCol)))
+        colorVec1 <- cols[seq.int(1L, length(cols), 2L)]
+        colorVec2 <- cols[seq.int(2L, length(cols), 2L)]
       }
-      cols <- colorVec
+      
+    } else{
+      if(is.list(colorVec)){
+        stopifnot(length(colorVec) == 2)
+        colorVec1 <- colorVec[[1]]
+        colorVec2 <- colorVec[[2]]
+        
+        if(length(colorVec1) < length(levels(featVecCol)) || 
+           length(colorVec2) < length(levels(featVecCol))){
+          stop("Length of color vector(s) (argument 'colorVec') shorter than
+               number of levels of 'featVecCol'.")
+        }
+        
+      } else{
+        if(length(colorVec) < length(levels(featVecCol))){
+          stop(paste("Argument 'featVecCol' has", length(levels(featVecCol)),
+                     "levels but 'colorVec' has only length ", length(colorVec)))
+        }
+        
+        colorVec1 <- colorVec2 <- colorVec
+      }
     }
 
     feature1 <- featVecCol[colnames(adja1)]
     nodecol1 <- character(length(feature1))
+    
     for(i in seq_along(levels(feature1))){
-      nodecol1[feature1 == levels(feature1)[i]] <- cols[i]
+      nodecol1[feature1 == levels(feature1)[i]] <- colorVec1[i]
     }
+    
     nodecol2 <- NULL
 
     if(twoNets){
@@ -587,19 +661,31 @@ plot.microNetProps <- function(x,
 
       feature2 <- featVecCol[colnames(adja2)]
       nodecol2 <- character(length(feature2))
+      
       for(i in seq_along(levels(feature2))){
-        nodecol2[feature2 == levels(feature2)[i]] <- cols[i]
+        nodecol2[feature2 == levels(feature2)[i]] <- colorVec2[i]
       }
     }
 
   } else if(nodeColor == "colorVec"){
-    stopifnot(all(colnames(adja1) %in% names(colorVec)))
-    nodecol1 <- colorVec[colnames(adja1)]
+    
+    if(is.list(colorVec)){
+      stopifnot(length(colorVec) == 2)
+      colorVec1 <- colorVec[[1]]
+      colorVec2 <- colorVec[[2]]
+      
+    } else{
+      colorVec1 <- colorVec2 <- colorVec
+    }
+    
+    stopifnot(all(colnames(adja1) %in% names(colorVec1)))
+    nodecol1 <- colorVec1[colnames(adja1)]
+    
     nodecol2 <- NULL
 
     if(twoNets){
-      stopifnot(all(colnames(adja2) %in% names(colorVec)))
-      nodecol2 <- colorVec[colnames(adja2)]
+      stopifnot(all(colnames(adja2) %in% names(colorVec2)))
+      nodecol2 <- colorVec2[colnames(adja2)]
     }
 
   } else if(is.character(nodeColor)){
@@ -618,15 +704,14 @@ plot.microNetProps <- function(x,
   }
 
   if(nodeTransp > 0){
-    nodecol1 <- col_to_transp(nodecol1, nodeTransp)
+    nodecol1 <- colToTransp(nodecol1, nodeTransp)
     if(twoNets){
-      nodecol2 <- col_to_transp(nodecol2, nodeTransp)
+      nodecol2 <- colToTransp(nodecol2, nodeTransp)
     }
   }
 
   #==========================================================================
-  # define node shapes
-
+  # Node shapes
 
   if(is.null(featVecShape)){
     if(is.null(nodeShape)){
@@ -647,6 +732,7 @@ plot.microNetProps <- function(x,
 
     if(is.null(nodeShape)){
       nodeShape <- c("circle", "square", "triangle", "diamond")
+
     } else{
       if(length(nodeShape) < nlevel){
         stop(paste("Argument 'nodeShape' must have length", nlevel,
@@ -669,16 +755,20 @@ plot.microNetProps <- function(x,
     }
   }
 
-
-
   #==========================================================================
-  # define size of vertices
+  # Node sizes
 
   if(!is.numeric(nodeSize)){
-    nodeSize1 <- get_node_size(nodeSize = nodeSize, 
+    if(is.null(x$input$countMat1)){
+      counts.tmp <- x$input$countsJoint
+    } else{
+      counts.tmp <- x$input$countMat1
+    }
+    nodeSize1 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
                                nodeSizeSpread = nodeSizeSpread,
-                               adja = adja1, countMat = x$input$countMat1,
-                               normCounts = x$input$normCounts1, kept = kept1,
+                               adja = adja1, countMat = counts.tmp,
+                               normCounts = x$input$normCounts1,
+                               assoType = x$input$assoType, kept = kept1,
                                cexNodes = cexNodes, cexHubs = cexHubs,
                                hubs = x$hubs$hubs1, 
                                highlightHubs = highlightHubs,
@@ -687,10 +777,16 @@ plot.microNetProps <- function(x,
                                close = x$centralities$close1,
                                eigen = x$centralities$eigenv1)
     if(twoNets){
-      nodeSize2 <- get_node_size(nodeSize = nodeSize, 
+      if(is.null(x$input$countMat2)){
+        counts.tmp <- x$input$countsJoint
+      } else{
+        counts.tmp <- x$input$countMat2
+      }
+      nodeSize2 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
                                  nodeSizeSpread = nodeSizeSpread,
-                                 adja = adja2, countMat = x$input$countMat2,
-                                 normCounts = x$input$normCounts2, kept = kept2,
+                                 adja = adja2, countMat = counts.tmp,
+                                 normCounts = x$input$normCounts2, 
+                                 assoType = x$input$assoType, kept = kept2,
                                  cexNodes = cexNodes, cexHubs = cexHubs,
                                  hubs = x$hubs$hubs2, 
                                  highlightHubs = highlightHubs,
@@ -699,10 +795,11 @@ plot.microNetProps <- function(x,
                                  close = x$centralities$close2,
                                  eigen = x$centralities$eigenv2)
     }
+    rm(counts.tmp)
   }
 
   #===============================================
-  # define border colors and fonts
+  # Border colors and fonts
 
   border1 <- rep(borderCol, nrow(adja1))
   labelFont1 <- rep(labelFont, nrow(adja1))
@@ -727,7 +824,7 @@ plot.microNetProps <- function(x,
     borderWidth1[match(hubs1, rownames(adja1))] <- hubBorderWidth
 
     if(nodeTransp != hubTransp){
-      hubcol1 <- col_to_transp(nodecol1, hubTransp)
+      hubcol1 <- colToTransp(nodecol1, hubTransp)
       nodecol1[rownames(adja1) %in% hubs1] <- hubcol1[rownames(adja1) %in% hubs1]
     }
 
@@ -747,14 +844,15 @@ plot.microNetProps <- function(x,
       borderWidth2[match(hubs2, rownames(adja2))] <- hubBorderWidth
 
       if(nodeTransp != hubTransp){
-        hubcol2 <- col_to_transp(nodecol2, hubTransp)
+        hubcol2 <- colToTransp(nodecol2, hubTransp)
         nodecol2[rownames(adja2) %in% hubs2] <- hubcol2[rownames(adja2) %in% hubs2]
       }
     }
   }
 
   #==========================================================================
-
+  # Title
+  
   if(showTitle){
     if(twoNets){
       if(is.null(title1) || is.null(title2)){
@@ -782,14 +880,13 @@ plot.microNetProps <- function(x,
 
   }
 
-
   #==========================================================================
-  # define cut parameter for qgraph
+  # Define cut parameter for qgraph()
 
   if(!is.null(cut) & (length(cut) == 1)){
     stopifnot(is.numeric(cut))
     cut1 <- cut2 <- cut
-  } else if(!is.null(cut) & (length(cut) == 1)){
+  } else if(!is.null(cut) & (length(cut) == 2)){
     stopifnot(is.numeric(cut))
     cut1 <- cut[1]
     cut2 <- cut[2]
@@ -810,8 +907,10 @@ plot.microNetProps <- function(x,
     if (length(weights1) > (3 * nNodes1) || length(weights2) > (3 * nNodes2)) {
       cut1 <- max(sort(abs(weights1), decreasing = TRUE)[2 * nNodes1],
                   quantile(abs(weights1), 0.75))
-      cut2 <- ifelse(twoNets, max(sort(abs(weights2), decreasing = TRUE)[2 * nNodes2],
-                                  quantile(abs(weights2), 0.75)), 0)
+      cut2 <- ifelse(twoNets, 
+                     max(sort(abs(weights2), decreasing = TRUE)[2 * nNodes2],
+                         quantile(abs(weights2), 0.75)), 
+                     0)
 
 
     } else if (length(weights1) > 1 || length(weights2) > 1){
@@ -825,7 +924,100 @@ plot.microNetProps <- function(x,
   }
 
   #==========================================================================
-  # define edge colors
+  # Layout
+
+  if(twoNets & sameLayout & layoutGroup == "union"){
+    graph1 <- igraph::graph_from_adjacency_matrix(adja1, weighted = TRUE)
+    graph2 <- igraph::graph_from_adjacency_matrix(adja2, weighted = TRUE)
+    
+    graph_u <- igraph::union(graph1, graph2)
+    
+    # element-wise minimum of edge weights
+    E(graph_u)$weight <- pmin(E(graph_u)$weight_1, 
+                              E(graph_u)$weight_2, 
+                              na.rm = TRUE) 
+    
+    graph_u <- igraph::delete_edge_attr(graph_u, "weight_1")
+    graph_u <- igraph::delete_edge_attr(graph_u, "weight_2")
+    
+    if(is.function(layout)){
+      lay1 <- layout(graph_u)
+
+    } else{
+      adja_u <- as.matrix(as_adjacency_matrix(graph_u, attr = "weight",
+                                              sparse = T))
+      
+      lay1 <- qgraph(adja_u, color = nodecol1, layout = layout, 
+                     vsize = nodeSize1, labels = colnames(adja1),
+                     label.scale = labelScale, 
+                     border.color = border1, border.width = borderWidth1,
+                     label.font = labelFont1, label.cex = cexLabels,
+                     edge.width = edgeWidth, repulsion = repulsion, cut = cut1,
+                     shape = nodeShape1, DoNotPlot = TRUE, ...)$layout
+    }
+    
+    rownames(lay1) <- rownames(adja1)
+    lay2 <- lay1
+    
+  } else{
+    # Group 1
+    if(is.matrix(layout)){
+      lay1 <- layout
+      
+    } else if(is.function(layout)){
+      gr <- graph_from_adjacency_matrix(adja1, mode = "undirected",
+                                        weighted = TRUE, diag = FALSE)
+      lay1 <- layout(gr)
+      rownames(lay1) <- colnames(adja1)
+    } else{
+      lay1 <- qgraph(adja1, color = nodecol1, layout = layout, vsize = nodeSize1,
+                     labels = colnames(adja1),label.scale = labelScale,
+                     border.color = border1, border.width = borderWidth1,
+                     label.font = labelFont1, label.cex = cexLabels,
+                     edge.width = edgeWidth, repulsion = repulsion, cut = cut1,
+                     DoNotPlot = TRUE, shape = nodeShape1, ...)$layout
+      rownames(lay1) <- rownames(adja1)
+    }
+    lay2 <- NULL
+    
+    #--------------------------------------------
+    # Group 2
+
+    if(twoNets){
+      if(is.matrix(layout)){
+        lay2 <- layout
+        
+      } else if(is.function(layout)){
+        gr <- igraph::graph_from_adjacency_matrix(adja2, mode = "undirected",
+                                                  weighted = TRUE, diag = FALSE)
+        
+        lay2 <- layout(gr)
+        rownames(lay2) <- colnames(adja2)
+        
+      } else{
+        lay2 <- qgraph(adja2, color = nodecol2, layout = layout, vsize = nodeSize2,
+                       labels = colnames(adja2), label.scale = labelScale,
+                       border.color = border2, border.width = borderWidth2,
+                       label.font = labelFont2, label.cex = cexLabels,
+                       edge.width = edgeWidth,  repulsion = repulsion, cut = cut2,
+                       DoNotPlot = TRUE, shape = nodeShape2, ...)$layout
+        
+        rownames(lay2) <- rownames(adja2)
+        
+      }
+      
+      if(sameLayout){
+        if(layoutGroup == 1){
+          lay2 <- lay1
+        } else{
+          lay1 <- lay2
+        }
+      }
+    }
+  }
+
+  #==========================================================================
+  # Edge colors
 
   if(is.null(posCol)){
     poscol1 <- "#009900"
@@ -856,13 +1048,13 @@ plot.microNetProps <- function(x,
   }
 
   if(edgeTranspLow > 0){  # transparency for values below cut
-    poscol1 <- col_to_transp(poscol1, edgeTranspLow)
-    negcol1 <- col_to_transp(negcol1, edgeTranspLow)
+    poscol1 <- colToTransp(poscol1, edgeTranspLow)
+    negcol1 <- colToTransp(negcol1, edgeTranspLow)
   }
 
   if(edgeTranspHigh > 0){  # transparency for values above cut
-    poscol2 <- col_to_transp(poscol2, edgeTranspHigh)
-    negcol2 <- col_to_transp(negcol2, edgeTranspHigh)
+    poscol2 <- colToTransp(poscol2, edgeTranspHigh)
+    negcol2 <- colToTransp(negcol2, edgeTranspHigh)
   }
 
   if(!is.null(x$input$assoEst1)){
@@ -871,20 +1063,18 @@ plot.microNetProps <- function(x,
     assoMat1 <- x$input$dissScale1
   }
 
+  #--------------------------------------------
+  # Edge colors (group 1)
 
-  ###############################
   if(x$input$assoType == "dissimilarity"){
     assoMat1 <- x$input$dissEst1
   } else{
     assoMat1 <- x$input$assoEst1
   }
 
-  ###############################
-  colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
-                    dimnames = dimnames(assoMat1))
-
-
-  if(colorNegAsso){
+  if(negDiffCol){
+    colmat1 <- matrix(NA, ncol(assoMat1), ncol(assoMat1), 
+                      dimnames = dimnames(assoMat1))
     colmat1[assoMat1 < 0] <- negcol1
     colmat1[assoMat1 >= 0] <- poscol1
 
@@ -892,63 +1082,73 @@ plot.microNetProps <- function(x,
 
     colmat1[abs(adja1) >= cut1 & colmat1 == poscol1] <- poscol2
     colmat1[abs(adja1) >= cut1 & colmat1 == negcol1] <- negcol2
+    
   } else{
-    colmat1 <- poscol1
+    colmat1 <- matrix(poscol1, ncol(assoMat1), ncol(assoMat1), 
+                      dimnames = dimnames(assoMat1))
     colmat1 <- colmat1[kept1, kept1]
     colmat1[abs(adja1) >= cut1 & colmat1 == poscol1] <- poscol2
   }
 
   #--------------------------------------------
-  # define layout
-
-  diag(adja1) <- 0
-
-  if(is.matrix(layout)){
-    lay1 <- layout
-
-  } else if(is.function(layout)){
-    gr <- graph_from_adjacency_matrix(adja1, mode = "undirected",
-                                      weighted = TRUE, diag = FALSE)
-    lay1 <- layout(gr)
-    rownames(lay1) <- colnames(adja1)
-  } else{
-    lay1 <- qgraph(adja1, color = nodecol1, layout = layout, vsize = nodeSize1,
-                   labels = colnames(adja1),label.scale = labelScale,
-                   border.color = border1, border.width = borderWidth1,
-                   label.font = labelFont1, label.cex = cexLabels,
-                   edge.width = edgeWidth, repulsion = repulsion, cut = cut1,
-                   DoNotPlot = TRUE, shape = nodeShape1, ...)$layout
-    rownames(lay1) <- rownames(adja1)
-  }
-  lay2 <- NULL
+  
+  # # plot dissimilarity values instead of similarities
+  # if(plotdiss){
+  #   adja1 <- 1-adja1
+  #   adja1[adja1 == 1] <- 0
+  #   
+  #   adja2 <- 1-adja2
+  #   adja2[adja2 == 1] <- 0
+  # }
 
   #--------------------------------------------
-  # define labels
+  # Labels (group 1)
 
   labels1.orig <- rownames(adja1)
   
   if(is.null(labels)){
 
-    adja.tmp <- rename_taxa(adja1, toRename = "both", shortenLabels = shortenLabels,
-                        labelLength = labelLength, labelPattern = labelPattern,
-                        charToRm = charToRm)
+    adja.tmp <- rename_taxa(adja1, toRename = "both", 
+                            shortenLabels = shortenLabels,
+                            labelLength = labelLength, 
+                            labelPattern = labelPattern,
+                            charToRm = charToRm)
+    
     labels1 <- rownames(adja.tmp)
     
   } else if(is.logical(labels)){
     labels1 <- labels
+    
   } else if(is.list(labels)){
-    labels1 <- labels[[1]][1:ncol(adja1)]
+    stopifnot(all(colnames(adja1) %in% names(labels[[1]])))
+    labels1 <- labels[[1]][colnames(adja1)]
+    
   } else if(is.vector(labels)){
-    labels1 <- labels[1:ncol(adja1)]
+    stopifnot(all(colnames(adja1) %in% names(labels)))
+    labels1 <- labels[colnames(adja1)]
+    
   } else{
-    stop("Argument 'labels' must be either a vector with a label for each node,
-         or a list of length 2 naming the nodes in each network.")
+    stop("Argument 'labels' must be either a named vector with a label for each 
+         node, or a list of length 2 naming the nodes in each network.")
   }
   
-
   #--------------------------------------------
-  # filter edges (without influencing the layout)
+  # Label size (group 1)
 
+  if(highlightHubs){
+    if(is.null(cexHubLabels)){
+      cexHubLabels <- cexLabels
+    }
+    
+    cexLabels1 <- rep(cexLabels, length(labels1))
+    cexLabels1[match(hubs1, rownames(adja1))] <- cexHubLabels
+    
+  } else{
+    cexLabels1 <- cexLabels
+  }
+  
+  #--------------------------------------------
+  # Filter edges without influencing the layout (group 1)
 
   if(edgeInvisFilter != "none"){
     adja1 <- filter_edges(adja1, edgeFilter = edgeInvisFilter,
@@ -957,7 +1157,7 @@ plot.microNetProps <- function(x,
 
   #==========================================================================
   if(twoNets){
-    # define edge colors
+    # Edge colors (group 2)
 
     if(x$input$assoType == "dissimilarity"){
       assoMat2 <- x$input$dissEst2
@@ -965,10 +1165,11 @@ plot.microNetProps <- function(x,
       assoMat2 <- x$input$assoEst2
     }
 
-    colmat2 <- matrix(NA, ncol(assoMat2), ncol(assoMat2),
-                      dimnames = dimnames(assoMat2))
 
-    if(colorNegAsso){
+    if(negDiffCol){
+      colmat2 <- matrix(NA, ncol(assoMat2), ncol(assoMat2),
+                        dimnames = dimnames(assoMat2))
+      
       colmat2[assoMat2 < 0] <- negcol1
       colmat2[assoMat2 >= 0] <- poscol1
 
@@ -976,40 +1177,17 @@ plot.microNetProps <- function(x,
 
       colmat2[abs(adja2) >= cut2 & colmat2 == poscol1] <- poscol2
       colmat2[abs(adja2) >= cut2 & colmat2 == negcol1] <- negcol2
+      
     } else{
-      colmat2 <- poscol1
+      colmat2 <- matrix(poscol1, ncol(assoMat2), ncol(assoMat2),
+                        dimnames = dimnames(assoMat2))
+      
       colmat2 <- colmat2[kept2, kept2]
       colmat2[abs(adja2) >= cut2 & colmat2 == poscol1] <- poscol2
     }
 
     #--------------------------------------------
-    # define layout
-
-    diag(adja2) <- 0
-
-    if(is.matrix(layout)){
-
-      lay2 <- layout
-
-    } else if(is.function(layout)){
-      gr <- graph_from_adjacency_matrix(adja2, mode = "undirected",
-                                        weighted = TRUE, diag = FALSE)
-      lay2 <- layout(gr)
-      rownames(lay2) <- colnames(adja2)
-
-    } else{
-      lay2 <- qgraph(adja2, color = nodecol2, layout = layout, vsize = nodeSize2,
-                     labels = colnames(adja2), label.scale = labelScale,
-                     border.color = border2, border.width = borderWidth2,
-                     label.font = labelFont2, label.cex = cexLabels,
-                     edge.width = edgeWidth,  repulsion = repulsion, cut = cut2,
-                     DoNotPlot = TRUE, shape = nodeShape2, ...)$layout
-      rownames(lay2) <- rownames(adja2)
-
-    }
-
-    #--------------------------------------------
-    # rename taxa
+    # Labels (group 2)
     labels2.orig <- rownames(adja2)
     
     if(is.null(labels)){
@@ -1022,10 +1200,14 @@ plot.microNetProps <- function(x,
 
     } else if(is.logical(labels)){
       labels2 <- labels
+      
     } else if(is.list(labels)){
-      labels2 <- labels[[2]][1:ncol(adja2)]
+      stopifnot(all(colnames(adja2) %in% names(labels[[2]])))
+      labels2 <- labels[[2]][colnames(adja2)]
+      
     } else if(is.vector(labels)){
-      labels2 <- labels[1:ncol(adja2)]
+      stopifnot(all(colnames(adja2) %in% names(labels)))
+      labels2 <- labels[colnames(adja2)]
     }
 
     # store label names to file
@@ -1050,8 +1232,8 @@ plot.microNetProps <- function(x,
       
       dframe <- apply(dframe, 2, format, width = formWidth)
       
-      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
-                  col.names = FALSE, append = FALSE)
+      utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                         col.names = FALSE, append = FALSE)
       
       labelMat <- cbind(labels2, labels2.orig)
       labelMat <- rbind(c("Renamed", "Original"), labelMat)
@@ -1064,12 +1246,23 @@ plot.microNetProps <- function(x,
       # apply format over each column for alignment
       dframe <- apply(dframe, 2, format, width = formWidth)
       
-      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
-                  col.names = FALSE, append = TRUE)
+      utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE,
+                         col.names = FALSE, append = TRUE)
+    }
+    
+    #--------------------------------------------
+    # Label size (group 1)
+    
+    if(highlightHubs){
+      cexLabels2 <- rep(cexLabels, length(labels2))
+      cexLabels2[match(hubs2, rownames(adja2))] <- cexHubLabels
+      
+    } else{
+      cexLabels2 <- cexLabels
     }
 
     #--------------------------------------------
-    # filter edges (without influencing the layout)
+    # Filter edges without influencing the layout (group 2)
 
     if(edgeInvisFilter != "none"){
       adja2 <- filter_edges(adja2, edgeFilter = edgeInvisFilter,
@@ -1097,34 +1290,22 @@ plot.microNetProps <- function(x,
       }
       dframe <- apply(dframe, 2, format, width = formWidth)
       
-      write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
-                  col.names = FALSE, append = FALSE)
+      utils::write.table(dframe, labelFile, quote=FALSE, row.names=FALSE, 
+                         col.names = FALSE, append = FALSE)
     }
-    
   }
 
-
-  #==========================================================================
-  ### plot network(s)
-
+  #=============================================================================
+  # Plot network(s)
 
   if(twoNets){
       par(mfrow = c(1,2))
-
-
-    if(sameLayout){
-      if(layoutGroup == 1){
-        lay2 <- lay1
-      } else{
-        lay1 <- lay2
-      }
-    }
 
     if(groupsChanged){
       q2 <- qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
                    labels = labels2, label.scale = labelScale,
                    border.color = border2, border.width = borderWidth2,
-                   label.font = labelFont2, label.cex = cexLabels,
+                   label.font = labelFont2, label.cex = cexLabels2,
                    edge.width = edgeWidth, edge.color = colmat2,
                    repulsion = repulsion, cut = cut2,
                    mar = mar, shape = nodeShape2, ...)
@@ -1134,7 +1315,7 @@ plot.microNetProps <- function(x,
     q1 <- qgraph(adja1, color = nodecol1, layout = lay1, vsize = nodeSize1,
                  labels = labels1,label.scale = labelScale,
                  border.color = border1, border.width = borderWidth1,
-                 label.font = labelFont1, label.cex = cexLabels,
+                 label.font = labelFont1, label.cex = cexLabels1,
                  edge.width = edgeWidth, edge.color = colmat1,
                  repulsion = repulsion, cut = cut1,
                  mar = mar,  shape = nodeShape1, ...)
@@ -1144,7 +1325,7 @@ plot.microNetProps <- function(x,
       q2 <-  qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
                     labels = labels2, label.scale = labelScale,
                     border.color = border2, border.width = borderWidth2,
-                    label.font = labelFont2, label.cex = cexLabels,
+                    label.font = labelFont2, label.cex = cexLabels2,
                     edge.width = edgeWidth, edge.color = colmat2,
                     repulsion = repulsion, cut = cut2,
                     mar = mar,  shape = nodeShape2, ...)
@@ -1157,7 +1338,7 @@ plot.microNetProps <- function(x,
     q1 <- qgraph(adja1, color = nodecol1, layout = lay1, vsize = nodeSize1,
                  labels = labels1, label.scale = labelScale,
                  border.color = border1, border.width = borderWidth1,
-                 label.font = labelFont1, label.cex = cexLabels,
+                 label.font = labelFont1, label.cex = cexLabels1,
                  edge.width = edgeWidth, edge.color = colmat1,
                  repulsion = repulsion, cut = cut1,
                  mar = mar,  shape = nodeShape1, ...)

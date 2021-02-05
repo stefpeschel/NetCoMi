@@ -1,7 +1,6 @@
 norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
                         verbose){
 
-
   if(normMethod == "none"){
     countMat_norm <- countMat
     if(needfrac){
@@ -40,33 +39,42 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
     if(is.null(normParam$sl)) normParam$sl <- 100
 
     if(verbose %in% 2:3){
-      message("Execute cumNormMat() for cumulative sum scaling ... ",
+      message("Execute cumNormMat(){metagenomeSeq} ... ",
               appendLF = FALSE)
     }
-    countMat_norm <- t(do.call("cumNormMat", normParam))
+    countMat_norm <- t(do.call(metagenomeSeq::cumNormMat, normParam))
     if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "CSS normalized"
 
   } else if(normMethod == "COM"){
+    
+    if(verbose %in% 2:3){
+      message("Normalize counts by common sum scaling ... ",
+              appendLF = FALSE)
+    }
 
     countMat_norm <- t(apply(countMat, 1, function(x){
       (x * min(rowSums(countMat)) / sum(x))
     }))
 
-    if(verbose %in% 2:3) message("Counts normalized by common sum scaling.")
+    if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "COM normalized"
 
   } else if(normMethod == "rarefy"){
 
     normParam$x <- countMat
-    if(is.null(normParam$sample)) normParam$sample <- min(rowSums(countMat))
+    if(is.null(normParam$sample)){
+      normParam$sample <- min(Matrix::rowSums(countMat))
+    }
 
     if(verbose %in% 2:3){
-      message("Execute rrarefy() for rarefaction ... ", appendLF = FALSE)
+      message("Execute rrarefy(){vegan} ... ", appendLF = FALSE)
     }
-    countMat_norm <- do.call("rrarefy", normParam)
+    
+    countMat_norm <- do.call(vegan::rrarefy, normParam)
+    
     if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "rarefied"
@@ -76,19 +84,21 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
     normParam$object <- t(countMat)
     
     if(verbose %in% 2:3){
-      message("Execute varianceStabilizingTransformation() for VST normalization ... ",
+      message("Execute varianceStabilizingTransformation(){DESeq2} ... ",
               appendLF = FALSE)
     }
     if(zeroMethod == "none"){
-      countMat_norm_t <- try(do.call("varianceStabilizingTransformation",
+      countMat_norm_t <- try(do.call(DESeq2::varianceStabilizingTransformation,
                                      normParam), silent = TRUE)
-      if(class(countMat_norm) == "try-error"){
+      
+      if(class(countMat_norm_t) == "try-error"){
         stop("Every variable contains at least one zero. ",
              "VST normalization not possible without zero replacement.")
       }
       
     } else{
-      countMat_norm_t <- do.call("varianceStabilizingTransformation", normParam)
+      countMat_norm_t <- do.call(DESeq2::varianceStabilizingTransformation, 
+                                 normParam)
     }
     
     countMat_norm <- t(countMat_norm_t)
@@ -100,29 +110,38 @@ norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
     
   } else if(normMethod == "clr"){
 
-    if(attributes(countMat)$scale != "fractions"){
-      countMat <- t(apply(countMat, 1, function(x) x/sum(x)))
-    }
-
-    if(verbose %in% 2:3){
-      message("Counts transformed to fractions.")
-    }
-
-    normParam$x <- countMat
-    if(verbose %in% 2:3){
-      message("Execute cenLR() for clr transformation ... ",
-              appendLF = FALSE)
-    }
-
+    normParam$x.f <- countMat
+    normParam$mar <- 1
     if(is.null(normParam$base)) normParam$base <- exp(1)
-    countMat_norm <- do.call("cenLR", normParam)$x.clr
+    
+    if(verbose %in% 2:3){
+      message("Execute clr(){SpiecEasi} ... ", appendLF = FALSE)
+    }
+    
+    countMat_norm <- t(do.call(SpiecEasi::clr, normParam))
 
     if(verbose %in% 2:3) message("Done.")
 
     attributes(countMat_norm)$scale <- "clr transformed"
+    
+  } else if(normMethod == "mclr"){
+    
+    normParam$dat <- countMat
+    
+    if(verbose %in% 2:3){
+      message("Execute mclr(){SPRING} ... ", appendLF = FALSE)
+    }
+    
+    countMat_norm <- do.call(SPRING::mclr, normParam)
+    
+    if(verbose %in% 2:3) message("Done.")
+    
+    attributes(countMat_norm)$scale <- "mclr transformed"
+    
   } else{
     warning("No normalization conducted. ",
-    "'normMethod' must be one of 'none', 'pseudo', 'multRepl', 'alrEM', 'bayesMult'.")
+    "'normMethod' must be one of 'none', 'fractions', 'TSS', ", 
+    "'CSS', 'COM', 'rarefy', 'VST', 'clr', 'mclr'.")
   }
 
   return(countMat_norm)

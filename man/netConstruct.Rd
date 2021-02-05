@@ -9,8 +9,10 @@ netConstruct(
   data2 = NULL,
   dataType = "counts",
   group = NULL,
+  matchDesign = NULL,
   measure = "spieceasi",
   measurePar = NULL,
+  jointPrepro = NULL,
   filtTax = "none",
   filtTaxPar = NULL,
   filtSamp = "none",
@@ -59,9 +61,19 @@ class \code{\link[phyloseq:phyloseq-class]{phyloseq}}. Further options
 are "correlation", "partialCorr" (partial correlation), "condDependence"
 (conditional dependence), "proportionality" and "dissimilarity".}
 
-\item{group}{optional binary vector used or splitting the data into two
+\item{group}{optional binary vector used for splitting the data into two
 groups. If \code{group} is \code{NULL} (default), a single network is
 constructed. See details.}
+
+\item{matchDesign}{Numeric vector with two elements specifying an optional 
+matched-group (i.e. matched-pair) design, which is used for the permutation 
+tests in \code{\link{netCompare}} and \code{\link{diffnet}}. \code{c(1,1)} 
+corresponds to a matched-pair design. A 1:2 matching, for instance, is 
+defined by \code{c(1,2)}, which means that the first sample of group 1 is 
+matched to the first two samples of group 2 and so on. 
+The appropriate order of samples must be ensured. If 
+\code{NULL}, the group memberships are shuffled randomly while group sizes
+identical to the original data set are ensured.}
 
 \item{measure}{character specifying the method used for either computing the
 associations between taxa or dissimilarities between subjects.
@@ -75,7 +87,17 @@ and \code{"euclidean"}, \code{"bray"}, \code{"kld"}, \code{"jeffrey"},
 measures. Parameters are set via \code{measurePar}.}
 
 \item{measurePar}{list with parameters passed to the function for computing
-associations/dissimilarities. See details for the respective functions.}
+associations/dissimilarities. See details for the respective functions. 
+For SpiecEasi or SPRING as association measure, an additional list element
+"symBetaMode" is accepted to define the "mode" argument of 
+\code{\link[SpiecEasi]{symBeta}}.}
+
+\item{jointPrepro}{logical indicating whether data preprocessing (filtering,
+zero treatment, normalization) should be done for the combined data sets,
+or each data set separately. Ignored if a single network is constructed.
+Defaults to \code{TRUE} if \code{group} is given, and to \code{FALSE} if
+\code{data2} is given. Joint preprocessing is not possible for 
+dissimilarity networks.}
 
 \item{filtTax}{character indicating how taxa shall be filtered. Possible
 options are:
@@ -113,8 +135,8 @@ combined. The values x are set via \code{filtSampPar}.}
 
 \item{zeroMethod}{character indicating the method used for zero replacement.
 Possible values are: \code{"none"} (default), \code{"pseudo"}
-(a unit pseudo count is added to the original count data),
-\code{"multRepl"} (multiplicative replacement using
+(a predefined pseudo count (1 by default) is added to the original count 
+data), \code{"multRepl"} (multiplicative replacement using
 \code{\link[zCompositions]{multRepl}}), \code{"alrEM"} (modified EM
 alr-algorithm using \code{\link[zCompositions]{lrEM}}), \code{"bayesMult"}
 (Bayesian-multiplicative replacement using
@@ -127,13 +149,15 @@ required.}
 
 \item{zeroPar}{list with parameters passed to the function for zero
 replacement (\code{zeroMethod}). See the help page of the respective
-function for details.}
+function for details. If \code{zeroMethod = "pseudo"}, the pseudocount can
+be specified using \code{pseudocount = x} as list element (where x is 
+numeric).}
 
 \item{normMethod}{character indicating the normalization method (in order to
 make counts of different samples comparable). Possible options are:
 \code{"none"} (default), \code{"TSS"} (or \code{"fractions"}), \code{"CSS"},
-\code{"COM"}, \code{"rarefy"}, \code{"VST"}, \code{"clr"}.
-The corresponding parameters are set via \code{normPar}.}
+\code{"COM"}, \code{"rarefy"}, \code{"VST"}, \code{"clr"}, and 
+\code{"mclr"}. The corresponding parameters are set via \code{normPar}.}
 
 \item{normPar}{list with parameters passed to the function for normalization
 (defined by \code{normMethod}).}
@@ -162,11 +186,11 @@ arguments are \code{kNeighbor}, and \code{knnMutual}.}}}
 \item{thresh}{numeric value defining the threshold if \code{sparsMethod} is
 set to \code{"threshold"}. Defaults to 0.3.}
 
-\item{alpha}{significance niveau. Only used if Student's t-test or bootstrap
+\item{alpha}{significance level. Only used if Student's t-test or bootstrap
 procedure is used as sparsification method. Defaults to 0.05.}
 
 \item{adjust}{character indicating the method used for multiple testing
-adjustment (if tudent's t-test or bootstrap procedure is used for edge
+adjustment (if Student's t-test or bootstrap procedure is used for edge
 selection). Possible values are \code{"lfdr"} (default) for local
 false discovery rate correction (via \code{\link[fdrtool]{fdrtool}}),
 \code{"adaptBH"} for the adaptive Benjamini-Hochberg method
@@ -188,7 +212,7 @@ corresponding local FDR less than or equal to 0.2 are identified as
 significant.}
 
 \item{nboot}{integer indicating the number of bootstrap samples, if
-bootstrappng is used as sparsification method.}
+bootstrapping is used as sparsification method.}
 
 \item{cores}{integer indicating the number of CPU cores used for
 bootstrapping. If cores > 1, bootstrapping is performed parallel.
@@ -202,7 +226,7 @@ directory. Defaults to \code{"log.txt"}. If\code{ NULL}, no log file is
 created.}
 
 \item{softThreshType}{character indicating the method used for transforming
-correlations to similarities if soft thresholding is used as sparsification
+correlations into similarities if soft thresholding is used as sparsification
 method (\code{sparsMethod = "softThreshold"}). Possible values are
 \code{"signed"}, \code{"unsigned"}, and \code{"signed hybrid"} (according
 to the available options for the argument \code{type} of
@@ -220,22 +244,23 @@ minimum scale free topology fitting index (corresponds to the argument
 "RsquaredCut" in \code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.}
 
 \item{kNeighbor}{integer specifying the number of neighbors if the k-nearest
-neighbor method is used for sparsification.}
+neighbor method is used for sparsification.Defaults to 3L.}
 
-\item{knnMutual}{logical used for k-nearest neigbor sparsification. If
-\code{TRUE}, the neighbors must be mutual.}
+\item{knnMutual}{logical used for k-nearest neighbor sparsification. If
+\code{TRUE}, the neighbors must be mutual. Defaults to \code{FALSE}.}
 
-\item{dissFunc}{method used for transforming associations to dissimilarities.
-Can be a character with one of the following values: \code{"signed"}
-(default), \code{"unsigned"}, \code{"signedPos"}, \code{"TOMdiss"}.
+\item{dissFunc}{method used for transforming associations into 
+dissimilarities. Can be a character with one of the following values: 
+\code{"signed"}(default), \code{"unsigned"}, \code{"signedPos"}, 
+\code{"TOMdiss"}.
 Alternatively, a function is accepted with the association matrix as first
-argument and optional further arguments, which can be set viel
+argument and optional further arguments, which can be set via
 \code{dissFuncPar}. Ignored for dissimilarity measures. See details.}
 
 \item{dissFuncPar}{optional list with parameters if a function is passed to
 \code{dissFunc}.}
 
-\item{simFunc}{alternative function for transforming dissimilarities to
+\item{simFunc}{function for transforming dissimilarities into
 similarities. Defaults to f(x)=1-x for dissimilarities in [0,1], and
 f(x)=1/(1 + x) otherwise.}
 
@@ -257,9 +282,9 @@ is given instead of a count matrix and if, in addition, Student's t-test is
 used for edge selection.}
 
 \item{verbose}{integer indicating the level of verbosity. Possible values:
-\code{"0"}: no messages, \code{"1"}: only important messages shown,
-\code{"2"}(default): all progress messages shown, \code{"3"} messages
-returned from external functions are shown in addition. Can also be logical.}
+\code{"0"}: no messages, \code{"1"}: only important messages,
+\code{"2"}(default): all progress messages, \code{"3"} messages returned 
+from external functions are shown in addition. Can also be logical.}
 
 \item{seed}{integer giving a seed for reproducibility of the results.}
 }
@@ -267,22 +292,26 @@ returned from external functions are shown in addition. Can also be logical.}
 An object of class \code{microNet} containing the following elements:
   \tabular{ll}{
   \code{assoMat1, assoMat2}\tab Sparsified associations (\code{NULL} for
-  dissimlarity based networks)\cr
+  dissimilarity based networks)\cr
   \code{dissMat1, dissMat2}\tab Sparsified dissimilarities (for association
-  networks, these are the sparsified associations transformed to
+  networks, these are the sparsified associations transformed into
   dissimilarities)\cr
   \code{simMat1, simMat2}\tab Sparsified similarities\cr
   \code{adjamat1, adjamat2}\tab Adjacency matrices\cr
   \code{assoEst1, assoEst2}\tab Estimated associations (\code{NULL} for
-  dissimlarity based networks)\cr
+  dissimilarity based networks)\cr
   \code{dissEst1, dissEst2}\tab Estimated dissimilarities (\code{NULL} for
   association networks)\cr
   \code{dissScale1, dissScale2}\tab Scaled dissimilarities (\code{NULL} for
   association networks)\cr
-  \code{countMat1, countMat2}\tab Count matrices, where taxa and samples are
-  filtered according to \code{filtTax} and \code{filtSamp}\cr
-  \code{normCounts1, normCounts2}\tab Counts that are normalized according to
-  \code{normMethod}\cr
+  \code{countMat1, countMat2}\tab Count matrices after filtering but before
+  zero replacement and normalization. Only returned if \code{jointPrepro}
+  is \code{FALSE} or for a single network.\cr
+  \code{countsJoint}\tab Joint count matrix after filtering but before
+  zero replacement and normalization. Only returned if \code{jointPrepro}
+  is \code{TRUE}.\cr
+  \code{normCounts1, normCounts2}\tab Count matrices after zero handling and
+  normalization\cr
   \code{groups}\tab Names of the factor levels according to which the groups
   have been built\cr
   \code{softThreshPower}\tab Determined (or given) power for
@@ -297,28 +326,48 @@ Constructing microbial association networks and dissimilarity
   based networks (where nodes are subjects) from compositional count data.
 }
 \details{
-The function enables the construction of either a single network or
+The object returned from \code{netConstruct} can either be passed to
+  \code{\link{netAnalyze}} for network analysis, or to
+  \code{\link{diffnet}} to construct a differential network from the
+  estimated associations.
+  \cr
+  The function enables the construction of either a single network or
   two networks that can be compared using the function
   \code{\link{netCompare}}. Four types of association  measures are
   available: correlation, conditional dependence, proportionality, and
   dissimilarity.  Depending on the measure, nodes are either taxa or subjects
   in the resulting network: In association-based networks (correlation,
   partial correlation, conditional dependence, proportionality) nodes are
-  taxa, whereas in dissimilarity-based networks nodes are subjects.\cr\cr
-  In order to conduct a network comparison, two networks can be  constructed
-  by: \tabular{ll}{
-  (1)\tab passing a group vector to \code{group} (of length
-  \code{nrow(data)} for association networks and of length \code{ncol(data)}
-  for dissimilarity-based networks), or\cr
-  (2)\tab passing a second count matrix to \code{data2} (column names must
-  match for constructing association networks and row names must match for
-  dissimilarity-based networks), or \cr
-  (3)\tab passing a second association/dissimilarity matrix to \code{data2}.}
+  taxa, whereas in dissimilarity-based networks nodes are subjects.
   \cr
-  The object returned from \code{netConstruct} can either be passed to
-  \code{\link{netAnalyze}} for network analysis, or to
-  \code{\link{diffnet}} to construct a differential network from the
-  estimated associations.\cr\cr
+  \cr
+  In order to conduct a network comparison, the following options for 
+  constructing two networks are available:
+  \enumerate{
+    \item Passing the combined count matrix to \code{data} and a group 
+    vector to \code{group} (of length \code{nrow(data)} for association 
+    networks and of length \code{ncol(data)} for dissimilarity-based 
+    networks).
+    \item Passing the count data for group 1 to \code{data} (matrix or
+    phyloseq object) and the count data for group 2 to \code{data2} (matrix 
+    or phyloseq object). For association networks, the column names must 
+    match, and for dissimilarity networks the row names.
+    \item Passing an association/dissimilarity matrix for group 1 to 
+    \code{data} and an association/dissimilarity matrix for group 2 to 
+    \code{data2}.
+  }
+  \cr
+  \strong{Note:}\cr 
+  If two networks are generated, the network belonging to \code{data} 
+  is always denoted by "group 1" and the network belonging to \code{data2} 
+  by "group 2".\cr
+  If a group vector is used for splitting the data into two groups, the group
+  names are assigned according to the order of group levels. If \code{group}
+  contains the levels 0 and 1, for instance, "group 1" is assigned to level 0
+  and "group 2" is assigned to level 1. \cr
+  In the network plot, group 1 is shown on the left and group 2 on the 
+  right if not defined otherwise (see \code{\link{plot.microNetProps}}).
+  \cr\cr
   \strong{Association measures:}
   \tabular{ll}{
   Argument \tab Function\cr
@@ -363,6 +412,22 @@ The function enables the construction of either a single network or
   vector of ratios x/y.}
   \item{Aitchison distance:}{Euclidean distance of the clr-transformed data.}
   }\cr
+  \strong{Methods for zero replacement:}
+  \tabular{lll}{
+  Argument \tab Method \tab Function\cr
+  \code{"none"} \tab No zero replacement (only available if no zero
+  replacement is needed for the chosen normalization method and 
+  association/dissimilarity measure).\tab -\cr
+  \code{"pseudo"} \tab A pseudo count (defined by \code{pseudocount} as 
+  optional element of \code{zeroPar}) is added to all counts. A unit zero 
+  count is used by default.\tab -\cr
+  \code{"multRepl"} \tab Multiplicative simple replacement \tab
+ \code{\link[zCompositions:multRepl]{multRepl}}\cr
+  \code{"alrEM"} \tab Modified EM alr-algorithm 
+  \tab \code{\link[zCompositions:lrEM]{lrEM}}\cr
+  \code{"bayesMult"} \tab Bayesian-multiplicative replacement\tab
+  \code{\link[zCompositions:cmultRepl]{cmultRepl}}\cr
+  }
   \strong{Normalization methods:}
   \tabular{lll}{
   Argument \tab Method \tab Function\cr
@@ -376,12 +441,14 @@ The function enables the construction of either a single network or
   \code{"VST"} \tab Variance stabilizing transformation\tab
   \code{\link[DESeq2]{varianceStabilizingTransformation}}\cr
   \code{"clr"} \tab Centered log-ratio transformation\tab
-  \code{\link[robCompositions]{cenLR}}
+  \code{\link[SpiecEasi]{clr}}\cr
+  \code{"mclr"} \tab Modified central log ratio transformation\tab
+  \code{\link[SPRING]{mclr}}
   }
   These methods (except rarefying) are described in
   \cite{Badri et al.(2018)}.
   \cr\cr
-  \strong{Transforming associations to dissimilarities:}
+  \strong{Transforming associations into dissimilarities:}
   \tabular{ll}{
   Argument \tab Function\cr
   \code{"signed"} \tab sqrt(0.5 * (1 - x))\cr
@@ -392,35 +459,75 @@ The function enables the construction of either a single network or
   }
 }
 \examples{
-# load data sets from American Gut Project (from SpiecEasi package)
+# Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 data("amgut2.filt.phy")
 
-# network construction:
+# Single network with the following specifications:
+# - Association measure: SpiecEasi
+# - Only the 50 taxa with highest variance are selected
+# - Only samples with a total number of reads of at least 1000 included
+
 amgut_net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
                            measurePar = list(method = "mb",
-                           pulsar.params = list(rep.num = 10)),
+                                             pulsar.params = list(rep.num = 10),
+                                             symBetaMode = "ave"),
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
                            filtSamp = "totalReads",
-                           filtSampPar = list(totalReads = 1000))
+                           filtSampPar = list(totalReads = 1000),
+                           verbose = 3)
 
+# Network analysis
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy")
 
+# Network plot
 plot(amgut_props1)
 
-# constructing two networks according to a random group variable
+#----------------------------------------------------------------------------
+# Single network with the following specifications:
+# - Association measure: Pearson correlation
+# - Only the 50 taxa with highest frequency are selected
+# - Only samples with a total number of reads of at least 1000 and with
+#   at least 10 taxa with a non-zero count are included
+# - Pseudocounts of 0.5 are added for zero replacement
+# - The clr transformation is used as normalization method
+# - A threshold of 0.3 is chosen for sparsification
+
+amgut_net2 <- netConstruct(amgut2.filt.phy, 
+                           measure = "pearson",
+                           filtTax = "highestFreq",
+                           filtTaxPar = list(highestFreq = 50),
+                           filtSamp = c("numbTaxa", "totalReads"),
+                           filtSampPar = list(totalReads = 1000, numbTaxa = 10),
+                           zeroMethod = "pseudo", 
+                           zeroPar = list(pseudocount = 0.5),
+                           normMethod = "clr",
+                           sparsMethod = "threshold",
+                           thresh = 0.3,
+                           verbose = 3)
+
+amgut_props2 <- netAnalyze(amgut_net2, clustMethod = "cluster_fast_greedy")
+
+plot(amgut_props2)
+
+#----------------------------------------------------------------------------
+# Constructing two networks according to a random group variable
 set.seed(123456)
 group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
-amgut_net2 <- netConstruct(amgut1.filt, group = group,
+amgut_net3 <- netConstruct(amgut1.filt, group = group,
                            measure = "pearson",
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
                            filtSamp = "totalReads",
                            filtSampPar = list(totalReads = 1000),
-                           zeroMethod = "multRepl", normMethod = "clr")
-amgut_props2 <- netAnalyze(amgut_net2, clustMethod = "cluster_fast_greedy")
-plot(amgut_props2)
+                           zeroMethod = "multRepl", 
+                           normMethod = "clr",
+                           sparsMethod = "t-test")
+                           
+amgut_props3 <- netAnalyze(amgut_net3, clustMethod = "cluster_fast_greedy")
+
+plot(amgut_props3)
 
 }
 \references{

@@ -2,13 +2,14 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
                            isempty2, colorVec, sameClustCol, sameColThresh,
                            twoNets){
 
-
   if(twoNets){
     clust1 <- clust1[kept1]
     clust2 <- clust2[kept2]
 
+    #-----------------------------------------
+    # Ensure that cluster names are numbers
     if(!isempty1){
-      noclust1 <- which(clust1 == 0)
+      noclust1 <- which(clust1 %in% c(0, NA))
       clusttab <- table(clust1)
       cnames <- names(clusttab)
       cnames <- cnames[cnames != "0"]
@@ -18,7 +19,7 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
     }
 
     if(!isempty2){
-      noclust2 <- which(clust2 == 0)
+      noclust2 <- which(clust2 %in% c(0, NA))
 
       clusttab <- table(clust2)
       cnames <- names(clusttab)
@@ -27,10 +28,11 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
         clust2[clust2 == cnames[i]] <- i
       }
     }
+    #-----------------------------------------
 
     if(!(isempty1 | isempty2)){
 
-      clustcols <- rainbow(max(clust1) + max(clust2))
+      clustcols <- grDevices::rainbow(max(clust1) + max(clust2))
 
       if(!is.null(colorVec)){
         clustcols <- clustcols[!clustcols %in% colorVec]
@@ -79,36 +81,41 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
           clustcol2[clust2 == c] <- clustcols[i]
           i = i+1
         }
+        
+        if(!is.null(colorVec) && (i-1) > length(colorVec)){
+          
+          warning(i-1, " colors needed but 'colorVec' has only length ", 
+                  length(colorVec), ". Missing colors are filled up with colors from rainbow().")
+          
+        }
 
         clustcol1[noclust1] <- "grey80"
         clustcol2[noclust2] <- "grey80"
 
       } else{
-        nc1 <- max(clust1)
 
-        if(length(noclust2) != 0){
-          clust2 <- clust2 + nc1 + 1
-        } else{
-          clust2 <- clust2 + nc1
-        }
+        clustcols <- c("grey80", clustcols)
+        
+        nc1 <- max(clust1)
+        clust1 <- clust1 + 1
+        
+        clust2 <- clust2 + nc1 + 1
+        clust2[noclust2] <- 1
 
         clustcol1 <- clustcols[clust1]
         clustcol2 <- clustcols[clust2]
-        clustcol1[noclust1] <- "grey80"
-        clustcol2[noclust2] <- "grey80"
       }
 
     } else{
-      clust1 <- clust1
-      clust2 <- clust2
-      nc1 <- max(clust1)
-      nc2 <- max(clust2)
 
       if(isempty1){
         clustcol1 <- rep("grey80", ncol(adja1))
 
       } else{
-        clustcols <- rainbow(nc1)
+        clust1 <- clust1
+        nc1 <- max(clust1)
+
+        clustcols <- grDevices::rainbow(nc1)
 
         if(length(noclust1) != 0){
           clustcols <- c("grey80", clustcols)
@@ -121,7 +128,10 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
       if(isempty2){
         clustcol2 <- rep("grey80", ncol(adja2))
       } else{
-        clustcols <- rainbow(nc2)
+        clust2 <- clust2
+        nc2 <- max(clust2)
+        
+        clustcols <- grDevices::rainbow(nc2)
 
         if(length(noclust2) != 0){
           clustcols <- c("grey80", clustcols)
@@ -147,7 +157,7 @@ get_clust_cols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
         clust1[clust1 == cnames[i]] <- i
       }
 
-      clustcols <- rainbow(max(clust1))
+      clustcols <- grDevices::rainbow(max(clust1))
 
       if(!is.null(colorVec)){
         if(length(colorVec) < max(clust1)){

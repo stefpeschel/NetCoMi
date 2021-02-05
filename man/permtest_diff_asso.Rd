@@ -7,10 +7,12 @@
 permtest_diff_asso(
   countMat1,
   countMat2,
+  countsJoint,
+  normCounts1,
+  normCounts2,
   assoMat1,
   assoMat2,
-  measure,
-  measurePar,
+  paramsNetConstruct,
   method = c("connect.pairs", "connect.variables", "connect.network"),
   fisherTrans = TRUE,
   pvalsMethod = "pseudo",
@@ -20,10 +22,18 @@ permtest_diff_asso(
   alpha = 0.05,
   lfdrThresh = 0.2,
   nPerm = 1000,
+  matchDesign = NULL,
+  callNetConstr = NULL,
   cores = 4,
   verbose = TRUE,
   logFile = "log.txt",
   seed = NULL,
+  fileLoadAssoPerm = NULL,
+  fileLoadCountsPerm = NULL,
+  storeAssoPerm = FALSE,
+  fileStoreAssoPerm = "assoPerm",
+  storeCountsPerm = FALSE,
+  fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
   assoPerm = NULL
 )
 }
@@ -32,15 +42,15 @@ permtest_diff_asso(
 of group 1 and group 2 (rows represent samples and columns taxonomic units,
 respectively).}
 
+\item{countsJoint}{joint count matrices before preprocessing}
+
+\item{normCounts1, normCounts2}{normalized count matrices.}
+
 \item{assoMat1, assoMat2}{association matrices corresponding to the two count
 matrices. The associations must have been estimated from the count matrices
 \code{countMat1} and \code{countMat2}.}
 
-\item{measure}{a character indicating the association measure that has been
-used for determining the association matrices.}
-
-\item{measurePar}{list with parameters passed to the function for association
-calculation.}
+\item{paramsNetConstruct}{parameters used for network construction.}
 
 \item{method}{character vector indicating the tests to be performed. Possible
 values are \code{"connect.pairs"} (differentially correlated taxa pairs),
@@ -79,6 +89,18 @@ are identified as significant}
 
 \item{nPerm}{number of permutations}
 
+\item{matchDesign}{Numeric vector with two elements specifying an optional 
+matched-group (i.e. matched-pair) design, which is used for the permutation 
+tests in \code{\link{netCompare}} and \code{\link{diffnet}}. \code{c(1,1)} 
+corresponds to a matched-pair design. A 1:2 matching, for instance, is 
+defined by \code{c(1,2)}, which means that the first sample of group 1 is 
+matched to the first two samples of group 2 and so on. 
+The appropriate order of samples must be ensured. If 
+\code{NULL}, the group memberships are shuffled randomly while group sizes
+identical to the original data set are ensured.}
+
+\item{callNetConstr}{call inherited from \code{netConstruct()}.}
+
 \item{cores}{number of CPU cores (permutation tests are executed parallel)}
 
 \item{verbose}{if \code{TRUE}, status messages and numbers of SparCC
@@ -89,8 +111,36 @@ iteration number is stored}
 
 \item{seed}{an optional seed for reproducibility of the results}
 
-\item{assoPerm}{list with two elements containing permutation association
-matrices for the two groups.}
+\item{fileLoadAssoPerm}{character giving the name (without extenstion) 
+or path of the file storing the "permuted" association/dissimilarity 
+matrices that have been exported by setting \code{storeAssoPerm} to 
+\code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
+existing associations should be used.}
+
+\item{fileLoadCountsPerm}{character giving the name (without extenstion) 
+or path of the file storing the "permuted" count matrices that have been 
+exported by setting \code{storeCountsPerm} to \code{TRUE}. 
+Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
+Set to \code{NULL} if no existing count matrices should be used.}
+
+\item{storeAssoPerm}{logical indicating whether the association (or
+dissimilarity) matrices for the permuted data should be stored in a file.
+The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE}, 
+the computed "permutation" association/dissimilarity matrices can be reused
+via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.}
+
+\item{fileStoreAssoPerm}{character giving the file name to store a matrix
+containing a matrix with associations/dissimilarities for the permuted 
+data. Can also be a path.}
+
+\item{storeCountsPerm}{logical indicating whether the permuted count matrices
+should be stored in an external file. Defaults to \code{FALSE}.}
+
+\item{fileStoreCountsPerm}{character vector with two elements giving the 
+names of two files storing the permuted count matrices belonging to the 
+two groups.}
+
+\item{assoPerm}{not used anymore.}
 }
 \description{
 The function implements procedures to test whether pairs of taxa

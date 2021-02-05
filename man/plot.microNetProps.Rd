@@ -8,12 +8,12 @@
 \method{plot}{microNetProps}(x,
   layout = "spring",
   sameLayout = FALSE,
-  layoutGroup = NULL,
+  layoutGroup = "union",
   repulsion = 1,
   groupNames = NULL,
   groupsChanged = FALSE,
   labels = NULL,
-  shortenLabels = "intelligent",
+  shortenLabels = "simple",
   labelLength = 6L,
   labelPattern = c(5,"'",3),
   charToRm = NULL,
@@ -26,10 +26,12 @@
   nodeFilterPar = NULL,
   rmSingles = "none",
   nodeSize = "fix",
+  normPar = NULL,
   nodeSizeSpread = 4,
   nodeColor = "cluster",
   colorVec = NULL,
   featVecCol = NULL,
+  sameFeatCol = TRUE,
   sameClustCol = TRUE,
   sameColThresh = 2L,
   nodeShape = NULL,
@@ -51,7 +53,7 @@
   edgeInvisFilter = "none",
   edgeInvisPar = NULL,
   edgeWidth = 1,
-  colorNegAsso = TRUE,
+  negDiffCol = TRUE,
   posCol = NULL,
   negCol = NULL,
   cut = NULL,
@@ -62,6 +64,7 @@
   cexNodes = 1,
   cexHubs = 1.2,
   cexLabels = 1,
+  cexHubLabels = NULL,
   cexTitle = 1.2,
   showTitle = NULL,
   title1 = NULL,
@@ -85,10 +88,12 @@ and y coordinate.}
 for both networks. Ignored if \code{x} contains only one network. See
 argument \code{layoutGroup}.}
 
-\item{layoutGroup}{numeric. Indicates the group from which the layout is
-taken if argument \code{sameLayout} is \code{TRUE}. The layout is computed
-for the first network if set to "1" (default) and for the second network if
-set to "2".}
+\item{layoutGroup}{numeric or character. Indicates the group, where the 
+layout is taken from if argument \code{sameLayout} is \code{TRUE}. 
+The layout is computed for group 1 (and adopted for group 2) if set to "1" 
+and it is computed for group 2 if set to "2". Can alternatively be set to
+"union" (default) to compute a union of both layouts, where the nodes are 
+placed as optimal as possible equally for both networks.}
 
 \item{repulsion}{positive numeric value indicating the strength of repulsive
 forces in the "spring" layout. Nodes are placed closer together for smaller
@@ -106,11 +111,12 @@ plotted.}
 plotted. If \code{TRUE}, the order is exchanged. See details. Defaults to
 \code{FALSE}.}
 
-\item{labels}{defines the node labels. Can be a character vector, which is
-used for both groups (then, the adjacency matrices in \code{x} must contain
-the same variables). Can also be list with two vectors. If \code{FALSE}, no
-labels are plotted. Defaults to the row/column names of the adjacency
-matrices.}
+\item{labels}{defines the node labels. Can be a named character vector, which 
+is used for both groups (then, the adjacency matrices in \code{x} must 
+contain the same variables). 
+Can also be list with two named vectors (names must match the row/column 
+names of the adjacency matrices). If \code{FALSE}, no labels are plotted. 
+Defaults to the row/column names of the adjacency matrices.}
 
 \item{shortenLabels}{options to shorten node labels. Ignored if node labels
 are defined via \code{labels}. Possible options are:
@@ -128,7 +134,7 @@ be shortened if \code{shortenLabels} is used. Defaults to 6.}
 
 \item{labelPattern}{vector of three elements, which is only used if argument
 \code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label
-to length \code{labelLength} leads to duplicates, the label is shortend
+to length \code{labelLength} leads to duplicates, the label is shortened
 according to \code{labelPattern}, where the first entry gives the length of
 the first part, the second entry is used a separator, and the third entry
 is the length of the second part. Defaults to c(5, "'", 3). If the data
@@ -138,7 +144,7 @@ they are by default shortened to "Strep'coc" and "Strep'myc".}
 \item{charToRm}{vector with characters to remove from node names. Ignored if
 labels are given via \code{labels}.}
 
-\item{labelScale}{logical. If \code{TRUE}, node labels are scaled accoring to
+\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according to
 node size}
 
 \item{labelFont}{integer defining the font of node labels. Defaults to 1.}
@@ -169,7 +175,7 @@ Necessary parameters (e.g. "x") are given via the argument
 
 \item{rmSingles}{character value indicating how to handle unconnected nodes.
 Possible values are \code{"all"} (all single nodes are deleted),
-\code{"inBoth"} (only nodes that are unconnected in both networks are
+\code{"inboth"} (only nodes that are unconnected in both networks are
 removed) or \code{"none"} (default; no nodes are removed). Cannot be set to
 \code{"all"}, if the same layout is used for both networks.}
 
@@ -178,12 +184,21 @@ Possible values are: \describe{
 \item{\code{"fix"}}{Default. All nodes have same size (hub size can be
 defined separately via \code{cexHubs}).}
 \item{\code{"degree"}, \code{"betweenness"}, \code{"closeness"},
-\code{"eigenvector"}}{Size scaled according to node's degree.}
+\code{"eigenvector"}}{Size scaled according to node's centrality}
 \item{\code{"counts"}}{Size scaled according to the sum of counts (of
 microbes or samples, depending on what nodes express).}
 \item{\code{"normCounts"}}{Size scaled according to the sum of normalized
 counts (of microbes or samples), which are exported by
-\code{netConstruct}.}}}
+\code{netConstruct}.}
+\item{\code{"TSS", "fractions", "CSS", "COM", "rarefy", "VST", "clr", 
+"mclr"}}{Size scaled according to the sum of normalized
+counts. Available are the same options as for \code{normMethod} in
+\code{\link{netConstruct}}. Parameters are set via \code{normPar}.}
+}}
+
+\item{normPar}{list with parameters passed to the function for normalization
+if \code{nodeSize} is set to a normalization method. Used analogously to
+\code{normPar} of \code{\link{netConstruct}()}.}
 
 \item{nodeSizeSpread}{positive numeric value indicating the spread of node
 sizes. The smaller the value, the more similar are the node sizes. Node 
@@ -197,19 +212,38 @@ node sizes range from 1 to 5.}
 \code{featVecCol}), \code{"colorVec"} (the vector \code{colorVec}). For the
 former two cases, the colors can be specified via \code{colorVec}. If
 \code{colorVec} is not defined, the \code{rainbow} function from
-\code{grDevices} package  is used. Also accecpted is a character value
+\code{grDevices} package  is used. Also accepted is a character value
 defining a color, which is used for all nodes. If \code{NULL}, "grey40" is
 used for all nodes.}
 
-\item{colorVec}{a vector specifying the node colors. If \code{nodeColor}
-is set to \code{"colorVec"}, the vector defines a color for each node
-implying that its names must match the node's names (ensured if names match
-the colnames of the original count matrix).}
+\item{colorVec}{a vector or list with two vectors used to specify node colors. 
+Different usage depending on the "nodeColor" argument:
+\describe{
+\item{\code{nodeColor = "cluster"}}{\code{colorVec} must be a vector. 
+Depending on the \code{sameClustCol} argument, the colors are used only in 
+one or both networks. If the vector is not long enough, a warning is 
+returned and colors from \code{rainbow()} are used for the remaining 
+clusters.}
+\item{\code{nodeColor = "feature"}}{Defines a color for each level of 
+\code{featVecCol}. Can be a list with two vectors used for the two networks 
+(for a single network, only the first element is used) or a vector, which 
+is used for both groups if two networks are plotted.}
+\item{\code{nodeColor = "colorVec"}}{\code{colorVec} defines a color for 
+each node implying that its names must match the node's names (which is 
+also ensured if names match the colnames of the original count matrix). 
+Can be a list with two vectors used for the two networks (for a single 
+network, only the first element is used) or a vector, which is used for 
+both groups if two networks are plotted.}}}
 
 \item{featVecCol}{a vector with a feature for each node. Used for coloring
 nodes if \code{nodeColor} is set to \code{"feature"}. Is coerced to a
 factor. If \code{colorVec} is given, its length must be larger than or
 equal to the number of feature levels.}
+
+\item{sameFeatCol}{logical indicating whether the same color should be used 
+for same features in both networks (only used if two networks are plotted, 
+\code{nodeColor = "feature"}, and no color vector/list is given (via 
+\code{featVecCol})).}
 
 \item{sameClustCol}{if TRUE (default) and two networks are plotted, clusters
 having at least \code{sameColThresh} nodes in common have the same color.
@@ -219,7 +253,7 @@ Only used if \code{nodeColor} is set to \code{"cluster"}.}
 in the two groups to have the same color. See argument \code{sameClustCol}.
 Defaults to 2.}
 
-\item{nodeShape}{character vector specifiying node shapes. Possible values
+\item{nodeShape}{character vector specifying node shapes. Possible values
 are \code{"circle"} (default), \code{"square"}, \code{"triangle"}, and
 \code{"diamond"}. If \code{featVecShape} is not \code{NULL}, the length of
 \code{nodeShape} must equal the number of factor levels given by
@@ -243,9 +277,9 @@ to 60.}
 "gray80"}
 
 \item{highlightHubs}{logical indicating if hubs should be highlighted. If
-\code{TRUE}, the following features can be defined seperately for hubs:
+\code{TRUE}, the following features can be defined separately for hubs:
 transparency (by \code{hubTransp}), label font (by \code{hubLabelFont}),
-border width (by \code{hubBorderWidth}), and boder color (by
+border width (by \code{hubBorderWidth}), and border color (by
 \code{hubBorderCol}).}
 
 \item{hubTransp}{numeric between 0 and 100 specifying the color transparency
@@ -279,15 +313,15 @@ layout. Defaults to \code{"none"}.}
 \item{edgeWidth}{numeric specifying the edge width. See argument
 \code{"edge.width"} of \code{\link[qgraph]{qgraph}}.}
 
-\item{colorNegAsso}{logical indicating if edges with a negative corresponding
-association should be colored different. If \code{TRUE}, argument
-\code{posCol} is used for edges with positive association and \code{netCol}
+\item{negDiffCol}{logical indicating if edges with a negative corresponding
+association should be colored different. If \code{TRUE} (default), argument
+\code{posCol} is used for edges with positive association and \code{negCol}
 for those with negative association. If \code{FALSE} and for dissimilarity
 networks, only \code{posCol} is used.}
 
 \item{posCol}{vector (character or numeric) with one or two elements
 specifying the color of edges with positive weight and also for edges with
-negative weight if \code{colorNegAsso} is set to \code{FALSE}. The first
+negative weight if \code{negDiffCol} is set to \code{FALSE}. The first
 element is used for edges with weight below \code{cut} and the second for
 edges with weight above \code{cut}. If a single value is given, it is used
 for both cases. Defaults to \code{c("#009900", "darkgreen")}.}
@@ -296,10 +330,11 @@ for both cases. Defaults to \code{c("#009900", "darkgreen")}.}
 specifying the color of edges with negative weight. The first
 element is used for edges with absolute weight below \code{cut} and the
 second for edges with absolute weight above \code{cut}. If a single value
-is given, it is used for both cases. Ignored if \code{colorNegAsso} is
+is given, it is used for both cases. Ignored if \code{negDiffCol} is
 \code{FALSE}. Defaults to \code{c("red", "#BF0000")}.}
 
-\item{cut}{defines the \code{"cut"} parameter of \code{\link[qgraph]{qgraph}}. Can
+\item{cut}{defines the \code{"cut"} parameter of 
+\code{\link[qgraph]{qgraph}}. Can
 be either a numeric value (is used for both groups if two networks are
 plotted) or vector of length two. The default is set analogous to that in
 \code{\link[qgraph]{qgraph}}: "0 for graphs with less then 20 nodes. For
@@ -322,6 +357,9 @@ to \code{"hubs"}.}
 
 \item{cexLabels}{numeric scaling node labels. Defaults to 1.}
 
+\item{cexHubLabels}{numeric scaling the node labels of hub nodes. Equals 
+\code{cexLabels} by default. Ignored, if \code{highlightHubs = FALSE}.}
+
 \item{cexTitle}{numeric scaling title(s). Defaults to 1.2.}
 
 \item{showTitle}{if \code{TRUE}, a title is shown for each network, which is
@@ -337,7 +375,8 @@ a single network.}
 the plot margins. Works similar to the \code{mar} argument in
 \code{\link[graphics]{par}}. Defaults to c(1,3,3,3).}
 
-\item{...}{further arguments being passed to \code{\link[qgraph]{qgraph}}.}
+\item{...}{further arguments being passed to \code{\link[qgraph]{qgraph}}, 
+which is used for network plotting.}
 }
 \value{
 Returns (invisibly) a list with the following elements: \tabular{ll}{
@@ -363,11 +402,14 @@ amgut_net <- netConstruct(amgut1.filt,
 amgut_props <- netAnalyze(amgut_net, clustMethod = "hierarchical",
                           clustPar = list(k=2))
 
-# network plots:
+### network plots
+# clusters are used for node coloring: 
 plot(amgut_props, nodeColor = "cluster")
+
+# a higher repulsion places nodes with high edge weight closer together:
 plot(amgut_props, nodeColor = "cluster", repulsion = 1.3)
 
-# with feature vector according to which nodes are colored
+# a feature vector is used for node coloring:
 set.seed(123456)
 colVec <- sample(1:5, nrow(amgut1.filt), replace = TRUE)
 names(colVec) <- rownames(amgut1.filt)
@@ -376,7 +418,6 @@ plot(amgut_props, nodeColor = "feature", featVecCol = colVec,
      colorVec = heat.colors(5))
 
 # with a further feature vector for node shapes
-# with feature vector according to which nodes are colored
 shapeVec <- sample(1:3, nrow(amgut1.filt), replace = TRUE)
 names(shapeVec) <- rownames(amgut1.filt)
 

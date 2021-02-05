@@ -6,13 +6,19 @@
 \usage{
 netAnalyze(
   net,
+  centrLCC = TRUE,
+  avDissIgnoreInf = FALSE,
+  sPathAlgo = "dijkstra",
+  sPathNorm = TRUE,
+  normNatConnect = TRUE,
+  connectivity = TRUE,
   clustMethod = NULL,
   clustPar = NULL,
   clustPar2 = NULL,
+  weightClustCoef = TRUE,
   hubPar = "eigenvector",
   hubQuant = 0.95,
   lnormFit = FALSE,
-  connect = TRUE,
   weightDeg = FALSE,
   normDeg = TRUE,
   normBetw = TRUE,
@@ -25,11 +31,40 @@ netAnalyze(
 \item{net}{object of class \code{microNet} inheriting from a call to
 \code{\link{netConstruct}}}
 
+\item{centrLCC}{logical indicating whether to compute centralities only 
+for the largest connected component (LCC). If \code{TRUE} 
+(default), centrality values of disconnected components are zero.}
+
+\item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
+calculating the average dissimilarity. If \code{FALSE}, infinity values are 
+set to 1.}
+
+\item{sPathAlgo}{character indicating the algorithm used for computing
+the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
+is used for shortest path calculation. Possible values are: "unweighted", 
+"dijkstra" (default), "bellman-ford", "johnson", or "automatic" (the 
+fastest suitable algorithm is used). The shortest paths are needed for the 
+average (shortest) path length and closeness centrality.}
+
+\item{sPathNorm}{logical. If \code{TRUE} (default), shortest paths are 
+normalized by average dissimilarity (only connected nodes are considered). 
+That means, a path is interpreted as steps with average dissimilarity. 
+If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
+between two nodes.}
+
+\item{normNatConnect}{logical indicating whether the normalized natural 
+connectivity should be returned. Defaults to \code{TRUE}.}
+
+\item{connectivity}{logical indicating whether edge and vertex connectivity 
+should be calculated. Might be disabled to reduce execution time. Default 
+is \code{TRUE}.}
+
 \item{clustMethod}{character indicating the clustering algorithm. Possible
-values are "hierarchical" for a hierarchical algorithm based on
+values are \code{"hierarchical"} for a hierarchical algorithm based on
 dissimilarity values, or the clustering methods provided by the igraph
 package (see \code{\link[igraph]{communities}} for possible methods).
-Defaults to \code{"cluster_fast_greedy"}.}
+Defaults to \code{"cluster_fast_greedy"} for association-based networks and
+to \code{"hierarchical"} for sample similarity networks.}
 
 \item{clustPar}{list with parameters passed to the clustering functions.
 If hierarchical clustering is used, the parameters are passed to
@@ -38,6 +73,10 @@ If hierarchical clustering is used, the parameters are passed to
 \item{clustPar2}{optional list with clustering parameters for the second
 network. If \code{NULL} and \code{net} contains two networks,
 \code{clustPar} is used for the second network as well.}
+
+\item{weightClustCoef}{logical indicating whether (global) clustering 
+coefficient should be weighted (\code{TRUE}, default) or unweighted 
+(\code{FALSE}).}
 
 \item{hubPar}{character vector with one or more elements (centrality 
 measures) used for identifying hub nodes. Possible values are \code{degree},
@@ -52,9 +91,6 @@ quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
 or of the empirical distribution of centrality values (if
 \code{lnormFit = FALSE}, which is default).}
 
-\item{connect}{logical indicating whether edge and vertex connectivity should
-be calculated. Might be disabled to reduce execution time.}
-
 \item{weightDeg}{if \code{TRUE}, the weighted degree is used (see
 \code{\link[igraph]{strength}}). Is automatically set to TRUE for a fully
 connected network.}
@@ -63,80 +99,187 @@ connected network.}
 version of the respective centrality values is returned. By default, all
 centralities are normalized.}
 
-\item{verbose}{logical. If \code{TRUE} (default), status messages are shown.}
+\item{verbose}{integer indicating the level of verbosity. Possible values:
+\code{"0"}: no messages, \code{"1"}: only important messages,
+\code{"2"}(default): all progress messages are shown. Can also be logical.}
 }
 \value{
 An object of class \code{microNetProps} containing the following
-  elements for both groups, respectively: \tabular{ll}{
-  \code{clustering}\tab determined clusters\cr
-  \code{centralities}\tab determined degree, betweenness, closeness, and
-  eigenvector centrality values\cr
-  \code{hubs}\tab names of the hub nodes (taxa or subjects)\cr
-  \code{globalProps}\tab values for global network properties: average path
-  length, global clustering coefficient, modularity, vertex connectivity,
-  edge connectivity, density (ratio of the number of edges and the number of
-  possible edges)\cr
-  \code{paramsProperties}\tab Given parameters used for computing network
-  properties \cr
-  \code{input}\tab input adopted from \code{net} \cr
-  \code{paramsNetConstruct }\tab parameters used for network construction by
-  \code{netConstruct}\cr
-  \code{isempty}\tab indicates if the networks are empty (do not contain any
-  edges)\cr}
+  elements: \tabular{ll}{
+  \code{lccNames1, lccNames2}\tab Names of nodes in the largest component(s).
+  \cr
+  \code{compSize1, compSize2}\tab Matrix/matrices with component sizes (1st 
+  row: sizes; 2nd row: number of components with the respective size)\cr
+  \code{clustering}\tab Determined clusters in the whole network (and 
+  corresponding trees if hierarchical clustering is used)\cr
+  \code{clustering_lcc}\tab Clusters (and optional trees) of the
+  largest connected component.\cr
+  \code{centralities}\tab Centrality values\cr
+  \code{hubs}\tab Names of hub nodes\cr
+  \code{globalProps}\tab Global network properties of the whole network.\cr
+  \code{globalPropsLCC}\tab Global network properties of the largest 
+  component.\cr
+  \code{paramsProperties}\tab Given parameters used for network analysis\cr
+  \code{paramsNetConstruct}\tab Parameters used for network construction 
+  (inherited from \code{\link{netConstruct}}).\cr
+  \code{input}\tab Input inherited from \code{\link{netConstruct}}.\cr
+  \code{isempty}\tab Indicates whether network(s) is/are empty.
+  }
 }
 \description{
 Determine network properties for objects of class
   \code{microNet}.
 }
 \details{
-\strong{Identification of hub nodes:}\cr\cr
-  Hubs are the nodes with highest centrality values for one or more
-  centrality measure.\cr\cr The "highest values" regarding a centrality
+\strong{Definitions:}\cr
+  \describe{
+  \item{(Connected) Component}{Subnetwork where any two nodes are connected 
+  by a path.}
+  \item{Number of components}{Number of connected components. Since a single 
+  node is connected to itself by the trivial path, each single node is a 
+  component.}
+  \item{Largest connected component (LCC)}{The connected component with 
+  highest number of nodes.}
+  \item{Shortest paths}{Computed using \code{\link[igraph]{distances}}. The 
+  algorithm is defined via \code{sPathAlgo}. Normalized shortest paths (if 
+  \code{sPathNorm} is \code{TRUE}) are calculated by dividing the shortest 
+  paths by the average dissimilarity (see below).}
+  }
+  \strong{Global network properties:}\cr
+  \describe{
+  \item{Relative LCC size}{= (# nodes in the LCC) / (# nodes in the complete 
+  network)}
+  \item{Clustering Coefficient}{The weighted (global) clustering coefficient 
+  is the arithmetic mean of the local clustering coefficient defined by 
+  Barrat et al. (computed by \code{\link[igraph]{transitivity}} with 
+  type = "barrat"), where NAs are ignored. \cr 
+  The unweighted (global) clustering coefficient is computed using 
+  \code{\link[igraph]{transitivity}} with type = "global".}
+  \item{Modularity}{The modularity score for the determined clustering is 
+  computed using \code{\link[igraph]{modularity.igraph}}.}
+  \item{Positive edge percentage}{Percentage of edges with positive estimated
+  association of the total number of edges.}
+  \item{Edge density}{Computed using \code{\link[igraph]{edge_density}}.}
+  \item{Natural connectivity}{Computed using 
+  \code{\link[pulsar]{natural.connectivity}}. The "norm" parameter is 
+  defined by \code{normNatConnect}.}
+  \item{Vertex / Edge connectivity}{Computed using 
+  \code{\link[igraph]{vertex_connectivity}} and 
+  \code{\link[igraph]{edge_connectivity}}. Both equal zero for a 
+  disconnected network.}
+  \item{Average dissimilarity}{Computed as the mean of dissimilarity values 
+  (lower triangle of \code{dissMat}). By \code{avDissIgnoreInf} is specified 
+  whether to ignore infinite dissimilarities.}
+  \item{Average path length}{Computed as the mean of shortest paths 
+  (normalized or unnormalized).}
+  }
+  \strong{Clustering algorithms:}\cr
+  \describe{
+  \item{Hierarchical clustering}{Based on dissimilarity values. Computed 
+  using \code{\link[stats]{hclust}} and \code{\link[stats]{cutree}}.}
+  \item{cluster_optimal}{Modularity optimization. See 
+  \code{\link[igraph]{cluster_optimal}}.}
+  \item{cluster_fast_greedy}{Fast greedy modularity optimization. See 
+  \code{\link[igraph]{cluster_fast_greedy}}.}
+  \item{cluster_louvain}{Multilevel optimization of modularity. See 
+  \code{\link[igraph]{cluster_louvain}}.}
+  \item{cluster_edge_betweenness}{Based on edge betweenness. Dissimilarity
+  values are used. See \code{\link[igraph]{cluster_edge_betweenness}}.}
+  \item{cluster_leading_eigen}{Based on leading eigenvector of the community
+  matrix. See \code{\link[igraph]{cluster_leading_eigen}}.}
+  \item{cluster_spinglass}{Find communities via spin-glass model and 
+  simulated annealing. See \code{\link[igraph]{cluster_spinglass}}.}
+  \item{cluster_walktrap}{Find communities via short random walks. See
+  \code{\link[igraph]{cluster_walktrap}}.}
+  }
+  \strong{Hubs:}\cr
+  Hubs are nodes with highest centrality values for one or more
+  centrality measures. The "highest values" regarding a centrality
   measure are defined as values lying above a certain quantile (defined by
-  \code{hubQuant}) either of the empirical distribution of the centralities
-  or of the fitted log-normal distribution (using
-  \code{\link[MASS]{fitdistr}}).\cr\cr If \code{clustPar} contains multiple
-  measures, the centrality values of a hub node must be above the given
-  quantile for all these measures.
+  \code{hubQuant}) either of the empirical distribution of the centralities 
+  (if \code{lnormFit = FALSE}) or of the fitted log-normal distribution 
+  (if \code{lnormFit = TRUE}; \code{\link[MASS]{fitdistr}} is used for 
+  fitting). The quantile is set using \code{hubQuant}.\cr
+  If \code{clustPar} contains multiple measures, the centrality values of a 
+  hub node must be above the given quantile for all measures at the same time.
+  \cr\cr
+  \strong{Centrality measures:}\cr
+  Via \code{centrLCC} is decided whether centralities should be calculated 
+  for the whole network or only for the largest connected component. In the 
+  latter case (\code{centrLCC = FALSE}), nodes outside the LCC have a 
+  centrality value of zero.
+  \describe{
+  \item{Degree}{The unweighted degree (normalized and unnormalized) is 
+  computed using \code{\link[igraph]{degree}}, and the weighted degree 
+  using \code{\link[igraph]{strength}}.}
+  \item{Betweenness centrality}{The unnormalized and normalized betweenness 
+  centrality is computed using \code{\link[igraph]{betweenness}}.}
+  \item{Closeness centrality}{Unnormalized: closeness = sum(1/shortest paths)
+  \cr Normalized: closeness_unnorm = closeness / (# nodes – 1)}
+  \item{Eigenvector centrality}{If \code{centrLCC == FALSE} and the network 
+  consists of more than one components: The eigenvector centrality (EVC) is 
+  computed for each component separately (using 
+  \code{\link[igraph]{eigen_centrality}}) and scaled according to component 
+  size to overcome the fact that nodes in smaller components have a higher 
+  EVC. If \code{normEigen == TRUE}, the EVC values are divided by the maximum 
+  EVC value. EVC of single nodes is zero.\cr\cr
+  Otherwise, the EVC is computed for the LCC using 
+  \code{\link[igraph]{eigen_centrality}} (scale argument is set according to 
+  \code{normEigen}).}
+  }
 }
 \examples{
-# load data sets from American Gut Project (from SpiecEasi package)
+# Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
-# network construction:
+# Network construction:
 amgut_net1 <- netConstruct(amgut1.filt, measure = "pearson",
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
-                           zeroMethod = "pseudo", normMethod = "clr")
+                           zeroMethod = "pseudo", normMethod = "clr",
+                           sparsMethod = "threshold", thresh = 0.4)
 
-# network analysis:
+### Network analysis
+# Using eigenvector centrality as hub score:
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
+                           
+summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
+
+# Using degree, betweenness and closeness centrality as hub scores:
 amgut_props2 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = c("degree", "betweenness", "closeness"))
 
-summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
-summary(amgut_props2)
+summary(amgut_props2, showCentr = "all",  numbNodes = 5L, digits = 5L)
 
-# network plot:
+# Calculate centralities only for the largest connected component:
+amgut_props3 <- netAnalyze(amgut_net1, centrLCC = TRUE, 
+                           clustMethod = "cluster_fast_greedy",
+                           hubPar = "eigenvector")
+
+summary(amgut_props3, showCentr = "none", clusterLCC = TRUE)
+
+# Network plot:
 plot(amgut_props1)
 plot(amgut_props2)
+plot(amgut_props3)
 
-
-# dissimilarity-based network (where nodes are subjects):
-amgut_net3 <- netConstruct(amgut1.filt, measure = "aitchison",
+# Dissimilarity-based network (where nodes are subjects):
+amgut_net4 <- netConstruct(amgut1.filt, measure = "aitchison",
                            filtSamp = "highestFreq",
                            filtSampPar = list(highestFreq = 30),
                            zeroMethod = "multRepl", sparsMethod = "knn")
 
-amgut_props3 <- netAnalyze(amgut_net3, clustMethod = "hierarchical",
+amgut_props4 <- netAnalyze(amgut_net4, clustMethod = "hierarchical",
                            clustPar = list(k = 3))
 
-plot(amgut_props3)
+plot(amgut_props4)
 
 }
 \seealso{
 \code{\link{netConstruct}} for network construction,
   \code{\link{netCompare}} for network comparison,
-  \code{\link{diffnet}} for constructing differential networks.
+  \code{\link{diffnet}} for constructing differential networks,
+  \code{\link{plot.microNetProps}} for the plot method, and
+  \code{\link{summary.microNetProps}} for the summary method.
 }

@@ -20,6 +20,12 @@ diffnet(
   lfdrThresh = 0.2,
   trueNullMethod = "convest",
   pvalsVec = NULL,
+  fileLoadAssoPerm = NULL,
+  fileLoadCountsPerm = NULL,
+  storeAssoPerm = FALSE,
+  fileStoreAssoPerm = "assoPerm",
+  storeCountsPerm = FALSE,
+  fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
   assoPerm = NULL
 )
 }
@@ -64,7 +70,7 @@ numbers are stored). Defaults to \code{NULL} so that no file is created.}
 
 \item{seed}{integer giving a seed for reproducibility of the results.}
 
-\item{alpha}{numeric value between 0 and 1 giving the significance niveau.
+\item{alpha}{numeric value between 0 and 1 giving the significance level.
 Significantly different correlations are connected in the network. Defaults
 to 0.05.}
 
@@ -93,7 +99,37 @@ the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.}
 for performing another method for multiple testing adjustment without
 executing the complete permutation process again. See the example.}
 
-\item{assoPerm}{a list with two elements used for the permutation procedure.
+\item{fileLoadAssoPerm}{character giving the name (without extension) 
+or path of the file storing the "permuted" association/dissimilarity 
+matrices that have been exported by setting \code{storeAssoPerm} to 
+\code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
+existing associations should be used.}
+
+\item{fileLoadCountsPerm}{character giving the name (without extension) 
+or path of the file storing the "permuted" count matrices that have been 
+exported by setting \code{storeCountsPerm} to \code{TRUE}. 
+Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
+Set to \code{NULL} if no existing count matrices should be used.}
+
+\item{storeAssoPerm}{logical indicating whether the association (or
+dissimilarity) matrices for the permuted data should be stored in a file.
+The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE}, 
+the computed "permutation" association/dissimilarity matrices can be reused
+via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.}
+
+\item{fileStoreAssoPerm}{character giving the file name to store a matrix
+containing a matrix with associations/dissimilarities for the permuted 
+data. Can also be a path.}
+
+\item{storeCountsPerm}{logical indicating whether the permuted count matrices
+should be stored in an external file. Defaults to \code{FALSE}.}
+
+\item{fileStoreCountsPerm}{character vector with two elements giving the 
+names of two files storing the permuted count matrices belonging to the 
+two groups.}
+
+\item{assoPerm}{only needed for output generated with NetCoMi v1.0.1! A 
+list with two elements used for the permutation procedure.
 Each entry must contain association matrices for \code{"nPerm"}
 permutations. This can be either the \code{"assoPerm"} value as part of the
 output returned from \code{diffnet} or from \code{\link{netCompare}}. See
@@ -105,13 +141,21 @@ The function returns an object of class \code{diffnet}. Depending on
   elements:\cr\cr
   \strong{Permutation tests:}
   \tabular{ll}{
-  \code{assoMat1,assoMat2}\tab matrices with estimated associations\cr
+  \code{diffMat}\tab matrix with absolute differences of associations that are
+  significantly different from zero; optional adjacency matrix\cr
+  \code{diffAdjustMat}\tab matrix with absolute differences of associations 
+  that are significantly different from zero (after multiple testing 
+  correction); optional adjacency matrix\cr
   \code{pvalsVec}\tab vector with p-values\cr
   \code{pAdjustVec}\tab vector with adjusted p-values\cr
-  \code{diffMat}\tab adjacency matrix (absolute difference of associations)\cr
-  \code{assoPerm}\tab list with two elements containing the association
-  matrices for the permuted data for each group (can be passed to
-  \code{diffnet} again)}
+  \code{pvalsMat}\tab matrix with p-values\cr
+  \code{pAdjustMat}\tab matrix with adjusted p-values\cr
+  \code{testStatData}\tab vector with test statistics (absolute differences 
+  of associations) for the original data\cr
+  \code{testStatPerm}\tab matrix with test statistics (absolute differences 
+  of associations) for the permuted data\cr
+  \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
+  original data)}
   \strong{Discordant:}
   \tabular{ll}{
   \code{assoMat1,assoMat2}\tab matrices with estimated correlations\cr
@@ -121,10 +165,17 @@ The function returns an object of class \code{diffnet}. Depending on
   is differentially correlated between the groups}
   \strong{Fisher's z-test:}
   \tabular{ll}{
-  \code{assoMat1,assoMat2}\tab matrices with estimated correlations\cr
+  \code{diffMat}\tab matrix with absolute differences of associations that are
+  significantly different from zero; optional adjacency matrix\cr
+  \code{diffAdjustMat}\tab matrix with absolute differences of associations 
+  that are significantly different from zero (after multiple testing 
+  correction); optional adjacency matrix\cr
   \code{pvalsVec}\tab vector with p-values\cr
   \code{pAdjustVec}\tab vector with adjusted p-values\cr
-  \code{diffMat}\tab adjacency matrix (absolute difference of correlations)}
+  \code{pvalsMat}\tab matrix with p-values\cr
+  \code{pAdjustMat}\tab matrix with adjusted p-values\cr
+  \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
+  original data)}
 }
 \description{
 Constructs a differential network for objects of class
@@ -139,54 +190,72 @@ Constructs a differential network for objects of class
   To generate a sampling distribution of the differences under \eqn{H_0},
   the group labels are randomly reassigned to the samples while the group
   sizes are kept. The associations are then re-estimated for each permuted
-  data set. The p-values are calcutated as the proportion of
+  data set. The p-values are calculated as the proportion of
   "permutation-differences" being larger than the observed difference. A
-  pseudocount is added to the numerator and denominator in order to avoid
+  pseudo-count is added to the numerator and denominator in order to avoid
   zero p-values. The p-values should be adjusted for multiple testing.
 }
 \examples{
-# load data sets from American Gut Project (from SpiecEasi package)
+# Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
-# generate a random group vector
+# Generate a random group vector
 set.seed(123456)
 group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
 
-# network construction:
+# Network construction:
 amgut_net <- netConstruct(amgut1.filt, group = group,
                           measure = "pearson",
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 30),
                           zeroMethod = "pseudo", normMethod = "clr")
 
-### differential network
+#---------------------
+# Differential network
+
 # Fisher's z-test
 amgut_diff1 <- diffnet(amgut_net, diffMethod = "fisherTest")
 
-# network contains no differentially correlated taxa:
+# Network contains no differentially correlated taxa:
 \dontrun{
   plot(amgut_diff1)
 }
 
-# without multiple testing correction (statistically not correct!)
+# Without multiple testing correction (statistically not correct!)
 amgut_diff2 <- diffnet(amgut_net, diffMethod = "fisherTest", adjust = "none")
 plot(amgut_diff2)
 
 \dontrun{
-# Permutation test
-amgut_diff3 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
-                       cores = 6L, adjust = "lfdr")
-
-# use the p-values again (different adjustment method possible), but without
-# estimating the associations again
-amgut_diff4 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
-                       adjust = "none", pvalsVec = amgut_diff3$pvalsVec)
-plot(amgut_diff4)
-
-# use the permutation associations again (same result as amgut_diff4)
-amgut_diff5 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
-                       adjust = "none", assoPerm = amgut_diff3$assoPerm)
-plot(amgut_diff5)
+  # Permutation test (permutation matrices are stored)
+  amgut_diff3 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+                         cores = 4L, adjust = "lfdr",
+                         storeCountsPerm = TRUE, 
+                         fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
+                         storeAssoPerm = TRUE,
+                         fileStoreAssoPerm = "assoPerm",
+                         seed = 123456)
+  
+  # Use the p-values again (different adjustment method possible), but without
+  # re-estimating the associations
+  amgut_diff4 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+                         adjust = "none", pvalsVec = amgut_diff3$pvalsVec)
+  x11()
+  plot(amgut_diff4)
+  
+  # Use the permutation associations again (same result as amgut_diff4)
+  amgut_diff5 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+                         adjust = "none", 
+                         fileLoadAssoPerm = "assoPerm")
+  x11()
+  plot(amgut_diff5)
+  
+  # Use the permuted count matrices again (same result as amgut_diff4)
+  amgut_diff6 <- diffnet(amgut_net, diffMethod = "permute", nPerm = 1000L,
+                         adjust = "none", 
+                         fileLoadCountsPerm = c("countsPerm1", "countsPerm2"),
+                         seed = 123456)
+  x11()
+  plot(amgut_diff6)
 }
 
 }
