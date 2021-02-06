@@ -184,7 +184,7 @@ data("amgut1.filt")
 data("amgut2.filt.phy")
 ```
 
-#### Single network with SPRING as association measure
+### Single network with SPRING as association measure
 
 **Network construction and analysis**
 
@@ -298,7 +298,7 @@ follows:
 p$q1$Arguments$cut
 ```
 
-#### Single network with Pearson's correlation coefficient as association measure
+### Single network with Pearson correlation as association measure
 
 Let's construct another network using Pearson's correlation coefficient
 as association measure. The input is now a `phyloseq` object.
@@ -367,7 +367,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-#### Single association network on genus level
+### Single association network on genus level
 
 We now construct a further network, where OTUs are agglomerated to genera. 
 
@@ -558,7 +558,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 
 
-#### Network comparison
+### Network comparison
 
 Now let's look how two networks are compared using NetCoMi. 
 
@@ -647,6 +647,9 @@ the node's centrality value is above the 90% quantile of the fitted log-normal
 distribution.
 - The non-normalized centralities are used for all four measures.
 
+**Note! The arguments must be set carefully, depending on the research 
+questions. NetCoMi's default values are not generally preferable in all 
+practical cases!**
 
 ```{r netcomp spring 3}
 props_season <- netAnalyze(net_season, 
@@ -667,16 +670,6 @@ summary(props_season)
 
 In the above setting, only one hub node (in the "Seasonal allergies" network)
 has been identified. 
-
-<style>
-div.blue { background-color:#faeaed; border-radius: 5px; padding: 5px;}
-</style>
-<div class = "blue">
-**Note!** The arguments must be set carefully, depending on the research 
-questions. NetCoMi's default values are not generally preferable in all practical cases!
-</div>
-
-<br>
 
 **Visual network comparison**
 
