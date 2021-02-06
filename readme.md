@@ -171,7 +171,7 @@ data("amgut1.filt")
 data("amgut2.filt.phy")
 ```
 
-#### Single network with SPRING as association measure
+### Single network with SPRING as association measure
 
 **Network construction and analysis**
 
@@ -405,7 +405,7 @@ p$q1$Arguments$cut
 
     ## [1] 0.3211104
 
-#### Single network with Pearson’s correlation coefficient as association measure
+### Single network with Pearson correlation as association measure
 
 Let’s construct another network using Pearson’s correlation coefficient
 as association measure. The input is now a `phyloseq` object.
@@ -495,7 +495,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 ![](man/figures/readme/single%20pears%202-1.png)<!-- -->
 
-#### Single association network on genus level
+### Single association network on genus level
 
 We now construct a further network, where OTUs are agglomerated to
 genera.
@@ -725,7 +725,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 ![](man/figures/readme/single%20genus%205-1.png)<!-- -->
 
-#### Network comparison
+### Network comparison
 
 Now let’s look how two networks are compared using NetCoMi.
 
@@ -883,6 +883,10 @@ optimal.
     the 90% quantile of the fitted log-normal distribution.
 -   The non-normalized centralities are used for all four measures.
 
+**Note! The arguments must be set carefully, depending on the research
+questions. NetCoMi’s default values are not generally preferable in all
+practical cases!**
+
 ``` r
 props_season <- netAnalyze(net_season, 
                            centrLCC = FALSE,
@@ -1022,20 +1026,6 @@ summary(props_season)
 
 In the above setting, only one hub node (in the “Seasonal allergies”
 network) has been identified.
-
-<style>
-div.blue { background-color:#faeaed; border-radius: 5px; padding: 5px;}
-</style>
-
-<div class="blue">
-
-**Note!** The arguments must be set carefully, depending on the research
-questions. NetCoMi’s default values are not generally preferable in all
-practical cases!
-
-</div>
-
-<br>
 
 **Visual network comparison**
 
