@@ -3,10 +3,10 @@ output: github_document
 ---
 
 ```{r setup, echo = FALSE}
-knitr::opts_chunk$set(fig.path="man/figures/tutorial_create/")
+knitr::opts_chunk$set(fig.path="figures/tutorial_create/")
 ```
 
-## Tutorial: How to use createAssoPerm() <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+## Tutorial: How to use createAssoPerm() <img src="figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
 
 This tutorial is meant to demonstrate the options for storing and reloading 
 count tables, association matrices and network properties of the permuted data 
