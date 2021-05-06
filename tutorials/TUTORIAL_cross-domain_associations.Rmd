@@ -1,0 +1,134 @@
+---
+output: github_document
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(fig.path="figures/tutorial_cross-domain/")
+```
+
+## Tutorial: How to compare cross-domain association networks using NetCoMi and SpiecEasi? <img src="figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+
+In this tutorial, we use the same data as in the "Cross domain interactions" 
+section of the [SpiecEasi tutorial](https://github.com/zdk123/SpiecEasi).
+
+The samples are split into two groups and cross-domain associations
+are computed for each group using SpiecEasi. The association matrices are then 
+passed to NetCoMi's netConstruct() function to conduct a network comparison 
+between the two groups.
+
+**Note:**  
+This tutorial explains how two cross-domain networks are constructed and compared. 
+For constructing a single network, skip the step where the data are split into 
+two groups and perform the framework only for a single data set (i.e. pass the 
+estimated association matrix to the "data" argument of netConstruct() and 
+continue with NetCoMi's standard pipeline).
+
+
+```{r}
+library(SpiecEasi)
+library(phyloseq)
+
+data(hmp2)
+
+# Store count matrices (taxa are columns)
+counts_hmp216S <- as.matrix(t(phyloseq::otu_table(hmp216S)@.Data))
+counts_hmp2prot <- as.matrix(t(phyloseq::otu_table(hmp2prot)@.Data))
+
+# Assume, the first 23 samples are in one group and the remaining 24 samples in the other group
+group_vec <- c(rep(1, 23), rep(2, 24))
+
+# Split count matrices
+counts_hmp216S_gr1 <- counts_hmp216S[group_vec == 1, ]
+counts_hmp216S_gr2 <- counts_hmp216S[group_vec == 2, ]
+
+counts_hmp2prot_gr1 <- counts_hmp2prot[group_vec == 1, ]
+counts_hmp2prot_gr2 <- counts_hmp2prot[group_vec == 2, ]
+
+set.seed(123456)
+
+# Run SpiecEasi and create association matrix for group 1
+spiec_result_gr1 <- multi.spiec.easi(list(counts_hmp216S_gr1, counts_hmp2prot_gr1), 
+                                 method='mb', nlambda=40, 
+                                 lambda.min.ratio=1e-2, 
+                                 pulsar.params = list(thresh = 0.05))
+
+assoMat1 <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiec_result_gr1), mode = "ave")
+
+assoMat1 <- as.matrix(assoMat1)
+
+# Run SpiecEasi and create association matrix for group 2
+spiec_result_gr2 <- multi.spiec.easi(list(counts_hmp216S_gr2, counts_hmp2prot_gr2), 
+                                 method='mb', nlambda=40, 
+                                 lambda.min.ratio=1e-2, 
+                                 pulsar.params = list(thresh = 0.05))
+
+
+assoMat2 <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiec_result_gr2), mode = "ave")
+
+assoMat2 <- as.matrix(assoMat2)
+
+# Get taxa names
+taxnames <- c(taxa_names(hmp216S), taxa_names(hmp2prot))
+
+colnames(assoMat1) <- rownames(assoMat1) <- taxnames
+diag(assoMat1) <- 1
+
+colnames(assoMat2) <- rownames(assoMat2) <- taxnames
+diag(assoMat2) <- 1
+
+```
+
+```{r}
+# NetCoMi workflow 
+
+library(NetCoMi)
+
+# Network construction (pass association matrices to netConstruct)
+# - sparsMethod must be set to "none" because sparsification is already included in SpiecEasi
+net_hmp_16S_prot <- netConstruct(data = assoMat1, data2 = assoMat2, 
+                                 dataType = "condDependence", 
+                                 sparsMethod = "none")
+
+# Network analysis
+netprops_hmp_16S_prot <- netAnalyze(net_hmp_16S_prot, hubPar = "eigenvector")
+
+```
+
+
+
+```{r network_plot, fig.height=19, fig.width=40}
+
+nodeCols <- c(rep("lightblue", ntaxa(hmp216S)), rep("orange", ntaxa(hmp2prot)))
+names(nodeCols) <- taxnames
+
+plot(netprops_hmp_16S_prot, 
+     sameLayout = TRUE, 
+     layoutGroup = "union",
+     nodeColor = "colorVec", 
+     colorVec = nodeCols,
+     nodeSize = "eigen", 
+     nodeSizeSpread = 2,
+     labelScale = FALSE,
+     cexNodes = 2, 
+     cexLabels = 2,
+     cexHubLabels = 2.5,
+     cexTitle = 3.8,
+     groupNames = c("group1", "group2"))
+
+
+legend(-0.2, 1.2, cex = 3, pt.cex = 4, 
+       legend = c("HMP2 16S", "HMP2 protein"), col = c("lightblue", "orange"), 
+       bty = "n", pch = 16) 
+
+```
+
+```{r}
+# Network comparison
+# - Permutation tests cannot be performed because the association matrices are
+#   used for network construction. For permutation tests, however, the count 
+#   data are needed.
+netcomp_hmp_16S_prot <- netCompare(netprops_hmp_16S_prot, permTest = FALSE)
+
+summary(netcomp_hmp_16S_prot, groupNames = c("group1", "group2"))
+```
+
