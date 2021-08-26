@@ -152,6 +152,9 @@ comp_amgut_orig <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
     ## Calculate network properties ... Done.
     ## Files 'assoPerm_comp.bmat and assoPerm_comp.desc.txt created. 
     ## Execute permutation tests ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Calculating p-values ... Done.
     ## Adjust for multiple testing using 'adaptBH' ... Done.
@@ -294,6 +297,9 @@ comp_amgut1 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
 
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Calculating p-values ... Done.
     ## Adjust for multiple testing using 'adaptBH' ... Done.
@@ -316,6 +322,8 @@ diffnet_amgut <- diffnet(net_amgut, diffMethod = "permute", nPerm = 100,
 ```
 
     ## Execute permutation tests ...
+
+    ## |======================================================================| 100%
 
     ## Adjust for multiple testing using 'lfdr' ...
 
@@ -425,6 +433,9 @@ comp_amgut2 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
 
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Calculating p-values ... Done.
     ## Adjust for multiple testing using 'adaptBH' ... Done.
@@ -487,8 +498,10 @@ permGroupMat <- createAssoPerm(props_amgut, nPerm = 100,
 
     ## Create matrix with permuted group labels ... Done.
 
-We now compute the association matrices in blocks of 10 permutations in
-each loop. Note: The `nPerm` argument must be set to the block size.
+We now compute the association matrices in blocks of 20 permutations in
+each loop (leading to 5 iterations).
+
+Note: The `nPerm` argument must be set to the block size.
 
 The external file (containing the association matrices) must be extended
 in each loop, except for the first iteration, where the file is created.
@@ -525,11 +538,15 @@ for(i in 1:repetitions){
 
     ## Compute permutation associations ...
 
+    ## |======================================================================| 100%
+
     ## Done.
 
     ## [1] 2
 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
 
     ## Done.
 
@@ -537,17 +554,23 @@ for(i in 1:repetitions){
 
     ## Compute permutation associations ...
 
+    ## |======================================================================| 100%
+
     ## Done.
 
     ## [1] 4
 
     ## Compute permutation associations ...
 
+    ## |======================================================================| 100%
+
     ## Done.
 
     ## [1] 5
 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
 
     ## Done.
 
@@ -563,6 +586,9 @@ comp_amgut3 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
 
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Calculating p-values ... Done.
     ## Adjust for multiple testing using 'adaptBH' ... Done.
@@ -635,18 +661,33 @@ for(i in 1:repetitions){
 
     ## Files 'assoPerm1.bmat and assoPerm1.desc.txt created. 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Files 'assoPerm2.bmat and assoPerm2.desc.txt created. 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Files 'assoPerm3.bmat and assoPerm3.desc.txt created. 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Files 'assoPerm4.bmat and assoPerm4.desc.txt created. 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Files 'assoPerm5.bmat and assoPerm5.desc.txt created. 
     ## Compute permutation associations ...
+
+    ## |======================================================================| 100%
+
     ## Done.
 
 ``` r
@@ -686,6 +727,9 @@ comp_amgut4 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
 
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
+
+    ## |======================================================================| 100%
+
     ## Done.
     ## Calculating p-values ... Done.
     ## Adjust for multiple testing using 'adaptBH' ... Done.

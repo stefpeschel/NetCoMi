@@ -263,7 +263,9 @@ permGroupMat <- createAssoPerm(props_amgut, nPerm = 100,
                                computeAsso = FALSE, seed = 123456)
 
 ```
-We now compute the association matrices in blocks of 10 permutations in each loop.
+We now compute the association matrices in blocks of 20 permutations in each loop 
+(leading to 5 iterations).
+
 Note: The `nPerm` argument must be set to the block size.
 
 The external file (containing the association matrices) must be extended in each loop,
