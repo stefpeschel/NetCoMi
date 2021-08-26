@@ -29,11 +29,13 @@ The tutorial furthermore explains NetCoMi's ability to handle **matched data set
 
 We use data from the American Gut Project and conduct a network comparison 
 between subjects with and without lactose intolerance. 
-To demonstrate NetCoMi's functionality for matched data, we build 
+
+To demonstrate NetCoMi's functionality for **matched data**, we build 
 a "fake" 1:2 matched data set, where each two samples of the `LACTOSE = "no"` 
 group are assigned to one sample of the `LACTOSE = "yes"` group.
 We use a subset of 150 samples, leading to 50 samples in group "yes" and 100 
 samples in group "no". 
+
 ```{r load packages, results='hide', message=FALSE, warning=FALSE}
 library(NetCoMi)
 library(phyloseq)
@@ -337,7 +339,7 @@ permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, computeAsso = FALSE,
 
 nPerm_all <- 100
 blocksize <- 20
-repetitions <- nPerm_all / blocksize
+repetitions <- nPerm_all / blocksize  # 5 repetitions
 
 # Execute as standard for-loop:
 for(i in 1:repetitions){
@@ -351,19 +353,37 @@ for(i in 1:repetitions){
 
 # OR execute in parallel:
 library("foreach")
-cores <- 4
+
+cores <- 2 # Please choose an appropriate number of cores
+
 cl <- snow::makeCluster(cores)
 doSNOW::registerDoSNOW(cl)
+
+# Create progress bar:
+pb <- utils::txtProgressBar(0, repetitions, style=3)
+
+progress <- function(n){
+  utils::setTxtProgressBar(pb, n)
+}
+      
+opts <- list(progress = progress)
       
 tmp <- foreach(i = 1:repetitions,
-               .packages = c("NetCoMi")) %dopar% {
-  NetCoMi::createAssoPerm(props_amgut, nPerm = blocksize, 
+               .packages = c("NetCoMi"),
+               .options.snow = opts) %dopar% {
+                 
+                 progress(i)
+                 NetCoMi::createAssoPerm(props_amgut, nPerm = blocksize, 
                           permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
                           computeAsso = TRUE,
                           fileStoreAssoPerm = paste0("assoPerm", i),
                           storeCountsPerm = FALSE, append = FALSE)
 }
 
+# Close progress bar
+close(pb)  
+
+# Stop cluster
 snow::stopCluster(cl)
 
 

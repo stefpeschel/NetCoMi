@@ -23,12 +23,13 @@ data sets**.
 #### Network construction and analysis
 
 We use data from the American Gut Project and conduct a network
-comparison between subjects with and without lactose intolerance. To
-demonstrate NetCoMi’s functionality for matched data, we build a “fake”
-1:2 matched data set, where each two samples of the `LACTOSE = "no"`
-group are assigned to one sample of the `LACTOSE = "yes"` group. We use
-a subset of 150 samples, leading to 50 samples in group “yes” and 100
-samples in group “no”.
+comparison between subjects with and without lactose intolerance.
+
+To demonstrate NetCoMi’s functionality for **matched data**, we build a
+“fake” 1:2 matched data set, where each two samples of the
+`LACTOSE = "no"` group are assigned to one sample of the
+`LACTOSE = "yes"` group. We use a subset of 150 samples, leading to 50
+samples in group “yes” and 100 samples in group “no”.
 
 ``` r
 library(NetCoMi)
@@ -646,7 +647,7 @@ permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, computeAsso = FALSE,
 ``` r
 nPerm_all <- 100
 blocksize <- 20
-repetitions <- nPerm_all / blocksize
+repetitions <- nPerm_all / blocksize  # 5 repetitions
 
 # Execute as standard for-loop:
 for(i in 1:repetitions){
@@ -693,19 +694,47 @@ for(i in 1:repetitions){
 ``` r
 # OR execute in parallel:
 library("foreach")
-cores <- 4
+
+cores <- 2 # Please choose an appropriate number of cores
+
 cl <- snow::makeCluster(cores)
 doSNOW::registerDoSNOW(cl)
+
+# Create progress bar:
+pb <- utils::txtProgressBar(0, repetitions, style=3)
+```
+
+    ##   |                                                                              |                                                                      |   0%
+
+``` r
+progress <- function(n){
+  utils::setTxtProgressBar(pb, n)
+}
+      
+opts <- list(progress = progress)
       
 tmp <- foreach(i = 1:repetitions,
-               .packages = c("NetCoMi")) %dopar% {
-  NetCoMi::createAssoPerm(props_amgut, nPerm = blocksize, 
+               .packages = c("NetCoMi"),
+               .options.snow = opts) %dopar% {
+                 
+                 progress(i)
+                 NetCoMi::createAssoPerm(props_amgut, nPerm = blocksize, 
                           permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
                           computeAsso = TRUE,
                           fileStoreAssoPerm = paste0("assoPerm", i),
                           storeCountsPerm = FALSE, append = FALSE)
 }
+```
 
+    ##   |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |========================================================              |  80%  |                                                                              |======================================================================| 100%
+
+``` r
+# Close progress bar
+close(pb)  
+```
+
+``` r
+# Stop cluster
 snow::stopCluster(cl)
 
 
