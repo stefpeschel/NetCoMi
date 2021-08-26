@@ -339,7 +339,7 @@ nPerm_all <- 100
 blocksize <- 20
 repetitions <- nPerm_all / blocksize
 
-# This code can easily be parallelized:
+# Execute as standard for-loop:
 for(i in 1:repetitions){
   tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
                         permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
@@ -348,6 +348,24 @@ for(i in 1:repetitions){
                         storeCountsPerm = FALSE, append = FALSE)
   
 }
+
+# OR execute in parallel:
+library("foreach")
+cores <- 4
+cl <- snow::makeCluster(cores)
+doSNOW::registerDoSNOW(cl)
+      
+tmp <- foreach(i = 1:repetitions,
+               .packages = c("NetCoMi")) %dopar% {
+  NetCoMi::createAssoPerm(props_amgut, nPerm = blocksize, 
+                          permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
+                          computeAsso = TRUE,
+                          fileStoreAssoPerm = paste0("assoPerm", i),
+                          storeCountsPerm = FALSE, append = FALSE)
+}
+
+snow::stopCluster(cl)
+
 
 # Combine the matrices and store them into a new file (because netCompare() 
 # needs an external file)
