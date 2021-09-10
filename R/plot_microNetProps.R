@@ -104,7 +104,7 @@
 #' @param labels defines the node labels. Can be a named character vector, which 
 #'   is used for both groups (then, the adjacency matrices in \code{x} must 
 #'   contain the same variables). 
-#'   Can also be list with two named vectors (names must match the row/column 
+#'   Can also be a list with two named vectors (names must match the row/column 
 #'   names of the adjacency matrices). If \code{FALSE}, no labels are plotted. 
 #'   Defaults to the row/column names of the adjacency matrices.
 #' @param shortenLabels options to shorten node labels. Ignored if node labels
@@ -302,7 +302,8 @@
 #' @param cexNodes numeric scaling node sizes. Defaults to 1.
 #' @param cexHubs numeric scaling hub sizes. Only used if \code{nodeSize} is set
 #'   to \code{"hubs"}.
-#' @param cexLabels numeric scaling node labels. Defaults to 1.
+#' @param cexLabels numeric scaling node labels. Defaults to 1. If set to 0, no
+#'   node labels are plotted. 
 #' @param cexHubLabels numeric scaling the node labels of hub nodes. Equals 
 #'   \code{cexLabels} by default. Ignored, if \code{highlightHubs = FALSE}.
 #' @param cexTitle numeric scaling title(s). Defaults to 1.2.
@@ -1147,6 +1148,10 @@ plot.microNetProps <- function(x,
     cexLabels1 <- cexLabels
   }
   
+  if(any(cexLabels1 == 0)){
+    labels1[cexLabels1 == 0] <- ""
+  }
+  
   #--------------------------------------------
   # Filter edges without influencing the layout (group 1)
 
@@ -1259,6 +1264,10 @@ plot.microNetProps <- function(x,
       
     } else{
       cexLabels2 <- cexLabels
+    }
+    
+    if(any(cexLabels2 == 0)){
+      labels2[cexLabels2 == 0] <- ""
     }
 
     #--------------------------------------------
