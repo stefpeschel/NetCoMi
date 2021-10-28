@@ -1,0 +1,219 @@
+---
+output: github_document
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(fig.path="figures/tutorial_adapt/")
+```
+
+## Tutorial: How to adapt taxa names in the network plot <img src="figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+
+
+#### Use genus names instead of ASV names: Method 1
+
+In this method, genus names are passed as label vector to the plot function, 
+so that genus names are shown in the plot, but not in the summary outputs.
+
+```{r load packages, results='hide', message=FALSE, warning=FALSE}
+library(NetCoMi)
+library(phyloseq)
+```
+
+```{r method_1}
+data("amgut2.filt.phy")
+
+colnames(amgut2.filt.phy@tax_table@.Data) <- c("Kingdom","Phylum","Class",
+                                               "Order", "Family", "Genus", 
+                                               "Species")
+
+# Agglomerate to genus level
+amgut_genus <- tax_glom(amgut2.filt.phy,"Genus")
+
+# Split data set into seasonal allergies = yes/no
+levels(phyloseq::get_variable(amgut_genus, "SEASONAL_ALLERGIES"))
+amgut_g_yes = subset_samples(amgut_genus, SEASONAL_ALLERGIES == "yes")
+amgut_g_no = subset_samples(amgut_genus, SEASONAL_ALLERGIES == "no")
+
+
+# Network construction
+net_season <- netConstruct(data = amgut_g_yes, 
+                           data2 = amgut_g_no,  
+                           measure = "pearson",
+                           normMethod = "clr", 
+                           zeroMethod = "none",
+                           sparsMethod = "threshold",
+                           thresh = 0.4,
+                           verbose = 1,
+                           seed = 123456)
+
+# Network analysis
+props_season <- netAnalyze(net_season, 
+                           clustMethod = "cluster_fast_greedy")
+
+summary(props_season, showCentr = c("degree", "eigenvector"))
+
+# Create label vector
+labels <- as.vector(tax_table(amgut_genus)[, "Genus"])
+names(labels) <- rownames(tax_table(amgut_genus))
+
+# Optional: Shorten labels to a desired length
+#labels <- substr(labels, 1, 9)
+
+plot(props_season, 
+     repulsion = 0.9,
+     labels = labels,
+     sameLayout = TRUE, 
+     layoutGroup = "union",
+     rmSingles = "inboth", 
+     shortenLabels = "intelligent",
+     labelPattern = c(5,"'",3),
+     labelLength = 10,
+     nodeSize = "mclr", 
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 0.8,
+     cexHubLabels = 0.8,
+     cexTitle = 1.2,
+     groupNames = c("Wet", "Dry"),
+     hubBorderCol  = "gray40",
+     mar = c(2, 6, 4, 6))
+
+# With shortened node labels:
+labels <- substr(labels, 1, 9)
+
+plot(props_season, 
+     repulsion = 0.9,
+     labels = labels,
+     sameLayout = TRUE, 
+     layoutGroup = "union",
+     rmSingles = "inboth", 
+     shortenLabels = "intelligent",
+     labelPattern = c(5,"'",3),
+     labelLength = 10,
+     nodeSize = "mclr", 
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 0.8,
+     cexHubLabels = 0.8,
+     cexTitle = 1.2,
+     groupNames = c("Wet", "Dry"),
+     hubBorderCol  = "gray40",
+     mar = c(2, 6, 4, 6))
+
+```
+
+
+
+#### Use genus names instead of ASV names: Method 2
+
+In this method, row names of the count table (stored as `otu_table` in the 
+phyloseq object) are set to genus names. 
+
+Advantages:
+
+ * Genus names are shown in the summaries 
+ * The functionality for adapting labels provided by NetCoMi's plot function can 
+ be applied
+
+
+```{r method_2}
+data("amgut2.filt.phy")
+
+colnames(amgut2.filt.phy@tax_table@.Data) <- c("Kingdom","Phylum","Class",
+                                               "Order", "Family", "Genus", 
+                                               "Species")
+
+# Agglomerate to genus level
+amgut_genus <- tax_glom(amgut2.filt.phy,"Genus")
+
+# Split data set into seasonal allergies = yes/no
+levels(phyloseq::get_variable(amgut_genus, "SEASONAL_ALLERGIES"))
+amgut_g_yes = subset_samples(amgut_genus, SEASONAL_ALLERGIES == "yes")
+amgut_g_no = subset_samples(amgut_genus, SEASONAL_ALLERGIES == "no")
+
+
+# Rename taxa
+# (Since NetCoMi uses only the otu table, we just rename it's rownames)
+g_names <- as.vector(tax_table(amgut_genus)[, "Genus"])
+
+taxtab <- amgut_genus@tax_table@.Data
+
+# Make labels unique
+duplis <- g_names[duplicated(g_names) | duplicated(g_names, fromLast=TRUE)]
+  
+while(length(duplis) > 0){
+    duplis.sel <- duplis[duplis == duplis[1]]
+      
+    g_names[g_names == duplis.sel[1]] <- paste0(duplis.sel[1], 1:length(duplis.sel))
+      
+      duplis <- g_names[duplicated(g_names) | duplicated(g_names, fromLast=TRUE)]
+}
+
+rownames(amgut_g_yes@otu_table@.Data) <- g_names
+rownames(amgut_g_no@otu_table@.Data) <- g_names
+
+
+# Network construction
+net_season <- netConstruct(data = amgut_g_yes, 
+                           data2 = amgut_g_no,  
+                           measure = "pearson",
+                           normMethod = "clr", 
+                           zeroMethod = "none",
+                           sparsMethod = "threshold",
+                           thresh = 0.4,
+                           verbose = 1,
+                           seed = 123456)
+
+# Network analysis
+props_season <- netAnalyze(net_season, 
+                           clustMethod = "cluster_fast_greedy")
+
+# Network analysis summary (which now shows genus names)
+summary(props_season, showCentr = c("degree", "eigenvector"))
+
+
+plot(props_season, 
+     repulsion = 0.9,
+     sameLayout = TRUE, 
+     layoutGroup = "union",
+     rmSingles = "inboth", 
+     shortenLabels = "simple",
+     labelLength = 9,
+     nodeSize = "mclr", 
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 0.8,
+     cexHubLabels = 0.8,
+     cexTitle = 1.2,
+     groupNames = c("Wet", "Dry"),
+     hubBorderCol  = "gray40",
+     mar = c(2, 6, 4, 6))
+
+```
+
+
+#### Only hub nodes are labeled
+
+If `cexLabels` is set to zero, only the hub node's labels are plotted.
+
+```{r hub_labels_only}
+plot(props_season, 
+     repulsion = 0.9,
+     sameLayout = TRUE, 
+     layoutGroup = "union",
+     rmSingles = "inboth", 
+     shortenLabels = "simple",
+     labelLength = 9,
+     nodeSize = "mclr", 
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 0,
+     cexHubLabels = 1,
+     cexTitle = 1.2,
+     groupNames = c("Wet", "Dry"),
+     hubBorderCol  = "gray40",
+     mar = c(2, 6, 4, 6))
+
+```
+
+
