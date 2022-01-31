@@ -55,22 +55,10 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
                        centrLCC, jaccard = FALSE, jaccQuant = NULL, 
                        verbose = 0){
   
-  if(isempty){
-    output <- list(clust = NULL, tree = NULL, deg = 0, deg_unnorm = 0,
-                   betw = 0, betw_unnorm = 0, close = 0, close_unnorm = 0,
-                   eigen = 0, eigen_unnorm = 0, lccSize = 0,
-                   avDiss = 0, avDiss_lcc = 0, avPath = 0, avPath_lcc = 0,
-                   vertconnect = 0, vertconnect_lcc = 0, edgeconnect = 0, 
-                   edgeconnect_lcc = 0, clustCoef = 0, clustCoef_lcc = 0,
-                   density = 0, density_lcc = 0, modul = 0, modul_lcc = 0,
-                   pep = 0, pep_lcc = 0,  hubs = NULL, topdeg = NULL, 
-                   topbetw = NULL, topclose = NULL, topeigen = NULL)
-    return(output)
-  }
-
+  
   #== Create igraph objects and decompose graph ================================
   # Create graph from adjacency matrix
-
+  
   if(verbose == 2){
     message("Create igraph objects ... ", appendLF = FALSE)
   }
@@ -78,11 +66,11 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
   net <- igraph::graph_from_adjacency_matrix(adjaMat, weighted=T,
                                              mode="undirected", diag=F)
   
+  nNodes <- ncol(adjaMat)
+  
   # decomposed graph
   dg_net <- igraph::decompose.graph(net)
   
-  nNodes <- ncol(adjaMat)
-
   # size and number of the connected components
   dgcount <- unlist(lapply(dg_net, igraph::vcount))
   nComp <- length(dgcount)
@@ -90,6 +78,40 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
   compSize <- rbind(as.numeric(colnames(compSize)), compSize[1, ])
   dimnames(compSize) <- list(c("size:", "   #:"), rep("", ncol(compSize)))
   compSize <- compSize[, order(compSize[1,], decreasing = TRUE), drop = FALSE]
+  
+  if(isempty){
+    emptyvec <- numeric(nNodes)
+    names(emptyvec) <- colnames(adjaMat)
+    
+    output <- list()
+    
+    output$nComp <- nNodes
+    output$compSize<- compSize 
+    output$lccNames <- names(emptyvec)[1]
+    output$clust <- emptyvec
+    output$tree <- NULL
+    output$clust_lcc <- emptyvec[1]
+    output$tree_lcc <- NULL
+    output$deg <- output$deg_unnorm <- emptyvec
+    output$betw <- output$betw_unnorm <- emptyvec
+    output$close <- output$close_unnorm <- emptyvec
+    output$eigen <- output$eigen_unnorm <- emptyvec
+    output$lccSize <- 1
+    output$lccSizeRel <- 1/nNodes
+    output$avDiss <- output$avDiss_lcc <- 1
+    output$avPath <- output$avPath_lcc <- 1
+    output$vertconnect <- output$vertconnect_lcc <- 0
+    output$edgeconnect <- output$edgeconnect_lcc <- 0
+    output$natConnect <- output$natConnect_lcc <- 0
+    output$clustCoef <- output$clustCoef_lcc <- 0
+    output$density <- output$density_lcc <- 0
+    output$modul <- output$modul_lcc <- 0
+    output$pep <- output$pep_lcc <- 0
+    output$hubs <- output$topdeg <- output$topbetw <- output$topclose <- 
+      output$topeigen <- character(0)
+    
+    return(output)
+  }
   
   # Largest connected component (LCC)
   indLCC <- which.max(unlist(lapply(dg_net, function(x) length(igraph::V(x)))))
@@ -129,16 +151,16 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
   
   # LCC
   dissnet_lcc <- igraph::graph_from_adjacency_matrix(dissMatnoInf_lcc, 
-                                                    weighted=T,
-                                                    mode="undirected", 
-                                                    diag=F)
+                                                     weighted=T,
+                                                     mode="undirected", 
+                                                     diag=F)
   
   if(verbose == 2){
     message("Done.")
   }
   
   #== Clustering ============================================================
-
+  
   clust <- clust_lcc <- NULL
   tree <- tree_lcc <- NULL
   
@@ -149,11 +171,11 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
     }
     
     if(clustMethod == "hierarchical"){
-
+      
       if(is.null(clustPar$method)){
         clustPar$method <- "average"
       }
-
+      
       dissMat.tmp <- dissMat
       dissMat.tmp[is.infinite(dissMat.tmp)] <- 1
       
@@ -162,7 +184,7 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
       
       tree <- stats::hclust(stats::as.dist(dissMat.tmp), 
                             method = clustPar$method)
-
+      
       tree_lcc <- stats::hclust(as.dist(dissMat_lcc.tmp), 
                                 method = clustPar$method)
       rm(dissMat.tmp, dissMat_lcc.tmp)
@@ -181,28 +203,28 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
       
       names(clust) <- rownames(adjaMat)
       names(clust_lcc) <- rownames(adjaMat_lcc)
-
+      
     } else{
-
+      
       if(clustMethod == "cluster_edge_betweenness"){
         clustres <- do.call(getExportedValue("igraph", clustMethod),  
                             c(list(graph = net, weights = E(dissnet)$weight),
                               clustPar))
         
         clustres_lcc <- do.call(getExportedValue("igraph", clustMethod),  
-                            c(list(graph = net_lcc, 
-                                   weights = E(dissnet_lcc)$weight),
-                              clustPar))
+                                c(list(graph = net_lcc, 
+                                       weights = E(dissnet_lcc)$weight),
+                                  clustPar))
       } else{
         clustres <- do.call(getExportedValue("igraph", clustMethod), 
                             c(list(net), clustPar))
         clustres_lcc <- do.call(getExportedValue("igraph", clustMethod), 
-                            c(list(net_lcc), clustPar))
+                                c(list(net_lcc), clustPar))
       }
-
+      
       clust <- clustres$membership
       names(clust) <- clustres$names
-
+      
       # LCC
       clust_lcc <- clustres_lcc$membership
       names(clust_lcc) <- clustres_lcc$names
@@ -254,7 +276,10 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
     
     ### average dissimilarity
     avDiss <- mean(dissVec, na.rm = TRUE)
+    if(is.na(avDiss)) avDiss <- 1
+    
     avDiss_lcc <- mean(dissVec_lcc, na.rm = TRUE)
+    if(is.na(avDiss_lcc)) avDiss_lcc <- 1
     
     # "normalized" shortest paths (units with average dissimilarity)
     if(sPathNorm){
@@ -278,11 +303,11 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
   sPathVec <- sPath[lower.tri(sPath)]
   sPathVec[is.infinite(sPathVec)] <- NA
   avPath <- mean(sPathVec, na.rm = TRUE)
-  if(is.na(avPath)) avPath <- 0
+  if(is.na(avPath)) avPath <- 1
   
   sPathVec_lcc <- sPath_lcc[lower.tri(sPath_lcc)]
   avPath_lcc <- mean(sPathVec_lcc, na.rm = TRUE)
-  if(is.na(avPath_lcc)) avPath_lcc <- 0
+  if(is.na(avPath_lcc)) avPath_lcc <- 1
   
   if(verbose == 2){
     message("Done.")
@@ -329,7 +354,7 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
   
   #-------------------------------
   ### Clustering coefficient
-
+  
   if(verbose == 2){
     message("Clustering coefficient ... ", appendLF = FALSE)
   }
@@ -338,10 +363,12 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
     # Complete network
     clustCoef.tmp <- igraph::transitivity(net, type = "barrat")
     clustCoef <- mean(clustCoef.tmp, na.rm = TRUE)
-
+    if(is.nan(clustCoef)) clustCoef <- 0
+    
     # LCC
     clustCoef.tmp <- igraph::transitivity(net_lcc, type = "barrat")
     clustCoef_lcc <- mean(clustCoef.tmp, na.rm = TRUE)
+    if(is.nan(clustCoef_lcc)) clustCoef_lcc <- 0
     
     rm(clustCoef.tmp)
   } else{
