@@ -169,9 +169,10 @@ Determine network properties for objects of class
   disconnected network.}
   \item{Average dissimilarity}{Computed as the mean of dissimilarity values 
   (lower triangle of \code{dissMat}). By \code{avDissIgnoreInf} is specified 
-  whether to ignore infinite dissimilarities.}
+  whether to ignore infinite dissimilarities. The average dissimilarity of an
+  empty network is 1.}
   \item{Average path length}{Computed as the mean of shortest paths 
-  (normalized or unnormalized).}
+  (normalized or unnormalized). The av. path length of an empty network is 1.}
   }
   \strong{Clustering algorithms:}\cr
   \describe{
