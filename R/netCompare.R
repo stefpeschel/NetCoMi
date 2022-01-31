@@ -280,6 +280,12 @@ netCompare <- function(x,
 
   stopifnot(class(x) =="microNetProps")
   stopifnot(is.logical(permTest))
+  
+  if(permTest && x$paramsNetConstruct$dataType != "counts"){
+    stop("Permutation tests only possible if count tables were used for network ", 
+         "construction.")
+  }
+  
   if(!is.null(lnormFit)) stopifnot(is.logical(lnormFit))
   stopifnot(jaccQuant >= 0 & jaccQuant <= 1)
   nPerm <- as.integer(nPerm)
