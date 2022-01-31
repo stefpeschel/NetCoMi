@@ -7,12 +7,10 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                             normDeg, normBetw, normClose, normEigen, centrLCC,
                             testJacc = TRUE, jaccTestGreater = FALSE,
                             testRand = TRUE, nPermRand = 1000){
-
+  
   isempty1 <- all(adja1[lower.tri(adja1)] == 0)
   isempty2 <- all(adja2[lower.tri(adja2)] == 0)
-
-  if(isempty1 & isempty2) stop("There are no connected nodes in both networks.")
-
+  
   # calculate network properties
   props1 <- calc_props(adjaMat = adja1, dissMat = dissMat1, assoMat = assoMat1, 
                        avDissIgnoreInf = avDissIgnoreInf,
@@ -51,13 +49,13 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   diffbetw <- sort(props1$betw - props2$betw[names(props1$betw)])
   diffclose <- sort(props1$close - props2$close[names(props1$close)])
   diffeigen <- sort(props1$eigen - props2$eigen[names(props1$eigen)])
-
+  
   # absolute differences
   absdiffdeg <- abs(props1$deg - props2$deg[names(props1$deg)])
   absdiffbetw <- abs(props1$betw - props2$betw[names(props1$betw)])
   absdiffclose <- abs(props1$close - props2$close[names(props1$close)])
   absdiffeigen <- abs(props1$eigen - props2$eigen[names(props1$eigen)])
-
+  
   #--------------------------------------------------------------------------
   ### Average dissimilarity
   
@@ -68,13 +66,11 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   avDiss2_lcc <- props2$avDiss_lcc
   
   if(is.na(avDiss1)){
-    avDiss1 <- 0
-    avDiss1_lcc <- 0
+    avDiss1 <- avDiss1_lcc <- 1
   } 
   
   if(is.na(avDiss2)){
-    avDiss2 <- 0
-    avDiss2_lcc <- 0
+    avDiss2 <- avDiss2_lcc <- 1
   }
   
   diffdiss <- abs(avDiss1 - avDiss2)
@@ -82,7 +78,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   
   #--------------------------------------------------------------------------
   ### Average Path Length (or Mean Distance)
-
+  
   avPath1 <- props1$avPath
   avPath2 <- props2$avPath
   
@@ -90,40 +86,36 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   avPath2_lcc <- props2$avPath_lcc
   
   if(is.na(avPath1)){
-    avPath1 <- 0
-    avPath1_lcc <- 0
+    avPath1 <- avPath1_lcc <- 1
   } 
   
   if(is.na(avPath2)){
-    avPath2 <- 0
-    avPath2_lcc <- 0
+    avPath2 <- avPath2_lcc <- 1
   }
-
+  
   diffpath <- abs(avPath1 - avPath2)
   diffpath_lcc <- abs(avPath1_lcc - avPath2_lcc)
-
+  
   #--------------------------------------------------------------------------
   ### Clustering coefficient
-
+  
   clustCoef1 <- props1$clustCoef
   clustCoef2 <- props2$clustCoef
   
   clustCoef1_lcc <- props1$clustCoef_lcc
   clustCoef2_lcc <- props2$clustCoef_lcc
-
+  
   if(is.na(clustCoef1)){
-    clustCoef1 <- 0
-    clustCoef1_lcc <- 0
+    clustCoef1 <- clustCoef1_lcc <- 0
   } 
   
   if(is.na(clustCoef2)){
-    clustCoef2 <- 0
-    clustCoef2_lcc <- 0
+    clustCoef2 <- clustCoef2_lcc <- 0
   } 
   
   diffclustcoef <- abs(clustCoef1 - clustCoef2)
   diffclustcoef_lcc <- abs(clustCoef1_lcc - clustCoef2_lcc)
-
+  
   #--------------------------------------------------------------------------
   # differential Modularity
   if(clustMethod != "none"){
