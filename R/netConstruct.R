@@ -1519,9 +1519,10 @@ netConstruct <- function(data,
 
   #=============================================================================
   # Create edge list
-  g <- graph.adjacency(adjaMat1, weighted = TRUE)
+  g <- graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
+                                   mode = "undirected", diag = FALSE)
 
-  if(all(adjaMat1[lower.tri(adjaMat1)] == 0)){
+  if(is.null(E(g)$weight)){
     isempty1 <- TRUE
     edgelist1 <- NULL
     
@@ -1542,17 +1543,14 @@ netConstruct <- function(data,
     }
     
     edgelist1$adja <- sapply(1:nrow(edgelist1), function(i) adjaMat1[edgelist1[i,1], edgelist1[i,2]])
-    
-    torem <- which(edgelist1$v1 == edgelist1$v2)
-    edgelist1 <- edgelist1[-torem, ]
-    rownames(edgelist1) <- NULL
   }
 
   if(twoNets){
     # Create edge list
-    g <- graph.adjacency(adjaMat2, weighted = TRUE)
+    g <- graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
+                                     mode = "undirected", diag = FALSE)
     
-    if(all(adjaMat1[lower.tri(adjaMat1)] == 0)){
+    if(is.null(E(g)$weight)){
       isempty2 <- TRUE
       edgelist2 <- NULL
       
@@ -1573,10 +1571,6 @@ netConstruct <- function(data,
       }
       
       edgelist2$adja <- sapply(1:nrow(edgelist2), function(i) adjaMat2[edgelist2[i,1], edgelist2[i,2]])
-      
-      torem <- which(edgelist2$v1 == edgelist2$v2)
-      edgelist2 <- edgelist2[-torem, ]
-      rownames(edgelist2) <- NULL
     }
     
     if(isempty1 && verbose > 0){
