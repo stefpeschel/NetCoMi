@@ -338,13 +338,22 @@
 #' @param seed integer giving a seed for reproducibility of the results.
 #' @return An object of class \code{microNet} containing the following elements:
 #'   \tabular{ll}{
+#'   \code{edgelist1, edgelist2}\tab Edge list with the following columns:
+#'   \itemize{
+##'  \item \code{v1}, \code{v2}: names of adjacent nodes/vertices
+##'  \item \code{asso}: estimated association (only for association networks)
+##'  \item \code{diss}: dissimilarity
+##'  \item \code{sim}: similarity (only for unweighted networks)
+##'  \item \code{adja}: adjacency (equals similarity for 
+#'   weighted networks)
+##'  }\cr
 #'   \code{assoMat1, assoMat2}\tab Sparsified associations (\code{NULL} for
 #'   dissimilarity based networks)\cr
 #'   \code{dissMat1, dissMat2}\tab Sparsified dissimilarities (for association
 #'   networks, these are the sparsified associations transformed into
 #'   dissimilarities)\cr
 #'   \code{simMat1, simMat2}\tab Sparsified similarities\cr
-#'   \code{adjamat1, adjamat2}\tab Adjacency matrices\cr
+#'   \code{adjaMat1, adjaMat2}\tab Adjacency matrices\cr
 #'   \code{assoEst1, assoEst2}\tab Estimated associations (\code{NULL} for
 #'   dissimilarity based networks)\cr
 #'   \code{dissEst1, dissEst2}\tab Estimated dissimilarities (\code{NULL} for
@@ -1509,7 +1518,78 @@ netConstruct <- function(data,
   }
 
   #=============================================================================
+  # Create edge list
+  g <- graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
+                                   mode = "undirected", diag = FALSE)
+
+  if(is.null(E(g)$weight)){
+    isempty1 <- TRUE
+    edgelist1 <- NULL
+    
+  } else{
+    isempty1 <- FALSE
+    
+    edgelist1 <- data.frame(get.edgelist(g))
+    colnames(edgelist1) <- c("v1", "v2")
+    
+    if(!is.null(assoMat1)){
+      edgelist1$asso <- sapply(1:nrow(edgelist1), function(i) assoMat1[edgelist1[i,1], edgelist1[i,2]])
+    }
+    
+    edgelist1$diss <- sapply(1:nrow(edgelist1), function(i) dissMat1[edgelist1[i,1], edgelist1[i,2]])
+    
+    if(all(adjaMat1 %in% c(0,1))){
+      edgelist1$sim <- sapply(1:nrow(edgelist1), function(i) simMat1[edgelist1[i,1], edgelist1[i,2]])
+    }
+    
+    edgelist1$adja <- sapply(1:nrow(edgelist1), function(i) adjaMat1[edgelist1[i,1], edgelist1[i,2]])
+  }
+
+  if(twoNets){
+    # Create edge list
+    g <- graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
+                                     mode = "undirected", diag = FALSE)
+    
+    if(is.null(E(g)$weight)){
+      isempty2 <- TRUE
+      edgelist2 <- NULL
+      
+    } else{
+      isempty2 <- FALSE
+      
+      edgelist2 <- data.frame(get.edgelist(g))
+      colnames(edgelist2) <- c("v1", "v2")
+      
+      if(!is.null(assoMat2)){
+        edgelist2$asso <- sapply(1:nrow(edgelist2), function(i) assoMat2[edgelist2[i,1], edgelist2[i,2]])
+      }
+      
+      edgelist2$diss <- sapply(1:nrow(edgelist2), function(i) dissMat2[edgelist2[i,1], edgelist2[i,2]])
+      
+      if(all(adjaMat2 %in% c(0,1))){
+        edgelist2$sim <- sapply(1:nrow(edgelist2), function(i) simMat2[edgelist2[i,1], edgelist2[i,2]])
+      }
+      
+      edgelist2$adja <- sapply(1:nrow(edgelist2), function(i) adjaMat2[edgelist2[i,1], edgelist2[i,2]])
+    }
+    
+    if(isempty1 && verbose > 0){
+      message("\nNetwork 1 has no edges.")
+    }
+    if(isempty2 && verbose > 0){
+      message("Network 2 has no edges.")
+    }
+  } else{
+    edgelist2 <- NULL
+    if(isempty1 && verbose > 0){
+      message("\nNetwork has no edges.")
+    }
+  }
+
+  #=============================================================================
   output <- list()
+  output$edgelist1 <- edgelist1
+  output$edgelist2 <- edgelist2
   output$assoMat1 <- assoMat1
   output$assoMat2 <- assoMat2
   output$dissMat1 <- dissMat1

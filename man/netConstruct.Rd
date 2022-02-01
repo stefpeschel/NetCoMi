@@ -291,13 +291,22 @@ from external functions are shown in addition. Can also be logical.}
 \value{
 An object of class \code{microNet} containing the following elements:
   \tabular{ll}{
+  \code{edgelist1, edgelist2}\tab Edge list with the following columns:
+  \itemize{
+ \item \code{v1}, \code{v2}: names of adjacent nodes/vertices
+ \item \code{asso}: estimated association (only for association networks)
+ \item \code{diss}: dissimilarity
+ \item \code{sim}: similarity (only for unweighted networks)
+ \item \code{adja}: adjacency (equals similarity for 
+  weighted networks)
+ }\cr
   \code{assoMat1, assoMat2}\tab Sparsified associations (\code{NULL} for
   dissimilarity based networks)\cr
   \code{dissMat1, dissMat2}\tab Sparsified dissimilarities (for association
   networks, these are the sparsified associations transformed into
   dissimilarities)\cr
   \code{simMat1, simMat2}\tab Sparsified similarities\cr
-  \code{adjamat1, adjamat2}\tab Adjacency matrices\cr
+  \code{adjaMat1, adjaMat2}\tab Adjacency matrices\cr
   \code{assoEst1, assoEst2}\tab Estimated associations (\code{NULL} for
   dissimilarity based networks)\cr
   \code{dissEst1, dissEst2}\tab Estimated dissimilarities (\code{NULL} for
