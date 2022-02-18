@@ -1107,7 +1107,7 @@ plot.microNetProps <- function(x,
 
   labels1.orig <- rownames(adja1)
   
-  if(is.null(labels)){
+  if(is.null(labels) || (is.logical(labels) && labels == TRUE)){
 
     adja.tmp <- rename_taxa(adja1, toRename = "both", 
                             shortenLabels = shortenLabels,
@@ -1117,7 +1117,7 @@ plot.microNetProps <- function(x,
     
     labels1 <- rownames(adja.tmp)
     
-  } else if(is.logical(labels)){
+  } else if(is.logical(labels) && labels == FALSE){
     labels1 <- labels
     
   } else if(is.list(labels)){
@@ -1136,22 +1136,27 @@ plot.microNetProps <- function(x,
   #--------------------------------------------
   # Label size (group 1)
 
-  if(highlightHubs){
-    if(is.null(cexHubLabels)){
-      cexHubLabels <- cexLabels
-    }
-    
-    cexLabels1 <- rep(cexLabels, length(labels1))
-    cexLabels1[match(hubs1, rownames(adja1))] <- cexHubLabels
+  if(!is.null(labels) && is.logical(labels) && labels == FALSE){
+    cexLabels1 <- 0
     
   } else{
-    cexLabels1 <- cexLabels
+    if(highlightHubs){
+      if(is.null(cexHubLabels)){
+        cexHubLabels <- cexLabels
+      }
+      
+      cexLabels1 <- rep(cexLabels, length(labels1))
+      cexLabels1[match(hubs1, rownames(adja1))] <- cexHubLabels
+      
+    } else{
+      cexLabels1 <- cexLabels
+    }
+    
+    if(any(cexLabels1 == 0)){
+      labels1[cexLabels1 == 0] <- ""
+    }
   }
-  
-  if(any(cexLabels1 == 0)){
-    labels1[cexLabels1 == 0] <- ""
-  }
-  
+
   #--------------------------------------------
   # Filter edges without influencing the layout (group 1)
 
@@ -1195,7 +1200,7 @@ plot.microNetProps <- function(x,
     # Labels (group 2)
     labels2.orig <- rownames(adja2)
     
-    if(is.null(labels)){
+    if(is.null(labels) || (is.logical(labels) && labels == TRUE)){
       adja.tmp <- rename_taxa(adja2, toRename = "both", 
                               shortenLabels = shortenLabels,
                               labelLength = labelLength, 
@@ -1203,7 +1208,7 @@ plot.microNetProps <- function(x,
                               charToRm = charToRm)
       labels2 <- rownames(adja.tmp)
 
-    } else if(is.logical(labels)){
+    } else if(is.logical(labels) && labels == FALSE){
       labels2 <- labels
       
     } else if(is.list(labels)){
@@ -1256,18 +1261,23 @@ plot.microNetProps <- function(x,
     }
     
     #--------------------------------------------
-    # Label size (group 1)
+    # Label size (group 2)
     
-    if(highlightHubs){
-      cexLabels2 <- rep(cexLabels, length(labels2))
-      cexLabels2[match(hubs2, rownames(adja2))] <- cexHubLabels
+    if(!is.null(labels) && is.logical(labels) && labels == FALSE){
+      cexLabels2 <- 0
       
     } else{
-      cexLabels2 <- cexLabels
-    }
-    
-    if(any(cexLabels2 == 0)){
-      labels2[cexLabels2 == 0] <- ""
+      if(highlightHubs){
+        cexLabels2 <- rep(cexLabels, length(labels2))
+        cexLabels2[match(hubs2, rownames(adja2))] <- cexHubLabels
+        
+      } else{
+        cexLabels2 <- cexLabels
+      }
+      
+      if(any(cexLabels2 == 0)){
+        labels2[cexLabels2 == 0] <- ""
+      }
     }
 
     #--------------------------------------------
@@ -1308,7 +1318,7 @@ plot.microNetProps <- function(x,
   # Plot network(s)
 
   if(twoNets){
-      par(mfrow = c(1,2))
+      par(mfrow = c(1,2), xpd=TRUE)
 
     if(groupsChanged){
       q2 <- qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
@@ -1343,7 +1353,8 @@ plot.microNetProps <- function(x,
 
     #---------------------------------------------
   } else{
-
+    par(xpd=TRUE)
+    
     q1 <- qgraph(adja1, color = nodecol1, layout = lay1, vsize = nodeSize1,
                  labels = labels1, label.scale = labelScale,
                  border.color = border1, border.width = borderWidth1,
