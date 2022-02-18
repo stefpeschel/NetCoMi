@@ -114,7 +114,7 @@ plotted. If \code{TRUE}, the order is exchanged. See details. Defaults to
 \item{labels}{defines the node labels. Can be a named character vector, which 
 is used for both groups (then, the adjacency matrices in \code{x} must 
 contain the same variables). 
-Can also be list with two named vectors (names must match the row/column 
+Can also be a list with two named vectors (names must match the row/column 
 names of the adjacency matrices). If \code{FALSE}, no labels are plotted. 
 Defaults to the row/column names of the adjacency matrices.}
 
@@ -355,7 +355,8 @@ with weight ABOVE \code{cut}.}
 \item{cexHubs}{numeric scaling hub sizes. Only used if \code{nodeSize} is set
 to \code{"hubs"}.}
 
-\item{cexLabels}{numeric scaling node labels. Defaults to 1.}
+\item{cexLabels}{numeric scaling node labels. Defaults to 1. If set to 0, no
+node labels are plotted.}
 
 \item{cexHubLabels}{numeric scaling the node labels of hub nodes. Equals 
 \code{cexLabels} by default. Ignored, if \code{highlightHubs = FALSE}.}
