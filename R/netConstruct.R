@@ -506,7 +506,8 @@ netConstruct <- function(data,
                          weighted = TRUE,
                          sampleSize = NULL,
                          verbose = 2,
-                         seed = NULL) {
+                         seed = NULL,
+                         cov.method = NULL) {
 
   dataType <-  match.arg(dataType, choices = c("counts",
                                                "phyloseq",
@@ -1297,7 +1298,7 @@ netConstruct <- function(data,
     }
 
     assoMat1 <- calc_association(countMat = counts1, measure = measure,
-                                 measurePar = measurePar, verbose = verbose)
+                                 measurePar = measurePar, verbose = verbose, cov.method = cov.method)
 
     if(verbose %in% 2:3) message("Done.")
 
@@ -1310,7 +1311,7 @@ netConstruct <- function(data,
       }
 
       assoMat2 <- calc_association(countMat = counts2, measure = measure,
-                                   measurePar = measurePar, verbose = verbose)
+                                   measurePar = measurePar, verbose = verbose, cov.method = cov.method)
       if(verbose %in% 2:3) message("Done.")
 
     } else{

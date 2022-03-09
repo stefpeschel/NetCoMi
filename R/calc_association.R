@@ -18,7 +18,7 @@
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 
-calc_association <- function(countMat, measure, measurePar, verbose){
+calc_association <- function(countMat, measure, measurePar, verbose, cov.method = NULL){
 
   if(measure == "pearson"){
 
@@ -83,6 +83,11 @@ calc_association <- function(countMat, measure, measurePar, verbose){
     diag(assoMat) <- 1
 
   } else if(measure == "spieceasi"){
+    
+    if(class(cov.method)=="character"){
+      print('in order to use latentcor you have to install spieceasi latentcor branch')
+      measurePar$cov.method <- cov.method
+    }
     
     if(!is.null(measurePar$symBetaMode)){
       symBetaMode <- measurePar$symBetaMode
