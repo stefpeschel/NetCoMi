@@ -18,7 +18,7 @@
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 
-calc_association <- function(countMat, measure, measurePar, verbose, cov.method = NULL){
+calc_association <- function(countMat, measure, measurePar, verbose){
 
   if(measure == "pearson"){
 
@@ -84,9 +84,9 @@ calc_association <- function(countMat, measure, measurePar, verbose, cov.method 
 
   } else if(measure == "spieceasi"){
     
-    if(class(cov.method)=="character"){
-      print('in order to use latentcor you have to install spieceasi latentcor branch')
-      measurePar$cov.method <- cov.method
+    if(!is.null(measurePar$cov.method) & 
+       !startsWith(as.character(packageVersion("SpiecEasi")), "2.")){
+      message("\nNote: In order to use 'latentcor', SpiecEasi must be installed from 'latentcor' branch.")
     }
     
     if(!is.null(measurePar$symBetaMode)){
