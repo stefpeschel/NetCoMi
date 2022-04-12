@@ -71,14 +71,14 @@ summary.microNetProps <- function(object, groupNames = NULL,
   
   glob_rnames <- c("Number of components", 
                    "Clustering coefficient",
-                   "Moduarity",
+                   "Modularity",
                    "Positive edge percentage",
                    "Edge density",
                    "Natural connectivity")
   
   glob_rnames_lcc <- c("Relative LCC size", 
                        "Clustering coefficient",
-                       "Moduarity",
+                       "Modularity",
                        "Positive edge percentage",
                        "Edge density",
                        "Natural connectivity",
