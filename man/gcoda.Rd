@@ -60,7 +60,7 @@ A parallelized implementation of the gCoda approach
   \cite{(Fang et al., 2017)}, published on GitHub \cite{(Fang, 2016)}.
 }
 \references{
-\insertRef{fang2016gcodaGithub}{NetCoMi}\cr
+\insertRef{fang2016gcodaGithub}{NetCoMi}\cr\cr
   \insertRef{fang2017gcoda}{NetCoMi}
 }
 \author{

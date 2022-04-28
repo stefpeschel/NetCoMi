@@ -244,10 +244,11 @@
 #'
 #' @seealso \code{\link{summary.microNetComp}}, \code{\link{netConstruct}},
 #'   \code{\link{netAnalyze}}
-#' @references \insertRef{benjamini2000adaptive}{NetCoMi} \cr
-#'   \insertRef{farcomeni2007some}{NetCoMi} \cr
-#'   \insertRef{gill2010statistical}{NetCoMi} \cr
-#'   \insertRef{qannari2014significance}{NetCoMi} \cr
+#' @references 
+#'   \insertRef{benjamini2000adaptive}{NetCoMi} \cr\cr
+#'   \insertRef{farcomeni2007some}{NetCoMi} \cr\cr
+#'   \insertRef{gill2010statistical}{NetCoMi} \cr\cr
+#'   \insertRef{qannari2014significance}{NetCoMi} \cr\cr
 #'   \insertRef{real1996probabilistic}{NetCoMi}
 #' @import foreach doSNOW filematrix
 #' @importFrom snow makeCluster stopCluster

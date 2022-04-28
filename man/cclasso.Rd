@@ -54,7 +54,7 @@ Implementation of the CCLasso approach \cite{(Fang et al., 2015)},
   by a progress message.
 }
 \references{
-\insertRef{fang2015cclasso}{NetCoMi}\cr
+\insertRef{fang2015cclasso}{NetCoMi}\cr\cr
   \insertRef{fang2016cclassoGithub}{NetCoMi}
 }
 \author{
