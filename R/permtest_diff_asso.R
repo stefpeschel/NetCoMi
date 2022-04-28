@@ -82,8 +82,9 @@
 #'   names of two files storing the permuted count matrices belonging to the 
 #'   two groups.
 #' @param assoPerm not used anymore.
-#' @references{\insertRef{gill2010statistical}{NetCoMi}}
-#' @references{\insertRef{knijnenburg2009fewer}{NetCoMi}}
+#' @references
+#'   \insertRef{gill2010statistical}{NetCoMi}\cr\cr
+#'   \insertRef{knijnenburg2009fewer}{NetCoMi}\cr\cr
 #'
 #' @seealso \code{\link{diffnet}}
 

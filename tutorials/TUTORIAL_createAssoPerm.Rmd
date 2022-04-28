@@ -43,7 +43,7 @@ library(phyloseq)
 ```
 
 
-```{r network construction, fig.width=40, fig.height=18}
+```{r network_construction, fig.width=40, fig.height=18}
 
 set.seed(123456)
 
@@ -120,7 +120,7 @@ at least 1000 to get reliable results.
 The matrices with estimated associations for the permuted data are stored in an 
 external file (in the current working directory) named `"assoPerm_comp"`.
 
-```{r netcomp 1}
+```{r netcomp_1}
 # Network comparison
 comp_amgut_orig <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
                           storeAssoPerm = TRUE,
@@ -136,7 +136,7 @@ associations are loaded by `netCompare()`. This option might be useful to
 rerun the function with alternative multiple testing adjustment, without the 
 need of re-estimating all associations.
 
-```{r netcomp 2}
+```{r netcomp_2}
 # Network comparison
 comp_amgut1 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
                           fileLoadAssoPerm = "assoPerm_comp",
@@ -166,7 +166,7 @@ Just to take a look how the differential network could look like, we plot the
 differential network based on non-adjusted p-values. Note that this approach is 
 statistically not correct!
 
-```{r diffnet 2}
+```{r diffnet_2}
 plot(diffnet_amgut, adjusted = FALSE,
      mar = c(2, 2, 5, 15), legendPos = c(1.2,1.2),
      legendArgs = list(bty = "n"),
@@ -183,7 +183,7 @@ This time, the permutation association matrices are generated using
 The output should be written to a variable because `createAssoPerm()` generally 
 returns the matrix with permuted group labels.
 
-```{r createAssoPerm 1, results='hide', message=FALSE, warning=FALSE}
+```{r createAssoPerm_1, results='hide', message=FALSE, warning=FALSE}
 permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, 
                                computeAsso = TRUE,
                                fileStoreAssoPerm = "assoPerm",
@@ -207,7 +207,7 @@ the group label matrix accordingly. Now, we can see that the matching design is
 kept: Since sample 3 is assigned to group 1, samples 1 and 2 have to be assigned 
 to group 2 and so on (entries [1,1] and [1,51:52] of `permGroupMat`).
 
-```{r createAssoPerm 2}
+```{r createAssoPerm_2}
 seq1 <- seq(1,150, by = 3)
 seq2 <- seq(1:150)[!seq(1:150)%in%seq1]
 
@@ -220,7 +220,7 @@ permGroupMat[1:5, 51:71]
 As before, the stored permutation association matrices are passed to 
 `netCompare()`.
 
-```{r createAssoPerm 3}
+```{r createAssoPerm_3}
 comp_amgut2 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
                           fileLoadAssoPerm = "assoPerm",
                           seed = 123456)
@@ -231,7 +231,7 @@ all.equal(comp_amgut_orig$properties, comp_amgut2$properties)
 
 Using the `fm.open` function, we take a look at the stored matrices themselves.
 
-```{r createAssoPerm 4}
+```{r createAssoPerm_4}
 # Open stored files and check whether they are equal
 assoPerm1 <- filematrix::fm.open(filenamebase = "assoPerm_comp" , readonly = TRUE)
 assoPerm2 <- filematrix::fm.open(filenamebase = "assoPerm" , readonly = TRUE)
@@ -260,7 +260,7 @@ permuted group labels (for all permutations!). Hence, we set the `computeAsso`
 parameter to `FALSE`.
 
 
-```{r blocks 1}
+```{r blocks_1}
 permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, 
                                computeAsso = FALSE, seed = 123456)
 
@@ -274,7 +274,7 @@ The external file (containing the association matrices) must be extended in each
 except for the first iteration, where the file is created. Thus, `append` is set 
 to `TRUE` for `i >=2 `.
 
-```{r blocks 2}
+```{r blocks_2}
 nPerm_all <- 100
 blocksize <- 20
 repetitions <- nPerm_all / blocksize
@@ -302,7 +302,7 @@ for(i in 1:repetitions){
 The stored file, which now contains the associations of all 100 permutations, 
 can be passed to `netCompare()` as before. 
 
-```{r blocks 3}
+```{r blocks_3}
 comp_amgut3 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
                           storeAssoPerm = TRUE,
                           fileLoadAssoPerm = "assoPerm",
@@ -331,7 +331,7 @@ If the blocks should be computed in parallel, extending the `"assoPerm"` file
 in each iteration would not work. To be able to run the blocks in parallel, 
 we have to create a separate file in each iteration and combine them at the end.
 
-```{r blocks 4}
+```{r blocks_4}
 # Create the matrix with permuted group labels (as before)
 permGroupMat <- createAssoPerm(props_amgut, nPerm = 100, computeAsso = FALSE,
                                seed = 123456)
@@ -408,7 +408,7 @@ fm.create.from.matrix(filenamebase = "assoPerm", mat = assoPerm_all)
 
 As last step, we pass the file containing the combined matrix to `netCompare()`.
 
-```{r blocks 5}
+```{r blocks_5}
 comp_amgut4 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100, 
                           fileLoadAssoPerm = "assoPerm",
                           storeCountsPerm = FALSE, seed = 123456)

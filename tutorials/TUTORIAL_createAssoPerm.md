@@ -6,16 +6,16 @@ reloading count tables, association matrices and network properties of
 the permuted data if **permutation tests** are performed with
 `netCompare()` or `diffnet()`.
 
-NetCoMi (&gt;=1.0.2) includes the function `createAssoPerm()` for
-creating either only a matrix with permuted group labels or storing
-count tables and association matrices of the permuted data. The stored
-files can be passed to `netCompare()` and `diffnet()` so that users can
-repeatedly run these two functions with varying arguments, without the
-need to recompute the associations each time. `createAssoPerm()`
-additionally enables to compute the permutation associations block-wise
-(for a subset of permutations) and store them in separate files. These
-files can then be combined to one large matrix (with all permutations)
-and passed to `netCompare()` or `diffnet()`.
+NetCoMi (>=1.0.2) includes the function `createAssoPerm()` for creating
+either only a matrix with permuted group labels or storing count tables
+and association matrices of the permuted data. The stored files can be
+passed to `netCompare()` and `diffnet()` so that users can repeatedly
+run these two functions with varying arguments, without the need to
+recompute the associations each time. `createAssoPerm()` additionally
+enables to compute the permutation associations block-wise (for a subset
+of permutations) and store them in separate files. These files can then
+be combined to one large matrix (with all permutations) and passed to
+`netCompare()` or `diffnet()`.
 
 The tutorial furthermore explains NetCoMi’s ability to handle **matched
 data sets**.
@@ -128,7 +128,7 @@ legend("bottom", title = "estimated correlation:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-![](figures/tutorial_create/network%20construction-1.png)<!-- -->
+![](figures/tutorial_create/network_construction-1.png)<!-- -->
 
 #### Network comparison via the “classical way”
 
@@ -360,7 +360,7 @@ plot(diffnet_amgut, adjusted = FALSE,
      legendTitle = "Correlations:")
 ```
 
-![](figures/tutorial_create/diffnet%202-1.png)<!-- -->
+![](figures/tutorial_create/diffnet_2-1.png)<!-- -->
 
 #### Network comparison using createAssoPerm()
 
@@ -694,7 +694,11 @@ for(i in 1:repetitions){
 ``` r
 # OR execute in parallel:
 library("foreach")
+```
 
+    ## Warning: Paket 'foreach' wurde unter R Version 4.1.2 erstellt
+
+``` r
 cores <- 2 # Please choose an appropriate number of cores
 
 cl <- snow::makeCluster(cores)

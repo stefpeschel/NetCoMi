@@ -204,10 +204,11 @@
 #' }
 #'
 #' @seealso \code{\link{plot.diffnet}}
-#' @references \insertRef{benjamini2000adaptive}{NetCoMi} \cr
-#'   \insertRef{discordant2016}{NetCoMi} \cr
-#'   \insertRef{farcomeni2007some}{NetCoMi} \cr
-#'   \insertRef{fisher1992statistical}{NetCoMi} \cr
+#' @references 
+#'   \insertRef{benjamini2000adaptive}{NetCoMi} \cr\cr
+#'   \insertRef{discordant2016}{NetCoMi} \cr\cr
+#'   \insertRef{farcomeni2007some}{NetCoMi} \cr\cr
+#'   \insertRef{fisher1992statistical}{NetCoMi} \cr\cr
 #'   \insertRef{gill2010statistical}{NetCoMi}
 #' @importFrom Biobase ExpressionSet
 #' @importFrom Rdpack reprompt

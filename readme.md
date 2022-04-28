@@ -296,7 +296,7 @@ summary(props_single, numbNodes = 5L)
     ##                                  
     ## Number of components      1.00000
     ## Clustering coefficient    0.32020
-    ## Moduarity                 0.51909
+    ## Modularity                0.51909
     ## Positive edge percentage 92.01278
     ## Edge density              0.06323
     ## Natural connectivity      0.01454
@@ -388,7 +388,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated association:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single%20spring%203-1.png)<!-- -->
+![](man/figures/readme/single_spring_3-1.png)<!-- -->
 
 Note that edge weights are (non-negative) similarities, however, the
 edges belonging to negative estimated associations are colored in red by
@@ -434,7 +434,12 @@ net_single2 <- netConstruct(amgut2.filt.phy,
     ## 
     ## Zero treatment:
 
-    ## Execute multRepl() ... Done.
+    ## Execute multRepl() ...
+
+    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
+    ##                   (You can use the z.warning argument to modify the warning threshold).
+
+    ## Done.
     ## 
     ## Normalization:
     ## Execute clr(){SpiecEasi} ... Done.
@@ -460,7 +465,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single%20pears%201-1.png)<!-- -->
+![](man/figures/readme/single_pears_1-1.png)<!-- -->
 
 Let’s improve the visualization a bit by changing the following
 arguments:
@@ -493,7 +498,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single%20pears%202-1.png)<!-- -->
+![](man/figures/readme/single_pears_2-1.png)<!-- -->
 
 ### Single association network on genus level
 
@@ -551,7 +556,12 @@ net_single3 <- netConstruct(amgut_genus,
     ## 
     ## Zero treatment:
 
-    ## Execute multRepl() ... Done.
+    ## Execute multRepl() ...
+
+    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
+    ##                   (You can use the z.warning argument to modify the warning threshold).
+
+    ## Done.
     ## 
     ## Normalization:
     ## Execute clr(){SpiecEasi} ... Done.
@@ -600,7 +610,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single%20genus%202-1.png)<!-- -->
+![](man/figures/readme/single_genus_2-1.png)<!-- -->
 
 Since the above visualization is obviously not optimal, we make further
 adjustments:
@@ -608,7 +618,7 @@ adjustments:
 -   This time, the Fruchterman-Reingold layout algorithm is computed
     within the plot function and thus applied to the “reduced” network
     without singletons
--   Leading patterns "g\_\_" are removed
+-   Leading patterns “g\_\_” are removed
 -   Labels are not scaled to node sizes
 -   Single nodes are removed
 -   Node sizes are scaled to the column sums of clr-transformed data
@@ -644,7 +654,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single%20genus%203-1.png)<!-- -->
+![](man/figures/readme/single_genus_3-1.png)<!-- -->
 
 Let’s check whether the largest nodes are actually those with highest
 column sums in the matrix with normalized counts returned from
@@ -723,7 +733,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single%20genus%205-1.png)<!-- -->
+![](man/figures/readme/single_genus_5-1.png)<!-- -->
 
 ### Network comparison
 
@@ -731,7 +741,7 @@ Now let’s look how two networks are compared using NetCoMi.
 
 **Network construction**
 
-The covariate `"SEASONAL_ALLERGIES`" is used for splitting the data set
+The covariate `"SEASONAL_ALLERGIES`” is used for splitting the data set
 into two groups. The [`metagMisc`](https://github.com/vmikk/metagMisc)
 package offers a function for splitting phyloseq objects according to a
 variable. The two resulting phyloseq objects (we ignore the group
@@ -921,7 +931,7 @@ summary(props_season)
     ##                          group '1' group '2'
     ## Relative LCC size          0.72093   0.95349
     ## Clustering coefficient     0.27184   0.29563
-    ## Moduarity                  0.51794   0.54832
+    ## Modularity                 0.51794   0.54832
     ## Positive edge percentage 100.00000 100.00000
     ## Edge density               0.11183   0.09512
     ## Natural connectivity       0.04296   0.03257
@@ -934,7 +944,7 @@ summary(props_season)
     ##                          group '1' group '2'
     ## Number of components       6.00000   3.00000
     ## Clustering coefficient     0.31801   0.29563
-    ## Moduarity                  0.62749   0.54832
+    ## Modularity                 0.62749   0.54832
     ## Positive edge percentage 100.00000 100.00000
     ## Edge density               0.06977   0.08638
     ## Natural connectivity       0.02979   0.03072
@@ -1058,7 +1068,7 @@ legend("bottom", title = "estimated association:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/netcomp%20spring%204-1.png)<!-- -->
+![](man/figures/readme/netcomp_spring_4-1.png)<!-- -->
 
 Using different layouts leads to a “nice-looking” network plot for each
 group, however, it is difficult to identify group differences at a
@@ -1090,7 +1100,7 @@ legend("bottom", title = "estimated association:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/netcomp%20spring%205-1.png)<!-- -->
+![](man/figures/readme/netcomp_spring_5-1.png)<!-- -->
 
 In the above plot, we can see clear differences between the groups. The
 OTU “322235”, for instance, is more strongly connected in the “Seasonal
@@ -1098,10 +1108,10 @@ allergies” group than in the group without seasonal allergies, which is
 why it is a hub on the right, but not on the left.
 
 Since simply taking over the layout of one group to the other usually
-leads to an “unsightly” plot for one of the groups, NetCoMi (&gt;=
-1.0.2) offers a further option (`layoutGroup = "union"`), where a union
-of both layouts is used in both groups. In doing so, the nodes are
-placed as optimal as possible equally for both networks.
+leads to an “unsightly” plot for one of the groups, NetCoMi (>= 1.0.2)
+offers a further option (`layoutGroup = "union"`), where a union of both
+layouts is used in both groups. In doing so, the nodes are placed as
+optimal as possible equally for both networks.
 
 *The idea and R code for this functionality were provided by [Christian
 L. Müller](https://github.com/muellsen?tab=followers) and [Alice
@@ -1126,7 +1136,7 @@ legend("bottom", title = "estimated association:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/netcomp%20spring%206-1.png)<!-- -->
+![](man/figures/readme/netcomp_spring_6-1.png)<!-- -->
 
 **Quantitative network comparison**
 
@@ -1281,10 +1291,20 @@ net_season_pears <- netConstruct(data = amgut_split$no,
     ## 
     ## Zero treatment in group 1:
 
-    ## Execute multRepl() ... Done.
+    ## Execute multRepl() ...
+
+    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
+    ##                   (You can use the z.warning argument to modify the warning threshold).
+
+    ## Done.
     ## 
     ## Zero treatment in group 2:
-    ## Execute multRepl() ... Done.
+    ## Execute multRepl() ...
+
+    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
+    ##                   (You can use the z.warning argument to modify the warning threshold).
+
+    ## Done.
     ## 
     ## Normalization in group 1:
     ## Execute clr(){SpiecEasi} ... Done.
@@ -1324,7 +1344,7 @@ plot(diff_season,
      legendPos = c(0.7,1.6))
 ```
 
-![](man/figures/readme/diffnet%201-1.png)<!-- --> In the differential
+![](man/figures/readme/diffnet_1-1.png)<!-- --> In the differential
 network shown above, edge colors represent the direction of associations
 in the two groups. If, for instance, two OTUs are positively associated
 in group 1 and negatively associated in group 2 (such as ‘191541’ and
@@ -1366,7 +1386,7 @@ legend(-0.15,-0.7, title = "estimated correlation:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/diffnet%202-1.png)<!-- -->
+![](man/figures/readme/diffnet_2-1.png)<!-- -->
 
 We can see that the correlation between the aforementioned OTUs ‘191541’
 and ‘188236’ is strongly positive in the left group and negative in the
@@ -1406,7 +1426,12 @@ net_aitchison <- netConstruct(amgut1.filt,
     ## 
     ## Zero treatment:
 
-    ## Execute multRepl() ... Done.
+    ## Execute multRepl() ...
+
+    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
+    ##                   (You can use the z.warning argument to modify the warning threshold).
+
+    ## Done.
     ## 
     ## Normalization:
     ## Counts normalized by total sum scaling.
@@ -1505,8 +1530,8 @@ plot(netprops1,
 \[Badri et al., 2020\] Michelle Badri, Zachary D. Kurtz, Richard
 Bonneau, and Christian L. Müller (2020). [Shrinkage improves estimation
 of microbial associations under different normalization
-methods](https://www.biorxiv.org/content/10.1101/406264v2). *bioRxiv*,
-doi: 10.1101/406264.
+methods](https://doi.org/10.1093/NARGAB/LQAA100). *NAR Genomics and
+Bioinformatics*, 2(4). doi: 10.1093/NARGAB/LQAA100.
 
 \[Martín-Fernández et al., 1999\] Josep A Martín-Fernández, Mark J Bren,
 Carles Barceló-Vidal, and Vera Pawlowsky-Glahn (1999). [A measure of

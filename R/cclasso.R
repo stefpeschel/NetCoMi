@@ -32,7 +32,7 @@
 #'   Fang Huaying, Peking University (R code)\cr
 #'   Stefanie Peschel (documentation)
 #' @references
-#'   \insertRef{fang2015cclasso}{NetCoMi}\cr
+#'   \insertRef{fang2015cclasso}{NetCoMi}\cr\cr
 #'   \insertRef{fang2016cclassoGithub}{NetCoMi}
 #' @import Matrix
 #' @export

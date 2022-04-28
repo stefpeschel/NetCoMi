@@ -149,9 +149,8 @@ The function implements procedures to test whether pairs of taxa
   between two groups as proposed  by \cite{Gill et al.(2010)}.
 }
 \references{
-{\insertRef{gill2010statistical}{NetCoMi}}
-
-{\insertRef{knijnenburg2009fewer}{NetCoMi}}
+\insertRef{gill2010statistical}{NetCoMi}\cr\cr
+  \insertRef{knijnenburg2009fewer}{NetCoMi}\cr\cr
 }
 \seealso{
 \code{\link{diffnet}}

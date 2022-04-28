@@ -38,7 +38,7 @@
 #'   Fang Huaying, Peking University (R-Code and documentation)\cr
 #'   Stefanie Peschel (Parts of the documentation; Parallelization)
 #' @references
-#'   \insertRef{fang2016gcodaGithub}{NetCoMi}\cr
+#'   \insertRef{fang2016gcodaGithub}{NetCoMi}\cr\cr
 #'   \insertRef{fang2017gcoda}{NetCoMi}
 #'
 #' @export
