@@ -65,7 +65,7 @@ except_plot_networks<- function(args){
 
   # labelPattern
   if(!is.null(args$labelPattern)){
-    stopifnot(is.vector(args$labelPattern) & (length(args$labelPattern) == 3))
+    stopifnot(is.vector(args$labelPattern) & (length(args$labelPattern) %in% c(3, 5)))
   }
 
   # labelScale

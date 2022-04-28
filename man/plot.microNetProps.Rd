@@ -15,7 +15,7 @@
   labels = NULL,
   shortenLabels = "simple",
   labelLength = 6L,
-  labelPattern = c(5,"'",3),
+  labelPattern = c(5, "'", 3, "'", 3),
   charToRm = NULL,
   labelScale = TRUE,
   labelFont = 1,
@@ -118,28 +118,36 @@ Can also be a list with two named vectors (names must match the row/column
 names of the adjacency matrices). If \code{FALSE}, no labels are plotted. 
 Defaults to the row/column names of the adjacency matrices.}
 
-\item{shortenLabels}{options to shorten node labels. Ignored if node labels
-are defined via \code{labels}. Possible options are:
+\item{shortenLabels}{character indicating how to shorten node labels. 
+Ignored if node labels are defined via \code{labels}. NetCoMi's function 
+\code{\link{editLabels}()} is used for label editing.
+Available options are:
 \describe{
 \item{\code{"intelligent"}}{Elements of \code{charToRm} are removed,
-labels are shortened to length \code{labelLength} and duplicates are
-removed by using \code{labelPattern}.}
+labels are shortened to length \code{labelLength}, and duplicates are
+removed using \code{labelPattern}.}
 \item{\code{"simple"}}{Elements of \code{charToRm} are  removed and labels
 are shortened to length \code{labelLength}.}
-\item{\code{"none"}}{Default. Original colnames of adjacency matrices are
-used.} }}
+\item{\code{"none"}}{Default. Original dimnames of the adjacency matrices 
+are used.} }}
 
-\item{labelLength}{integer defining the length to which variable names shall
-be shortened if \code{shortenLabels} is used. Defaults to 6.}
+\item{labelLength}{integer defining the length to which labels shall
+be shortened if \code{shortenLabels} is set to \code{"simple"} or 
+\code{"intelligent"}. Defaults to 6.}
 
-\item{labelPattern}{vector of three elements, which is only used if argument
-\code{shortenLabels} is set to \code{"intelligent"}. If cutting a node label
-to length \code{labelLength} leads to duplicates, the label is shortened
-according to \code{labelPattern}, where the first entry gives the length of
-the first part, the second entry is used a separator, and the third entry
-is the length of the second part. Defaults to c(5, "'", 3). If the data
-contains, for example, two bacteria "Streptococcus" and "Streptomyces",
-they are by default shortened to "Strep'coc" and "Strep'myc".}
+\item{labelPattern}{vector of three or five elements, which is used if 
+argument \code{shortenLabels} is set to \code{"intelligent"}. 
+If cutting a label to length \code{labelLength} leads to duplicates, 
+the label is shortened according to \code{labelPattern}, 
+where the first entry gives the length of the first part, 
+the second entry is used a separator, and the third entry
+is the length of the third part. If \code{labelPattern} has five elements 
+and the shortened labels are still not unique, 
+the fourth element serves as further separator, and the fifth element gives
+the length of the last label part. Defaults to c(5, "'", 3, "'", 3).
+If the data contains, for example, three bacteria "Streptococcus1",
+"Streptococcus2" and "Streptomyces", they are by default shortened to 
+"Strep'coc'1", "Strep'coc'2", and "Strep'myc".}
 
 \item{charToRm}{vector with characters to remove from node names. Ignored if
 labels are given via \code{labels}.}

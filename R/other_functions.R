@@ -71,3 +71,18 @@ first_unequal_element <- function(x,y){
 
 
 
+first_unequal_element <- function(x){
+  m <- matrix(unlist(x), nrow = length(x), byrow = TRUE)
+  
+  stopiter <- FALSE
+  i <- 0
+
+  duplsum <- apply(m, 2, 
+                   function(v) sum(duplicated(v) | duplicated(v, fromLast=TRUE)))
+  first_unequal <- which(duplsum < nrow(m))[1]
+  all_unequal <- which(duplsum == 0)[1]
+  return(list(first_unequal = first_unequal, all_unequal = all_unequal))
+
+  return(i)
+}
+
