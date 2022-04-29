@@ -518,41 +518,28 @@ We now construct a further network, where OTUs are agglomerated to
 genera.
 
 ``` r
+library(phyloseq)
+data("amgut2.filt.phy")
+
 # Agglomerate to genus level
-amgut_genus <- phyloseq::tax_glom(amgut2.filt.phy, taxrank = "Rank6")
-taxtab <- amgut_genus@tax_table@.Data
+amgut_genus <- tax_glom(amgut2.filt.phy, taxrank = "Rank6")
 
-# Find undefined taxa (in this data set, unknowns occur only up to Rank5)
-miss_f <- which(taxtab[, "Rank5"] == "f__")
-miss_g <- which(taxtab[, "Rank6"] == "g__")
+# Taxonomic table
+taxtab <- as(tax_table(amgut_genus), "matrix")
 
-# Number unspecified genera
-taxtab[miss_f, "Rank5"] <- paste0("f__", 1:length(miss_f))
-taxtab[miss_g, "Rank6"] <- paste0("g__", 1:length(miss_g))
+# Rename taxonomic table and make Rank6 (genus) unique
+amgut_genus_renamed <- renameTaxa(amgut_genus, 
+                                  pat = "<name>", 
+                                  substPat = "<name>_<subst_name>(<subst_R>)",
+                                  numDupli = "Rank6")
+```
 
-# Find duplicate genera
-dupl_g <- which(duplicated(taxtab[, "Rank6"]) |
-                  duplicated(taxtab[, "Rank6"], fromLast = TRUE))
+    ## Column 7 contains NAs only and is ignored.
 
-for(i in seq_along(taxtab)){
-  # The next higher non-missing rank is assigned to unspecified genera
-  if(i %in% miss_f && i %in% miss_g){
-    taxtab[i, "Rank6"] <- paste0(taxtab[i, "Rank6"], "(", taxtab[i, "Rank4"], ")")
-  } else if(i %in% miss_g){
-    taxtab[i, "Rank6"] <- paste0(taxtab[i, "Rank6"], "(", taxtab[i, "Rank5"], ")")
-  }
-  
-  # Family names are added to duplicate genera
-  if(i %in% dupl_g){
-    taxtab[i, "Rank6"] <- paste0(taxtab[i, "Rank6"], "(", taxtab[i, "Rank5"], ")")
-  }
-}
-
-amgut_genus@tax_table@.Data <- taxtab
-rownames(amgut_genus@otu_table@.Data) <- taxtab[, "Rank6"]
-
+``` r
 # Network construction and analysis
-net_single3 <- netConstruct(amgut_genus, 
+net_single3 <- netConstruct(amgut_genus_renamed,
+                            taxRank = "Rank6",
                             measure = "pearson",
                             zeroMethod = "multRepl",
                             normMethod = "clr", 
@@ -592,22 +579,26 @@ Modifications:
 
 -   Fruchterman-Reingold layout algorithm from `igraph` package used
     (passed to `plot` as matrix)
--   Shortened labels
+-   Shortened labels (using the “intelligent” method, which avoids
+    duplicates)
 -   Fixed node sizes, where hubs are enlarged
 -   Node color is gray for all nodes (transparancy is lower for hub
     nodes by default)
 
 ``` r
 # Compute layout
-graph3 <- igraph::graph_from_adjacency_matrix(net_single3$adjaMat1, weighted = TRUE)
+graph3 <- igraph::graph_from_adjacency_matrix(net_single3$adjaMat1, 
+                                              weighted = TRUE)
+set.seed(123456)
 lay_fr <- igraph::layout_with_fr(graph3)
 # Note that row names of the layout matrix must match the node names
 rownames(lay_fr) <- rownames(net_single3$adjaMat1)
 
 plot(props_single3,
      layout = lay_fr,
-     shortenLabels = "simple",
+     shortenLabels = "intelligent",
      labelLength = 10,
+     labelPattern = c(5, "'", 3, "'", 3),
      nodeSize = "fix",
      nodeColor = "gray",
      cexNodes = 0.8,
@@ -630,7 +621,6 @@ adjustments:
 -   This time, the Fruchterman-Reingold layout algorithm is computed
     within the plot function and thus applied to the “reduced” network
     without singletons
--   Leading patterns “g\_\_” are removed
 -   Labels are not scaled to node sizes
 -   Single nodes are removed
 -   Node sizes are scaled to the column sums of clr-transformed data
@@ -640,15 +630,12 @@ adjustments:
 
 ``` r
 set.seed(123456)
-graph3 <- igraph::graph_from_adjacency_matrix(net_single3$adjaMat1, weighted = TRUE)
-lay_fr <- igraph::layout_with_fr(graph3)
-rownames(lay_fr) <- rownames(net_single3$adjaMat1)
 
 plot(props_single3,
      layout = "layout_with_fr",
-     shortenLabels = "simple",
+     shortenLabels = "intelligent",
      labelLength = 10,
-     charToRm = "g__",
+     labelPattern = c(5, "'", 3, "'", 3),
      labelScale = FALSE,
      rmSingles = TRUE,
      nodeSize = "clr",
@@ -676,16 +663,14 @@ column sums in the matrix with normalized counts returned by
 sort(colSums(net_single3$normCounts1), decreasing = TRUE)[1:10]
 ```
 
-    ##              g__Bacteroides               g__Klebsiella 
-    ##                   1200.7971                   1137.4928 
-    ##         g__Faecalibacterium      g__5(o__Clostridiales) 
-    ##                    708.0877                    549.2647 
-    ##    g__2(f__Ruminococcaceae)    g__3(f__Lachnospiraceae) 
-    ##                    502.1889                    493.7558 
-    ## g__6(f__Enterobacteriaceae)                g__Roseburia 
-    ##                    363.3841                    333.8737 
-    ##          g__Parabacteroides              g__Coprococcus 
-    ##                    328.0495                    274.4082
+    ##             Bacteroides              Klebsiella        Faecalibacterium 
+    ##               1200.7971               1137.4928                708.0877 
+    ##      5_Clostridiales(O)    2_Ruminococcaceae(F)    3_Lachnospiraceae(F) 
+    ##                549.2647                502.1889                493.7558 
+    ## 6_Enterobacteriaceae(F)               Roseburia         Parabacteroides 
+    ##                363.3841                333.8737                328.0495 
+    ##             Coprococcus 
+    ##                274.4082
 
 In order to further improve our plot, we use the following
 modifications:
@@ -703,7 +688,8 @@ modifications:
     readability of node labels
 
 ``` r
-# Get phyla names from the taxonomic table created before
+# Get phyla names
+taxtab <- as(tax_table(amgut_genus_renamed), "matrix")
 phyla <- as.factor(gsub("p__", "", taxtab[, "Rank2"]))
 names(phyla) <- taxtab[, "Rank6"]
 #table(phyla)

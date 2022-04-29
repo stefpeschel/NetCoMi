@@ -17,6 +17,7 @@ netConstruct(
   filtTaxPar = NULL,
   filtSamp = "none",
   filtSampPar = NULL,
+  taxRank = NULL,
   zeroMethod = "none",
   zeroPar = NULL,
   normMethod = "none",
@@ -132,6 +133,15 @@ combined. The values x are set via \code{filtSampPar}.}
 \item{filtSampPar}{list with parameters for the filter methods given by
 \code{filtSamp}. Possible list entries are: \code{"totalReads"} (int),
 \code{"numbTaxa"} (int), \code{"highestFreq"} (int).}
+
+\item{taxRank}{character indicating the taxonomic rank at which the network 
+should be constructed. Only used if data (and data 2) is a phyloseq object. 
+The given rank must match one of the column names of the taxonomic table 
+(the \code{@tax_table} slot of the phyloseq object). Taxa names of the 
+chosen taxonomic rank must be unique (consider using the function 
+\code{\link{renameTaxa}} to make them unique). If a phyloseq object is 
+given and \code{taxRank = NULL}, the row names of the OTU table are used 
+as node labels.}
 
 \item{zeroMethod}{character indicating the method used for zero replacement.
 Possible values are: \code{"none"} (default), \code{"pseudo"}
@@ -284,7 +294,7 @@ used for edge selection.}
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,
 \code{"2"}(default): all progress messages, \code{"3"} messages returned 
-from external functions are shown in addition. Can also be logical.}
+by external functions are shown in addition. Can also be logical.}
 
 \item{seed}{integer giving a seed for reproducibility of the results.}
 }
@@ -335,23 +345,29 @@ Constructing microbial association networks and dissimilarity
   based networks (where nodes are subjects) from compositional count data.
 }
 \details{
-The object returned from \code{netConstruct} can either be passed to
+The object returned by \code{netConstruct} can either be passed to
   \code{\link{netAnalyze}} for network analysis, or to
   \code{\link{diffnet}} to construct a differential network from the
   estimated associations.
   \cr
-  The function enables the construction of either a single network or
-  two networks that can be compared using the function
-  \code{\link{netCompare}}. Four types of association  measures are
-  available: correlation, conditional dependence, proportionality, and
-  dissimilarity.  Depending on the measure, nodes are either taxa or subjects
-  in the resulting network: In association-based networks (correlation,
-  partial correlation, conditional dependence, proportionality) nodes are
-  taxa, whereas in dissimilarity-based networks nodes are subjects.
+  The function enables the construction of either a \strong{single network} 
+  or \strong{two networks}. The latter can be compared using the function
+  \code{\link{netCompare}}. 
+  \cr\cr
+  The network(s) can either be based on \strong{associations} (correlation,
+  partial correlation / conditional dependence, proportionality) or 
+  \strong{dissimilarities}. Several measures are available, respectively, 
+  to estimate associations or dissimilarities using \code{netConstruct}. 
+  Alternatively, a pre-generated association or dissimilarity matrix is 
+  accepted as input to start the workflow (argument \code{dataType} must be 
+  set appropriately). 
+  Depending on the measure, network nodes are either taxa or subjects: 
+  In association-based networks nodes are taxa, whereas in 
+  dissimilarity-based networks nodes are subjects.
   \cr
   \cr
-  In order to conduct a network comparison, the following options for 
-  constructing two networks are available:
+  In order to perform a \strong{network comparison}, the following options 
+  for constructing two networks are available:
   \enumerate{
     \item Passing the combined count matrix to \code{data} and a group 
     vector to \code{group} (of length \code{nrow(data)} for association 
@@ -366,7 +382,7 @@ The object returned from \code{netConstruct} can either be passed to
     \code{data2}.
   }
   \cr
-  \strong{Note:}\cr 
+  \strong{Group labeling:}\cr 
   If two networks are generated, the network belonging to \code{data} 
   is always denoted by "group 1" and the network belonging to \code{data2} 
   by "group 2".\cr
@@ -474,77 +490,144 @@ data("amgut2.filt.phy")
 
 # Single network with the following specifications:
 # - Association measure: SpiecEasi
-# - Only the 50 taxa with highest variance are selected
-# - Only samples with a total number of reads of at least 1000 included
+# - SpiecEasi parameters are defined via 'measurePar' 
+#   (check ?SpiecEasi::spiec.easi for available options)
+# - Note: 'rep.num' should be higher for real data sets
+# - Taxa filtering: Keep the 50 taxa with highest variance
+# - Sample filtering: Keep samples with a total number of reads 
+#   of at least 1000
 
-amgut_net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
-                           measurePar = list(method = "mb",
-                                             pulsar.params = list(rep.num = 10),
-                                             symBetaMode = "ave"),
-                           filtTax = "highestVar",
-                           filtTaxPar = list(highestVar = 50),
-                           filtSamp = "totalReads",
-                           filtSampPar = list(totalReads = 1000),
-                           verbose = 3)
+net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
+                     measurePar = list(method = "mb",
+                                       pulsar.params = list(rep.num = 10),
+                                       symBetaMode = "ave"),
+                     filtTax = "highestVar",
+                     filtTaxPar = list(highestVar = 50),
+                     filtSamp = "totalReads",
+                     filtSampPar = list(totalReads = 1000),
+                     sparsMethod = "none",
+                     normMethod = "none",
+                     verbose = 3)
+
+# Network analysis (see ?netAnalyze for details)
+props1 <- netAnalyze(net1, clustMethod = "cluster_fast_greedy")
+
+# Network plot (see ?plot.microNetProps for details)
+plot(props1)
+
+#----------------------------------------------------------------------------
+# Same network as before but on genus level and without taxa filtering
+
+amgut.genus.phy <- phyloseq::tax_glom(amgut2.filt.phy, taxrank = "Rank6")
+
+dim(otu_table(amgut.genus.renamed))
+
+# Rename taxonomic table and make Rank6 (genus) unique
+amgut.genus.renamed <- renameTaxa(amgut.genus.phy, pat = "<name>", 
+                                  substPat = "<name>_<subst_name>(<subst_R>)",
+                                  numDupli = "Rank6")
+                                  
+net_genus <- netConstruct(amgut.genus.renamed, 
+                          taxRank = "Rank6",
+                          measure = "spieceasi",
+                          measurePar = list(method = "mb",
+                                            pulsar.params = list(rep.num = 10),
+                                            symBetaMode = "ave"),
+                          filtSamp = "totalReads",
+                          filtSampPar = list(totalReads = 1000),
+                          sparsMethod = "none",
+                          normMethod = "none",
+                          verbose = 3)
 
 # Network analysis
-amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy")
+props_genus <- netAnalyze(net_genus, clustMethod = "cluster_fast_greedy")
 
-# Network plot
-plot(amgut_props1)
+# Network plot (with some modifications)
+plot(props_genus, 
+     shortenLabels = "none",
+     labelScale = FALSE,
+     cexLabels = 0.8)
 
 #----------------------------------------------------------------------------
 # Single network with the following specifications:
 # - Association measure: Pearson correlation
-# - Only the 50 taxa with highest frequency are selected
-# - Only samples with a total number of reads of at least 1000 and with
-#   at least 10 taxa with a non-zero count are included
-# - Pseudocounts of 0.5 are added for zero replacement
-# - The clr transformation is used as normalization method
-# - A threshold of 0.3 is chosen for sparsification
+# - Taxa filtering: Keep the 50 taxa with highest frequency
+# - Sample filtering: Keep samples with a total number of reads of at least 
+    1000 and with at least 10 taxa with a non-zero count
+# - Zero replacement: A pseudo count of 0.5 is added to all counts
+# - Normalization: clr transformation
+# - Sparsification: Threshold = 0.3 
+    (an edge exists between taxa with an estimated association >= 0.3)
 
-amgut_net2 <- netConstruct(amgut2.filt.phy, 
-                           measure = "pearson",
-                           filtTax = "highestFreq",
-                           filtTaxPar = list(highestFreq = 50),
-                           filtSamp = c("numbTaxa", "totalReads"),
-                           filtSampPar = list(totalReads = 1000, numbTaxa = 10),
-                           zeroMethod = "pseudo", 
-                           zeroPar = list(pseudocount = 0.5),
-                           normMethod = "clr",
-                           sparsMethod = "threshold",
-                           thresh = 0.3,
-                           verbose = 3)
+net2 <- netConstruct(amgut2.filt.phy, 
+                     measure = "pearson",
+                     filtTax = "highestFreq",
+                     filtTaxPar = list(highestFreq = 50),
+                     filtSamp = c("numbTaxa", "totalReads"),
+                     filtSampPar = list(totalReads = 1000, numbTaxa = 10),
+                     zeroMethod = "pseudo", 
+                     zeroPar = list(pseudocount = 0.5),
+                     normMethod = "clr",
+                     sparsMethod = "threshold",
+                     thresh = 0.3,
+                     verbose = 3)
 
-amgut_props2 <- netAnalyze(amgut_net2, clustMethod = "cluster_fast_greedy")
+props2 <- netAnalyze(net2, clustMethod = "cluster_fast_greedy")
 
-plot(amgut_props2)
+plot(props2)
 
 #----------------------------------------------------------------------------
-# Constructing two networks according to a random group variable
+# Constructing and analyzing two networks 
+# - A random group variable is used for splitting the data into two groups
+
 set.seed(123456)
 group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
-amgut_net3 <- netConstruct(amgut1.filt, group = group,
-                           measure = "pearson",
-                           filtTax = "highestVar",
-                           filtTaxPar = list(highestVar = 50),
-                           filtSamp = "totalReads",
-                           filtSampPar = list(totalReads = 1000),
-                           zeroMethod = "multRepl", 
-                           normMethod = "clr",
-                           sparsMethod = "t-test")
-                           
-amgut_props3 <- netAnalyze(amgut_net3, clustMethod = "cluster_fast_greedy")
 
-plot(amgut_props3)
+# Option 1: Use the count matrix and group vector as input:
+net3 <- netConstruct(amgut1.filt,  
+                     group = group,
+                     measure = "pearson",
+                     filtTax = "highestVar",
+                     filtTaxPar = list(highestVar = 50),
+                     filtSamp = "totalReads",
+                     filtSampPar = list(totalReads = 1000),
+                     zeroMethod = "multRepl", 
+                     normMethod = "clr",
+                     sparsMethod = "t-test")
+                     
+# Option 2: Pass the count matrix of group 1 to 'data' 
+#           and that of group 2 to 'data2'
+# Note: Argument 'jointPrepro' is set to FALSE by default (the data sets 
+# are filtered separately and the intersect of filtered taxa is kept, 
+# which leads to less than 50 taxa in this example).
+
+amgut1 <- amgut1.filt[group == 1, ]
+amgut2 <- amgut1.filt[group == 2, ]
+
+net3 <- netConstruct(data = amgut1, 
+                     data2 = amgut2,
+                     measure = "pearson",
+                     filtTax = "highestVar",
+                     filtTaxPar = list(highestVar = 50),
+                     filtSamp = "totalReads",
+                     filtSampPar = list(totalReads = 1000),
+                     zeroMethod = "multRepl", 
+                     normMethod = "clr",
+                     sparsMethod = "t-test")
+                           
+props3 <- netAnalyze(net3, clustMethod = "cluster_fast_greedy")
+
+plot(props3)
+
+# NetCoMi's function netCompare() enables the comparison of the two networks.
 
 }
 \references{
-\insertRef{badri2018normalization}{NetCoMi}\cr
-  \insertRef{benjamini2000adaptive}{NetCoMi}\cr
-  \insertRef{farcomeni2007some}{NetCoMi}\cr
-  \insertRef{friedman2012inferring}{NetCoMi} \cr
-  \insertRef{WGCNApackage}{NetCoMi}\cr
+\insertRef{badri2020normalization}{NetCoMi}\cr\cr
+  \insertRef{benjamini2000adaptive}{NetCoMi}\cr\cr
+  \insertRef{farcomeni2007some}{NetCoMi}\cr\cr
+  \insertRef{friedman2012inferring}{NetCoMi} \cr\cr
+  \insertRef{WGCNApackage}{NetCoMi}\cr\cr
   \insertRef{zhang2005general}{NetCoMi}
 }
 \seealso{

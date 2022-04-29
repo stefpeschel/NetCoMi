@@ -3,7 +3,7 @@ Type: Package
 Title: Network Construction and Comparison for Microbiome Data
 Version: 1.0.3.9000
 Author: Stefanie Peschel [aut, cre]
-Maintainer: Stefanie Peschel <stefanie.peschel@mail.de>
+Maintainer: Stefanie Peschel <stefpeschel@gmail.com>
 Description: NetCoMi offers functions for constructing, analyzing, and comparing 
     microbial association networks as well as dissimilarity-based networks for 
     microbial compositional data. It also includes functionality for 
