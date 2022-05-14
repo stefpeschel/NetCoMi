@@ -16,8 +16,8 @@
 #'   pseudo-count is added to the numerator and denominator in order to avoid
 #'   zero p-values. The p-values should be adjusted for multiple testing.
 #'
-#' @param x an object of class \code{microNet} inheriting from a call to
-#'   \code{\link{netConstruct}}
+#' @param x an object of class \code{microNet} (returned by 
+#'   \code{\link{netConstruct}}).
 #' @param diffMethod character string indicating the method used for determining
 #'   differential associations. Possible values are \code{"permute"} (default)
 #'   for performing permutation tests according to \cite{Gill et al. (2010)},
@@ -97,7 +97,7 @@
 #'   list with two elements used for the permutation procedure.
 #'   Each entry must contain association matrices for \code{"nPerm"}
 #'   permutations. This can be either the \code{"assoPerm"} value as part of the
-#'   output returned from \code{diffnet} or from \code{\link{netCompare}}. See
+#'   output returned by \code{diffnet} or \code{\link{netCompare}}. See
 #'   the example.
 #' @return The function returns an object of class \code{diffnet}. Depending on
 #'   the performed test method, the output contains the following
@@ -229,61 +229,61 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
                     fileStoreAssoPerm = "assoPerm",
                     storeCountsPerm = FALSE,
                     fileStoreCountsPerm = c("countsPerm1", "countsPerm2"), 
-                    assoPerm = NULL){
+                    assoPerm = NULL) {
 
   stopifnot(class(x) == "microNet")
 
-  if(x$assoType == "dissimilarity"){
+  if (x$assoType == "dissimilarity") {
     stop("Differential network not implemented for dissimilarity-based networks.")
   }
 
-  if(is.null(x$groups)){
+  if (is.null(x$groups)) {
     stop("'net' is a single network. A group vector must be passed to 'NetConstruct()'
          for network comparison.")
   }
 
   diffMethod <- match.arg(diffMethod, choices = c("discordant", "permute",
                                                   "fisherTest"))
-  if(discordThresh < 0 || discordThresh > 1){
+  if (discordThresh < 0 || discordThresh > 1) {
     stop("'discordThresh' must be in [0,1].")
   }
 
   nPerm <- as.integer(nPerm)
 
-  if(permPvalsMethod != "pseudo") permPvalsMethod <- "pseudo"
+  if (permPvalsMethod != "pseudo") permPvalsMethod <- "pseudo"
 
-  if(verbose %in% c(0,1)){
+  if (verbose %in% c(0,1)) {
     verbose <- as.logical(verbose)
-  } else{
+  } else {
     stopifnot(is.logical(verbose))
   }
 
-  if(!is.null(logFile)) stopifnot(is.character(logFile))
+  if (!is.null(logFile)) stopifnot(is.character(logFile))
 
   stopifnot(is.numeric(alpha))
-  if(alpha < 0){
+  if (alpha < 0) {
     stop("Significance level 'alpha' must be in [0,1].")
   }
-  if(alpha > 1){
+  if (alpha > 1) {
     alpha <- alpha / 100
     message("'alpha' transformed to ", alpha, ".")
   }
 
   adjust <- match.arg(adjust, c(p.adjust.methods, "lfdr", "adaptBH"))
 
-  if(lfdrThresh < 0 || lfdrThresh > 1){
+  if (lfdrThresh < 0 || lfdrThresh > 1) {
     stop("'lfdrThresh' must be in [0,1].")
   }
 
   trueNullMethod <- match.arg(trueNullMethod, c("convest", "lfdr", "mean",
                                                 "hist", "farco"))
   
-  if(diffMethod != "discordant" && adjust == "adaptBH" && 
-     !requireNamespace("limma", quietly = TRUE)){
+  if (diffMethod != "discordant" && adjust == "adaptBH" && 
+     !requireNamespace("limma", quietly = TRUE)) {
     
     message("Installing missing package 'limma' ...")
     
-    if(!requireNamespace("BiocManager", quietly = TRUE)){
+    if (!requireNamespace("BiocManager", quietly = TRUE)) {
       utils::install.packages("BiocManager")
     }
     
@@ -307,13 +307,13 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
   assoMat1 <- x$assoEst1
   assoMat2 <- x$assoEst2
 
-  if(diffMethod == "discordant"){
+  if (diffMethod == "discordant") {
 
-    if(!requireNamespace("discordant", quietly = TRUE)){
+    if (!requireNamespace("discordant", quietly = TRUE)) {
       
       message("Installing missing package 'discordant' ...")
       
-      if(!requireNamespace("BiocManager", quietly = TRUE)){
+      if (!requireNamespace("BiocManager", quietly = TRUE)) {
         utils::install.packages("BiocManager")
       }
       
@@ -325,31 +325,37 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
       message("Done.")
     }
     
-    if(!is.null(seed)) set.seed(seed)
+    if (!is.null(seed)) set.seed(seed)
 
-    # create object of class ExpressionSet
-    x_expr <- Biobase::ExpressionSet(assayData = t(rbind(countMat1, countMat2)))
+    if (is.null(countsJoint)) {
+      combMat <- rbind(countMat1, countMat2)
+    } else {
+      combMat <- countsJoint
+    }
+    
+    # Create object of class ExpressionSet
+    x_expr <- Biobase::ExpressionSet(assayData = t(combMat))
 
-    groups <- c(rep(1, nrow(countMat1)), rep(2, nrow(countMat2)))
+    groups <- c(rep(1, nrow(normCounts1)), rep(2, nrow(normCounts2)))
 
-    # transform correlation matrices to vectors
+    # Transform correlation matrices to vectors
     lowtri <- lower.tri(assoMat1, diag = FALSE)
     corrVector1 <- assoMat1[lowtri]
     corrVector2 <- assoMat2[lowtri]
-    vector_names <- get_vec_names(t(countMat1))
+    vector_names <- get_vec_names(t(assoMat1))
     names(corrVector1) <- vector_names
     names(corrVector2) <- vector_names
 
-    # Erzeugen der Klassen mit Wahrscheinlichkeiten mittels 'discordant'-Methode
+    # Get classes with probabilities
     discord <- discordant::discordantRun(corrVector1, corrVector2, x_expr)
 
-    # Matrix mit zugeordneten Klassen (Klassen mit höchster Wsk.)
+    # Matrix with assigned classes (with highest probabilities)
     classMat <- discord$classMatrix
     classMat[upper.tri(classMat)] <- t(classMat)[upper.tri(t(classMat))]
     diag(classMat) <- 1
 
-    # Matrix mit Wsk. dass sich die Korrelationen zwischen den Gruppen unterscheiden
-    # (entspricht aufsummierten Wahrscheinlichkeiten für Klassen 2,3,4,6,7,8)
+    # Matrix with probabilities that correlations are different between the groups
+    # (equals sum of probabilities for classes 2,3,4,6,7,8)
     diffProbs <- discord$discordPPMatrix
     diffProbs[upper.tri(diffProbs)] <- t(diffProbs)[upper.tri(t(diffProbs))]
     diag(diffProbs) <- 0
@@ -359,19 +365,19 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     output <- list(assoMat1 = assoMat1, assoMat2 = assoMat2,
                    diffMat = diffMat, classMat = classMat, diffProbs = diffProbs)
 
-  } else if(diffMethod == "permute"){
+  } else if (diffMethod == "permute") {
     
     matchDesign <- x$matchDesign
     callNetConstr <- x$call
 
     pvalsVecInput <- pvalsVec
 
-    if(is.null(pvalsVec)){
+    if (is.null(pvalsVec)) {
 
       cores <- as.integer(cores)
 
-      if(cores > 1){
-        if(parallel::detectCores() < cores) cores <- parallel::detectCores()
+      if (cores > 1) {
+        if (parallel::detectCores() < cores) cores <- parallel::detectCores()
       }
 
       permResult <- permtest_diff_asso(countMat1 = countMat1,
@@ -408,16 +414,16 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
 
       nExceedsVec <- permResult$nExceedsVec
 
-    } else{
+    } else {
 
-      # adjust for multiple testing
-      if(verbose & adjust != "none"){
+      # Adjust for multiple testing
+      if (verbose & adjust != "none") {
         message("Adjust for multiple testing using '", adjust, "' ... ",
                 appendLF = FALSE)
       }
       pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
                             trueNullMethod = trueNullMethod, verbose = verbose)
-      if(verbose & adjust != "none") message("Done.")
+      if (verbose & adjust != "none") message("Done.")
 
       testStatData <- NULL
       testStatPerm <- NULL
@@ -428,14 +434,14 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
     diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
     
-    # identify links
+    # Identify links
     diffVec[pvalsVec > alpha] <- 0
     
-    if(adjust == "none"){
+    if (adjust == "none") {
       diffVecAdjust <- diffVec
-    } else if(adjust == "lfdr"){
+    } else if (adjust == "lfdr") {
       diffVecAdjust[pAdjustVec > lfdrThresh] <- 0
-    } else{
+    } else {
       diffVecAdjust[pAdjustVec > alpha] <- 0
     }
 
@@ -472,7 +478,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     output[["assoMat1"]] <- assoMat1
     output[["assoMat2"]] <- assoMat2
 
-  }else{ #Fisher's z-test
+  }else { #Fisher's z-test
 
     assoVec1 <- as.vector(assoMat1[lower.tri(assoMat1)])
     assoVec2 <- as.vector(assoMat2[lower.tri(assoMat2)])
@@ -489,8 +495,8 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     diff_z <- (z1 - z2)/sqrt(1/(n1 - 3) + (1/(n2 - 3)))
     pvalsVec <- 2 * (1 - pnorm(abs(diff_z)))
 
-    # adjust for multiple testing
-    if(verbose & adjust != "none"){
+    # Adjust for multiple testing
+    if (verbose & adjust != "none") {
       message("Adjust for multiple testing using '", adjust, "' ... ",
               appendLF = FALSE)
     }
@@ -498,7 +504,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
                              trueNullMethod = trueNullMethod, verbose = verbose)
     
-    if(verbose & adjust != "none") message("Done.")
+    if (verbose & adjust != "none") message("Done.")
 
     diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
     diag(diffMat) <- diag(diffAdjustMat) <- 0
@@ -507,13 +513,13 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     
     diffVec[pvalsVec > alpha] <- 0
 
-    # identify links
-    if(adjust == "none"){
+    # Identify links
+    if (adjust == "none") {
       diffVecAdjust <- diffVec
       
-    } else if(adjust == "lfdr"){
+    } else if (adjust == "lfdr") {
       diffVecAdjust[pAdjustVec > lfdrThresh] <- 0
-    } else{
+    } else {
       diffVecAdjust[pAdjustVec > alpha] <- 0
     }
 
@@ -550,15 +556,17 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     output[["assoMat2"]] <- assoMat2
 
   }
-
-  if(verbose & all(diffMat == 0)){
+  
+  if (verbose & all(diffMat == 0)) {
     message("No differentially associated taxa detected.")
   }
 
   output[["groups"]] <- x$groups
   output[["diffMethod"]] <- diffMethod
   output[["call"]] <- match.call()
+  
   class(output) <- "diffnet"
+  
   return(output)
 }
 

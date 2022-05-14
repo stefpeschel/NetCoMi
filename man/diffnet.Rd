@@ -30,8 +30,8 @@ diffnet(
 )
 }
 \arguments{
-\item{x}{an object of class \code{microNet} inheriting from a call to
-\code{\link{netConstruct}}}
+\item{x}{an object of class \code{microNet} (returned by 
+\code{\link{netConstruct}}).}
 
 \item{diffMethod}{character string indicating the method used for determining
 differential associations. Possible values are \code{"permute"} (default)
@@ -132,7 +132,7 @@ two groups.}
 list with two elements used for the permutation procedure.
 Each entry must contain association matrices for \code{"nPerm"}
 permutations. This can be either the \code{"assoPerm"} value as part of the
-output returned from \code{diffnet} or from \code{\link{netCompare}}. See
+output returned by \code{diffnet} or \code{\link{netCompare}}. See
 the example.}
 }
 \value{
@@ -260,10 +260,10 @@ plot(amgut_diff2)
 
 }
 \references{
-\insertRef{benjamini2000adaptive}{NetCoMi} \cr
-  \insertRef{discordant2016}{NetCoMi} \cr
-  \insertRef{farcomeni2007some}{NetCoMi} \cr
-  \insertRef{fisher1992statistical}{NetCoMi} \cr
+\insertRef{benjamini2000adaptive}{NetCoMi} \cr\cr
+  \insertRef{discordant2016}{NetCoMi} \cr\cr
+  \insertRef{farcomeni2007some}{NetCoMi} \cr\cr
+  \insertRef{fisher1992statistical}{NetCoMi} \cr\cr
   \insertRef{gill2010statistical}{NetCoMi}
 }
 \seealso{
