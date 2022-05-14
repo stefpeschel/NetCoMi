@@ -1,4 +1,4 @@
-except_plot_diffnet<- function(args){
+argcheck_plot_diffnet<- function(args){
 
   # x
   stopifnot(class(args$x) == "diffnet")

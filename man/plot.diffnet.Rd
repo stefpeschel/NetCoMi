@@ -41,8 +41,9 @@
 )
 }
 \arguments{
-\item{x}{object of class \code{diffnet} containing the adjacency matrix 
-(absolute differences between associations)}
+\item{x}{object of class \code{diffnet} (returned by 
+\code{\link{diffnet}}) containing the adjacency matrix, whose entries are 
+absolute differences between associations.}
 
 \item{adjusted}{logical indicating whether the adjacency matrix based on 
 adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
@@ -162,8 +163,7 @@ the plot margins. Works similar to the \code{mar} argument in
 \item{...}{further arguments being passed to \code{\link[qgraph]{qgraph}}.}
 }
 \description{
-Plot method for objects of class \code{diffnet} inheriting from a call to
-\code{\link{diffnet}}.
+Plot method for objects of class diffnet
 }
 \seealso{
 \code{\link{diffnet}}, \code{\link{netConstruct}}
