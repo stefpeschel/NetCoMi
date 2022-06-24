@@ -1318,7 +1318,7 @@ plot.microNetProps <- function(x,
   # Plot network(s)
 
   if(twoNets){
-      par(mfrow = c(1,2), xpd=TRUE)
+      par(mfrow = c(1,2), xpd=NA)
 
     if(groupsChanged){
       q2 <- qgraph(adja2, color = nodecol2, layout = lay2, vsize = nodeSize2,
@@ -1353,7 +1353,7 @@ plot.microNetProps <- function(x,
 
     #---------------------------------------------
   } else{
-    par(xpd=TRUE)
+    par(xpd=NA)
     
     q1 <- qgraph(adja1, color = nodecol1, layout = lay1, vsize = nodeSize1,
                  labels = labels1, label.scale = labelScale,
@@ -1378,7 +1378,7 @@ plot.microNetProps <- function(x,
   #------------------------------------------------------------------
   #------------------------------------------------------------------
 
-  par(mfrow = opar$mfrow, mar = opar$mar)
+  par(mfrow = opar$mfrow, mar = opar$mar, xpd = opar$xpd)
 
   invisible(output)
 
