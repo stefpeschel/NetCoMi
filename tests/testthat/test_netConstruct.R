@@ -79,15 +79,15 @@ measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
               "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
 for(i in 1:length(measures)){
-
+  
   context(measures[i])
   
   measure.tmp <- measures[i]
   
   if(measure.tmp == "spieceasi_gl"){
     measurePar <- list(method = "glasso",
-                      nlambda=5,
-                      pulsar.params = list(rep.num=5))
+                       nlambda=5,
+                       pulsar.params = list(rep.num=5))
     measure.tmp <- "spieceasi"
   } else if(measure.tmp == "spieceasi_mb"){
     measurePar <- list(method = "mb",
@@ -112,9 +112,9 @@ for(i in 1:length(measures)){
                           measurePar = measurePar,
                           sparsMethod = "threshold", thresh = 0.3,
                           seed = 20190101)
-
+  
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                            hubPar = "eigenvector")
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -127,23 +127,23 @@ plot(testprops)
 context("netConstruct with association matrix as input")
 
 testnet1 <- netConstruct(amgut1.filt,
-                        filtTax = "highestVar",
-                        filtTaxPar = list(highestVar = 20),
-                        filtSamp = "totalReads",
-                        filtSampPar = list(totalReads = 1000),
-                        zeroMethod = "none", normMethod = "none",
-                        measure = "pearson",
-                        sparsMethod = "threshold", thresh = 0.3,
-                        seed = 20190101)
+                         filtTax = "highestVar",
+                         filtTaxPar = list(highestVar = 20),
+                         filtSamp = "totalReads",
+                         filtSampPar = list(totalReads = 1000),
+                         zeroMethod = "none", normMethod = "none",
+                         measure = "pearson",
+                         sparsMethod = "threshold", thresh = 0.3,
+                         seed = 20190101)
 
 testthat::expect_that(netConstruct(testnet1$assoEst1, dataType = "correlation",
-                         sparsMethod = "threshold", thresh = 0.3,
-                         seed = 20190101)$assoMat1,
+                                   sparsMethod = "threshold", thresh = 0.3,
+                                   seed = 20190101)$assoMat1,
                       testthat::equals(testnet1$assoMat1))
 
 testthat::expect_that(netConstruct(testnet1$assoEst1, dataType = "correlation",
-                         sparsMethod = "threshold", thresh = 0.3,
-                         seed = 20190101)$adjaMat1,
+                                   sparsMethod = "threshold", thresh = 0.3,
+                                   seed = 20190101)$adjaMat1,
                       testthat::equals(testnet1$adjaMat1))
 
 
@@ -157,11 +157,11 @@ testnet1 <- netConstruct(amgut1.filt,
                          sparsMethod = "knn", seed = 20190101)
 
 testthat::expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity",
-                         sparsMethod = "knn", seed = 20190101)$dissMat1,
+                                   sparsMethod = "knn", seed = 20190101)$dissMat1,
                       testthat::equals(testnet1$dissMat1))
 
 testthat::expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity",
-                         sparsMethod = "knn", seed = 20190101)$adjaMat1,
+                                   sparsMethod = "knn", seed = 20190101)$adjaMat1,
                       testthat::equals(testnet1$adjaMat1))
 
 
@@ -173,19 +173,19 @@ measures <- c("euclidean", "bray", "kld", "jeffrey", "ckld",
 
 for(i in 1:length(measures)){
   context(measures[i])
-
+  
   testnet1 <- netConstruct(amgut1.filt,
-                          filtTax = "totalReads",
-                          filtTaxPar = list(totalReads = 1000),
-                          filtSamp = "highestFreq",
-                          filtSampPar = list(highestFreq = 30),
-                          zeroMethod = "none", normMethod = "none",
-                          measure = measures[i],
-                          sparsMethod = "knn", thresh = 0.3,
-                          seed = 20190101)
-
+                           filtTax = "totalReads",
+                           filtTaxPar = list(totalReads = 1000),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = 30),
+                           zeroMethod = "none", normMethod = "none",
+                           measure = measures[i],
+                           sparsMethod = "knn", thresh = 0.3,
+                           seed = 20190101)
+  
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
-                            hubPar = "eigenvector")
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -264,7 +264,7 @@ sparsMethod <- c("none", "t-test", #"bootstrap",
 
 for(i in 1:length(sparsMethod)){
   context(sparsMethod[i])
-
+  
   testnet <- netConstruct(amgut1.filt,
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 100),
@@ -276,12 +276,12 @@ for(i in 1:length(sparsMethod)){
                           thresh = 0.3, softThreshPower = 10,
                           dissFunc = "signed", nboot = 1000, cores = 4,
                           seed = 20190101, logFile = NULL)
-
+  
   testprops<- netAnalyze(testnet,
-                            clustMethod = "cluster_fast_greedy",
-                            hubPar = "eigenvector", normDeg = FALSE,
-                            hubQuant = 0.95, lnormFit = FALSE)
-
+                         clustMethod = "cluster_fast_greedy",
+                         hubPar = "eigenvector", normDeg = FALSE,
+                         hubQuant = 0.95, lnormFit = FALSE)
+  
   plot(testprops)
   mtext(sparsMethod[i], side = 3, cex = 1.5)
 }
@@ -369,7 +369,7 @@ knnMutual <- c(TRUE, FALSE)
 
 for(i in 1:length(knnMutual)){
   context(knnMutual[i])
-
+  
   testnet <- netConstruct(amgut1.filt,
                           filtSamp = "highestFreq",
                           filtSampPar = list(highestFreq = 50),
@@ -415,7 +415,7 @@ for(i in 1:length(dissFunc)){
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
                          hubQuant = 0.95, lnormFit = FALSE)
-
+  
   plot(testprops)
   mtext(dissFunc[i], side = 3, cex = 1.5)
 }
@@ -514,7 +514,7 @@ for(i in 1:length(scaleDiss)){
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
                          hubQuant = 0.95, lnormFit = FALSE)
-
+  
   plot(testprops)
   mtext(scaleDiss[i], side = 3, cex = 1.5)
 }
@@ -621,14 +621,14 @@ testnet <- netConstruct(amgut1.filt[1:140, ], amgut1.filt[141:280, ],
                         seed = 20190101)
 
 expect_error(
-testnet <- netConstruct(amgut1.filt[1:140, ], amgut1.filt[141:281, ],
-                        matchDesign = c(1,1),
-                        filtTax = "highestVar",
-                        filtTaxPar = list(highestVar = 50),
-                        zeroMethod = "none", normMethod = "none",
-                        measure = "pearson",
-                        sparsMethod = "threshold", thresh = 0.3,
-                        seed = 20190101))
+  testnet <- netConstruct(amgut1.filt[1:140, ], amgut1.filt[141:281, ],
+                          matchDesign = c(1,1),
+                          filtTax = "highestVar",
+                          filtTaxPar = list(highestVar = 50),
+                          zeroMethod = "none", normMethod = "none",
+                          measure = "pearson",
+                          sparsMethod = "threshold", thresh = 0.3,
+                          seed = 20190101))
 
 testnet <- netConstruct(amgut1.filt[1:95, ], amgut1.filt[96:285, ],
                         matchDesign = c(1,2),
@@ -640,14 +640,14 @@ testnet <- netConstruct(amgut1.filt[1:95, ], amgut1.filt[96:285, ],
                         seed = 20190101)
 
 expect_error(
-testnet <- netConstruct(amgut1.filt[1:140, ], amgut1.filt[141:280, ],
-                        matchDesign = c(1,2),
-                        filtTax = "highestVar",
-                        filtTaxPar = list(highestVar = 50),
-                        zeroMethod = "none", normMethod = "none",
-                        measure = "pearson",
-                        sparsMethod = "threshold", thresh = 0.3,
-                        seed = 20190101))
+  testnet <- netConstruct(amgut1.filt[1:140, ], amgut1.filt[141:280, ],
+                          matchDesign = c(1,2),
+                          filtTax = "highestVar",
+                          filtTaxPar = list(highestVar = 50),
+                          zeroMethod = "none", normMethod = "none",
+                          measure = "pearson",
+                          sparsMethod = "threshold", thresh = 0.3,
+                          seed = 20190101))
 
 #===============================================================================
 # jointPrepro
@@ -677,16 +677,16 @@ testnet <- netConstruct(amgut_male, amgut_female,
                         seed = 20190101)
 
 expect_error(
-testnet <- netConstruct(amgut1.filt, group = groups_diss,
-                        jointPrepro = TRUE,
-                        filtTax = "highestVar",
-                        filtTaxPar = list(highestVar = 50),
-                        filtSamp = "totalReads",
-                        filtSampPar = list(totalReads = 1000),
-                        zeroMethod = "none", normMethod = "none",
-                        measure = "aitchison",
-                        sparsMethod = "threshold", thresh = 0.3,
-                        seed = 20190101))
+  testnet <- netConstruct(amgut1.filt, group = groups_diss,
+                          jointPrepro = TRUE,
+                          filtTax = "highestVar",
+                          filtTaxPar = list(highestVar = 50),
+                          filtSamp = "totalReads",
+                          filtSampPar = list(totalReads = 1000),
+                          zeroMethod = "none", normMethod = "none",
+                          measure = "aitchison",
+                          sparsMethod = "threshold", thresh = 0.3,
+                          seed = 20190101))
 
 
 #===============================================================================
@@ -752,9 +752,9 @@ for(i in 1:length(ftax)){
 
 fsamp <- c("none", "totalReads", "numbTaxa", "highestFreq")
 
-fsampar <- c(list(totalReads = 1000), list(numbTaxa = 30),list(highestFreq = 50))
+fsampar <- c(list(totalReads = 1000), list(numbTaxa = 30),list(highestFreq = 100))
 
-dims <- c(289, 289, 288, 50)
+dims <- c(289, 289, 288, 100)
 
 for(i in 1:length(fsamp)){
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
@@ -766,10 +766,11 @@ for(i in 1:length(fsamp)){
                           seed = 20190101)
   
   expect_equal(dim(testnet$normCounts1)[1] + dim(testnet$normCounts2)[1], dims[i])
+  #print(dim(testnet$normCounts1)[1] + dim(testnet$normCounts2)[1])
 }
 
-dims1 <- c(146, 127, 128, 50)
-dims2 <- c(126, 114, 114, 50)
+dims1 <- c(146, 127, 128, 100)
+dims2 <- c(126, 114, 114, 100)
 
 for(i in 1:length(fsamp)){
   testnet <- netConstruct(amgut_female, amgut_male,
@@ -782,21 +783,24 @@ for(i in 1:length(fsamp)){
   
   expect_equal(dim(testnet$normCounts1)[1], dims1[i])
   expect_equal(dim(testnet$normCounts2)[1], dims2[i])
+  #print(dim(testnet$normCounts1)[1])
+  #print(dim(testnet$normCounts2)[1])
 }
 
 
-dims <- c(289, 270, 228, 2)
+dims <- c(289, 270, 228, 13)
 
 for(i in 1:length(fsamp)){
   testnet <- netConstruct(amgut1.filt, group = groups_diss,
                           filtSamp = fsamp[i],
                           filtSampPar = fsampar[i-1],
-                          zeroMethod = "none", normMethod = "none",
+                          zeroMethod = "pseudo", normMethod = "none",
                           measure = "aitchison",
                           sparsMethod = "threshold", thresh = 0.3,
                           seed = 20190101)
   
   expect_equal(dim(testnet$normCounts1)[1], dims[i])
+  #print(dim(testnet$normCounts1)[1])
 }
 
 #===============================================================================
@@ -841,7 +845,7 @@ for(i in 1:length(measures)){
                           measurePar = measurePar,
                           sparsMethod = "threshold", thresh = 0.3,
                           seed = 20190101)
-
+  
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector")
   
@@ -864,7 +868,7 @@ measures <- c("euclidean", "bray", "kld", "jeffrey", "ckld",
 
 for(i in 1:length(measures)){
   context(measures[i])
-
+  
   testnet1 <- netConstruct(amgut1.filt, group = groups_diss,
                            filtTax = "totalReads",
                            filtTaxPar = list(totalReads = 1000),
@@ -874,7 +878,7 @@ for(i in 1:length(measures)){
                            measure = measures[i],
                            sparsMethod = "knn", thresh = 0.3,
                            seed = 20190101)
-
+  
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector")
   
@@ -958,7 +962,7 @@ sparsMethod <- c("none", "t-test", "bootstrap", "threshold", "softThreshold")
 
 for(i in 1:length(sparsMethod)){
   context(sparsMethod[i])
-
+  
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 100),
@@ -970,7 +974,7 @@ for(i in 1:length(sparsMethod)){
                           softThreshPower = c(8,10),
                           dissFunc = "signed", nboot = 1000, 
                           seed = 20190101, logFile = NULL)
-
+  
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,

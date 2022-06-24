@@ -38,6 +38,23 @@ differentially associated taxa are connected.
 > settings ‘warming’ and ‘non-warming’ using the same layout in both
 > groups.
 
+## Table of Contents
+
+1.  [Overview of methods](#overview-of-methods-included-in-NetCoMi)
+2.  [Installation](#installation)
+3.  [Usage](#usage)
+    -   [Single network with
+        SPRING](#single-network-with-spring-as-association-measure)
+    -   [Single network with
+        Pearson](#single-network-with-pearson-correlation-as-association-measure)
+    -   [Single network on genus
+        level](#single-association-network-on-genus-level)
+    -   [Network comparison](#network-comparison)
+    -   [Differential networks](#differential-networks)
+    -   [Dissimilarity-based Networks](#dissimilarity-based-networks)
+    -   [Soil microbiome example](#soil-microbiome-example)
+4.  [References](#references)
+
 ## Overview of methods included in NetCoMi
 
 Here is an overview of methods available for network construction,
@@ -149,7 +166,7 @@ installNetCoMiPacks()
 If not installed via `installNetCoMiPacks()`, the required package is
 installed by the respective NetCoMi function when needed.
 
-## Basic Usage
+## Usage
 
 We use the American Gut data from
 [`SpiecEasi`](https://github.com/zdk123/SpiecEasi) package to look at
@@ -159,7 +176,7 @@ analysis, and `netCompare()` for network comparison. As you will see in
 the following, these three functions must be executed in the
 aforementioned order. A further function is `diffnet()` for constructing
 a differential association network. `diffnet()` must be applied to the
-object returned from `netConstruct()`.
+object returned by `netConstruct()`.
 
 First of all, we load NetCoMi and the data from American Gut Project
 (provided by [`SpiecEasi`](https://github.com/zdk123/SpiecEasi), which
@@ -175,8 +192,8 @@ data("amgut2.filt.phy")
 
 **Network construction and analysis**
 
-We firstly construct a single association network using the
-[SPRING](https://github.com/GraceYoon/SPRING) approach for estimating
+We firstly construct a single association network using
+[SPRING](https://github.com/GraceYoon/SPRING) for estimating
 associations (conditional dependence) between OTUs.
 
 The data are filtered within `netConstruct()` as follows:
@@ -467,8 +484,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 ![](man/figures/readme/single_pears_1-1.png)<!-- -->
 
-Let’s improve the visualization a bit by changing the following
-arguments:
+Let’s improve the visualization by changing the following arguments:
 
 -   `repulsion = 0.8`: Place the nodes further apart
 -   `rmSingles = TRUE`: Single nodes are removed
@@ -657,7 +673,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 ![](man/figures/readme/single_genus_3-1.png)<!-- -->
 
 Let’s check whether the largest nodes are actually those with highest
-column sums in the matrix with normalized counts returned from
+column sums in the matrix with normalized counts returned by
 `netConstruct()`.
 
 ``` r
@@ -869,7 +885,7 @@ net_season <- netConstruct(countMat,
 
 **Network analysis**
 
-The object returned from `netConstruct()` containing both networks is
+The object returned by `netConstruct()` containing both networks is
 again passed to `netAnalyze()`. Network properties are computed for both
 networks simultaneously.
 
@@ -1071,7 +1087,7 @@ legend("bottom", title = "estimated association:", legend = c("+","-"),
 ![](man/figures/readme/netcomp_spring_4-1.png)<!-- -->
 
 Using different layouts leads to a “nice-looking” network plot for each
-group, however, it is difficult to identify group differences at a
+group, however, it is difficult to identify group differences at first
 glance.
 
 Thus, we now use the same layout in both groups. In the following, the
@@ -1107,10 +1123,11 @@ OTU “322235”, for instance, is more strongly connected in the “Seasonal
 allergies” group than in the group without seasonal allergies, which is
 why it is a hub on the right, but not on the left.
 
-Since simply taking over the layout of one group to the other usually
-leads to an “unsightly” plot for one of the groups, NetCoMi (>= 1.0.2)
-offers a further option (`layoutGroup = "union"`), where a union of both
-layouts is used in both groups. In doing so, the nodes are placed as
+However, if the layout of one group is simply taken over to the other,
+one of the networks (here the “seasonal allergies” group) is usually not
+that nice-looking due to the long edges. Therefore, NetCoMi (>= 1.0.2)
+offers a further option (`layoutGroup = "union"`), where a union of the
+two layouts is used in both groups. In doing so, the nodes are placed as
 optimal as possible equally for both networks.
 
 *The idea and R code for this functionality were provided by [Christian
@@ -1500,7 +1517,8 @@ net_seas_p <- netConstruct(soil_warm_yes, soil_warm_no,
 netprops1 <- netAnalyze(net_seas_p, clustMethod = "cluster_fast_greedy")
 
 nclust <- as.numeric(max(names(table(netprops1$clustering$clust1))))
-col <- topo.colors(nclust)
+
+col <- c(topo.colors(nclust), rainbow(6))
 
 plot(netprops1, 
      sameLayout = TRUE, 
