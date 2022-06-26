@@ -1,4 +1,53 @@
 
+## NetCoMi 1.0.3 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+
+This is a minor release with some bug fixes and changes in the
+documentation.
+
+### Bug fixes
+
+-   `netConstruct()` threw an error if the data had no row and/or column
+    names, which is fixed.
+
+-   An edge list is added to the output of `netConstruct()` (issue
+    [\#41](https://github.com/stefpeschel/NetCoMi/issues/41)). See the
+    help page for details.
+
+-   `SPRING`’s fast version of latent correlation computation
+    (implemented in [mixedCCA](https://github.com/irinagain/mixedCCA))
+    is currently not available due to deprecation of the R package
+    `chebpol`. The issue is fixed by setting the `netConstruct()`
+    parameter `measurePar$Rmethod` internally to “original” if SPRING is
+    used for association estimation.
+
+-   In `plot.microNetProps()`: The `xpd` parameter is changed to `NA` so
+    that plotting outside the plot region is possible (useful for
+    legends or additional text).
+
+-   Labels in the network plot can now be suppressed by setting
+    `labels = FALSE` (issue
+    [\#43](https://github.com/stefpeschel/NetCoMi/issues/43))
+
+-   The `netCompare()` function threw an error if one of the permutation
+    networks was empty, i.e. had no edges with weight different from
+    zero (issue
+    [\#38](https://github.com/stefpeschel/NetCoMi/issues/38)), which is
+    now fixed.
+
+-   Fix issues [\#29](https://github.com/stefpeschel/NetCoMi/issues/29)
+    and [\#40](https://github.com/stefpeschel/NetCoMi/issues/40), where
+    permutation tests did not terminate for small sample sizes. Now, if
+    the possible number of permutations (resulting from the sample size)
+    is smaller than that defined by the user, the function stops and
+    returns an error.
+
+-   Fix a bug in `diffnet()` (issue
+    [\#51](https://github.com/stefpeschel/NetCoMi/issues/51)), where
+    colors in differential networks could not be changed.
+
+-   `diffnet()` threw an error if the `netConstruct()` argument
+    `jointPrepro` was set to `TRUE`.
+
 ## NetCoMi 1.0.2
 
 This release includes a range of new features and fixes known bugs and
