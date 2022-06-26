@@ -128,10 +128,22 @@ calc_association <- function(countMat, measure, measurePar, verbose){
 
     measurePar$data <- countMat
 
-    if(is.null(measurePar$lambdaseq)) measurePar$lambdaseq <- "data-specific"
-    if(is.null(measurePar$ncores)) measurePar$ncores <- 1
+    if (is.null(measurePar$lambdaseq)) measurePar$lambdaseq <- "data-specific"
     
-    if(verbose == 3){
+    if (is.null(measurePar$ncores)) measurePar$ncores <- 1
+    
+    if (is.null(measurePar$Rmethod)) {
+      measurePar$Rmethod <- "original"
+      
+    } else {
+      if (measurePar$Rmethod == "approx") {
+        message('\nWarning: The faster version of latent correlation computation ',
+                '(SPRING argument Rmethod = "approx") is currently not available.',
+                '\nPlease set measurePar$Rmethod to "original".')
+      }
+    }
+    
+    if (verbose == 3) {
       measurePar$verbose <- TRUE
       message("")
     } else{
