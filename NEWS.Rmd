@@ -1,8 +1,31 @@
 ---
 output: github_document
 ---
+## NetCoMi 1.0.3.90xx <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
 
-## NetCoMi 1.0.3 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+The features and bug fixes implemented in version 1.0.3.90xx are available on 
+**develop branch** only.
+
+### New features
+
+#### renameTaxa()
+
+Function for renaming taxa in a taxonomic table. It comes with functionality for 
+making unknown and unclassified taxa unique and substituting them by the next 
+higher known taxonomic level, e.g., an unknown genus "g__" can automatically be 
+renamed to "1_Streptococcaceae(F)". User-defined patterns determine the format 
+of known and substituted names. Unknown names (e.g., NAs) and unclassified taxa 
+can be handled separately. Duplicated names within one or more chosen ranks can 
+also be made unique by numbering them consecutively.
+
+#### editLabels()
+
+Function for editing node labels, i.e., shortening to a certain length and 
+removing unwanted characters. It is used by NetCoMi's plot functions 
+plot.microNetProps() and plot.diffnet().
+
+
+## NetCoMi 1.0.3 
 
 This is a minor release with some bug fixes and changes in the documentation.
 

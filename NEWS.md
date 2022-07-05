@@ -1,5 +1,29 @@
 
-## NetCoMi 1.0.3 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+## NetCoMi 1.0.3.90xx <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+
+The features and bug fixes implemented in version 1.0.3.90xx are
+available on **develop branch** only.
+
+### New features
+
+#### renameTaxa()
+
+Function for renaming taxa in a taxonomic table. It comes with
+functionality for making unknown and unclassified taxa unique and
+substituting them by the next higher known taxonomic level, e.g., an
+unknown genus “g\_\_” can automatically be renamed to
+“1_Streptococcaceae(F)”. User-defined patterns determine the format of
+known and substituted names. Unknown names (e.g., NAs) and unclassified
+taxa can be handled separately. Duplicated names within one or more
+chosen ranks can also be made unique by numbering them consecutively.
+
+#### editLabels()
+
+Function for editing node labels, i.e., shortening to a certain length
+and removing unwanted characters. It is used by NetCoMi’s plot functions
+plot.microNetProps() and plot.diffnet().
+
+## NetCoMi 1.0.3
 
 This is a minor release with some bug fixes and changes in the
 documentation.
@@ -10,7 +34,7 @@ documentation.
     names, which is fixed.
 
 -   An edge list is added to the output of `netConstruct()` (issue
-    [\#41](https://github.com/stefpeschel/NetCoMi/issues/41)). See the
+    [#41](https://github.com/stefpeschel/NetCoMi/issues/41)). See the
     help page for details.
 
 -   `SPRING`’s fast version of latent correlation computation
@@ -26,23 +50,23 @@ documentation.
 
 -   Labels in the network plot can now be suppressed by setting
     `labels = FALSE` (issue
-    [\#43](https://github.com/stefpeschel/NetCoMi/issues/43))
+    [#43](https://github.com/stefpeschel/NetCoMi/issues/43))
 
 -   The `netCompare()` function threw an error if one of the permutation
     networks was empty, i.e. had no edges with weight different from
     zero (issue
-    [\#38](https://github.com/stefpeschel/NetCoMi/issues/38)), which is
+    [#38](https://github.com/stefpeschel/NetCoMi/issues/38)), which is
     now fixed.
 
--   Fix issues [\#29](https://github.com/stefpeschel/NetCoMi/issues/29)
-    and [\#40](https://github.com/stefpeschel/NetCoMi/issues/40), where
+-   Fix issues [#29](https://github.com/stefpeschel/NetCoMi/issues/29)
+    and [#40](https://github.com/stefpeschel/NetCoMi/issues/40), where
     permutation tests did not terminate for small sample sizes. Now, if
     the possible number of permutations (resulting from the sample size)
     is smaller than that defined by the user, the function stops and
     returns an error.
 
 -   Fix a bug in `diffnet()` (issue
-    [\#51](https://github.com/stefpeschel/NetCoMi/issues/51)), where
+    [#51](https://github.com/stefpeschel/NetCoMi/issues/51)), where
     colors in differential networks could not be changed.
 
 -   `diffnet()` threw an error if the `netConstruct()` argument
