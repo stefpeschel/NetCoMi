@@ -90,7 +90,8 @@ Microbial associations are compared between the two experimantal settings
 
 1. [Overview of methods](#overview-of-methods-included-in-NetCoMi)
 2. [Installation](#installation)
-3. [Usage](#usage)
+3. [Development version](#development-version)
+4. [Usage](#usage)
     + [Single network with SPRING](#single-network-with-spring-as-association-measure)
     + [Single network with Pearson](#single-network-with-pearson-correlation-as-association-measure)
     + [Single network on genus level](#single-association-network-on-genus-level)
@@ -98,7 +99,7 @@ Microbial associations are compared between the two experimantal settings
     + [Differential networks](#differential-networks)
     + [Dissimilarity-based Networks](#dissimilarity-based-networks)
     + [Soil microbiome example](#soil-microbiome-example)
-4. [References](#references)
+5. [References](#references)
 
 ## Overview of methods included in NetCoMi
 
@@ -191,6 +192,22 @@ installNetCoMiPacks()
 
 If not installed via `installNetCoMiPacks()`, the required package is installed
 by the respective NetCoMi function when needed.
+
+## Development version
+
+Everyone who wants to use new features not included in any releases 
+is invited to install NetCoMi's development version:
+
+```{r install4, eval=FALSE}
+devtools::install_github("stefpeschel/NetCoMi", 
+                         ref = "develop",
+                         dependencies = c("Depends", "Imports", "LinkingTo"),
+                         repos = c("https://cloud.r-project.org/",
+                                   BiocManager::repositories()))
+```
+
+Please check the [NEWS](https://github.com/stefpeschel/NetCoMi/blob/develop/NEWS.md) 
+document for features implemented on develop branch.
 
 ## Usage
 
@@ -473,8 +490,10 @@ Modifications:
 ```{r single_genus_2, fig.height=18, fig.width=20}
 # Compute layout
 graph3 <- igraph::graph_from_adjacency_matrix(net_single3$adjaMat1, weighted = TRUE)
+set.seed(123456)
 lay_fr <- igraph::layout_with_fr(graph3)
-# Note that row names of the layout matrix must match the node names
+
+# Row names of the layout matrix must match the node names
 rownames(lay_fr) <- rownames(net_single3$adjaMat1)
 
 plot(props_single3,
