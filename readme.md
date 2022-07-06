@@ -49,7 +49,8 @@ differentially associated taxa are connected.
 
 1.  [Overview of methods](#overview-of-methods-included-in-NetCoMi)
 2.  [Installation](#installation)
-3.  [Usage](#usage)
+3.  [Development version](#development-version)
+4.  [Usage](#usage)
     -   [Single network with
         SPRING](#single-network-with-spring-as-association-measure)
     -   [Single network with
@@ -60,7 +61,7 @@ differentially associated taxa are connected.
     -   [Differential networks](#differential-networks)
     -   [Dissimilarity-based Networks](#dissimilarity-based-networks)
     -   [Soil microbiome example](#soil-microbiome-example)
-4.  [References](#references)
+5.  [References](#references)
 
 ## Overview of methods included in NetCoMi
 
@@ -187,6 +188,23 @@ installNetCoMiPacks()
 
 If not installed via `installNetCoMiPacks()`, the required package is
 installed by the respective NetCoMi function when needed.
+
+## Development version
+
+Everyone who wants to use new features not included in any releases is
+invited to install NetCoMi’s development version:
+
+``` r
+devtools::install_github("stefpeschel/NetCoMi", 
+                         ref = "develop",
+                         dependencies = c("Depends", "Imports", "LinkingTo"),
+                         repos = c("https://cloud.r-project.org/",
+                                   BiocManager::repositories()))
+```
+
+Please check the
+[NEWS](https://github.com/stefpeschel/NetCoMi/blob/develop/NEWS.md)
+document for features implemented on develop branch.
 
 ## Usage
 
@@ -598,7 +616,8 @@ graph3 <- igraph::graph_from_adjacency_matrix(net_single3$adjaMat1,
                                               weighted = TRUE)
 set.seed(123456)
 lay_fr <- igraph::layout_with_fr(graph3)
-# Note that row names of the layout matrix must match the node names
+
+# Row names of the layout matrix must match the node names
 rownames(lay_fr) <- rownames(net_single3$adjaMat1)
 
 plot(props_single3,
@@ -1049,7 +1068,7 @@ why it is a hub on the right, but not on the left.
 
 However, if the layout of one group is simply taken over to the other,
 one of the networks (here the “seasonal allergies” group) is usually not
-that nice-looking due to the long edges. Therefore, NetCoMi (\>= 1.0.2)
+that nice-looking due to the long edges. Therefore, NetCoMi (>= 1.0.2)
 offers a further option (`layoutGroup = "union"`), where a union of the
 two layouts is used in both groups. In doing so, the nodes are placed as
 optimal as possible equally for both networks.
