@@ -1,4 +1,11 @@
 
+**Note:** The develop branch has a revised commit history, i.e., commit
+messages are reworked and some commits are squashed (merged together).
+Thus, all commit hashes (IDs) have changed and are not in line with
+those of master. Yet, the contents match exactly up to *release v1.0.3*.
+This branch will be turned into master (default) with the next major
+release.
+
 # NetCoMi <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="260" />
 
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
