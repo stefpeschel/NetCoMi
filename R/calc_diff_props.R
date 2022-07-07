@@ -6,8 +6,9 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                             hubQuant, jaccQuant, lnormFit, weightDeg, 
                             normDeg, normBetw, normClose, normEigen, centrLCC,
                             testJacc = TRUE, jaccTestGreater = FALSE,
-                            testRand = TRUE, nPermRand = 1000){
-  
+                            testRand = TRUE, nPermRand = 1000, 
+                            gcd, gcdOrb){
+
   isempty1 <- all(adja1[lower.tri(adja1)] == 0)
   isempty2 <- all(adja2[lower.tri(adja2)] == 0)
   
@@ -24,7 +25,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                        lnormFit = lnormFit, weightDeg = weightDeg, 
                        normDeg = normDeg, normBetw = normBetw, 
                        normClose = normClose, normEigen = normEigen, 
-                       centrLCC = centrLCC,
+                       centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   
   props2 <- calc_props(adjaMat = adja2, dissMat = dissMat2, assoMat = assoMat2, 
@@ -39,7 +40,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                        lnormFit = lnormFit, weightDeg = weightDeg, 
                        normDeg = normDeg, normBetw = normBetw, 
                        normClose = normClose, normEigen = normEigen, 
-                       centrLCC = centrLCC,
+                       centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   
   #== differences in network properties ========================================
@@ -211,12 +212,31 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   jaccEigen <-  calc_jaccard(props1$topeigen, props2$topeigen, sigTest = testJacc)
   jaccHub <-    calc_jaccard(props1$hubs, props2$hubs, sigTest = testJacc)
   
+  #--------------------------------------------------------------------------
+  # Graphlet Correlation Distance (GCD)
+
+  if (gcd) {
+    gcd <- calcGCD(adja1 = adja1, adja2 = adja2, orbits = gcdOrb)
+    adja1_lcc <- props1$adjaMat_lcc
+    adja2_lcc <- props2$adjaMat_lcc
+    gcd_lcc <- calcGCD(adja1 = adja1_lcc, adja2 = adja2_lcc, orbits = gcdOrb)
+    
+    class(gcd) <- class(gcd_lcc) <- "list"
+    
+  } else {
+    gcd <- gcd_lcc <- NULL
+  }
+  
+  #--------------------------------------------------------------------------
+  
   output <- list(jaccDeg = jaccDeg,
                  jaccBetw =jaccBetw,
                  jaccClose = jaccClose,
                  jaccEigen = jaccEigen,
                  jaccHub = jaccHub, 
                  randInd = randInd,
+                 gcd = gcd,
+                 gcdLCC = gcd_lcc,
                  diffsGlobal = list(diffnComp = diffncomp,
                                     diffavDiss = diffdiss,
                                     diffavPath = diffpath,

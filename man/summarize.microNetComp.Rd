@@ -3,13 +3,14 @@
 \name{summary.microNetComp}
 \alias{summary.microNetComp}
 \alias{print.summary.microNetComp}
-\title{Summary Method for Objects of Class netProps}
+\title{Summary Method for Objects of Class microNetComp}
 \usage{
 \method{summary}{microNetComp}(
   object,
   groupNames = NULL,
-  pAdjust = TRUE,
+  showRand = TRUE,
   showCentr = "all",
+  pAdjust = TRUE,
   numbNodes = 10L,
   digits = 3L,
   digitsPval = 6L,
@@ -19,23 +20,22 @@
 \method{print}{summary.microNetComp}(x, ...)
 }
 \arguments{
-\item{object}{object of class \code{netProps} inheriting from a call to
+\item{object}{object of class \code{microNetComp} returned by 
 \code{\link{netCompare}}.}
 
 \item{groupNames}{character vector with two elements giving the group names
-corresponding to the two networks. If \code{NULL}, the names are adopted
+for the two networks. If \code{NULL}, the names are adopted
 from \code{object}}
+
+\item{showCentr}{character vector indicating which centrality measures
+should be included in the summary. Possible values are "all", "degree",
+"betweenness", "closeness", "eigenvector" and "none".}
 
 \item{pAdjust}{logical. If \code{TRUE} the permutation p-values adjusted for
 multiple testing are shown.}
 
-\item{showCentr}{character vector indicating for which centrality measures
-the results (values for both groups, difference and p-values resulting from
-permutation tests) shall be printed. Possible values are "all", "degree",
-"betweenness", "closeness", "eigenvector" and "none".}
-
 \item{numbNodes}{integer indicating for how many nodes the centrality
-values shall be printed. Defaults to 10 which means that the first 10 taxa
+values shall be printed. Defaults to 10 meaning that the first 10 taxa
 with highest absolute group difference of the specific centrality
 measure are shown.}
 
@@ -47,11 +47,11 @@ p-values are rounded. Defaults to 6L.}
 
 \item{...}{not used}
 
-\item{x}{object of class \code{summary.microNetComp} inheriting from a call
-to \code{\link{summary.microNetComp}}.}
+\item{x}{object of class \code{summary.microNetComp} (returned by 
+to \code{\link{summary.microNetComp}}).}
 }
 \description{
-The main results returned from \code{\link{netCompare}} are
+The main results returned by \code{\link{netCompare}} are
   printed in a well-arranged format.
 }
 \seealso{

@@ -11,7 +11,6 @@ netAnalyze(
   sPathAlgo = "dijkstra",
   sPathNorm = TRUE,
   normNatConnect = TRUE,
-  connectivity = TRUE,
   clustMethod = NULL,
   clustPar = NULL,
   clustPar2 = NULL,
@@ -24,40 +23,39 @@ netAnalyze(
   normBetw = TRUE,
   normClose = TRUE,
   normEigen = TRUE,
+  connectivity = TRUE,
+  graphlet = TRUE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{net}{object of class \code{microNet} inheriting from a call to
-\code{\link{netConstruct}}}
+\item{net}{object of class \code{microNet} (returned by 
+\code{\link{netConstruct}}).}
 
 \item{centrLCC}{logical indicating whether to compute centralities only 
 for the largest connected component (LCC). If \code{TRUE} 
 (default), centrality values of disconnected components are zero.}
 
 \item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
-calculating the average dissimilarity. If \code{FALSE}, infinity values are 
-set to 1.}
+calculating the average dissimilarity. If \code{FALSE} (default), infinity 
+values are set to 1.}
 
 \item{sPathAlgo}{character indicating the algorithm used for computing
 the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
-is used for shortest path calculation. Possible values are: "unweighted", 
-"dijkstra" (default), "bellman-ford", "johnson", or "automatic" (the 
-fastest suitable algorithm is used). The shortest paths are needed for the 
-average (shortest) path length and closeness centrality.}
+(igraph) is used for shortest path calculation. 
+Possible values are: "unweighted", "dijkstra" (default), "bellman-ford", 
+"johnson", or "automatic" (the fastest suitable algorithm is used). The 
+shortest paths are needed for the average (shortest) path length and 
+closeness centrality.}
 
 \item{sPathNorm}{logical. If \code{TRUE} (default), shortest paths are 
-normalized by average dissimilarity (only connected nodes are considered). 
-That means, a path is interpreted as steps with average dissimilarity. 
+normalized by average dissimilarity (only connected nodes are considered),  
+i.e., a path is interpreted as steps with average dissimilarity. 
 If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
 between two nodes.}
 
-\item{normNatConnect}{logical indicating whether the normalized natural 
-connectivity should be returned. Defaults to \code{TRUE}.}
-
-\item{connectivity}{logical indicating whether edge and vertex connectivity 
-should be calculated. Might be disabled to reduce execution time. Default 
-is \code{TRUE}.}
+\item{normNatConnect}{logical. If \code{TRUE} (default), the normalized 
+natural connectivity is returned.}
 
 \item{clustMethod}{character indicating the clustering algorithm. Possible
 values are \code{"hierarchical"} for a hierarchical algorithm based on
@@ -88,16 +86,23 @@ measures. See details.}
 
 \item{lnormFit}{hubs are nodes with a centrality value above the 95\%
 quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
-or of the empirical distribution of centrality values (if
-\code{lnormFit = FALSE}, which is default).}
+or of the empirical distribution of centrality values 
+(\code{lnormFit = FALSE}; default).}
 
-\item{weightDeg}{if \code{TRUE}, the weighted degree is used (see
-\code{\link[igraph]{strength}}). Is automatically set to TRUE for a fully
-connected network.}
+\item{weightDeg}{logical. If \code{TRUE}, the weighted degree is used (see
+\code{\link[igraph]{strength}}). Default is \code{FALSE}. 
+Is automatically set to \code{TRUE} for a fully connected (dense) network.}
 
-\item{normDeg, normBetw, normClose, normEigen}{if \code{TRUE}, a normalized
-version of the respective centrality values is returned. By default, all
-centralities are normalized.}
+\item{normDeg, normBetw, normClose, normEigen}{logical. If \code{TRUE} 
+(default for all measures), a normalized version of the respective 
+centrality values is returned.}
+
+\item{connectivity}{logical. If \code{TRUE} (default), edge and vertex 
+connectivity are calculated. Might be disabled to reduce execution time.}
+
+\item{graphlet}{logical. If \code{TRUE} (default), graphlet-based network 
+properties are computed: orbit counts of graphlets with 2-4 nodes 
+(\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).}
 
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,
@@ -106,8 +111,8 @@ centralities are normalized.}
 \value{
 An object of class \code{microNetProps} containing the following
   elements: \tabular{ll}{
-  \code{lccNames1, lccNames2}\tab Names of nodes in the largest component(s).
-  \cr
+  \code{lccNames1, lccNames2}\tab Names of nodes in the largest connected 
+  component(s).\cr
   \code{compSize1, compSize2}\tab Matrix/matrices with component sizes (1st 
   row: sizes; 2nd row: number of components with the respective size)\cr
   \code{clustering}\tab Determined clusters in the whole network (and 
@@ -118,6 +123,9 @@ An object of class \code{microNetProps} containing the following
   \code{hubs}\tab Names of hub nodes\cr
   \code{globalProps}\tab Global network properties of the whole network.\cr
   \code{globalPropsLCC}\tab Global network properties of the largest 
+  component.\cr
+  \code{graphlet}\tab Graphlet-based properties (orbit counts and GCM).\cr
+  \code{graphletLCC}\tab Graphlet-based properties of the largest connected 
   component.\cr
   \code{paramsProperties}\tab Given parameters used for network analysis\cr
   \code{paramsNetConstruct}\tab Parameters used for network construction 
@@ -228,6 +236,16 @@ Determine network properties for objects of class
   \code{\link[igraph]{eigen_centrality}} (scale argument is set according to 
   \code{normEigen}).}
   }
+  \strong{Graphlet-based properties:}\cr
+  \describe{
+  \item{Orbit counts}{Count of node orbits in graphlets with 2 to 4 nodes. 
+  See Hocevar and Demsar (2016) for details. The \code{\link[orca]{count4}} 
+  function from \code{orca} package is used for orbit counting.
+  }
+  \item{Graphlet Correlation Matrix (GCM)}{Matrix with Spearman's 
+  correlations between the network's (non-redundant) node orbits 
+  (Yaveroglu et al., 2014).}
+  }
 }
 \examples{
 # Load data sets from American Gut Project (from SpiecEasi package)
@@ -276,6 +294,10 @@ amgut_props4 <- netAnalyze(amgut_net4, clustMethod = "hierarchical",
 
 plot(amgut_props4)
 
+}
+\references{
+\insertRef{hocevar2016computation}{NetCoMi}\cr\cr
+  \insertRef{yaveroglu2014revealing}{NetCoMi}
 }
 \seealso{
 \code{\link{netConstruct}} for network construction,

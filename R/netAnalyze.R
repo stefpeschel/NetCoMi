@@ -101,31 +101,39 @@
 #'   \code{\link[igraph]{eigen_centrality}} (scale argument is set according to 
 #'   \code{normEigen}).}
 #'   }
+#'   \strong{Graphlet-based properties:}\cr
+#'   \describe{
+#'   \item{Orbit counts}{Count of node orbits in graphlets with 2 to 4 nodes. 
+#'   See Hocevar and Demsar (2016) for details. The \code{\link[orca]{count4}} 
+#'   function from \code{orca} package is used for orbit counting.
+#'   }
+#'   \item{Graphlet Correlation Matrix (GCM)}{Matrix with Spearman's 
+#'   correlations between the network's (non-redundant) node orbits 
+#'   (Yaveroglu et al., 2014).}
+#'   }
 #'
-#' @param net object of class \code{microNet} inheriting from a call to
-#'   \code{\link{netConstruct}}
+#' @param net object of class \code{microNet} (returned by 
+#'   \code{\link{netConstruct}}).
 #' @param centrLCC logical indicating whether to compute centralities only 
 #'   for the largest connected component (LCC). If \code{TRUE} 
 #'   (default), centrality values of disconnected components are zero. 
 #' @param avDissIgnoreInf logical indicating whether to ignore infinities when 
-#'   calculating the average dissimilarity. If \code{FALSE}, infinity values are 
-#'   set to 1.
+#'   calculating the average dissimilarity. If \code{FALSE} (default), infinity 
+#'   values are set to 1.
 #' @param sPathAlgo character indicating the algorithm used for computing
 #'   the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
-#'   is used for shortest path calculation. Possible values are: "unweighted", 
-#'   "dijkstra" (default), "bellman-ford", "johnson", or "automatic" (the 
-#'   fastest suitable algorithm is used). The shortest paths are needed for the 
-#'   average (shortest) path length and closeness centrality.
+#'   (igraph) is used for shortest path calculation. 
+#'   Possible values are: "unweighted", "dijkstra" (default), "bellman-ford", 
+#'   "johnson", or "automatic" (the fastest suitable algorithm is used). The 
+#'   shortest paths are needed for the average (shortest) path length and 
+#'   closeness centrality.
 #' @param sPathNorm logical. If \code{TRUE} (default), shortest paths are 
-#'   normalized by average dissimilarity (only connected nodes are considered). 
-#'   That means, a path is interpreted as steps with average dissimilarity. 
+#'   normalized by average dissimilarity (only connected nodes are considered),  
+#'   i.e., a path is interpreted as steps with average dissimilarity. 
 #'   If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
 #'   between two nodes.
-#' @param normNatConnect logical indicating whether the normalized natural 
-#'   connectivity should be returned. Defaults to \code{TRUE}.
-#' @param connectivity logical indicating whether edge and vertex connectivity 
-#'   should be calculated. Might be disabled to reduce execution time. Default 
-#'   is \code{TRUE}.
+#' @param normNatConnect logical. If \code{TRUE} (default), the normalized 
+#'   natural connectivity is returned.
 #' @param clustMethod character indicating the clustering algorithm. Possible
 #'   values are \code{"hierarchical"} for a hierarchical algorithm based on
 #'   dissimilarity values, or the clustering methods provided by the igraph
@@ -149,22 +157,27 @@
 #' @param hubQuant quantile used for determining hub nodes. Defaults to 0.95.
 #' @param lnormFit hubs are nodes with a centrality value above the 95\%
 #'   quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
-#'   or of the empirical distribution of centrality values (if
-#'   \code{lnormFit = FALSE}, which is default).
-#' @param weightDeg if \code{TRUE}, the weighted degree is used (see
-#'   \code{\link[igraph]{strength}}). Is automatically set to TRUE for a fully
-#'   connected network.
-#' @param normDeg,normBetw,normClose,normEigen if \code{TRUE}, a normalized
-#'   version of the respective centrality values is returned. By default, all
-#'   centralities are normalized.
+#'   or of the empirical distribution of centrality values 
+#'   (\code{lnormFit = FALSE}; default).
+#' @param weightDeg logical. If \code{TRUE}, the weighted degree is used (see
+#'   \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
+#'   Is automatically set to \code{TRUE} for a fully connected (dense) network.
+#' @param normDeg,normBetw,normClose,normEigen logical. If \code{TRUE} 
+#'   (default for all measures), a normalized version of the respective 
+#'   centrality values is returned.
+#' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
+#'   connectivity are calculated. Might be disabled to reduce execution time.
+#' @param graphlet logical. If \code{TRUE} (default), graphlet-based network 
+#'   properties are computed: orbit counts of graphlets with 2-4 nodes 
+#'   (\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).
 #' @param verbose integer indicating the level of verbosity. Possible values:
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages are shown. Can also be logical.
 #'
 #' @return An object of class \code{microNetProps} containing the following
 #'   elements: \tabular{ll}{
-#'   \code{lccNames1, lccNames2}\tab Names of nodes in the largest component(s).
-#'   \cr
+#'   \code{lccNames1, lccNames2}\tab Names of nodes in the largest connected 
+#'   component(s).\cr
 #'   \code{compSize1, compSize2}\tab Matrix/matrices with component sizes (1st 
 #'   row: sizes; 2nd row: number of components with the respective size)\cr
 #'   \code{clustering}\tab Determined clusters in the whole network (and 
@@ -175,6 +188,9 @@
 #'   \code{hubs}\tab Names of hub nodes\cr
 #'   \code{globalProps}\tab Global network properties of the whole network.\cr
 #'   \code{globalPropsLCC}\tab Global network properties of the largest 
+#'   component.\cr
+#'   \code{graphlet}\tab Graphlet-based properties (orbit counts and GCM).\cr
+#'   \code{graphletLCC}\tab Graphlet-based properties of the largest connected 
 #'   component.\cr
 #'   \code{paramsProperties}\tab Given parameters used for network analysis\cr
 #'   \code{paramsNetConstruct}\tab Parameters used for network construction 
@@ -235,6 +251,11 @@
 #'   \code{\link{diffnet}} for constructing differential networks,
 #'   \code{\link{plot.microNetProps}} for the plot method, and
 #'   \code{\link{summary.microNetProps}} for the summary method.
+#'   
+#' @references
+#'   \insertRef{hocevar2016computation}{NetCoMi}\cr\cr
+#'   \insertRef{yaveroglu2014revealing}{NetCoMi}
+#'   
 #' @import igraph
 #' @importFrom MASS fitdistr
 #' @export
@@ -245,7 +266,6 @@ netAnalyze <- function(net,
                        sPathAlgo = "dijkstra",
                        sPathNorm = TRUE,
                        normNatConnect = TRUE,
-                       connectivity = TRUE,
                        clustMethod = NULL,
                        clustPar = NULL,
                        clustPar2 = NULL,
@@ -258,6 +278,8 @@ netAnalyze <- function(net,
                        normBetw = TRUE,
                        normClose = TRUE,
                        normEigen = TRUE,
+                       connectivity = TRUE,
+                       graphlet = TRUE,
                        verbose = TRUE){
   x <- net
   stopifnot(class(x) == "microNet")
@@ -348,7 +370,6 @@ netAnalyze <- function(net,
   }
   props1 <- calc_props(adjaMat = adja1, dissMat = x$dissMat1, 
                        assoMat = x$assoMat1, centrLCC = centrLCC,
-                       connectivity = connectivity,
                        avDissIgnoreInf = avDissIgnoreInf,
                        sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
                        normNatConnect = normNatConnect, 
@@ -356,7 +377,9 @@ netAnalyze <- function(net,
                        clustMethod = clustMethod, clustPar = clustPar, 
                        weightClustCoef = weightClustCoef,
                        hubPar = hubPar, hubQuant = hubQuant,
-                       lnormFit = lnormFit, weightDeg = weightDeg,
+                       lnormFit = lnormFit, 
+                       connectivity = connectivity, graphlet = graphlet,
+                       weightDeg = weightDeg,
                        normDeg = normDeg, normBetw = normBetw,
                        normClose = normClose, normEigen = normEigen,
                        verbose = verbose)
@@ -369,7 +392,6 @@ netAnalyze <- function(net,
     }
     props2 <- calc_props(adjaMat = adja2, dissMat = x$dissMat2, 
                          assoMat = x$assoMat2, centrLCC = centrLCC,
-                         connectivity = connectivity,
                          avDissIgnoreInf = avDissIgnoreInf,
                          sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
                          normNatConnect = normNatConnect, 
@@ -377,7 +399,9 @@ netAnalyze <- function(net,
                          clustMethod = clustMethod, clustPar = clustPar2, 
                          weightClustCoef = weightClustCoef,
                          hubPar = hubPar, hubQuant = hubQuant,
-                         lnormFit = lnormFit, weightDeg = weightDeg,
+                         lnormFit = lnormFit, 
+                         connectivity = connectivity, graphlet = graphlet,
+                         weightDeg = weightDeg,
                          normDeg = normDeg, normBetw = normBetw,
                          normClose = normClose, normEigen = normEigen,
                          verbose = verbose)
@@ -459,6 +483,18 @@ netAnalyze <- function(net,
                                 density2 = props2$density_lcc,
                                 pep1 = props1$pep_lcc,
                                 pep2 = props2$pep_lcc)
+
+  if(graphlet){
+    output$graphlet <- list(ocount1 = props1$ocount,
+                            ocount2 = props2$ocount,
+                            gcm1 = props1$gcm,
+                            gcm2 = props2$gcm)
+    
+    output$graphletLCC <- list(ocount1 = props1$ocount_lcc,
+                               ocount2 = props2$ocount_lcc,
+                               gcm1 = props1$gcm_lcc,
+                               gcm2 = props2$gcm_lcc)
+  }
   
   output$paramsProperties <- list(centrLCC = centrLCC,
                                   avDissIgnoreInf = avDissIgnoreInf,

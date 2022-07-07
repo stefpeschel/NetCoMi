@@ -1,41 +1,66 @@
 #' @title Calculate network properties
 #'
-#' @description Calculates network properterties for a given adjacency matrix
+#' @description Calculates network properties for a given adjacency matrix
 #'
 #' @param adjaMat adjacency matrix
 #' @param dissMat dissimilarity matrix
 #' @param assoMat association matrix
+#' @param centrLCC logical indicating whether to compute centralities only 
+#'   for the largest connected component (LCC). If \code{TRUE} 
+#'   (default), centrality values of disconnected components are zero. 
 #' @param avDissIgnoreInf logical indicating whether to ignore infinities when 
-#'   calculating the average dissimilarity. If \code{FALSE}, infinity values 
-#'   are set to 1.
-#' @param sPathNorm logical. If TRUE, shortest paths are normalized by 
-#'   average dissimilarity.
-#' @param sPathAlgo character indicating the algorithm used for shortest path
-#'   calculation.
-#' @param connectivity logical indicating whether edge and vertex connectivity 
-#'   should be calculated. Might be disabled to reduce execution time.
-#' @param normNatConnect logical indicating whether natural connectivity should
-#'   be normalized.
-#' @param weighted indicated whether the network is weighted
-#' @param isempty indicator whether the network contains any edges.
-#' @param clustMethod character indicating the clustering algorithm.
+#'   calculating the average dissimilarity. If \code{FALSE} (default), infinity 
+#'   values are set to 1.
+#' @param sPathAlgo character indicating the algorithm used for computing
+#'   the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
+#'   (igraph) is used for shortest path calculation. 
+#'   Possible values are: "unweighted", "dijkstra" (default), "bellman-ford", 
+#'   "johnson", or "automatic" (the fastest suitable algorithm is used). The 
+#'   shortest paths are needed for the average (shortest) path length and 
+#'   closeness centrality.
+#' @param sPathNorm logical. If \code{TRUE} (default), shortest paths are 
+#'   normalized by average dissimilarity (only connected nodes are considered),  
+#'   i.e., a path is interpreted as steps with average dissimilarity. 
+#'   If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
+#'   between two nodes.
+#' @param normNatConnect logical. If \code{TRUE} (default), the normalized 
+#'   natural connectivity is returned.
+#' @param clustMethod character indicating the clustering algorithm. Possible
+#'   values are \code{"hierarchical"} for a hierarchical algorithm based on
+#'   dissimilarity values, or the clustering methods provided by the igraph
+#'   package (see \code{\link[igraph]{communities}} for possible methods).
+#'   Defaults to \code{"cluster_fast_greedy"} for association-based networks and
+#'   to \code{"hierarchical"} for sample similarity networks.
 #' @param clustPar list with parameters passed to the clustering functions.
-#' @param weightClustCoef logical. If \code{TRUE}, the weighted clustering
-#'   coefficient is used.
-#' @param hubPar character vector with one or more centrality measures used
-#'   for identifying hub nodes. Possible values are \code{degree},
-#'   \code{betweenness}, \code{closeness}, and \code{eigenvector}.
-#' @param hubQuant quantile used for determining hub nodes.
+#'   If hierarchical clustering is used, the parameters are passed to
+#'   \code{\link[stats]{hclust}} as well as \code{\link[stats]{cutree}}.
+#' @param clustPar2 optional list with clustering parameters for the second
+#'   network. If \code{NULL} and \code{net} contains two networks,
+#'   \code{clustPar} is used for the second network as well.
+#' @param weightClustCoef logical indicating whether (global) clustering 
+#'   coefficient should be weighted (\code{TRUE}, default) or unweighted 
+#'   (\code{FALSE}).
+#' @param hubPar character vector with one or more elements (centrality 
+#'   measures) used for identifying hub nodes. Possible values are \code{degree},
+#'   \code{betweenness}, \code{closeness}, and \code{eigenvector}. If multiple
+#'   measures are given, hubs are nodes with highest centrality for all selected
+#'   measures. See details.
+#' @param hubQuant quantile used for determining hub nodes. Defaults to 0.95.
 #' @param lnormFit hubs are nodes with a centrality value above the 95\%
 #'   quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
-#'   or of the empirical distribution of centrality values.
-#' @param weightDeg if \code{TRUE}, the weighted degree is used.
-#' @param normDeg,normBetw,normClose,normEigen if \code{TRUE}, a normalized
-#'   version of the respective centrality values is returned. By default, all
-#'   centralities are normalized.
-#' @param centrLCC logical indicating whether centralities should only be 
-#'   computed for the largest connected component (LCC). If \code{TRUE} 
-#'   (default), centrality values of disconnected components are zero. 
+#'   or of the empirical distribution of centrality values 
+#'   (\code{lnormFit = FALSE}; default).
+#' @param weightDeg logical. If \code{TRUE}, the weighted degree is used (see
+#'   \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
+#'   Is automatically set to \code{TRUE} for a fully connected (dense) network.
+#' @param normDeg,normBetw,normClose,normEigen logical. If \code{TRUE} 
+#'   (default for all measures), a normalized version of the respective 
+#'   centrality values is returned.
+#' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
+#'   connectivity are calculated. Might be disabled to reduce execution time.
+#' @param graphlet logical. If \code{TRUE} (default), graphlet-based network 
+#'   properties are computed: orbit counts of graphlets with 2-4 nodes 
+#'   (\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).
 #' @param jaccard shall the Jaccard index be calculated?
 #' @param jaccQuant quantile for the Jaccard index
 #' @param verbose integer indicating the level of verbosity. Possible values:
@@ -48,13 +73,14 @@
 
 
 calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
-                       sPathNorm, sPathAlgo, connectivity, normNatConnect, 
+                       sPathNorm, sPathAlgo, normNatConnect, 
                        weighted, isempty, clustMethod, clustPar, 
                        weightClustCoef, hubPar, hubQuant, lnormFit, 
+                       connectivity, graphlet,
                        weightDeg, normDeg, normBetw, normClose, normEigen,
                        centrLCC, jaccard = FALSE, jaccQuant = NULL, 
                        verbose = 0){
-  
+
   
   #== Create igraph objects and decompose graph ================================
   # Create graph from adjacency matrix
@@ -746,6 +772,28 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
     message("Done.")
   }
 
+  #== Graphlet Correlation Matrix ==============================================
+  
+  if (graphlet) {
+    if (verbose == 2) {
+      message("Compute GCM ... ", appendLF = FALSE)
+    }
+    
+    ocount <- .getOrbcounts(adjaMat)
+    ocount_lcc <- .getOrbcounts(adjaMat_lcc)
+    
+    gcm <- calcGCM(adjaMat, orbits = 0:14)$gcm
+    gcm_lcc <- calcGCM(adjaMat_lcc, orbits = 0:14)$gcm
+    
+    if (verbose == 2) {
+      message("Done.")
+    }
+    
+  } else {
+    ocount <- ocount_lcc <- NA
+    gcm <- gcm_lcc <- NA
+  }
+
   #========================================================================
 
   output <- list(nComp = nComp, compSize= compSize, lccNames = lccNames,
@@ -767,7 +815,10 @@ calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
                  pep = pep, pep_lcc = pep_lcc,
                  hubs = hubs, 
                  topdeg = topdeg, topbetw = topbetw, 
-                 topclose = topclose, topeigen = topeigen)
+                 topclose = topclose, topeigen = topeigen,
+                 ocount = ocount, ocount_lcc = ocount_lcc,
+                 gcm = gcm, gcm_lcc = gcm_lcc,
+                 adjaMat_lcc = adjaMat_lcc)
   
   return(output)
 }

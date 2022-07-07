@@ -11,7 +11,6 @@ calc_props(
   avDissIgnoreInf,
   sPathNorm,
   sPathAlgo,
-  connectivity,
   normNatConnect,
   weighted,
   isempty,
@@ -21,6 +20,8 @@ calc_props(
   hubPar,
   hubQuant,
   lnormFit,
+  connectivity,
+  graphlet,
   weightDeg,
   normDeg,
   normBetw,
@@ -40,50 +41,71 @@ calc_props(
 \item{assoMat}{association matrix}
 
 \item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
-calculating the average dissimilarity. If \code{FALSE}, infinity values 
-are set to 1.}
+calculating the average dissimilarity. If \code{FALSE} (default), infinity 
+values are set to 1.}
 
-\item{sPathNorm}{logical. If TRUE, shortest paths are normalized by 
-average dissimilarity.}
+\item{sPathNorm}{logical. If \code{TRUE} (default), shortest paths are 
+normalized by average dissimilarity (only connected nodes are considered),  
+i.e., a path is interpreted as steps with average dissimilarity. 
+If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
+between two nodes.}
 
-\item{sPathAlgo}{character indicating the algorithm used for shortest path
-calculation.}
+\item{sPathAlgo}{character indicating the algorithm used for computing
+the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
+(igraph) is used for shortest path calculation. 
+Possible values are: "unweighted", "dijkstra" (default), "bellman-ford", 
+"johnson", or "automatic" (the fastest suitable algorithm is used). The 
+shortest paths are needed for the average (shortest) path length and 
+closeness centrality.}
 
-\item{connectivity}{logical indicating whether edge and vertex connectivity 
-should be calculated. Might be disabled to reduce execution time.}
+\item{normNatConnect}{logical. If \code{TRUE} (default), the normalized 
+natural connectivity is returned.}
 
-\item{normNatConnect}{logical indicating whether natural connectivity should
-be normalized.}
+\item{clustMethod}{character indicating the clustering algorithm. Possible
+values are \code{"hierarchical"} for a hierarchical algorithm based on
+dissimilarity values, or the clustering methods provided by the igraph
+package (see \code{\link[igraph]{communities}} for possible methods).
+Defaults to \code{"cluster_fast_greedy"} for association-based networks and
+to \code{"hierarchical"} for sample similarity networks.}
 
-\item{weighted}{indicated whether the network is weighted}
+\item{clustPar}{list with parameters passed to the clustering functions.
+If hierarchical clustering is used, the parameters are passed to
+\code{\link[stats]{hclust}} as well as \code{\link[stats]{cutree}}.}
 
-\item{isempty}{indicator whether the network contains any edges.}
+\item{weightClustCoef}{logical indicating whether (global) clustering 
+coefficient should be weighted (\code{TRUE}, default) or unweighted 
+(\code{FALSE}).}
 
-\item{clustMethod}{character indicating the clustering algorithm.}
+\item{hubPar}{character vector with one or more elements (centrality 
+measures) used for identifying hub nodes. Possible values are \code{degree},
+\code{betweenness}, \code{closeness}, and \code{eigenvector}. If multiple
+measures are given, hubs are nodes with highest centrality for all selected
+measures. See details.}
 
-\item{clustPar}{list with parameters passed to the clustering functions.}
-
-\item{weightClustCoef}{logical. If \code{TRUE}, the weighted clustering
-coefficient is used.}
-
-\item{hubPar}{character vector with one or more centrality measures used
-for identifying hub nodes. Possible values are \code{degree},
-\code{betweenness}, \code{closeness}, and \code{eigenvector}.}
-
-\item{hubQuant}{quantile used for determining hub nodes.}
+\item{hubQuant}{quantile used for determining hub nodes. Defaults to 0.95.}
 
 \item{lnormFit}{hubs are nodes with a centrality value above the 95\%
 quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
-or of the empirical distribution of centrality values.}
+or of the empirical distribution of centrality values 
+(\code{lnormFit = FALSE}; default).}
 
-\item{weightDeg}{if \code{TRUE}, the weighted degree is used.}
+\item{connectivity}{logical. If \code{TRUE} (default), edge and vertex 
+connectivity are calculated. Might be disabled to reduce execution time.}
 
-\item{normDeg, normBetw, normClose, normEigen}{if \code{TRUE}, a normalized
-version of the respective centrality values is returned. By default, all
-centralities are normalized.}
+\item{graphlet}{logical. If \code{TRUE} (default), graphlet-based network 
+properties are computed: orbit counts of graphlets with 2-4 nodes 
+(\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).}
 
-\item{centrLCC}{logical indicating whether centralities should only be 
-computed for the largest connected component (LCC). If \code{TRUE} 
+\item{weightDeg}{logical. If \code{TRUE}, the weighted degree is used (see
+\code{\link[igraph]{strength}}). Default is \code{FALSE}. 
+Is automatically set to \code{TRUE} for a fully connected (dense) network.}
+
+\item{normDeg, normBetw, normClose, normEigen}{logical. If \code{TRUE} 
+(default for all measures), a normalized version of the respective 
+centrality values is returned.}
+
+\item{centrLCC}{logical indicating whether to compute centralities only 
+for the largest connected component (LCC). If \code{TRUE} 
 (default), centrality values of disconnected components are zero.}
 
 \item{jaccard}{shall the Jaccard index be calculated?}
@@ -93,7 +115,11 @@ computed for the largest connected component (LCC). If \code{TRUE}
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,
 \code{"2"}(default): all progress messages are shown. Can also be logical.}
+
+\item{clustPar2}{optional list with clustering parameters for the second
+network. If \code{NULL} and \code{net} contains two networks,
+\code{clustPar} is used for the second network as well.}
 }
 \description{
-Calculates network properterties for a given adjacency matrix
+Calculates network properties for a given adjacency matrix
 }
