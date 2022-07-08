@@ -168,7 +168,7 @@ summary.microNetProps <- function(object, groupNames = NULL,
 
   clust <- list()
   if(clusterLCC){
-    clusttab1 <- table(object$clustering_lcc$clust1)
+    clusttab1 <- table(object$clusteringLCC$clust1)
   } else{
     clusttab1 <- table(object$clustering$clust1)
   }
@@ -182,7 +182,7 @@ summary.microNetProps <- function(object, groupNames = NULL,
   clust[[1]] <- clust1
   if(twonets){
     if(clusterLCC){
-      clusttab2 <- table(object$clustering_lcc$clust2)
+      clusttab2 <- table(object$clusteringLCC$clust2)
     } else{
       clusttab2 <- table(object$clustering$clust2)
     }

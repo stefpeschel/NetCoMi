@@ -117,7 +117,7 @@ An object of class \code{microNetProps} containing the following
   row: sizes; 2nd row: number of components with the respective size)\cr
   \code{clustering}\tab Determined clusters in the whole network (and 
   corresponding trees if hierarchical clustering is used)\cr
-  \code{clustering_lcc}\tab Clusters (and optional trees) of the
+  \code{clusteringLCC}\tab Clusters (and optional trees) of the
   largest connected component.\cr
   \code{centralities}\tab Centrality values\cr
   \code{hubs}\tab Names of hub nodes\cr
