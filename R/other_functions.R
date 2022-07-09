@@ -86,3 +86,25 @@ first_unequal_element <- function(x){
   return(i)
 }
 
+
+.sigTestRand <- function(randInd, nPermRand, clust1, clust2){
+  randPerm <- numeric(nPermRand)
+  
+  for(i in 1:nPermRand){
+    clust1.tmp <- gtools::permute(clust1)
+    clust2.tmp <- gtools::permute(clust2)
+    randPerm[i] <- WGCNA::randIndex(table(clust1.tmp, clust2.tmp), 
+                                    adjust = TRUE)
+  }
+  
+  randMean <- mean(randPerm)
+  randSD <- sd(randPerm)
+  
+  normRandPerm <- (randPerm - randMean) / randSD
+  normRand <- (randInd[1] - randMean) / randSD
+  
+  pval <-  (sum(normRandPerm >= abs(normRand)) + 
+              sum(normRandPerm <= -abs(normRand))) / nPermRand
+  
+  return(pval)
+}

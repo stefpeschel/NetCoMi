@@ -18,6 +18,9 @@
 #'   be fitted to the calculated centrality values for determining Jaccard's
 #'   index (see details). If \code{NULL} (default), the value is adopted
 #'   from the input, i.e., equals the method used for determining hub nodes.
+#' @param testRand logical. If \code{TRUE}, a permutation test is conducted 
+#'   for the adjusted Rand index (with H0: ARI = 0). Execution time may be 
+#'   increased for large networks.
 #' @param nPermRand integer giving the number of permutations used for testing 
 #'   the adjusted Rand index for being significantly different from zero. 
 #'   Ignored if \code{testRand = FALSE}. Defaults to 1000L.
@@ -45,10 +48,6 @@
 #'   \code{"convest"}(default), \code{"lfdr"}, \code{"mean"}, and \code{"hist"}.
 #'   Can alternatively be \code{"farco"} for the "iterative plug-in method"
 #'   proposed by \cite{Farcomeni (2007)}.
-#' @param nPermRand number of permutations used for testing the Rand index for
-#'   being significantly different from a random assignment of nodes to the
-#'   clusters. Execution time is not significantly increased, even for a high
-#'   number of permutations. Defaults to 1000L.
 #' @param cores integer indicating the number of CPU cores used for
 #'   permutation tests. If cores > 1, the tests are performed in parallel.
 #'   Is limited to the number of available CPU cores determined by
@@ -122,7 +121,7 @@
 #'   most central nodes are completely different.\cr
 #'   The index is calculated as suggested by \cite{Real and Vargas (1996)}.
 #'   \cr\cr
-#'   \strong{Rand index:}
+#'   \strong{Rand index:}\cr
 #'   The Rand index is used to express whether the determined clusterings are
 #'   equal in both groups. The adjusted Rand index (ARI) ranges from -1 to 1,
 #'   where 1 indicates that the two clusterings are exactly equal. The expected
@@ -145,7 +144,9 @@
 #'   \code{jaccDeg,jaccBetw,jaccClose,jaccEigen}\tab Values of Jaccard's index
 #'   for the centrality measures\cr
 #'   \code{jaccHub}\tab Jaccard index for the sets of hub nodes\cr
-#'   \code{randInd}\tab Calculated Rand index\cr
+#'   \code{randInd}\tab Adjusted Rand index\cr
+#'   \code{randIndLCC}\tab Adjusted Rand index for the largest connected 
+#'   component (LCC)\cr
 #'   \code{gcd}\tab Graphlet Correlation Distance (object of class \code{gcd} 
 #'   returned by \code{\link{calcGCD}})\cr
 #'   \code{gcdLCC}\tab Graphlet Correlation Distance for the LCC\cr
@@ -284,6 +285,7 @@ netCompare <- function(x,
                        permTest = FALSE,
                        jaccQuant = 0.75,
                        lnormFit = NULL,
+                       testRand = TRUE,
                        nPermRand = 1000L,
                        gcd = TRUE,
                        gcdOrb = c(0:2, 4:11),
@@ -291,7 +293,6 @@ netCompare <- function(x,
                        nPerm = 1000L,
                        adjust = "adaptBH",
                        trueNullMethod = "convest",
-                       nPermRand = 1000L,
                        cores = 1L,
                        logFile = NULL,
                        seed = NULL, 
@@ -431,6 +432,8 @@ netCompare <- function(x,
                            gcd = gcd, gcdOrb = gcdOrb)
   
   if(permTest & verbose) message("Done.")
+  callArgs <- argsin
+  callArgs$x <- NULL
   
   output <- list(jaccDeg = props$jaccDeg,
                  jaccBetw = props$jaccBetw,
@@ -438,6 +441,7 @@ netCompare <- function(x,
                  jaccEigen = props$jaccEigen,
                  jaccHub = props$jaccHub,
                  randInd = props$randInd,
+                 randIndLCC = props$randIndLCC,
                  gcd = props$gcd,
                  gcdLCC = props$gcdLCC,
                  diffGlobal = props$diffsGlobal,
@@ -456,7 +460,8 @@ netCompare <- function(x,
                  groups = list(group1 = xgroups[1],
                                group2 = xgroups[2]),
                  paramsProperties = x$paramsProperties,
-                 call = match.call())
+                 call = match.call(), 
+                 callArgs = callArgs)
 
   #-----------------------------------------------------------------------------
   # generate teststatistics for permutated data

@@ -27,6 +27,7 @@
 #' @rdname summarize.microNetComp
 #' @export
 summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
+                                 showRand = TRUE,
                                  showCentr = "all", 
                                  pAdjust = TRUE,
                                  numbNodes = 10L, digits = 3L, 
@@ -89,11 +90,30 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   colnames(jaccmat) <- c("Jacc", "  P(<=Jacc)", "   ", "P(>=Jacc)", "  ")
   
   #============================================================
-  # rand index
+  # Rand index
+  
   rand <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
                                dimnames = list("", c("ARI", "      p-value"))))
   rand[1,1] <- round(object$randInd[1], digits)
   rand[1,2] <- round(object$randInd[2], digitsPval)
+  
+  if(is.na(object$randInd[2])){
+    # no p-value computed
+    rand <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
+                                 dimnames = list("ARI", 
+                                                 c("wholeNet", "      LCC"))))
+    rand[1, 1] <- round(object$randInd[1], digits)
+    rand[1, 2] <- round(object$randIndLCC[1], digits)
+    
+  } else{
+    rand <- as.data.frame(matrix(0, nrow = 2, ncol = 2,
+                                 dimnames = list(c("ARI", "p-value"),
+                                                 c("wholeNet", "      LCC"))))
+    rand[1, 1] <- round(object$randInd[1], digits)
+    rand[1, 2] <- round(object$randIndLCC[1], digits)
+    rand[2, 1] <- round(object$randInd[2], digitsPval)
+    rand[2, 2] <- round(object$randIndLCC[2], digitsPval)
+  }
   
   #============================================================
   # Graphlet Correlation Distance
@@ -354,7 +374,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                  pvalDiffCentr = object$pvalDiffCentr,
                  is_disconnected = is_disconnected,
                  paramsProperties = object$paramsProperties,
-                 call = object$call),
+                 call = object$call, callArgs = object$callArgs),
             class = "summary.microNetComp")
 }
 
@@ -407,20 +427,24 @@ print.summary.microNetComp <- function(x, ...) {
   cat("\n______________________________")
   
   cat("\nJaccard index (similarity betw. sets of most central nodes)\n")
-  cat("``````````````````````````````````````````````````````````\n")
+  cat("```````````````````````````````````````````````````````````\n")
   print(x$jaccmat)
   cat("-----\n")
-  cat("Jaccard index ranges from 0 (compl. different) to 1 (sets equal)\n")
-  
+  cat("Jaccard index in [0,1] (1 means perfect agreement)\n")
+
   cat("\n______________________________")
   cat("\nAdjusted Rand index (similarity betw. clusterings)\n")
   cat("``````````````````````````````````````````````````\n")
   print(x$rand)
   cat("-----\n")
-  cat("ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings,
+  cat("ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
                    ARI=0: expected for two random clusterings\n")
-  cat("p-value: two-tailed test with null hypothesis ARI=0\n")
   
+  if(nrow(x$rand) == 2){
+    nPerm <- x$callArgs$nPermRand
+    cat("p-value: permutation test (n=", nPerm, 
+        ") with null hypothesis ARI=0\n", sep = "")
+  }
 
   if (!is.null(x$gcd)) {
     cat("\n______________________________")
@@ -441,7 +465,7 @@ print.summary.microNetComp <- function(x, ...) {
     } else {
       cat("\nCentrality measures")
       cat("\n- In decreasing order")
-      cat("\n- Computed for the complete network\n")
+      cat("\n- Computed for the whole network\n")
       cat("````````````````````````````````````")
     }
     

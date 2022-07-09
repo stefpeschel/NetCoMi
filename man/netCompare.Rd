@@ -9,6 +9,7 @@ netCompare(
   permTest = FALSE,
   jaccQuant = 0.75,
   lnormFit = NULL,
+  testRand = TRUE,
   nPermRand = 1000L,
   gcd = TRUE,
   gcdOrb = c(0:2, 4:11),
@@ -16,7 +17,6 @@ netCompare(
   nPerm = 1000L,
   adjust = "adaptBH",
   trueNullMethod = "convest",
-  nPermRand = 1000L,
   cores = 1L,
   logFile = NULL,
   seed = NULL,
@@ -50,6 +50,10 @@ measure. The resulting sets of nodes are used to calculate Jaccard's index
 be fitted to the calculated centrality values for determining Jaccard's
 index (see details). If \code{NULL} (default), the value is adopted
 from the input, i.e., equals the method used for determining hub nodes.}
+
+\item{testRand}{logical. If \code{TRUE}, a permutation test is conducted 
+for the adjusted Rand index (with H0: ARI = 0). Execution time may be 
+increased for large networks.}
 
 \item{nPermRand}{integer giving the number of permutations used for testing 
 the adjusted Rand index for being significantly different from zero. 
@@ -150,7 +154,9 @@ Object of class \code{microNetComp} with the following
   \code{jaccDeg,jaccBetw,jaccClose,jaccEigen}\tab Values of Jaccard's index
   for the centrality measures\cr
   \code{jaccHub}\tab Jaccard index for the sets of hub nodes\cr
-  \code{randInd}\tab Calculated Rand index\cr
+  \code{randInd}\tab Adjusted Rand index\cr
+  \code{randIndLCC}\tab Adjusted Rand index for the largest connected 
+  component (LCC)\cr
   \code{gcd}\tab Graphlet Correlation Distance (object of class \code{gcd} 
   returned by \code{\link{calcGCD}})\cr
   \code{gcdLCC}\tab Graphlet Correlation Distance for the LCC\cr
@@ -226,7 +232,7 @@ Calculate and compare network properties for microbial networks
   most central nodes are completely different.\cr
   The index is calculated as suggested by \cite{Real and Vargas (1996)}.
   \cr\cr
-  \strong{Rand index:}
+  \strong{Rand index:}\cr
   The Rand index is used to express whether the determined clusterings are
   equal in both groups. The adjusted Rand index (ARI) ranges from -1 to 1,
   where 1 indicates that the two clusterings are exactly equal. The expected

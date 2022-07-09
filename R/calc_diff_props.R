@@ -177,32 +177,47 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   
   #--------------------------------------------------------------------------
   # adjusted Rand index for measuring similarity between two clusterings
+  
   clust1 <- props1$clust
   clust2 <- props2$clust
   
+  clust1_lcc.tmp <- props1$clust_lcc
+  clust2_lcc.tmp <- props2$clust_lcc
+  
+  c1names <- names(clust1_lcc.tmp)
+  c2names <- names(clust2_lcc.tmp)
+  uniNames <- union(c1names, c2names)
+
+  clust1_lcc <- clust2_lcc <- rep(0, length(uniNames))
+  names(clust1_lcc) <- names(clust2_lcc) <- uniNames
+  
+  clust1_lcc[c1names] <- clust1_lcc.tmp
+  clust2_lcc[c2names] <- clust2_lcc.tmp
+  
   if(isempty1 || isempty2){
-    randInd <- NA
+    randInd <- randInd_lcc <- NA
+    
   } else{
     randInd <- c(value = WGCNA::randIndex(table(clust1, clust2), adjust = TRUE), 
                  pval = NA)
-  }
+    
+    randInd_lcc <- c(value = WGCNA::randIndex(table(clust1_lcc, clust2_lcc),
+                                             adjust = TRUE),
+                    pval = NA)
 
-  # significance test for Rand index
-  if(testRand){
-    randPerm <- numeric(nPermRand)
-    for(i in 1:nPermRand){
-      clust1.tmp <- gtools::permute(clust1)
-      clust2.tmp <- gtools::permute(clust2)
-      randPerm[i] <- WGCNA::randIndex(table(clust1.tmp, clust2.tmp), adjust = TRUE)
+    # significance test for Rand index
+    if(testRand){
+      randInd["pval"] <- .sigTestRand(randInd = randInd[1], 
+                                      nPermRand = nPermRand,
+                                      clust1 = clust1, clust2 = clust2)
+      
+      randInd_lcc["pval"] <- .sigTestRand(randInd = randInd_lcc[1], 
+                                          nPermRand = nPermRand,
+                                          clust1 = clust1_lcc, 
+                                          clust2 = clust2_lcc)
     }
-    randMean <- mean(randPerm)
-    randSD <- sd(randPerm)
-    normRandPerm <- (randPerm - randMean) / randSD
-    normRand <- (randInd[1] - randMean) / randSD
-    randInd["pval"] <- (sum(normRandPerm >= abs(normRand)) + 
-                          sum(normRandPerm <= -abs(normRand))) / nPermRand
   }
-
+  
   #--------------------------------------------------------------------------
   # Jaccard Index
 
@@ -235,6 +250,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                  jaccEigen = jaccEigen,
                  jaccHub = jaccHub, 
                  randInd = randInd,
+                 randIndLCC = randInd_lcc,
                  gcd = gcd,
                  gcdLCC = gcd_lcc,
                  diffsGlobal = list(diffnComp = diffncomp,
