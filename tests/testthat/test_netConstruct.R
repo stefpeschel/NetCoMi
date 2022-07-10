@@ -30,6 +30,8 @@ mtext("phyloseq", side = 3, cex = 1.5)
 
 context("netConstruct with different taxa filtering methods (single network)")
 
+set.seed(123456)
+
 ftax <- c("none", "totalReads", "relFreq", "numbSamp", "highestVar", "highestFreq")
 
 ftaxpar <- c(list(totalReads = 1000), list(relFreq = 0.05), 
@@ -53,6 +55,8 @@ for(i in 1:length(ftax)){
 #-------------------------------------------------------------------------------
 context("netConstruct with different sample filtering methods (single network")
 
+set.seed(123456)
+
 fsamp <- c("none", "totalReads", "numbTaxa", "highestFreq")
 
 fsampar <- c(list(totalReads = 1000), list(numbTaxa = 50),list(highestFreq = 50))
@@ -75,6 +79,8 @@ for(i in 1:length(fsamp)){
 
 context("netConstruct with different association measures")
 
+set.seed(123456)
+
 measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
               "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
@@ -86,13 +92,15 @@ for(i in 1:length(measures)){
   
   if(measure.tmp == "spieceasi_gl"){
     measurePar <- list(method = "glasso",
-                       nlambda=5,
-                       pulsar.params = list(rep.num=5))
+                      nlambda=5,
+                      pulsar.params = list(rep.num=5,
+                                           thresh = 0.2))
     measure.tmp <- "spieceasi"
   } else if(measure.tmp == "spieceasi_mb"){
     measurePar <- list(method = "mb",
                        nlambda=5,
-                       pulsar.params = list(rep.num=5))
+                       pulsar.params = list(rep.num=5,
+                                            thresh = 0.2))
     measure.tmp <- "spieceasi"
   } else if(measure.tmp == "spring"){
     measurePar <- list(nlambda = 5, rep.num = 5)
@@ -104,7 +112,7 @@ for(i in 1:length(measures)){
   
   testnet <- netConstruct(amgut1.filt,
                           filtTax = "highestVar",
-                          filtTaxPar = list(highestVar = 20),
+                          filtTaxPar = list(highestVar = 50),
                           filtSamp = "totalReads",
                           filtSampPar = list(totalReads = 1000),
                           zeroMethod = "none", normMethod = "none",
@@ -125,6 +133,8 @@ plot(testprops)
 
 
 context("netConstruct with association matrix as input")
+
+set.seed(123456)
 
 testnet1 <- netConstruct(amgut1.filt,
                          filtTax = "highestVar",
@@ -168,6 +178,8 @@ testthat::expect_that(netConstruct(testnet1$dissEst1, dataType = "dissimilarity"
 #-------------------------------------------------------------------------------
 context("netConstruct with different dissimilarity measures")
 
+set.seed(123456)
+
 measures <- c("euclidean", "bray", "kld", "jeffrey", "ckld",
               "jsd", "aitchison")
 
@@ -199,6 +211,8 @@ plot(testprops)
 
 context("netConstruct with different methods for zero replacement")
 
+set.seed(123456)
+
 zeroMethod <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
 
 for(i in 1:length(zeroMethod)){
@@ -226,6 +240,9 @@ for(i in 1:length(zeroMethod)){
 # Normalization + zero handling
 
 context("netConstruct with different normalization methods")
+
+set.seed(123456)
+
 normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr", "mclr")
 zeroMethod <- c("none", "pseudo", "multRepl")
 
@@ -259,6 +276,8 @@ for(i in 1:length(normMethod)){
 
 context("netConstruct with different sparsification methods")
 
+set.seed(123456)
+
 sparsMethod <- c("none", "t-test", #"bootstrap", 
                  "threshold", "softThreshold")
 
@@ -291,6 +310,8 @@ for(i in 1:length(sparsMethod)){
 # Multiple testing adjustment
 
 context("netConstruct with different adjustment methods")
+
+set.seed(123456)
 
 adjustMethod <- c("lfdr", "holm", "BH", "BY", rep("adaptBH", 5))
 trueNullMethod <- c(rep("convest", 5), "lfdr", "mean", "hist", "farco")
@@ -326,6 +347,8 @@ for(i in 1:length(adjustMethod)){
 # Soft-thresholding
 
 context("netConstruct with different values for softThreshType")
+
+set.seed(123456)
 
 softThreshType <- c("signed", "unsigned", "signed hybrid")
 
@@ -365,6 +388,8 @@ for(i in 1:length(softThreshType)){
 
 context("netConstruct with knn sparsification")
 
+set.seed(123456)
+
 knnMutual <- c(TRUE, FALSE)
 
 for(i in 1:length(knnMutual)){
@@ -393,6 +418,8 @@ for(i in 1:length(knnMutual)){
 # Dissimilarity function
 
 context("netConstruct with differenct values for dissFunc")
+
+set.seed(123456)
 
 dissFunc <- c("signed", "unsigned", "signedPos", "TOMdiss")
 
@@ -439,6 +466,8 @@ testfunc <- function(x){
 
 context("'dissFunc' is a function")
 
+set.seed(123456)
+
 testnet <- netConstruct(amgut1.filt,
                         filtTax = "highestVar",
                         filtTaxPar = list(highestVar = 50),
@@ -467,6 +496,8 @@ testfunc <- function(x, power){
 }
 
 context("simFunc")
+
+set.seed(123456)
 
 testnet <- netConstruct(amgut1.filt,
                         filtTax = "highestVar",
@@ -523,6 +554,8 @@ for(i in 1:length(scaleDiss)){
 # Unweighted network
 
 context("unweighted network")
+
+set.seed(123456)
 
 testnet <- netConstruct(amgut1.filt,
                         filtTax = "highestVar",
@@ -611,6 +644,8 @@ testnet <- netConstruct(amgut_diss1, data2 = amgut_diss2,
 
 context("netConstruct with matched-group design")
 
+set.seed(123456)
+
 testnet <- netConstruct(amgut1.filt[1:140, ], amgut1.filt[141:280, ],
                         matchDesign = c(1,1),
                         filtTax = "highestVar",
@@ -654,6 +689,8 @@ expect_error(
 
 context("netConstruct with jointPrepro")
 
+set.seed(123456)
+
 testnet <- netConstruct(amgut1.filt, group = groups_asso,
                         jointPrepro = FALSE,
                         filtTax = "highestVar",
@@ -693,6 +730,8 @@ expect_error(
 # Filtering
 
 ##context("netConstruct with different taxa filtering methods (two networks)")
+
+set.seed(123456)
 
 ftax <- c("none", "totalReads", "relFreq", "numbSamp", "highestVar", "highestFreq")
 
@@ -749,6 +788,8 @@ for(i in 1:length(ftax)){
 
 #-------------------------------------------------------------------------------
 ##context("netConstruct with different sample filtering methods (two networks")
+
+set.seed(123456)
 
 fsamp <- c("none", "totalReads", "numbTaxa", "highestFreq")
 
@@ -807,9 +848,10 @@ for(i in 1:length(fsamp)){
 # Association / dissimilarity measures
 
 context("netConstruct with different association measures")
+set.seed(123456)
 
-measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
-              "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
+measures <- c("pearson", "spearman", "bicor", "sparcc", "propr",
+              "cclasso", "ccrepe", "gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
 for(i in 1:length(measures)){
   
@@ -820,12 +862,14 @@ for(i in 1:length(measures)){
   if(measure.tmp == "spieceasi_gl"){
     measurePar <- list(method = "glasso",
                        nlambda=5,
-                       pulsar.params = list(rep.num=5))
+                       pulsar.params = list(rep.num=5,
+                                            thresh = 0.3))
     measure.tmp <- "spieceasi"
   } else if(measure.tmp == "spieceasi_mb"){
     measurePar <- list(method = "mb",
                        nlambda=5,
-                       pulsar.params = list(rep.num=5))
+                       pulsar.params = list(rep.num=5,
+                                            thresh = 0.3))
     measure.tmp <- "spieceasi"
   } else if(measure.tmp == "spring"){
     measurePar <- list(nlambda = 5, rep.num = 5)
@@ -837,7 +881,7 @@ for(i in 1:length(measures)){
   
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
                           filtTax = "highestVar",
-                          filtTaxPar = list(highestVar = 20),
+                          filtTaxPar = list(highestVar = 50),
                           filtSamp = "totalReads",
                           filtSampPar = list(totalReads = 1000),
                           zeroMethod = "none", normMethod = "none",
@@ -852,8 +896,8 @@ for(i in 1:length(measures)){
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
   
-  if(i < 7){
-    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+  if(i <= 5){
+    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
   }
 }
 
@@ -862,6 +906,8 @@ plot(testprops)
 
 #------------------------------------------------------------------------------
 context("netConstruct with different dissimilarity measures")
+
+set.seed(123456)
 
 measures <- c("euclidean", "bray", "kld", "jeffrey", "ckld",
               "jsd", "aitchison")
@@ -885,13 +931,15 @@ for(i in 1:length(measures)){
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
   
-  netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+  netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
 }
 
 #===============================================================================
 # Zero handling
 
 context("netConstruct with different methods for zero replacement")
+
+set.seed(123456)
 
 zeroMethod <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
 
@@ -915,13 +963,16 @@ for(i in 1:length(zeroMethod)){
   plot(testprops)
   mtext(zeroMethod[i], side = 3, cex = 1.5)
   
-  netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+  netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
 }
 
 #===============================================================================
 # Normalization + zero handling
 
 context("netConstruct with different normalization methods")
+
+set.seed(123456)
+
 normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr", "mclr")
 zeroMethod <- c("none", "pseudo", "multRepl")
 
@@ -948,7 +999,7 @@ for(i in 1:length(normMethod)){
     plot(testprops)
     mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
     
-    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
   }
 }
 
@@ -957,6 +1008,8 @@ for(i in 1:length(normMethod)){
 # Sparsification
 
 context("netConstruct with different sparsification methods")
+
+set.seed(123456)
 
 sparsMethod <- c("none", "t-test", "bootstrap", "threshold", "softThreshold")
 
@@ -984,7 +1037,7 @@ for(i in 1:length(sparsMethod)){
   mtext(sparsMethod[i], side = 3, cex = 1.5)
   
   if(i != 3){
-    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 8, cores = 1L)
+    netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
   }
 }
 
@@ -992,6 +1045,8 @@ for(i in 1:length(sparsMethod)){
 # SoftThreshPower
 
 context("netConstruct with given softThreshPower")
+
+set.seed(123456)
 
 testnet <- netConstruct(amgut1.filt,
                         filtTax = "highestVar",

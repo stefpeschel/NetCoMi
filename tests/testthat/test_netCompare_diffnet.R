@@ -52,7 +52,6 @@ context("test summary method")
 summary(netcomp_asso)
 summary(netcomp_diss)
 
-
 #-------------------------------------------------------------------------------
 context("differential network")
 
@@ -67,6 +66,35 @@ diff_fisher <- diffnet(assonet2, diffMethod = "fisherTest", adjust = "none")
 context("test plot.diffnet")
 plot(diff_perm)
 plot(diff_fisher)
+
+#-------------------------------------------------------------------------------
+context("Small sample size")
+
+suppressWarnings(assonet2 <- netConstruct(amgut1.filt[c(1,2,3,6), ], 
+                                          group = groups_asso[c(1,2,3,6)],
+                                          filtTax = "highestVar",
+                                          filtTaxPar = list(highestVar = 50),
+                                          zeroMethod = "none", normMethod = "none",
+                                          measure = "pearson",
+                                          sparsMethod = "threshold", thresh = 0.3,
+                                          dissFunc = "signed",
+                                          seed = 20190101))
+
+assoprops2 <- netAnalyze(assonet2, clustMethod = "cluster_fast_greedy",
+                         hubPar = "eigenvector")
+
+netcomp_asso <- netCompare(assoprops2, permTest = FALSE)
+
+expect_error(netcomp_asso <- netCompare(assoprops2, 
+                                        permTest = TRUE, 
+                                        nPerm = 100, cores = 1L),
+             "Possible number of permutations")
+
+expect_error(diff_perm <- diffnet(assonet2, 
+                                  diffMethod = "permute", 
+                                  nPerm = 100, cores = 1L,
+                                  adjust = "none"),
+             "Possible number of permutations")
 
 
 
