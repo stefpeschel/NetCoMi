@@ -1,39 +1,42 @@
 #' @title Create and store association matrices for permuted data
 #'
 #' @description The function creates and returns a matrix with permuted group 
-#'   labels and stores association matrices computed for the permuted data in 
+#'   labels and saves association matrices computed for the permuted data to 
 #'   an external file.
 #'
-#' @param x object of class \code{"microNetProps"} (inheriting from a call to
+#' @param x object of class \code{"microNetProps"} (returned by 
 #'   \code{\link[NetCoMi]{netAnalyze}}).
 #' @param computeAsso logical indicating whether the association matrices should
 #'   be computed. If \code{FALSE}, only the permuted group labels are computed 
 #'   and returned.
-#' @param nPerm number of permutations.
+#' @param nPerm integer indicating the number of permutations.
 #' @param cores integer indicating the number of CPU cores used for
-#'   permutation tests. If cores > 1, the tests are performed parallel.
+#'   permutation tests. If cores > 1, the tests are performed in parallel.
 #'   Is limited to the number of available CPU cores determined by
 #'   \code{\link[parallel]{detectCores}}. Defaults to 1L (no parallelization).
 #' @param seed integer giving a seed for reproducibility of the results.
 #' @param permGroupMat an optional matrix with permuted group labels 
 #' (with nPerm rows and n1+n2 columns). 
-#' @param fileStoreAssoPerm character giving the file name to store a matrix
-#'   containing a matrix with associations/dissimilarities for the permuted 
-#'   data. Can also be a path.
+#' @param fileStoreAssoPerm character giving the name of a file to which the 
+#'   matrix with associations/dissimilarities of the permuted data is saved. 
+#'   Can also be a path.
 #' @param append logical indicating whether existing files (given by 
-#'   fileStoreAssoPerm and fileStoreCountsPerm) should be extended. If \code{TRUE}, a new
-#'   file is only created if the file is not existing. If \code{FALSE}, a new 
-#'   file is created in any case.
+#'   fileStoreAssoPerm and fileStoreCountsPerm) should be extended. 
+#'   If \code{TRUE}, a new file is created only if the file is not existing. 
+#'   If \code{FALSE}, a new file is created in any case.
 #' @param storeCountsPerm logical indicating whether the permuted count matrices
-#'   should be stored in an external file. Defaults to \code{FALSE}.
+#'   should be saved to an external file. Defaults to \code{FALSE}.
+#'   Ignored if \code{fileLoadCountsPerm} is not \code{NULL}.
 #' @param fileStoreCountsPerm character vector with two elements giving the 
 #'   names of two files storing the permuted count matrices belonging to the 
 #'   two groups.
-#' @param logFile character string naming the log file within which the current
-#'   iteration number is stored (if permutation tests are performed). Defaults
+#' @param logFile character string naming the log file to which the current 
+#'   iteration number is written. Defaults
 #'   to \code{NULL} so that no log file is generated.
 #' @param verbose logical. If \code{TRUE} (default), status messages are shown.
+#' 
 #' @return Invisible object: Matrix with permuted group labels.
+#' 
 #' @examples 
 #' \donttest{
 #'   # Load data sets from American Gut Project (from SpiecEasi package)
@@ -108,26 +111,22 @@ createAssoPerm <- function(x,
                            storeCountsPerm = FALSE,
                            fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
                            logFile = NULL, 
-                           verbose = TRUE){
-
-  stopifnot(class(x) =="microNetProps")
-
-  nPerm <- as.integer(nPerm)
+                           verbose = TRUE) {
   
-  cores <- as.integer(cores)
+  # Check input arguments
+  args_in <- as.list(environment())
   
-  if(!is.null(logFile)) stopifnot(is.character(logFile))
+  args_out <- .checkArgsCreateAP(args_in)
   
-  measure <- measurePar <- zeroMethod <- zeroPar <- needfrac <- needint <- 
-    normMethod <- normPar <- jointPrepro <- NULL
-  
-  parnames <- c("measure", "measurePar", "zeroMethod", "zeroPar", "needfrac", 
-                "needint", "normMethod", "normPar", "jointPrepro")
-  
-  for(i in 1:length(parnames)){
-    assign(parnames[i], x$paramsNetConstruct[[parnames[i]]])
+  for (i in 1:length(args_out)) {
+    assign(names(args_out)[i], args_out[[i]])
   }
-
+  
+  #-----------------------------------------------------------------------------
+  
+  # Parameters used for network construction
+  parNC <- x$paramsNetConstruct
+  
   assoType <- x$input$assoType
   distNet <- ifelse(assoType == "dissimilarity", TRUE, FALSE)
   
@@ -143,15 +142,15 @@ createAssoPerm <- function(x,
   count_norm1 <- x$input$normCounts1
   count_norm2 <- x$input$normCounts2
   
-  if(!twoNets){
+  if (!twoNets) {
     stop("Input contains only a single network.")
   }
   
   #---------------------------------------------------------------------------
-  if(!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) set.seed(seed)
   
   # create combined data matrix
-  if(assoType == "dissimilarity"){
+  if (assoType == "dissimilarity") {
     n1 <- ncol(count1)
     n2 <- ncol(count2)
     n <- n1 + n2
@@ -159,15 +158,15 @@ createAssoPerm <- function(x,
     
     xbind <- cbind(count1, count2)
     
-  } else{
-    if(jointPrepro){
+  } else {
+    if (parNC$jointPrepro) {
       n1 <- nrow(count_norm1)
       n2 <- nrow(count_norm2)
       nVar <- ncol(count_norm1)
       
       xbind <- rbind(count_norm1, count_norm2)
       
-    } else{
+    } else {
       n1 <- nrow(count1)
       n2 <- nrow(count2)
       nVar <- ncol(count1)
@@ -177,46 +176,47 @@ createAssoPerm <- function(x,
     
     n <- n1 + n2
   }
-
+  
   
   #---------------------------------------
   # create matrix with permuted group labels
   
-  if(is.null(permGroupMat)){
+  if (is.null(permGroupMat)) {
     
-    if(verbose){
+    if (verbose) {
       message("Create matrix with permuted group labels ... ", appendLF = FALSE)
     }
     
     perm_group_mat <- get_perm_group_mat(n1 = n1, n2 = n2, n = n, nPerm = nPerm, 
                                          matchDesign = matchDesign)
     
-    if(verbose){
+    if (verbose) {
       message("Done.")
     }
     
-  } else{
+  } else {
     stopifnot(ncol(permGroupMat) == n)
+    
     perm_group_mat <- permGroupMat
   }
   
   #---------------------------------------
   # compute and store association matrices
   
-  if(computeAsso){
+  if (computeAsso) {
     
     stopifnot(is.character(fileStoreAssoPerm))
     stopifnot(length(fileStoreAssoPerm) == 1)
     
-    if(append){
+    if (append) {
       fmat <- suppressWarnings(try(fm.open(filenamebase = fileStoreAssoPerm), 
                                    silent = TRUE))
       
-      if(class(fmat) == "try-error"){
+      if (class(fmat) == "try-error") {
         fmat <- fm.create(filenamebase = fileStoreAssoPerm, 
                           nrow = (nVar * nPerm), ncol = (2 * nVar))
         
-        if(verbose){
+        if (verbose) {
           message("New files '", 
                   paste0(fileStoreAssoPerm, ".bmat and "),
                   paste0(fileStoreAssoPerm, ".desc.txt created. "))
@@ -224,7 +224,7 @@ createAssoPerm <- function(x,
         
         startIndex <- 0
         
-      } else{
+      } else {
         fmat.tmp <- as.matrix(fmat)
         close(fmat)
         
@@ -237,12 +237,12 @@ createAssoPerm <- function(x,
         startIndex <- nrow(fmat.tmp)
       }
       
-    } else{
+    } else {
       fmat <- fm.create(filenamebase = fileStoreAssoPerm, 
                         nrow = (nVar * nPerm), ncol = (2 * nVar))
       startIndex <- 0
       
-      if(verbose){
+      if (verbose) {
         message("Files '", 
                 paste0(fileStoreAssoPerm, ".bmat and "),
                 paste0(fileStoreAssoPerm, ".desc.txt created. "))
@@ -251,25 +251,28 @@ createAssoPerm <- function(x,
     
     close(fmat)
     
-    if(storeCountsPerm){
+    if (storeCountsPerm) {
       stopifnot(is.character(fileStoreCountsPerm))
       stopifnot(length(fileStoreCountsPerm) == 2)
-
-      if(append){
-        fmat_counts1 <- suppressWarnings(try(fm.open(filenamebase = fileStoreCountsPerm[1]), 
-                                             silent = TRUE))
+      
+      if (append) {
+        fmat_counts1 <- 
+          suppressWarnings(try(fm.open(filenamebase = fileStoreCountsPerm[1]), 
+                               silent = TRUE))
         
-        fmat_counts2 <- suppressWarnings(try(fm.open(filenamebase = fileStoreCountsPerm[2]), 
-                                             silent = TRUE))
+        fmat_counts2 <- 
+          suppressWarnings(try(fm.open(filenamebase = fileStoreCountsPerm[2]), 
+                               silent = TRUE))
         
-        if(class(fmat_counts1) == "try-error" || class(fmat_counts2) == "try-error"){
+        if (class(fmat_counts1) == "try-error" || 
+           class(fmat_counts2) == "try-error") {
           fmat_counts1 <- fm.create(filenamebase = fileStoreCountsPerm[1], 
                                     nrow = (n1 * nPerm), ncol = nVar)
           
           fmat_counts2 <- fm.create(filenamebase = fileStoreCountsPerm[2], 
                                     nrow = (n2 * nPerm), ncol = nVar)
           
-          if(verbose){
+          if (verbose) {
             message("New files '", 
                     paste0(fileStoreCountsPerm[1], ".bmat, "),
                     paste0(fileStoreCountsPerm[1], ".desc.txt, "),
@@ -279,8 +282,8 @@ createAssoPerm <- function(x,
           
           startIndex_counts1 <- startIndex_counts2 <- 0
           
-        } else{
-
+        } else {
+          
           fmat_counts1.tmp <- as.matrix(fmat_counts1)
           fmat_counts2.tmp <- as.matrix(fmat_counts2)
           close(fmat_counts1)
@@ -301,7 +304,7 @@ createAssoPerm <- function(x,
           startIndex_counts2 <- nrow(fmat_counts2.tmp)
         }
         
-      } else{
+      } else {
         fmat_counts1 <- fm.create(filenamebase = fileStoreCountsPerm[1], 
                                   nrow = (n1 * nPerm), ncol = nVar)
         
@@ -310,7 +313,7 @@ createAssoPerm <- function(x,
         
         startIndex_counts1 <- startIndex_counts2 <- 0
         
-        if(verbose){
+        if (verbose) {
           message("Files '", 
                   paste0(fileStoreCountsPerm[1], ".bmat, "),
                   paste0(fileStoreCountsPerm[1], ".desc.txt, "),
@@ -323,161 +326,168 @@ createAssoPerm <- function(x,
       close(fmat_counts2)
     }
     
-    if(!is.null(seed)){
+    if (!is.null(seed)) {
       seeds <- sample.int(1e8, size = nPerm)
-    } else{
+    } else {
       seeds <- NULL
     }
     
-    if(cores > 1){
-      if(parallel::detectCores() < cores) cores <- parallel::detectCores()
+    if (cores > 1) {
+      if (parallel::detectCores() < cores) cores <- parallel::detectCores()
       
-      if(verbose){
-        message("Starting socket cluster to compute permutation associations in parallel ... ", 
+      if (verbose) {
+        message("Starting socket cluster to compute permutation ", 
+                "associations in parallel ... ", 
                 appendLF = FALSE)
       }
+      
       cl <- makeCluster(cores, outfile = "")
       registerDoSNOW(cl)
       '%do_or_dopar%' <- get('%dopar%')
       
-      if(verbose){
+      if (verbose) {
         message("Done.")
       }
       
-    } else{
-      if(verbose){
+    } else {
+      if (verbose) {
         message("Compute permutation associations ... ")
       }
       '%do_or_dopar%' <- get('%do%')
     }
     
-    if(verbose){
+    if (verbose) {
       pb<-txtProgressBar(0, nPerm, style=3)
       
-      progress<-function(n){
+      progress<-function(n) {
         setTxtProgressBar(pb,n)
       }
       
       opts <- list(progress=progress)
-    } else{
+    } else {
       opts <- list()
     }
     
-    if(!is.null(logFile)) cat("", file=logFile, append=FALSE)
+    if (!is.null(logFile)) cat("", file=logFile, append=FALSE)
     
     p <- NULL
-    propsPerm <- foreach(p = 1:nPerm,
-                         .packages = c("WGCNA", "SPRING",
-                                       "SpiecEasi",
-                                       "ccrepe",
-                                       "vegan",
-                                       "LaplacesDemon",
-                                       "propr",
-                                       "DESeq2",
-                                       "filematrix"),
-                         .export = c("calc_association", "cclasso", "gcoda"),
-                         .options.snow = opts) %do_or_dopar% {
-                         
-                           if(!is.null(logFile)){
-                             cat(paste("iteration", p,"\n"),
-                                 file=logFile, append=TRUE)
-                           }
-                           
-                           if(verbose) progress(p)
-                           
-                           if(!is.null(seed)) set.seed(seeds[p])
-                           
-                           if(assoType == "dissimilarity"){
-                             count1.tmp <- xbind[ ,which(perm_group_mat[p, ] == 1)]
-                             count2.tmp <- xbind[ ,which(perm_group_mat[p, ] == 2)]
-                           } else{
-                             count1.tmp <- xbind[which(perm_group_mat[p, ] == 1), ]
-                             count2.tmp <- xbind[which(perm_group_mat[p, ] == 2), ]
-                           }
-                           
-                           if(!jointPrepro){
-                             # zero treatment and normalization necessary if
-                             # in network construction two count matrices 
-                             # were given or dissimilarity network is created
-                             
-                             suppressMessages(
-                               count1.tmp <- zero_treat(countMat = count1.tmp, 
-                                                        zeroMethod = zeroMethod,
-                                                        zeroParam = zeroPar, 
-                                                        needfrac = needfrac,
-                                                        needint = needint, 
-                                                        verbose = FALSE))
-                             
-                             suppressMessages(
-                               count2.tmp <- zero_treat(countMat = count2.tmp, 
-                                                        zeroMethod = zeroMethod,
-                                                        zeroParam = zeroPar, 
-                                                        needfrac = needfrac,
-                                                        needint = needint, 
-                                                        verbose = FALSE))
-                             
-                             suppressMessages(
-                               count1.tmp <- norm_counts(countMat = count1.tmp, 
-                                                         normMethod = normMethod,
-                                                         normParam = normPar, 
-                                                         zeroMethod = zeroMethod,
-                                                         needfrac = needfrac, 
-                                                         verbose = FALSE))
-                             
-                             suppressMessages(
-                               count2.tmp <- norm_counts(countMat = count2.tmp, 
-                                                         normMethod = normMethod,
-                                                         normParam = normPar, 
-                                                         zeroMethod = zeroMethod,
-                                                         needfrac = needfrac, 
-                                                         verbose = FALSE))
-                           }
-                           
-                           if(storeCountsPerm){
-                             fmat_counts1 <- fm.open(filenamebase = fileStoreCountsPerm[1])
-                             fmat_counts2 <- fm.open(filenamebase = fileStoreCountsPerm[2])
-                             
-                             fmat_counts1[startIndex_counts1 + (p-1) * n1 + (1:n1), 
-                                          1:nVar] <- count1.tmp
-                             
-                             fmat_counts2[startIndex_counts2 + (p-1) * n2 + (1:n2), 
-                                          1:nVar] <- count2.tmp
-                             
-                             close(fmat_counts1)
-                             close(fmat_counts2)
-                           }
-                           
-                           assoMat1.tmp <- calc_association(count1.tmp,
-                                                            measure = measure,
-                                                            measurePar = measurePar,
-                                                            verbose = FALSE)
-                           assoMat2.tmp <- calc_association(count2.tmp,
-                                                            measure = measure,
-                                                            measurePar = measurePar,
-                                                            verbose = FALSE)
-                           
-                           fmat <- fm.open(filenamebase = fileStoreAssoPerm)
-                           
-                           fmat[startIndex + (p-1) * nVar + (1:nVar), 
-                                1:nVar] <- assoMat1.tmp
-                           fmat[startIndex + (p-1) * nVar + (1:nVar), 
-                                nVar + (1:nVar)] <- assoMat2.tmp
-                           
-                           close(fmat)
-                         }
-
-    if(verbose){
+    propsPerm <- foreach(
+      p = 1:nPerm,
+      .packages = c(
+        "WGCNA",
+        "SPRING",
+        "SpiecEasi",
+        "ccrepe",
+        "vegan",
+        "LaplacesDemon",
+        "propr",
+        "DESeq2",
+        "filematrix"
+      ),
+      .export = c("calc_association", "cclasso", "gcoda"),
+      .options.snow = opts
+    ) %do_or_dopar% {
+      
+      if (!is.null(logFile)) {
+        cat(paste("iteration", p,"\n"),
+            file=logFile, append=TRUE)
+      }
+      
+      if (verbose) progress(p)
+      
+      if (!is.null(seed)) set.seed(seeds[p])
+      
+      if (assoType == "dissimilarity") {
+        count1.tmp <- xbind[ ,which(perm_group_mat[p, ] == 1)]
+        count2.tmp <- xbind[ ,which(perm_group_mat[p, ] == 2)]
+      } else {
+        count1.tmp <- xbind[which(perm_group_mat[p, ] == 1), ]
+        count2.tmp <- xbind[which(perm_group_mat[p, ] == 2), ]
+      }
+      
+      if (!parNC$jointPrepro) {
+        # zero treatment and normalization necessary if
+        # in network construction two count matrices 
+        # were given or dissimilarity network is created
+        
+        suppressMessages(
+          count1.tmp <- zero_treat(countMat = count1.tmp, 
+                                   zeroMethod = parNC$zeroMethod,
+                                   zeroParam = parNC$zeroPar, 
+                                   needfrac = parNC$needfrac,
+                                   needint = parNC$needint, 
+                                   verbose = FALSE))
+        
+        suppressMessages(
+          count2.tmp <- zero_treat(countMat = count2.tmp, 
+                                   zeroMethod = parNC$zeroMethod,
+                                   zeroParam = parNC$zeroPar, 
+                                   needfrac = parNC$needfrac,
+                                   needint = parNC$needint, 
+                                   verbose = FALSE))
+        
+        suppressMessages(
+          count1.tmp <- norm_counts(countMat = count1.tmp, 
+                                    normMethod = parNC$normMethod,
+                                    normParam = parNC$normPar, 
+                                    zeroMethod = parNC$zeroMethod,
+                                    needfrac = parNC$needfrac, 
+                                    verbose = FALSE))
+        
+        suppressMessages(
+          count2.tmp <- norm_counts(countMat = count2.tmp, 
+                                    normMethod = parNC$normMethod,
+                                    normParam = parNC$normPar, 
+                                    zeroMethod = parNC$zeroMethod,
+                                    needfrac = parNC$needfrac, 
+                                    verbose = FALSE))
+      }
+      
+      if (storeCountsPerm) {
+        fmat_counts1 <- fm.open(filenamebase = fileStoreCountsPerm[1])
+        fmat_counts2 <- fm.open(filenamebase = fileStoreCountsPerm[2])
+        
+        fmat_counts1[startIndex_counts1 + (p-1) * n1 + (1:n1), 
+                     1:nVar] <- count1.tmp
+        
+        fmat_counts2[startIndex_counts2 + (p-1) * n2 + (1:n2), 
+                     1:nVar] <- count2.tmp
+        
+        close(fmat_counts1)
+        close(fmat_counts2)
+      }
+      
+      assoMat1.tmp <- calc_association(count1.tmp,
+                                       measure = parNC$measure,
+                                       measurePar = parNC$measurePar,
+                                       verbose = FALSE)
+      assoMat2.tmp <- calc_association(count2.tmp,
+                                       measure = parNC$measure,
+                                       measurePar = parNC$measurePar,
+                                       verbose = FALSE)
+      
+      fmat <- fm.open(filenamebase = fileStoreAssoPerm)
+      
+      fmat[startIndex + (p-1) * nVar + (1:nVar), 
+           1:nVar] <- assoMat1.tmp
+      fmat[startIndex + (p-1) * nVar + (1:nVar), 
+           nVar + (1:nVar)] <- assoMat2.tmp
+      
+      close(fmat)
+    }
+    
+    if (verbose) {
       close(pb)
       message("Done.")
     }
     
     
-    if(cores > 1){
-      if(verbose){
+    if (cores > 1) {
+      if (verbose) {
         message("Stopping socket cluster ... ", appendLF = FALSE)
       }
       snow::stopCluster(cl)
-      if(verbose){
+      if (verbose) {
         message("Done.")
       }
     } 

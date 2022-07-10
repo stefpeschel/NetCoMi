@@ -23,11 +23,28 @@
 #' @importFrom stats p.adjust
 #' @export
 
-multAdjust <- function(pvals, adjust, trueNullMethod, verbose){
+multAdjust <- function(pvals, adjust, trueNullMethod, verbose) {
+  
+  # Check input arguments
+  
+  if (!is.numeric(pvals)) {
+    stop('Argument "pvals" must be a numeric vector.')
+  }
+  
+  adjust <- match.arg(adjust, c(p.adjust.methods, "lfdr", "adaptBH"))
+  
+  trueNullMethod <- match.arg(trueNullMethod, c("farco", "lfdr", "mean",
+                                                "hist", "convest"))
+  
+  if (!is.logical(verbose)) {
+    stop('Argument "verbose" must be logical.')
+  }
+  
+  #-----------------------------------------------------------------------------
 
-  if(adjust == "lfdr"){
+  if (adjust == "lfdr") {
     
-    if(verbose){
+    if (verbose) {
       message("")
       message("Execute fdrtool() ...")
     }
@@ -36,33 +53,33 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose){
                                 verbose = verbose)$lfdr
     names(pAdjust) <- names(pvals)
 
-  } else if(adjust == "adaptBH"){
+  } else if (adjust == "adaptBH") {
 
     m <- length(pvals)
     ind <- m:1
     o <- order(pvals, decreasing = TRUE)
     ro <- order(o)
 
-    if(trueNullMethod == "farco"){
+    if (trueNullMethod == "farco") {
       R <- 0
       iter <- TRUE
 
-      while(iter){
+      while(iter) {
         pTrueNull <- 1- (R/m)  # proportion of true null hypotheses
         pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
         R_new <- length(which(pAdjust < 0.05))
         iter <- R_new != R  # stop iteration if R_new==R
         R <- R_new
       }
-      if(verbose){
+      if (verbose) {
         message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
       }
 
 
-    } else{
+    } else {
       # trueNullMethod must be one of "lfdr", "mean", "hist", or "convest"
       pTrueNull <- limma::propTrueNull(pvals, method = trueNullMethod)
-      if(verbose){
+      if (verbose) {
         message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
       }
       pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
@@ -70,7 +87,7 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose){
 
     names(pAdjust) <- names(pvals)
 
-  } else{
+  } else {
     pAdjust <- stats::p.adjust(pvals, adjust)
   }
 

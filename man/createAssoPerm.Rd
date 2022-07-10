@@ -20,17 +20,17 @@ createAssoPerm(
 )
 }
 \arguments{
-\item{x}{object of class \code{"microNetProps"} (inheriting from a call to
+\item{x}{object of class \code{"microNetProps"} (returned by 
 \code{\link[NetCoMi]{netAnalyze}}).}
 
 \item{computeAsso}{logical indicating whether the association matrices should
 be computed. If \code{FALSE}, only the permuted group labels are computed 
 and returned.}
 
-\item{nPerm}{number of permutations.}
+\item{nPerm}{integer indicating the number of permutations.}
 
 \item{cores}{integer indicating the number of CPU cores used for
-permutation tests. If cores > 1, the tests are performed parallel.
+permutation tests. If cores > 1, the tests are performed in parallel.
 Is limited to the number of available CPU cores determined by
 \code{\link[parallel]{detectCores}}. Defaults to 1L (no parallelization).}
 
@@ -39,24 +39,25 @@ Is limited to the number of available CPU cores determined by
 \item{permGroupMat}{an optional matrix with permuted group labels 
 (with nPerm rows and n1+n2 columns).}
 
-\item{fileStoreAssoPerm}{character giving the file name to store a matrix
-containing a matrix with associations/dissimilarities for the permuted 
-data. Can also be a path.}
+\item{fileStoreAssoPerm}{character giving the name of a file to which the 
+matrix with associations/dissimilarities of the permuted data is saved. 
+Can also be a path.}
 
 \item{append}{logical indicating whether existing files (given by 
-fileStoreAssoPerm and fileStoreCountsPerm) should be extended. If \code{TRUE}, a new
-file is only created if the file is not existing. If \code{FALSE}, a new 
-file is created in any case.}
+fileStoreAssoPerm and fileStoreCountsPerm) should be extended. 
+If \code{TRUE}, a new file is created only if the file is not existing. 
+If \code{FALSE}, a new file is created in any case.}
 
 \item{storeCountsPerm}{logical indicating whether the permuted count matrices
-should be stored in an external file. Defaults to \code{FALSE}.}
+should be saved to an external file. Defaults to \code{FALSE}.
+Ignored if \code{fileLoadCountsPerm} is not \code{NULL}.}
 
 \item{fileStoreCountsPerm}{character vector with two elements giving the 
 names of two files storing the permuted count matrices belonging to the 
 two groups.}
 
-\item{logFile}{character string naming the log file within which the current
-iteration number is stored (if permutation tests are performed). Defaults
+\item{logFile}{character string naming the log file to which the current 
+iteration number is written. Defaults
 to \code{NULL} so that no log file is generated.}
 
 \item{verbose}{logical. If \code{TRUE} (default), status messages are shown.}
@@ -66,7 +67,7 @@ Invisible object: Matrix with permuted group labels.
 }
 \description{
 The function creates and returns a matrix with permuted group 
-  labels and stores association matrices computed for the permuted data in 
+  labels and saves association matrices computed for the permuted data to 
   an external file.
 }
 \examples{

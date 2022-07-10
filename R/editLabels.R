@@ -113,6 +113,10 @@ editLabels <- function(x,
   shortenLabels <- match.arg(shortenLabels)
   
   stopifnot(is.numeric(labelLength) & labelLength >= 0)
+  
+  stopifnot(is.logical(addBrack))
+  
+  stopifnot(is.logical(verbose))
 
   # Define label pattern
   if (is.null(labelPattern)) {
