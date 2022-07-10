@@ -70,6 +70,7 @@
   title1 = NULL,
   title2 = NULL,
   mar = c(1, 3, 3, 3),
+  doPlot = TRUE,
   ...)
 }
 \arguments{
@@ -101,7 +102,7 @@ values and further apart for higher values. See the \code{repulsion}
 argument of \code{\link[qgraph]{qgraph}}.}
 
 \item{groupNames}{character vector with two entries naming the groups to
-which the networks belong. Defaults to the group names returned from
+which the networks belong. Defaults to the group names returned by 
 \code{\link{netConstruct}}: If the data set is split according to a group
 variable, its factor levels (in increasing order) are used. Ignored if
 arguments \code{title1} and \code{title2} are set or if a single network is
@@ -152,8 +153,8 @@ If the data contains, for example, three bacteria "Streptococcus1",
 \item{charToRm}{vector with characters to remove from node names. Ignored if
 labels are given via \code{labels}.}
 
-\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according to
-node size}
+\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according 
+to node size}
 
 \item{labelFont}{integer defining the font of node labels. Defaults to 1.}
 
@@ -167,14 +168,15 @@ filtered. Possible values are:
 \item{\code{"none"}}{Default. All nodes are plotted.}
 \item{\code{"highestConnect"}}{x nodes with highest connectivity (sum of
 edge weights) are plotted.}
-\item{\code{"highestDegree"}, \code{"highestBetween"}, \code{"highestClose"}
-, \code{"highestEigen"}}{x nodes with highest
+\item{\code{"highestDegree"}, \code{"highestBetween"}, 
+\code{"highestClose"}, \code{"highestEigen"}}{x nodes with highest
 degree/betweenness/closeness/eigenvector centrality are plotted.}
 \item{\code{"clustTaxon"}}{Only nodes belonging the same cluster as to
 variables that are given as character vector via  \code{nodeFilterPar}.}
 \item{\code{"clustMin"}}{Plotted are only nodes belonging to clusters with
 a minimum number of nodes of x.}
-\item{\code{"names"}}{Character vector with variable names to be plotted}}\cr
+\item{\code{"names"}}{Character vector with variable names to be 
+plotted}}\cr
 Necessary parameters (e.g. "x") are given via the argument
 \code{nodeFilterPar}.}
 
@@ -211,8 +213,8 @@ if \code{nodeSize} is set to a normalization method. Used analogously to
 \item{nodeSizeSpread}{positive numeric value indicating the spread of node
 sizes. The smaller the value, the more similar are the node sizes. Node 
 sizes are calculated by: (x - min(x)) / (max(x) - min(x)) * nodeSizeSpread 
-+ cexNodes. For \code{nodeSizeSpread = 4} (default) and \code{cexNodes = 1}, 
-node sizes range from 1 to 5.}
++ cexNodes. For \code{nodeSizeSpread = 4} (default) and 
+\code{cexNodes = 1}, node sizes range from 1 to 5.}
 
 \item{nodeColor}{a character specifying the node colors. Possible values are
 \code{"cluster"} (colors according to determined clusters),
@@ -224,8 +226,8 @@ former two cases, the colors can be specified via \code{colorVec}. If
 defining a color, which is used for all nodes. If \code{NULL}, "grey40" is
 used for all nodes.}
 
-\item{colorVec}{a vector or list with two vectors used to specify node colors. 
-Different usage depending on the "nodeColor" argument:
+\item{colorVec}{a vector or list with two vectors used to specify node 
+colors. Different usage depending on the "nodeColor" argument:
 \describe{
 \item{\code{nodeColor = "cluster"}}{\code{colorVec} must be a vector. 
 Depending on the \code{sameClustCol} argument, the colors are used only in 
@@ -302,7 +304,8 @@ Defaults to \code{2*borderWidth}. Ignored if \code{highlightHubs} is
 \code{FALSE}.}
 
 \item{hubBorderCol}{character specifying the border color of hub nodes.
-Defaults to \code{"black"}. Ignored if \code{highlightHubs} is \code{FALSE}.}
+Defaults to \code{"black"}. Ignored if \code{highlightHubs} is 
+\code{FALSE}.}
 
 \item{edgeFilter}{character indicating whether and how edges should be
 filtered. Possible values are \code{"none"} (default; all edges are shown),
@@ -384,6 +387,9 @@ a single network.}
 the plot margins. Works similar to the \code{mar} argument in
 \code{\link[graphics]{par}}. Defaults to c(1,3,3,3).}
 
+\item{doPlot}{logical. If \code{FALSE}, the network plot is suppressed. 
+Useful for saving the output (e.g., the layout) without plotting.}
+
 \item{...}{further arguments being passed to \code{\link[qgraph]{qgraph}}, 
 which is used for network plotting.}
 }
@@ -391,7 +397,8 @@ which is used for network plotting.}
 Returns (invisibly) a list with the following elements: \tabular{ll}{
   \code{q1,q2}\tab the qgraph object(s)\cr
   \code{layout}\tab layout(s) specifying node positions\cr
-  \code{nodecolor}\tab one or two vectors with node colors (one for each group) \cr
+  \code{nodecolor}\tab one or two vectors with node colors (one for each 
+  group) \cr
   \code{labels}\tab one or two vectors with node labels}
 }
 \description{
@@ -401,7 +408,8 @@ Plotting objects of class \code{microNetProps}.
 # load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
-# network construction (dissimilarity based network where nodes are subjects):
+# network construction 
+# (dissimilarity-based network, where nodes are subjects):
 amgut_net <- netConstruct(amgut1.filt,
                           measure = "aitchison", filtSamp = "highestFreq",
                           filtSampPar = list(highestFreq = 50),
