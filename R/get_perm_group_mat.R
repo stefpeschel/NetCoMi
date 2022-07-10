@@ -20,7 +20,7 @@ get_perm_group_mat <- function(n1, n2, n, nPerm, matchDesign){
       
       # matrix with all possible permutations / combinations
       # (each column gives indices of samples in group 1)
-      combmat <- combn(n, n1)
+      combmat <- utils::combn(n, n1)
       
       # matrix with permuted group labels (each column belongs to a sample)
       perm_group_mat <- matrix(NA, nrow = maxcomb, ncol = n)

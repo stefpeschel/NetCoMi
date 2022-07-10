@@ -119,9 +119,9 @@ the computed "permutation" association/dissimilarity matrices can be reused
 via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.
 Ignored if \code{fileLoadAssoPerm} is not \code{NULL}.}
 
-\item{fileStoreAssoPerm}{character giving the file name to store a matrix
-containing a matrix with associations/dissimilarities for the permuted 
-data. Can also be a path.}
+\item{fileStoreAssoPerm}{character giving the name of a file to which the 
+matrix with associations/dissimilarities of the permuted data is saved. 
+Can also be a path.}
 
 \item{storeCountsPerm}{logical indicating whether the permuted count matrices
 should be saved to an external file. Defaults to \code{FALSE}.

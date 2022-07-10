@@ -72,9 +72,9 @@
 #'   the computed "permutation" association/dissimilarity matrices can be reused
 #'   via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.
 #'   Ignored if \code{fileLoadAssoPerm} is not \code{NULL}.
-#' @param fileStoreAssoPerm character giving the file name to store a matrix
-#'   containing a matrix with associations/dissimilarities for the permuted 
-#'   data. Can also be a path.
+#' @param fileStoreAssoPerm character giving the name of a file to which the 
+#'   matrix with associations/dissimilarities of the permuted data is saved. 
+#'   Can also be a path.
 #' @param storeCountsPerm logical indicating whether the permuted count matrices
 #'   should be saved to an external file. Defaults to \code{FALSE}.
 #'   Ignored if \code{fileLoadCountsPerm} is not \code{NULL}.
@@ -305,63 +305,24 @@ netCompare <- function(x,
                        returnPermProps = FALSE,
                        returnPermCentr = FALSE,
                        assoPerm = NULL, dissPerm = NULL) {
-
-  stopifnot(class(x) =="microNetProps")
-  stopifnot(is.logical(permTest))
   
-  if(permTest && x$paramsNetConstruct$dataType != "counts"){
-    stop("Permutation tests only possible if count tables were used for network ", 
-         "construction.")
+  # Check input arguments
+  args_in <- as.list(environment())
+  
+  args_out <- .checkArgsNetComp(args_in)
+  
+  for (i in 1:length(args_out)){
+    assign(names(args_out)[i], args_out[[i]])
   }
   
-  if(!is.null(lnormFit)) stopifnot(is.logical(lnormFit))
-  stopifnot(jaccQuant >= 0 & jaccQuant <= 1)
-  nPerm <- as.integer(nPerm)
-
-  adjust <- match.arg(adjust, c(p.adjust.methods, "lfdr", "adaptBH"))
-  adjustPerm <- adjust
-
-  trueNullMethod <- match.arg(trueNullMethod, c("convest", "lfdr", "mean",
-                                                "hist", "farco"))
-  
-  nPermRand <- as.integer(nPermRand)
-  cores <- as.integer(cores)
-  if(!is.null(logFile)) stopifnot(is.character(logFile))
-  if(!is.null(assoPerm)) stopifnot(is.list(assoPerm) & length(assoPerm) == 2)
-
-  if(!is.null(dissPerm)) stopifnot(is.list(dissPerm) & length(dissPerm) == 2)
-
   #-----------------------------------------------------------------------------
-  # Initialize variables
-  avDissIgnoreInf <- sPathNorm <- sPathAlgo <- connectivity <- normNatConnect <- 
-  weighted <- clustMethod <- clustPar <- clustPar2 <- weightClustCoef <- 
-  hubPar <- hubQuant <- weightDeg <- normDeg <- normBetw <- normClose <- 
-  normEigen <- centrLCC <- softThreshPower <- softThreshCut <- measure <- 
-  measurePar <- scaleDiss <- sparsMethod <- thresh <- alpha <- lfdrThresh <- 
-  nboot <- softThreshType <- kNeighbor <- knnMutual <- dissFunc <- 
-  dissFuncPar <- simFunc <- simFuncPar <- pvalavDiss <- pvalavPath <- 
-  pvalDensity <- pvalEdgeConnect <- pvalVertConnect <- pvalNatConnect <- 
-  pvalPEP <- pvalClustCoef <- pvalModul <- pvalavDiss_lcc <- 
-  pvalavPath_lcc <- pvalDensity_lcc <- pvalEdgeConnect_lcc <- 
-  pvalVertConnect_lcc <- pvalNatConnect_lcc <- pvalPEP_lcc <- 
-  pvalClustCoef_lcc <- pvalModul_lcc <- p <- zeroMethod <- zeroPar <- 
-  needfrac <- needint <- jointPrepro <- normMethod <- normPar <- NULL
   
-  for (i in 1:length(x$paramsProperties)) {
-    assign(names(x$paramsProperties)[i], x$paramsProperties[[i]])
-  }
-
-  parnames <- c("zeroMethod", "zeroPar", "needfrac", "needint", "jointPrepro",
-                "normMethod", "normPar", "measure", "measurePar", 
-                "sparsMethod", "thresh", "adjust", "alpha", "lfdrThresh", 
-                "nboot", "softThreshType", "softThreshCut", "softThreshPower", 
-                "kNeighbor", "knnMutual", "dissFunc", "dissFuncPar",
-                "simFunc", "simFuncPar", "scaleDiss", "weighted")
-
-  for (i in 1:length(parnames)) {
-    assign(parnames[i], x$paramsNetConstruct[[parnames[i]]])
-  }
-
+  # Parameters used for network construction
+  parNC <- x$paramsNetConstruct
+  
+  # Parameters used for network analysis
+  parNA <- x$paramsProperties
+  
   assoType <- x$input$assoType
   distNet <- ifelse(assoType == "dissimilarity", TRUE, FALSE)
   
@@ -370,30 +331,34 @@ netCompare <- function(x,
   sampleSize <- x$input$sampleSize
   twoNets <- x$input$twoNets
   callNetConstr <- x$input$call
-
+  
+  if(is.null(lnormFit)){
+    lnormFit <- parNA$lnormFit
+  }
+  
   count1 <- x$input$countMat1
   count2 <- x$input$countMat2
   countsJoint <- x$input$countsJoint
   
   count_norm1 <- x$input$normCounts1
   count_norm2 <- x$input$normCounts2
-
+  
   assoMat1 <- x$input$assoMat1
   assoMat2 <- x$input$assoMat2
-
+  
   dissMat1 <- x$input$dissMat1
   dissMat2 <- x$input$dissMat2
-
+  
   adja1 <- x$input$adjaMat1
   adja2 <- x$input$adjaMat2
-
+  
   #---------------------------------------------------------------------------
-
+  
   if (!twoNets) {
     stop("Network comparison not possible because a single network
                     has been constructed.")
   }
-
+  
   if (all(adja1[upper.tri(adja1)] == 0)) {
     stop(paste0("Network properties cannot be compared because network of group'",
                 xgroups[1], "' is empty."))
@@ -403,36 +368,45 @@ netCompare <- function(x,
     stop(paste0("Network properties cannot be compared because network of group'",
                 xgroups[2], "' is empty."))
   }
-
+  
   #---------------------------------------------------------------------------
   # calculate and compare network properties
-
+  
   if (!is.null(seed)) set.seed(seed)
   
   if (permTest & verbose) message("Calculate network properties ... ",
-                                 appendLF = FALSE)
-
+                                  appendLF = FALSE)
+  
   props <- calc_diff_props(adja1 = adja1, adja2 = adja2,
                            dissMat1 = dissMat1, dissMat2 = dissMat2,
                            assoMat1 = assoMat1, assoMat2 = assoMat2,
-                           avDissIgnoreInf = avDissIgnoreInf,
-                           sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
-                           connectivity = connectivity, 
-                           normNatConnect = normNatConnect,
-                           weighted = weighted, clustMethod = clustMethod, 
-                           clustPar = clustPar, clustPar2 = clustPar2,
-                           weightClustCoef = weightClustCoef,
-                           hubPar = hubPar,  hubQuant = hubQuant,
-                           jaccQuant = jaccQuant, lnormFit = lnormFit,
-                           weightDeg = weightDeg,
-                           normDeg = normDeg,  normBetw = normBetw,
-                           normClose = normClose, normEigen = normEigen,
-                           centrLCC = centrLCC, 
-                           testRand = testRand, nPermRand = nPermRand,
+                           avDissIgnoreInf = parNA$avDissIgnoreInf,
+                           sPathNorm = parNA$sPathNorm, 
+                           sPathAlgo = parNA$sPathAlgo,
+                           connectivity = parNA$connectivity, 
+                           normNatConnect = parNA$normNatConnect,
+                           weighted = parNC$weighted, 
+                           clustMethod = parNA$clustMethod, 
+                           clustPar = parNA$clustPar, 
+                           clustPar2 = parNA$clustPar2,
+                           weightClustCoef = parNA$weightClustCoef,
+                           hubPar = parNA$hubPar,  
+                           hubQuant = parNA$hubQuant,
+                           jaccQuant = jaccQuant, 
+                           lnormFit = lnormFit,
+                           weightDeg = parNA$weightDeg,
+                           normDeg = parNA$normDeg, 
+                           normBetw = parNA$normBetw,
+                           normClose = parNA$normClose, 
+                           normEigen = parNA$normEigen,
+                           centrLCC = parNA$centrLCC, 
+                           testRand = testRand, 
+                           nPermRand = nPermRand,
                            gcd = gcd, gcdOrb = gcdOrb)
   
-  if(permTest & verbose) message("Done.")
-  callArgs <- argsin
+  if (permTest & verbose) message("Done.")
+  
+  callArgs <- args_in
   callArgs$x <- NULL
   
   output <- list(jaccDeg = props$jaccDeg,
@@ -462,12 +436,12 @@ netCompare <- function(x,
                  paramsProperties = x$paramsProperties,
                  call = match.call(), 
                  callArgs = callArgs)
-
+  
   #-----------------------------------------------------------------------------
   # generate teststatistics for permutated data
-
+  
   if (permTest) {
-
+    
     if (!is.null(seed)) set.seed(seed)
     
     if (assoType == "dissimilarity") {
@@ -477,7 +451,7 @@ netCompare <- function(x,
       xbind <- cbind(count1, count2)
       
     } else {
-      if (jointPrepro) {
+      if (parNC$jointPrepro) {
         n1 <- nrow(count_norm1)
         n2 <- nrow(count_norm2)
         
@@ -497,23 +471,19 @@ netCompare <- function(x,
     nVar = ncol(adja1)
     
     #---------------------------------------------------------------------------
-
-    if(!is.null(fileLoadAssoPerm)){
-      stopifnot(is.character(fileLoadAssoPerm))
-      stopifnot(length(fileLoadAssoPerm) == 1)
+    
+    if (!is.null(fileLoadAssoPerm)) {
       
-      if(storeAssoPerm && identical(fileLoadAssoPerm, fileStoreAssoPerm)){
+      if (storeAssoPerm && identical(fileLoadAssoPerm, fileStoreAssoPerm)) {
         storeAssoPerm <- FALSE
       }
-
-    } else if(!is.null(fileLoadCountsPerm)){
-      stopifnot(is.character(fileLoadCountsPerm))
-      stopifnot(length(fileLoadCountsPerm) == 2)
       
-      if(storeCountsPerm && identical(fileLoadCountsPerm, fileStoreCountsPerm)){
+    } else if (!is.null(fileLoadCountsPerm)) {
+      
+      if (storeCountsPerm && identical(fileLoadCountsPerm, fileStoreCountsPerm)) {
         storeCountsPerm <- FALSE
       }
-
+      
     } else {
       perm_group_mat <- get_perm_group_mat(n1 = n1, n2 = n2, n = n, 
                                            nPerm = nPerm, 
@@ -521,10 +491,7 @@ netCompare <- function(x,
     }
     
     #-----------------
-    if(storeCountsPerm){
-      stopifnot(is.character(fileStoreCountsPerm))
-      stopifnot(length(fileStoreCountsPerm) == 2)
-      
+    if (storeCountsPerm) {
       fmat_counts1 <- fm.create(filenamebase = fileStoreCountsPerm[1], 
                                 nrow = (n1 * nPerm), ncol = nVar)
       fmat_counts2 <- fm.create(filenamebase = fileStoreCountsPerm[2], 
@@ -543,10 +510,7 @@ netCompare <- function(x,
     }
     
     #-----------------
-    if(storeAssoPerm){
-      stopifnot(is.character(fileStoreAssoPerm))
-      stopifnot(length(fileStoreAssoPerm) == 1)
-      
+    if (storeAssoPerm) {
       fmat = fm.create(filenamebase = fileStoreAssoPerm, 
                        nrow = (nVar * nPerm), ncol = (2 * nVar))
       
@@ -567,18 +531,18 @@ netCompare <- function(x,
     } else {
       seeds <- NULL
     }
-
+    
     if (cores > 1) {
       if (parallel::detectCores() < cores) cores <- parallel::detectCores()
-
+      
       cl <- snow::makeCluster(cores, outfile = "")
       doSNOW::registerDoSNOW(cl)
       '%do_or_dopar%' <- get('%dopar%')
-
+      
     } else {
       '%do_or_dopar%' <- get('%do%')
     }
-
+    
     if (verbose) {
       pb <- utils::txtProgressBar(0, nPerm, style=3)
       
@@ -590,342 +554,352 @@ netCompare <- function(x,
     } else {
       opts <- list()
     }
-
+    
     if (!is.null(logFile)) cat("", file=logFile, append=FALSE)
-
+    
     p <- NULL
     
-    propsPerm <- foreach(p = 1:nPerm,
-                         .packages = c("filematrix"),
-                         .export = c("calc_association", "cclasso", "gcoda",
-                                     "sparsify", "multAdjust", "trans_to_diss",
-                                     "trans_to_sim", "trans_to_adja",
-                                     "scale_diss", "norm_counts", "zero_treat",
-                                     "calc_props", "calc_diff_props",
-                                     "calc_jaccard"),
-                         .options.snow = opts) %do_or_dopar% {
-
-                           if (!is.null(logFile)) {
-                             cat(paste("iteration", p,"\n"),
-                                 file=logFile, append=TRUE)
-                           }
-                           
-                           if (verbose) progress(p)
-
-                           if (!is.null(seed)) set.seed(seeds[p])
-
-                           if (!is.null(assoPerm)) {
-                             # load permutation association matrices (old version)
-                             assoMat1.tmp <- assoPerm[[1]][[p]]
-                             assoMat2.tmp <- assoPerm[[2]][[p]]
-                             count1.tmp <- count2.tmp <- NULL
-                             
-                           } else if (!is.null(dissPerm)) {
-                             # load permutation dissimilarity matrices (old version)
-                             assoMat1.tmp <- dissPerm[[1]][[p]]
-                             assoMat2.tmp <- dissPerm[[2]][[p]]
-                             count2.tmp <- count2.tmp <- NULL
-                             
-                           } else if (!is.null(fileLoadAssoPerm)) {
-                             
-                             fmat <- fm.open(filenamebase = fileLoadAssoPerm, 
-                                             readonly = TRUE)
-                             
-                             # load permutation asso/diss matrices
-                             assoMat1.tmp <- fmat[(p-1) * nVar + (1:nVar), 
-                                                  1:nVar]
-                             assoMat2.tmp <- fmat[(p-1) * nVar + (1:nVar), 
-                                                  nVar + (1:nVar)]
-                             
-                             dimnames(assoMat1.tmp) <- dimnames(assoMat1)
-                             dimnames(assoMat2.tmp) <- dimnames(assoMat2)
-                             
-                             count1.tmp <- count2.tmp <- NULL
-                             
-                             close(fmat)
-                             
-                           } else {
-                             
-                             if (!is.null(fileLoadCountsPerm)) {
-                               
-                               fmat_counts1 <- fm.open(filenamebase = 
-                                                         fileLoadCountsPerm[1], 
-                                                       readonly = TRUE)
-                               
-                               fmat_counts2 <- fm.open(filenamebase = 
-                                                         fileLoadCountsPerm[2], 
-                                                       readonly = TRUE)
-                               
-                               # load permutation count matrices
-                               count1.tmp <- 
-                                 fmat_counts1[(p-1) * n1 + (1:n1), 1:nVar]
-                               
-                               count2.tmp <- 
-                                 fmat_counts2[(p-1) * n2 + (1:n2), 1:nVar]
-                               
-                               close(fmat_counts1)
-                               close(fmat_counts2)
-                               
-                             } else {
-                               # generate permutation count matrices
-                               if (assoType == "dissimilarity") {
-                                 count1.tmp <- xbind[ ,which(perm_group_mat[p, ] == 1)]
-                                 count2.tmp <- xbind[ ,which(perm_group_mat[p, ] == 2)]
-                                 
-                               } else {
-                                 count1.tmp <- xbind[which(perm_group_mat[p, ] == 1), ]
-                                 count2.tmp <- xbind[which(perm_group_mat[p, ] == 2), ]
-                               }
-                               
-                               if (!jointPrepro) {
-                                 # zero treatment and normalization necessary if
-                                 # in network construction two count matrices 
-                                 # were given or dissimilarity network is created
-                                 
-                                 suppressMessages(
-                                   count1.tmp <- zero_treat(countMat = count1.tmp, 
-                                                            zeroMethod = zeroMethod,
-                                                            zeroParam = zeroPar, 
-                                                            needfrac = needfrac,
-                                                            needint = needint, 
-                                                            verbose = FALSE))
-                                 
-                                 suppressMessages(
-                                   count2.tmp <- zero_treat(countMat = count2.tmp, 
-                                                            zeroMethod = zeroMethod,
-                                                            zeroParam = zeroPar, 
-                                                            needfrac = needfrac,
-                                                            needint = needint, 
-                                                            verbose = FALSE))
-                                 
-                                 suppressMessages(
-                                   count1.tmp <- norm_counts(countMat = count1.tmp, 
-                                                             normMethod = normMethod,
-                                                             normParam = normPar, 
-                                                             zeroMethod = zeroMethod,
-                                                             needfrac = needfrac, 
-                                                             verbose = FALSE))
-                                 
-                                 suppressMessages(
-                                   count2.tmp <- norm_counts(countMat = count2.tmp, 
-                                                             normMethod = normMethod,
-                                                             normParam = normPar, 
-                                                             zeroMethod = zeroMethod,
-                                                             needfrac = needfrac, 
-                                                             verbose = FALSE))
-                               }
-                               
-                               if (storeCountsPerm) {
-                                 fmat_counts1 <- fm.open(filenamebase = 
-                                                           fileStoreCountsPerm[1])
-                                 
-                                 fmat_counts2 <- fm.open(filenamebase = 
-                                                           fileStoreCountsPerm[2])
-                                 
-                                 fmat_counts1[(p-1) * n1 + (1:n1), 
-                                              1:nVar] <- count1.tmp
-                                 fmat_counts2[(p-1) * n2 + (1:n2), 
-                                              1:nVar] <- count2.tmp
-                                 
-                                 close(fmat_counts1)
-                                 close(fmat_counts2)
-                               }
-                             }
-                             
-                             assoMat1.tmp <- calc_association(count1.tmp,
-                                                              measure = measure,
-                                                              measurePar = measurePar,
-                                                              verbose = FALSE)
-                             assoMat2.tmp <- calc_association(count2.tmp,
-                                                              measure = measure,
-                                                              measurePar = measurePar,
-                                                              verbose = FALSE)
-                             
-                             if (storeAssoPerm) {
-                               fmat <- fm.open(filenamebase = fileStoreAssoPerm)
-                               
-                               fmat[(p-1) * nVar + (1:nVar), 
-                                    1:nVar] <- assoMat1.tmp
-                               fmat[(p-1) * nVar + (1:nVar), 
-                                    nVar + (1:nVar)] <- assoMat2.tmp
-                               
-                               close(fmat)
-                             }
-                           }
-                           
-                           #----------------------------------------------------
-                           
-                           if (distNet && scaleDiss) {
-                             assoMat1.tmp <- scale_diss(assoMat1.tmp)
-                             assoMat2.tmp <- scale_diss(assoMat1.tmp)
-                           }
-                           
-                           #----------------------------------------------------
-                           # sparsification and transformation
-                           
-                           if (x$paramsNetConstruct$sparsMethod == "softThreshold") {
-                             if (length(softThreshPower) < 2) {
-                               power1 <- power2 <- softThreshPower
-                             } else {
-                               power1 <- softThreshPower[1]
-                               power2 <- softThreshPower[2]
-                             }
-                             
-                             if (length(softThreshCut) < 2) {
-                               stcut1 <- stcut2 <- softThreshCut
-                             } else {
-                               stcut1 <- softThreshCut[1]
-                               stcut2 <- softThreshCut[2]
-                             }
-                           }
-
-                           sparsReslt <- sparsify(assoMat = assoMat1.tmp,
-                                                  countMat = count1.tmp,
-                                                  sampleSize = n1,
-                                                  measure = measure,
-                                                  measurePar = measurePar,
-                                                  assoType = assoType,
-                                                  sparsMethod = sparsMethod,
-                                                  thresh = thresh[1],
-                                                  alpha = alpha[1],
-                                                  adjust = adjust,
-                                                  lfdrThresh = lfdrThresh,
-                                                  trueNullMethod = trueNullMethod,
-                                                  nboot = nboot,
-                                                  softThreshType = softThreshType,
-                                                  softThreshPower = power1,
-                                                  softThreshCut = stcut1,
-                                                  kNeighbor = kNeighbor,
-                                                  knnMutual = knnMutual,
-                                                  parallel = FALSE,
-                                                  cores = 1L,
-                                                  verbose = FALSE)
-
-                           if (distNet) {
-                             dissMat1.tmp <- sparsReslt$assoNew
-                             assoMat1.tmp <- NULL
-                           } else {
-                             assoMat1.tmp <- sparsReslt$assoNew
-                             dissMat1.tmp <- trans_to_diss(x = assoMat1.tmp,
-                                                           dissFunc = dissFunc,
-                                                           dissFuncPar = dissFuncPar)
-                           }
-
-                           simMat1.tmp <- trans_to_sim(x = dissMat1.tmp,
-                                                       simFunc = simFunc,
-                                                       simFuncPar = simFuncPar)
-                           adja1.tmp <- trans_to_adja(x = simMat1.tmp,
-                                                      weighted = weighted)
-                           
-                           # network 2
-                           sparsReslt <- sparsify(assoMat = assoMat2.tmp,
-                                                  countMat = count2.tmp,
-                                                  sampleSize = n2,
-                                                  measure = measure,
-                                                  assoType = assoType,
-                                                  sparsMethod = sparsMethod,
-                                                  thresh = thresh[2],
-                                                  alpha = alpha[2],
-                                                  adjust = adjust,
-                                                  lfdrThresh = lfdrThresh,
-                                                  trueNullMethod = trueNullMethod,
-                                                  nboot = nboot,
-                                                  softThreshType = softThreshType,
-                                                  softThreshPower = power2,
-                                                  softThreshCut = stcut2,
-                                                  kNeighbor = kNeighbor,
-                                                  knnMutual = knnMutual,
-                                                  parallel = FALSE,
-                                                  cores = 1L,
-                                                  verbose = FALSE)
-
-                           if (distNet) {
-                             dissMat2.tmp <- sparsReslt$assoNew
-                             assoMat2.tmp <- NULL
-                           } else {
-                             assoMat2.tmp <- sparsReslt$assoNew
-                             dissMat2.tmp <- trans_to_diss(x = assoMat2.tmp,
-                                                           dissFunc = dissFunc,
-                                                           dissFuncPar = dissFuncPar)
-                           }
-
-                           simMat2.tmp <- trans_to_sim(x = dissMat2.tmp,
-                                                       simFunc = simFunc,
-                                                       simFuncPar = simFuncPar)
-                           adja2.tmp <- trans_to_adja(x = simMat2.tmp,
-                                                      weighted = weighted)
-                           
-                           dimnames(adja1.tmp) <- dimnames(adja1)
-                           dimnames(adja2.tmp) <- dimnames(adja2)
-                           dimnames(assoMat1.tmp) <- dimnames(assoMat1)
-                           dimnames(assoMat2.tmp) <- dimnames(assoMat2)
-                           dimnames(dissMat1.tmp) <- dimnames(dissMat1)
-                           dimnames(dissMat2.tmp) <- dimnames(dissMat2)
-                           
-                           #----------------------------------------------------
-                           # compute network properties
-
-                           prop.tmp <- calc_diff_props(adja1 = adja1.tmp,
-                                                       adja2 = adja2.tmp,
-                                                       dissMat1 = dissMat1.tmp,
-                                                       dissMat2 = dissMat2.tmp,
-                                                       assoMat1 = assoMat1.tmp,
-                                                       assoMat2 = assoMat2.tmp,
-                                                       avDissIgnoreInf =
-                                                         avDissIgnoreInf,
-                                                       sPathNorm = sPathNorm,
-                                                       sPathAlgo = sPathAlgo,
-                                                       connectivity = connectivity,
-                                                       normNatConnect = normNatConnect,
-                                                       weighted = weighted,
-                                                       clustMethod = clustMethod,
-                                                       clustPar = clustPar,
-                                                       clustPar2 = clustPar2,
-                                                       weightClustCoef =
-                                                         weightClustCoef,
-                                                       hubPar = hubPar,
-                                                       hubQuant = hubQuant,
-                                                       jaccQuant = jaccQuant,
-                                                       lnormFit = lnormFit,
-                                                       weightDeg = weightDeg,
-                                                       normDeg = normDeg,
-                                                       normBetw = normBetw,
-                                                       normClose = normClose,
-                                                       normEigen = normEigen,
-                                                       centrLCC = centrLCC,
-                                                       nPermRand = nPermRand,
-                                                       testJacc = FALSE,
-                                                       testRand = FALSE)
-
-                           out <- list(diffsGlobal = NULL,
-                                       diffsGlobalLCC = NULL,
-                                       absDiffsCentr = NULL)
-
-                           for (i in c("diffavDiss", "diffavPath", "diffDensity",
-                                      "diffVertConnect", "diffEdgeConnect",
-                                      "diffNatConnect", "diffPEP",
-                                      "diffClustCoef",  "diffModul")) {
-                             out$diffsGlobal[[i]] <- prop.tmp$diffsGlobal[[i]]
-                             out$diffsGlobalLCC[[i]] <- prop.tmp$diffsGlobalLCC[[i]]
-                           }
-
-                           out$diffsGlobal[["diffnComp"]] <-
-                             prop.tmp$diffsGlobal$diffnComp
-
-                           out$diffsGlobalLCC[["difflccSize"]] <-
-                             prop.tmp$diffsGlobalLC$difflccSize
-
-                           out$diffsGlobalLCC[["difflccSizeRel"]] <-
-                             prop.tmp$diffsGlobalLC$difflccSizeRel
-
-                           out$absDiffsCentr <- prop.tmp$absDiffsCentr
-                           
-                           out$props <- prop.tmp$props
-                           out$propsLCC <- prop.tmp$propsLCC
-
-                           out
-                         }
-
+    propsPerm <- foreach(
+      p = 1:nPerm,
+      .packages = c("filematrix"),
+      .export = c(
+        "calc_association",
+        "cclasso",
+        "gcoda",
+        "sparsify",
+        "multAdjust",
+        "trans_to_diss",
+        "trans_to_sim",
+        "trans_to_adja",
+        "scale_diss",
+        "norm_counts",
+        "zero_treat",
+        "calc_props",
+        "calc_diff_props",
+        "calc_jaccard"
+      ),
+      .options.snow = opts
+      
+    ) %do_or_dopar% {
+      
+      if (!is.null(logFile)) {
+        cat(paste("iteration", p, "\n"), file = logFile, append = TRUE)
+      }
+      
+      if (verbose) progress(p)
+      
+      if (!is.null(seed)) set.seed(seeds[p])
+      
+      if (!is.null(assoPerm)) {
+        # load permutation association matrices (old version)
+        assoMat1.tmp <- assoPerm[[1]][[p]]
+        assoMat2.tmp <- assoPerm[[2]][[p]]
+        count1.tmp <- count2.tmp <- NULL
+        
+      } else if (!is.null(dissPerm)) {
+        # load permutation dissimilarity matrices (old version)
+        assoMat1.tmp <- dissPerm[[1]][[p]]
+        assoMat2.tmp <- dissPerm[[2]][[p]]
+        count2.tmp <- count2.tmp <- NULL
+        
+      } else if (!is.null(fileLoadAssoPerm)) {
+        fmat <- fm.open(filenamebase = fileLoadAssoPerm, readonly = TRUE)
+        
+        # load permutation asso/diss matrices
+        assoMat1.tmp <- fmat[(p - 1) * nVar + (1:nVar), 1:nVar]
+        assoMat2.tmp <- fmat[(p - 1) * nVar + (1:nVar), nVar + (1:nVar)]
+        
+        dimnames(assoMat1.tmp) <- dimnames(assoMat1)
+        dimnames(assoMat2.tmp) <- dimnames(assoMat2)
+        
+        count1.tmp <- count2.tmp <- NULL
+        
+        close(fmat)
+        
+      } else {
+        if (!is.null(fileLoadCountsPerm)) {
+          fmat_counts1 <- fm.open(filenamebase = fileLoadCountsPerm[1],
+                                  readonly = TRUE)
+          
+          fmat_counts2 <- fm.open(filenamebase =  fileLoadCountsPerm[2],
+                                  readonly = TRUE)
+          
+          # load permutation count matrices
+          count1.tmp <- fmat_counts1[(p - 1) * n1 + (1:n1), 1:nVar]
+          
+          count2.tmp <- fmat_counts2[(p - 1) * n2 + (1:n2), 1:nVar]
+          
+          close(fmat_counts1)
+          close(fmat_counts2)
+          
+        } else {
+          # generate permutation count matrices
+          if (assoType == "dissimilarity") {
+            count1.tmp <- xbind[, which(perm_group_mat[p,] == 1)]
+            count2.tmp <- xbind[, which(perm_group_mat[p,] == 2)]
+            
+          } else {
+            count1.tmp <- xbind[which(perm_group_mat[p,] == 1),]
+            count2.tmp <- xbind[which(perm_group_mat[p,] == 2),]
+          }
+          
+          if (!parNC$jointPrepro) {
+            # zero treatment and normalization necessary if
+            # in network construction two count matrices
+            # were given or dissimilarity network is created
+            
+            suppressMessages(
+              count1.tmp <- zero_treat(countMat = count1.tmp,
+                                       zeroMethod = parNC$zeroMethod,
+                                       zeroParam = parNC$zeroPar,
+                                       needfrac = parNC$needfrac,
+                                       needint = parNC$needint,
+                                       verbose = FALSE)
+            )
+            
+            suppressMessages(
+              count2.tmp <- zero_treat(countMat = count2.tmp,
+                                       zeroMethod = parNC$zeroMethod,
+                                       zeroParam = parNC$zeroPar,
+                                       needfrac = parNC$needfrac,
+                                       needint = parNC$needint,
+                                       verbose = FALSE)
+            )
+            
+            suppressMessages(
+              count1.tmp <- norm_counts(countMat = count1.tmp,
+                                        normMethod = parNC$normMethod,
+                                        normParam = parNC$normPar,
+                                        zeroMethod = parNC$zeroMethod,
+                                        needfrac = parNC$needfrac,
+                                        verbose = FALSE)
+            )
+            
+            suppressMessages(
+              count2.tmp <- norm_counts(countMat = count2.tmp,
+                                        normMethod = parNC$normMethod,
+                                        normParam = parNC$normPar,
+                                        zeroMethod = parNC$zeroMethod,
+                                        needfrac = parNC$needfrac,
+                                        verbose = FALSE)
+            )
+          }
+          
+          if (storeCountsPerm) {
+            fmat_counts1 <- fm.open(filenamebase = fileStoreCountsPerm[1])
+            
+            fmat_counts2 <- fm.open(filenamebase = fileStoreCountsPerm[2])
+            
+            fmat_counts1[(p - 1) * n1 + (1:n1),  1:nVar] <- count1.tmp
+            fmat_counts2[(p - 1) * n2 + (1:n2),  1:nVar] <- count2.tmp
+            
+            close(fmat_counts1)
+            close(fmat_counts2)
+          }
+        }
+        
+        assoMat1.tmp <- calc_association(count1.tmp,
+                                         measure = parNC$measure,
+                                         measurePar = parNC$measurePar,
+                                         verbose = FALSE)
+        
+        assoMat2.tmp <- calc_association(count2.tmp,
+                                         measure = parNC$measure,
+                                         measurePar = parNC$measurePar,
+                                         verbose = FALSE)
+        
+        if (storeAssoPerm) {
+          fmat <- fm.open(filenamebase = fileStoreAssoPerm)
+          
+          fmat[(p - 1) * nVar + (1:nVar), 1:nVar] <- assoMat1.tmp
+          fmat[(p - 1) * nVar + (1:nVar), nVar + (1:nVar)] <- assoMat2.tmp
+          
+          close(fmat)
+        }
+      }
+      
+      #----------------------------------------------------
+      
+      if (distNet && parNC$scaleDiss) {
+        assoMat1.tmp <- scale_diss(assoMat1.tmp)
+        assoMat2.tmp <- scale_diss(assoMat1.tmp)
+      }
+      
+      #----------------------------------------------------
+      # sparsification and transformation
+      
+      if (parNC$sparsMethod == "softThreshold") {
+        if (length(parNC$softThreshPower) < 2) {
+          power1 <- power2 <- parNC$softThreshPower
+        } else {
+          power1 <- parNC$softThreshPower[1]
+          power2 <- parNC$softThreshPower[2]
+        }
+        
+        if (length(parNC$softThreshCut) < 2) {
+          stcut1 <- stcut2 <- parNC$softThreshCut
+        } else {
+          stcut1 <- parNC$softThreshCut[1]
+          stcut2 <- parNC$softThreshCut[2]
+        }
+      }
+      
+      sparsReslt <- sparsify(assoMat = assoMat1.tmp,
+                             countMat = count1.tmp,
+                             sampleSize = n1,
+                             measure = parNC$measure,
+                             measurePar = parNC$measurePar,
+                             assoType = assoType,
+                             sparsMethod = parNC$sparsMethod,
+                             thresh = parNC$thresh[1],
+                             alpha = parNC$alpha[1],
+                             adjust = parNC$adjust,
+                             lfdrThresh = parNC$lfdrThresh,
+                             trueNullMethod = parNC$trueNullMethod,
+                             nboot = parNC$nboot,
+                             softThreshType = parNC$softThreshType,
+                             softThreshPower = power1,
+                             softThreshCut = stcut1,
+                             kNeighbor = parNC$kNeighbor,
+                             knnMutual = parNC$knnMutual,
+                             parallel = FALSE,
+                             cores = 1L,
+                             verbose = FALSE)
+      
+      if (distNet) {
+        dissMat1.tmp <- sparsReslt$assoNew
+        assoMat1.tmp <- NULL
+        
+      } else {
+        assoMat1.tmp <- sparsReslt$assoNew
+        dissMat1.tmp <- trans_to_diss(x = assoMat1.tmp,
+                                      dissFunc = parNC$dissFunc,
+                                      dissFuncPar = parNC$dissFuncPar)
+      }
+      
+      simMat1.tmp <- trans_to_sim(x = dissMat1.tmp,
+                                  simFunc = parNC$simFunc,
+                                  simFuncPar = parNC$simFuncPar)
+      
+      adja1.tmp <- trans_to_adja(x = simMat1.tmp, weighted = parNC$weighted)
+      
+      # network 2
+      sparsReslt <- sparsify( assoMat = assoMat2.tmp,
+                              countMat = count2.tmp,
+                              sampleSize = n2,
+                              measure = parNC$measure,
+                              measurePar = parNC$measurePar,
+                              assoType = assoType,
+                              sparsMethod = parNC$sparsMethod,
+                              thresh = parNC$thresh[2],
+                              alpha = parNC$alpha[2],
+                              adjust = parNC$adjust,
+                              lfdrThresh = parNC$lfdrThresh,
+                              trueNullMethod = parNC$trueNullMethod,
+                              nboot = parNC$nboot,
+                              softThreshType = parNC$softThreshType,
+                              softThreshPower = power2,
+                              softThreshCut = stcut2,
+                              kNeighbor = parNC$kNeighbor,
+                              knnMutual = parNC$knnMutual,
+                              parallel = FALSE,
+                              cores = 1L,
+                              verbose = FALSE)
+      
+      if (distNet) {
+        dissMat2.tmp <- sparsReslt$assoNew
+        assoMat2.tmp <- NULL
+        
+      } else {
+        assoMat2.tmp <- sparsReslt$assoNew
+        
+        dissMat2.tmp <- trans_to_diss(x = assoMat2.tmp,
+                                      dissFunc = parNC$dissFunc,
+                                      dissFuncPar = parNC$dissFuncPar)
+      }
+      
+      simMat2.tmp <- trans_to_sim(x = dissMat2.tmp,
+                                  simFunc = parNC$simFunc,
+                                  simFuncPar = parNC$simFuncPar)
+      
+      adja2.tmp <- trans_to_adja(x = simMat2.tmp, weighted = parNC$weighted)
+      
+      dimnames(adja1.tmp) <- dimnames(adja1)
+      dimnames(adja2.tmp) <- dimnames(adja2)
+      dimnames(assoMat1.tmp) <- dimnames(assoMat1)
+      dimnames(assoMat2.tmp) <- dimnames(assoMat2)
+      dimnames(dissMat1.tmp) <- dimnames(dissMat1)
+      dimnames(dissMat2.tmp) <- dimnames(dissMat2)
+      
+      #----------------------------------------------------
+      # compute network properties
+      
+      prop.tmp <- calc_diff_props(adja1 = adja1.tmp,
+                                  adja2 = adja2.tmp,
+                                  dissMat1 = dissMat1.tmp,
+                                  dissMat2 = dissMat2.tmp,
+                                  assoMat1 = assoMat1.tmp,
+                                  assoMat2 = assoMat2.tmp,
+                                  avDissIgnoreInf = parNA$avDissIgnoreInf,
+                                  sPathNorm = parNA$sPathNorm,
+                                  sPathAlgo = parNA$sPathAlgo,
+                                  connectivity = parNA$connectivity,
+                                  normNatConnect = parNA$normNatConnect,
+                                  weighted = parNC$weighted,
+                                  clustMethod = parNA$clustMethod,
+                                  clustPar = parNA$clustPar,
+                                  clustPar2 = parNA$clustPar2,
+                                  weightClustCoef = parNA$weightClustCoef,
+                                  hubPar = parNA$hubPar,
+                                  hubQuant = parNA$hubQuant,
+                                  jaccQuant = jaccQuant,
+                                  lnormFit = lnormFit,
+                                  weightDeg = parNA$weightDeg,
+                                  normDeg = parNA$normDeg,
+                                  normBetw = parNA$normBetw,
+                                  normClose = parNA$normClose,
+                                  normEigen = parNA$normEigen,
+                                  centrLCC = parNA$centrLCC,
+                                  nPermRand = nPermRand,
+                                  testJacc = FALSE,
+                                  testRand = FALSE,
+                                  gcd = FALSE)
+      
+      out <- list(diffsGlobal = NULL,
+                  diffsGlobalLCC = NULL,
+                  absDiffsCentr = NULL)
+      
+      for (i in c("diffavDiss",
+                  "diffavPath",
+                  "diffDensity",
+                  "diffVertConnect",
+                  "diffEdgeConnect",
+                  "diffNatConnect",
+                  "diffPEP",
+                  "diffClustCoef",
+                  "diffModul")) {
+        
+        out$diffsGlobal[[i]] <- prop.tmp$diffsGlobal[[i]]
+        out$diffsGlobalLCC[[i]] <- prop.tmp$diffsGlobalLCC[[i]]
+      }
+      
+      out$diffsGlobal[["diffnComp"]] <- 
+        prop.tmp$diffsGlobal$diffnComp
+      
+      out$diffsGlobalLCC[["difflccSize"]] <- 
+        prop.tmp$diffsGlobalLC$difflccSize
+      
+      out$diffsGlobalLCC[["difflccSizeRel"]] <- 
+        prop.tmp$diffsGlobalLC$difflccSizeRel
+      
+      out$absDiffsCentr <- prop.tmp$absDiffsCentr
+      
+      out$props <- prop.tmp$props
+      out$propsLCC <- prop.tmp$propsLCC
+      
+      out
+    }
+    
     if (verbose) {
       # close progress bar
       close(pb)  
@@ -934,26 +908,26 @@ netCompare <- function(x,
         message("Stopping socket cluster ... ", appendLF = FALSE)
       }
     }
-
+    
     if (cores > 1) snow::stopCluster(cl)
     
     if (verbose) {
       message("Done.")
     }
-
+    
     
     if (verbose) {
       message("Calculating p-values ... ", appendLF = FALSE)
     }
-
+    
     #---------------------------------------------------------------------------
     # create matrices for differences of global properties
-
+    
     permDiffsGlobal <- matrix(0, nrow = nPerm, ncol = 10)
     permDiffsGlobal_lcc <- matrix(0, nrow = nPerm, ncol = 11)
     
     names <- c("avDiss", "avPath", "Density", "VertConnect", "EdgeConnect", 
-                  "NatConnect", "PEP", "ClustCoef", "Modul")
+               "NatConnect", "PEP", "ClustCoef", "Modul")
     names_diff <- paste0("diff", names)
     
     colnames(permDiffsGlobal) <- c("diffnComp", names_diff)
@@ -963,8 +937,11 @@ netCompare <- function(x,
     
     for (i in 1:9) {
       for (b in 1:nPerm) {
-        permDiffsGlobal[b,names_diff[i]] <- as.numeric(propsPerm[[b]]$diffsGlobal[names_diff[i]])
-        permDiffsGlobal_lcc[b,names_diff[i]] <- as.numeric(propsPerm[[b]]$diffsGlobalLC[names_diff[i]])
+        permDiffsGlobal[b,names_diff[i]] <- 
+          as.numeric(propsPerm[[b]]$diffsGlobal[names_diff[i]])
+        
+        permDiffsGlobal_lcc[b,names_diff[i]] <- 
+          as.numeric(propsPerm[[b]]$diffsGlobalLC[names_diff[i]])
       }
     }
     
@@ -981,13 +958,13 @@ netCompare <- function(x,
     
     #---------------------------------------------------------------------------
     # create matrices for differences of centralities
-
+    
     absDiffsPermDeg <- absDiffsPermBetw <- 
       absDiffsPermClose <- absDiffsPermEigen <- 
       permDeg1 <- permDeg2 <- permBetw1 <- permBetw2 <- 
       permClose1 <- permClose2 <- permEigen1 <- permEigen2 <-
       matrix(0, nrow = nPerm, ncol = ncol(adja1))
-
+    
     for (b in 1:nPerm) {
       absDiffsPermDeg[b,]   <- propsPerm[[b]]$absDiffsCentr$absDiffDeg
       absDiffsPermBetw[b,]  <- propsPerm[[b]]$absDiffsCentr$absDiffBetw
@@ -1010,9 +987,9 @@ netCompare <- function(x,
                            eigen = absDiffsPermEigen)
     
     permPropsCentr1 <- list(degree = permDeg1, 
-                           between = permBetw1,
-                           close = permClose1,
-                           eigen = permEigen1)
+                            between = permBetw1,
+                            close = permClose1,
+                            eigen = permEigen1)
     
     permPropsCentr2 <- list(degree = permDeg2, 
                             between = permBetw2,
@@ -1021,7 +998,7 @@ netCompare <- function(x,
     
     #---------------------------------------------------------------------------
     # create matrices for global properties of the permuted data
-
+    
     permPropsGlobal1 <- matrix(0, nrow = nPerm, ncol = 10)
     permPropsGlobal1_lcc <- matrix(0, nrow = nPerm, ncol = 11)
     
@@ -1040,7 +1017,7 @@ netCompare <- function(x,
     
     colnames(permPropsGlobal1_lcc) <- c("lccSize", "lccSizeRel", propnames)
     colnames(permPropsGlobal2_lcc) <- c("lccSize", "lccSizeRel", propnames)
- 
+    
     for (i in 1:9) {
       for (b in 1:nPerm) {
         permPropsGlobal1[b,i] <- 
@@ -1057,7 +1034,7 @@ netCompare <- function(x,
       }
     }
     
-
+    
     for (b in 1:nPerm) {
       permPropsGlobal1[b, "nComp"] <- 
         as.numeric(propsPerm[[b]]$props["nComp1"])
@@ -1080,57 +1057,70 @@ netCompare <- function(x,
     
     
     #---------------------------------------------------------------------------
-    # compute p-values
+    # Compute p-values
     
     pvalnames <- paste0("pval", names)
     
+    pvalDiffGlobal <-  pvalDiffGlobalLCC <- list()
+    
+    pvalDiffGlobalLCC[["pvalnComp"]] <- 
+      .calcPermPval(tstat = props$diffsGlobal[["diffnComp"]],
+                    tstatPerm = permDiffsGlobal[, "diffnComp"],
+                    nPerm = nPerm)
+    
+    
+    pvalDiffGlobalLCC[["pvallccSize"]] <-
+      .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSize"]],
+                    tstatPerm = permDiffsGlobal_lcc[, "difflccSize"],
+                    nPerm = nPerm)
+    
+    pvalDiffGlobalLCC[["pvallccSizeRel"]] <-
+      .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSizeRel"]],
+                    tstatPerm = permDiffsGlobal_lcc[, "difflccSizeRel"],
+                    nPerm = nPerm)
+    
     for (i in seq_along(pvalnames)) {
-      assign(pvalnames[i], 
-             (sum(permDiffsGlobal[, names_diff[i]] >= 
-                    props$diffsGlobal[[names_diff[i]]]) + 1) / (nPerm + 1))
+      pvalDiffGlobal[[pvalnames[i]]] <-  
+        .calcPermPval(tstat = props$diffsGlobal[[names_diff[i]]],
+                      tstatPerm = permDiffsGlobal[, names_diff[i]],
+                      nPerm = nPerm)
       
-      assign(paste0(pvalnames[i], "_lcc"), 
-             (sum(permDiffsGlobal_lcc[, names_diff[i]] >= 
-                    props$diffsGlobalLCC[[names_diff[i]]]) + 1) / (nPerm + 1))
+      pvalDiffGlobalLCC[[pvalnames[i]]] <- 
+        .calcPermPval(tstat = props$diffsGlobalLCC[[names_diff[i]]],
+                      tstatPerm = permDiffsGlobal_lcc[, names_diff[i]],
+                      nPerm = nPerm)
     }
     
-    pvalnComp <- (sum(permDiffsGlobal[, "diffnComp"] >= 
-                        props$diffsGlobal[["diffnComp"]]) + 1) / (nPerm + 1)
-    
-    pvallccSize <- (sum(permDiffsGlobal_lcc[, "difflccSize"] >= 
-                          props$diffsGlobalLCC[["difflccSize"]]) + 1) / (nPerm + 1)
-    
-    pvallccSizeRel <- (sum(permDiffsGlobal_lcc[, "difflccSizeRel"] >= 
-                             props$diffsGlobalLCC[["difflccSizeRel"]]) + 1) / (nPerm + 1)
-
     pvalDiffDeg <- sapply(1:ncol(adja1), function(i) {
-      (sum(absDiffsPermDeg[, i] >= props$absDiffs$absDiffDeg[i]) + 1) / (nPerm + 1)
-    })
+      .calcPermPval(tstat = props$absDiffs$absDiffDeg[i],
+                    tstatPerm = absDiffsPermDeg[, i],
+                    nPerm = nPerm)})
     
     pvalDiffBetw <- sapply(1:ncol(adja1), function(i) {
-      (sum(absDiffsPermBetw[, i] >= props$absDiffs$absDiffBetw[i]) + 1) / (nPerm + 1)
-    })
+      .calcPermPval(tstat = props$absDiffs$absDiffBetw[i],
+                    tstatPerm = absDiffsPermBetw[, i],
+                    nPerm = nPerm)})
     
     pvalDiffClose <- sapply(1:ncol(adja1), function(i) {
-      (sum(absDiffsPermClose[, i] >= props$absDiffs$absDiffClose[i]) + 1) / (nPerm + 1)
-    })
+      .calcPermPval(tstat = props$absDiffs$absDiffClose[i],
+                    tstatPerm = absDiffsPermClose[, i],
+                    nPerm = nPerm)})
     
     pvalDiffEigen <- sapply(1:ncol(adja1), function(i) {
-      (sum(absDiffsPermEigen[, i] >= props$absDiffs$absDiffEigen[i]) + 1) / (nPerm + 1)
-    })
-
-    names(pvalDiffDeg) <- colnames(adja1)
-    names(pvalDiffBetw) <- colnames(adja1)
-    names(pvalDiffClose) <- colnames(adja1)
-    names(pvalDiffEigen) <- colnames(adja1)
-
+      .calcPermPval(tstat = props$absDiffs$absDiffEigen[i],
+                    tstatPerm = absDiffsPermEigen[, i],
+                    nPerm = nPerm)})
+    
+    names(pvalDiffDeg) <- names(pvalDiffBetw) <- 
+      names(pvalDiffClose) <- names(pvalDiffEigen) <- colnames(adja1)
+    
     if (verbose) message("Done.")
-
-    if (verbose & adjustPerm != "none") {
-      message("Adjust for multiple testing using '", adjustPerm, "' ... ",
+    
+    if (verbose & adjust != "none") {
+      message("Adjust for multiple testing using '", adjust, "' ... ",
               appendLF = FALSE)
     }
-
+    
     # adjust for multiple testing
     
     if (adjust == "adaptBH" && !requireNamespace("limma", quietly = TRUE)) {
@@ -1149,46 +1139,27 @@ netCompare <- function(x,
       message("Done.")
     }
     
-    pAdjustDiffDeg <- multAdjust(pvals = pvalDiffDeg, adjust = adjustPerm,
+    pAdjustDiffDeg <- multAdjust(pvals = pvalDiffDeg, adjust = adjust,
                                  trueNullMethod = trueNullMethod,
                                  verbose = FALSE)
     
-    pAdjustDiffBetw <- multAdjust(pvals = pvalDiffBetw, adjust = adjustPerm,
+    pAdjustDiffBetw <- multAdjust(pvals = pvalDiffBetw, adjust = adjust,
                                   trueNullMethod = trueNullMethod,
                                   verbose = FALSE)
     
-    pAdjustDiffClose <- multAdjust(pvals = pvalDiffClose, adjust = adjustPerm,
+    pAdjustDiffClose <- multAdjust(pvals = pvalDiffClose, adjust = adjust,
                                    trueNullMethod = trueNullMethod,
                                    verbose = FALSE)
     
-    pAdjustDiffEigen <- multAdjust(pvals = pvalDiffEigen, adjust = adjustPerm,
+    pAdjustDiffEigen <- multAdjust(pvals = pvalDiffEigen, adjust = adjust,
                                    trueNullMethod = trueNullMethod,
                                    verbose = FALSE)
     
-    if (verbose & adjustPerm != "none") message("Done.")
+    if (verbose & adjust != "none") message("Done.")
     
-    output$pvalDiffGlobal <- list(pvalnComp = pvalnComp,
-                                  pvalavDiss = pvalavDiss, 
-                                  pvalavPath = pvalavPath,
-                                  pvalDensity = pvalDensity,
-                                  pvalEdgeConnect = pvalEdgeConnect,
-                                  pvalVertConnect = pvalVertConnect,
-                                  pvalNatConnect = pvalNatConnect,
-                                  pvalPEP = pvalPEP,
-                                  pvalClustCoef = pvalClustCoef,
-                                  pvalModul = pvalModul)
+    output$pvalDiffGlobal <- pvalDiffGlobal 
     
-    output$pvalDiffGlobalLCC <- list(pvallccSize = pvallccSize,
-                                     pvallccSizeRel = pvallccSizeRel,
-                                     pvalavDiss = pvalavDiss_lcc, 
-                                     pvalavPath = pvalavPath_lcc,
-                                     pvalDensity = pvalDensity_lcc,
-                                     pvalEdgeConnect = pvalEdgeConnect_lcc,
-                                     pvalVertConnect = pvalVertConnect_lcc,
-                                     pvalNatConnect = pvalNatConnect_lcc,
-                                     pvalPEP = pvalPEP_lcc,
-                                     pvalClustCoef = pvalClustCoef_lcc,
-                                     pvalModul = pvalModul_lcc)
+    output$pvalDiffGlobalLCC <- pvalDiffGlobalLCC
     
     output$pvalDiffCentr <- list(pvalDiffDeg = pvalDiffDeg,
                                  pvalDiffBetw = pvalDiffBetw,

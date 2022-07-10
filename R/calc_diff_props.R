@@ -1,4 +1,6 @@
-calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2,
+calc_diff_props <- function(adja1, adja2, 
+                            dissMat1, dissMat2, 
+                            assoMat1, assoMat2,
                             avDissIgnoreInf, sPathNorm, sPathAlgo, 
                             connectivity, normNatConnect,
                             weighted, clustMethod, clustPar, clustPar2, 
@@ -7,7 +9,7 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
                             normDeg, normBetw, normClose, normEigen, centrLCC,
                             testJacc = TRUE, jaccTestGreater = FALSE,
                             testRand = TRUE, nPermRand = 1000, 
-                            gcd, gcdOrb){
+                            gcd, gcdOrb = NULL) {
 
   isempty1 <- all(adja1[lower.tri(adja1)] == 0)
   isempty2 <- all(adja2[lower.tri(adja2)] == 0)
@@ -66,11 +68,11 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   avDiss1_lcc <- props1$avDiss_lcc
   avDiss2_lcc <- props2$avDiss_lcc
   
-  if(is.na(avDiss1)){
+  if (is.na(avDiss1)) {
     avDiss1 <- avDiss1_lcc <- 1
-  } 
+  }
   
-  if(is.na(avDiss2)){
+  if (is.na(avDiss2)) {
     avDiss2 <- avDiss2_lcc <- 1
   }
   
@@ -86,11 +88,11 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   avPath1_lcc <- props1$avPath_lcc
   avPath2_lcc <- props2$avPath_lcc
   
-  if(is.na(avPath1)){
+  if (is.na(avPath1)) {
     avPath1 <- avPath1_lcc <- 1
-  } 
+  }
   
-  if(is.na(avPath2)){
+  if (is.na(avPath2)) {
     avPath2 <- avPath2_lcc <- 1
   }
   
@@ -106,20 +108,21 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   clustCoef1_lcc <- props1$clustCoef_lcc
   clustCoef2_lcc <- props2$clustCoef_lcc
   
-  if(is.na(clustCoef1)){
+  if (is.na(clustCoef1)) {
     clustCoef1 <- clustCoef1_lcc <- 0
-  } 
+  }
   
-  if(is.na(clustCoef2)){
+  if (is.na(clustCoef2)) {
     clustCoef2 <- clustCoef2_lcc <- 0
-  } 
+  }
   
   diffclustcoef <- abs(clustCoef1 - clustCoef2)
   diffclustcoef_lcc <- abs(clustCoef1_lcc - clustCoef2_lcc)
   
   #--------------------------------------------------------------------------
   # differential Modularity
-  if(clustMethod != "none"){
+  
+  if (clustMethod != "none") {
     modul1 <- props1$modul
     modul2 <- props2$modul
     
@@ -129,13 +132,15 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
     diffmod <- abs(modul1 - modul2)
     diffmod_lcc <- abs(modul1_lcc - modul2_lcc)
     
-  } else{
+  } else {
     modul1 <- modul2 <- modul1_lcc <- modul2_lcc <- NA
     diffmod <- diffmod_lcc <- NA
   }
 
   #--------------------------------------------------------------------------
-  if(connectivity){
+  # connectivity
+  
+  if (connectivity) {
     # vertex connectivity
     diffvertconnect <- abs(props1$vertconnect - props2$vertconnect)
     diffvertconnect_lcc <- abs(props1$vertconnect_lcc - props2$vertconnect_lcc)
@@ -143,36 +148,42 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
     # edge connectivity
     diffedgconnect <- abs(props1$edgeconnect - props2$edgeconnect)
     diffedgconnect_lcc <- abs(props1$edgeconnect_lcc - props2$edgeconnect_lcc)
-  } else{
+  } else {
     diffvertconnect <- diffvertconnect_lcc <- NA
     diffedgconnect <- diffedgconnect_lcc <- NA
   }
   
   #--------------------------------------------------------------------------
   # natural connectivity
+  
   diffnatconnect <- abs(props1$natConnect - props2$natConnect)
   diffnatconnect_lcc <- abs(props1$natConnect_lcc - props2$natConnect_lcc)
   
   #--------------------------------------------------------------------------
   # density (relative number of edges)
+  
   diffdensity <- abs(props1$density - props2$density)
   diffdensity_lcc <- abs(props1$density_lcc - props2$density_lcc)
   
   #--------------------------------------------------------------------------
   # positive-to-negative ratio
+  
   diffpep <- abs(props1$pep - props2$pep)
   diffpep_lcc <- abs(props1$pep_lcc - props2$pep_lcc)
   
   #--------------------------------------------------------------------------
   # number of connected components
+  
   diffncomp <- abs(props1$nComp - props2$nComp)
   
   #--------------------------------------------------------------------------
   # size of the largest connected component
+  
   difflccsize <- abs(props1$lccSize - props2$lccSize)
   
   #--------------------------------------------------------------------------
   # relative LCC size
+  
   difflccsizerel <- abs(props1$lccSizeRel - props2$lccSizeRel)
   
   #--------------------------------------------------------------------------
@@ -194,38 +205,42 @@ calc_diff_props <- function(adja1, adja2, dissMat1, dissMat2, assoMat1, assoMat2
   clust1_lcc[c1names] <- clust1_lcc.tmp
   clust2_lcc[c2names] <- clust2_lcc.tmp
   
-  if(isempty1 || isempty2){
+  if (isempty1 || isempty2) {
     randInd <- randInd_lcc <- NA
     
-  } else{
+  } else {
     randInd <- c(value = WGCNA::randIndex(table(clust1, clust2), adjust = TRUE), 
                  pval = NA)
     
     randInd_lcc <- c(value = WGCNA::randIndex(table(clust1_lcc, clust2_lcc),
-                                             adjust = TRUE),
-                    pval = NA)
+                                             adjust = TRUE), pval = NA)
 
     # significance test for Rand index
-    if(testRand){
-      randInd["pval"] <- .sigTestRand(randInd = randInd[1], 
+    if (testRand) {
+      randInd["pval"] <- .sigTestRand(randInd = randInd[1],
                                       nPermRand = nPermRand,
                                       clust1 = clust1, clust2 = clust2)
       
-      randInd_lcc["pval"] <- .sigTestRand(randInd = randInd_lcc[1], 
+      randInd_lcc["pval"] <- .sigTestRand(randInd = randInd_lcc[1],
                                           nPermRand = nPermRand,
-                                          clust1 = clust1_lcc, 
+                                          clust1 = clust1_lcc,
                                           clust2 = clust2_lcc)
     }
   }
   
   #--------------------------------------------------------------------------
   # Jaccard Index
-
-  jaccDeg <-    calc_jaccard(props1$topdeg, props2$topdeg, sigTest = testJacc)
-  jaccBetw <-   calc_jaccard(props1$topbetw, props2$topbetw, sigTest = testJacc)
-  jaccClose <-  calc_jaccard(props1$topclose, props2$topclose, sigTest = testJacc)
-  jaccEigen <-  calc_jaccard(props1$topeigen, props2$topeigen, sigTest = testJacc)
-  jaccHub <-    calc_jaccard(props1$hubs, props2$hubs, sigTest = testJacc)
+  
+  jaccDeg <-
+    calc_jaccard(props1$topdeg, props2$topdeg, sigTest = testJacc)
+  jaccBetw <-
+    calc_jaccard(props1$topbetw, props2$topbetw, sigTest = testJacc)
+  jaccClose <-
+    calc_jaccard(props1$topclose, props2$topclose, sigTest = testJacc)
+  jaccEigen <-
+    calc_jaccard(props1$topeigen, props2$topeigen, sigTest = testJacc)
+  jaccHub <-
+    calc_jaccard(props1$hubs, props2$hubs, sigTest = testJacc)
   
   #--------------------------------------------------------------------------
   # Graphlet Correlation Distance (GCD)
