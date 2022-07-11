@@ -1,4 +1,4 @@
-condition_handling <- function(dataType,
+.conditionHandling <- function(dataType,
                                assoType,
                                data2,
                                measure,

@@ -1,4 +1,4 @@
-argcheck_plot_diffnet<- function(args) {
+.checkArgsPlotDiff<- function(args) {
 
   # x
   stopifnot(inherits(args$x, "diffnet"))

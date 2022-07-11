@@ -1,4 +1,4 @@
-except_plot_networks<- function(args) {
+.exceptPlotNetworks<- function(args) {
   
   twoNets <- args$x$input$twoNets
   

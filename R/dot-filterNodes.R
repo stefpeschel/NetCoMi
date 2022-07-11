@@ -1,4 +1,4 @@
-filter_nodes <- function(adja, nodeFilter, nodeFilterPar, layout,
+.filterNodes <- function(adja, nodeFilter, nodeFilterPar, layout,
                          degree, between, close, eigen, cluster) {
   
   adja.alltax <- adja

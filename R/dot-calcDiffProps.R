@@ -1,4 +1,4 @@
-calc_diff_props <- function(adja1,
+.calcDiffProps <- function(adja1,
                             adja2,
                             dissMat1,
                             dissMat2,
@@ -36,7 +36,7 @@ calc_diff_props <- function(adja1,
   isempty2 <- all(adja2[lower.tri(adja2)] == 0)
   
   # calculate network properties
-  props1 <- calc_props(adjaMat = adja1, dissMat = dissMat1, assoMat = assoMat1, 
+  props1 <- .calcProps(adjaMat = adja1, dissMat = dissMat1, assoMat = assoMat1, 
                        avDissIgnoreInf = avDissIgnoreInf,
                        sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
                        connectivity = connectivity,
@@ -51,7 +51,7 @@ calc_diff_props <- function(adja1,
                        centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   
-  props2 <- calc_props(adjaMat = adja2, dissMat = dissMat2, assoMat = assoMat2, 
+  props2 <- .calcProps(adjaMat = adja2, dissMat = dissMat2, assoMat = assoMat2, 
                        avDissIgnoreInf = avDissIgnoreInf,
                        sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
                        connectivity = connectivity,
@@ -253,15 +253,15 @@ calc_diff_props <- function(adja1,
   # Jaccard Index
   
   jaccDeg <-
-    calc_jaccard(props1$topdeg, props2$topdeg, sigTest = testJacc)
+    .calcJaccard(props1$topdeg, props2$topdeg, sigTest = testJacc)
   jaccBetw <-
-    calc_jaccard(props1$topbetw, props2$topbetw, sigTest = testJacc)
+    .calcJaccard(props1$topbetw, props2$topbetw, sigTest = testJacc)
   jaccClose <-
-    calc_jaccard(props1$topclose, props2$topclose, sigTest = testJacc)
+    .calcJaccard(props1$topclose, props2$topclose, sigTest = testJacc)
   jaccEigen <-
-    calc_jaccard(props1$topeigen, props2$topeigen, sigTest = testJacc)
+    .calcJaccard(props1$topeigen, props2$topeigen, sigTest = testJacc)
   jaccHub <-
-    calc_jaccard(props1$hubs, props2$hubs, sigTest = testJacc)
+    .calcJaccard(props1$hubs, props2$hubs, sigTest = testJacc)
   
   #--------------------------------------------------------------------------
   # Graphlet Correlation Distance (GCD)

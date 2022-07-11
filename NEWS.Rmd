@@ -24,6 +24,92 @@ Function for editing node labels, i.e., shortening to a certain length and
 removing unwanted characters. It is used by NetCoMi's plot functions 
 plot.microNetProps() and plot.diffnet().
 
+### Style changes
+
+##### R code reformatted
+
+##### Functions renamed
+
+Internal functions have been renamed to follow general naming conventions, 
+i.e. that of [Bioconductor](https://contributions.bioconductor.org/r-code.html):
+
+* Use camelCase for all functions
+* Non-exported functions have prefix "."
+
+The following functions have been renamed:
+
+```{r, echo=FALSE, results='asis'}
+library(knitr)
+
+
+oldnames <- c(
+  "boottest",
+  "calc_association",
+  "calc_diff_props",
+  "calc_jaccard",
+  "calc_props",
+  "checkPack",
+  "condition_handling",
+  "diff_connect_pairs",
+  "diff_connect_variables",
+  "diff_connect_network",
+  "except_plot_networks",
+  "filter_edges",
+  "filter_nodes",
+  "filter_samples",
+  "filter_taxa",
+  "first_unequal_element",
+  "get_clust_cols",
+  "get_node_size",
+  "get_perm_group_mat",
+  "get_vec_names",
+  "norm_counts",
+  "permtest_diff_asso",
+  "scale_diss",
+  "sparsify",
+  "trans_to_diss",
+  "trans_to_sim",
+  "trans_to_adja",
+  "zero_treat"
+)
+
+newnames <- c(
+  ".boottest",
+  ".calcAssociation",
+  ".calcDiffProps",
+  ".calcJaccard",
+  ".calcProps",
+  ".checkPack",
+  ".conditionHandling",
+  ".diffConnectPairs",
+  ".diffConnectVariables",
+  ".diffConnectNetwork",
+  ".exceptPlotNetworks",
+  ".filterEdges",
+  ".filterNodes",
+  ".firstUnequalElement",
+  ".filterSamples",
+  ".filterTaxa",
+  ".getClustCols",
+  ".getNodeSize",
+  ".getPermGroupMat",
+  ".getVecNames",
+  ".normCounts",
+  ".permTestDiffAsso",
+  ".scaleDiss",
+  ".sparsify",
+  ".transToDiss",
+  ".transToSim",
+  ".transToAdja",
+  ".zeroTreat"
+)
+
+namemat <- cbind(oldnames, newnames)
+colnames(namemat) <- c("Old names", "New names")
+kable(namemat)
+```
+
+
 
 ## NetCoMi 1.0.3 
 

@@ -102,7 +102,8 @@ The function creates and returns a matrix with permuted group
   # Run netcompare using the stored permutation count matrices 
   # (association matrices are still computed within netCompare):
   amgut_comp1 <- netCompare(amgut_props, permTest = TRUE, nPerm = 100L, 
-                            fileLoadCountsPerm = c("countsPerm1", "countsPerm2"),
+                            fileLoadCountsPerm = c("countsPerm1", 
+                                                   "countsPerm2"),
                             seed = 123456)
                             
   # Run netcompare using the stored permutation association matrices:

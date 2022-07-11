@@ -189,7 +189,7 @@ createAssoPerm <- function(x,
       message("Create matrix with permuted group labels ... ", appendLF = FALSE)
     }
     
-    perm_group_mat <- get_perm_group_mat(n1 = n1, n2 = n2, n = n, nPerm = nPerm, 
+    perm_group_mat <- .getPermGroupMat(n1 = n1, n2 = n2, n = n, nPerm = nPerm, 
                                          matchDesign = matchDesign)
     
     if (verbose) {
@@ -386,7 +386,7 @@ createAssoPerm <- function(x,
         "DESeq2",
         "filematrix"
       ),
-      .export = c("calc_association", "cclasso", "gcoda"),
+      .export = c(".calcAssociation", "cclasso", "gcoda"),
       .options.snow = opts
     ) %do_or_dopar% {
       
@@ -413,7 +413,7 @@ createAssoPerm <- function(x,
         # were given or dissimilarity network is created
         
         suppressMessages(
-          count1.tmp <- zero_treat(countMat = count1.tmp, 
+          count1.tmp <- .zeroTreat(countMat = count1.tmp, 
                                    zeroMethod = parNC$zeroMethod,
                                    zeroParam = parNC$zeroPar, 
                                    needfrac = parNC$needfrac,
@@ -421,7 +421,7 @@ createAssoPerm <- function(x,
                                    verbose = FALSE))
         
         suppressMessages(
-          count2.tmp <- zero_treat(countMat = count2.tmp, 
+          count2.tmp <- .zeroTreat(countMat = count2.tmp, 
                                    zeroMethod = parNC$zeroMethod,
                                    zeroParam = parNC$zeroPar, 
                                    needfrac = parNC$needfrac,
@@ -429,7 +429,7 @@ createAssoPerm <- function(x,
                                    verbose = FALSE))
         
         suppressMessages(
-          count1.tmp <- norm_counts(countMat = count1.tmp, 
+          count1.tmp <- .normCounts(countMat = count1.tmp, 
                                     normMethod = parNC$normMethod,
                                     normParam = parNC$normPar, 
                                     zeroMethod = parNC$zeroMethod,
@@ -437,7 +437,7 @@ createAssoPerm <- function(x,
                                     verbose = FALSE))
         
         suppressMessages(
-          count2.tmp <- norm_counts(countMat = count2.tmp, 
+          count2.tmp <- .normCounts(countMat = count2.tmp, 
                                     normMethod = parNC$normMethod,
                                     normParam = parNC$normPar, 
                                     zeroMethod = parNC$zeroMethod,
@@ -459,11 +459,11 @@ createAssoPerm <- function(x,
         close(fmat_counts2)
       }
       
-      assoMat1.tmp <- calc_association(count1.tmp,
+      assoMat1.tmp <- .calcAssociation(count1.tmp,
                                        measure = parNC$measure,
                                        measurePar = parNC$measurePar,
                                        verbose = FALSE)
-      assoMat2.tmp <- calc_association(count2.tmp,
+      assoMat2.tmp <- .calcAssociation(count2.tmp,
                                        measure = parNC$measure,
                                        measurePar = parNC$measurePar,
                                        verbose = FALSE)

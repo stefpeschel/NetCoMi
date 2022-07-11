@@ -370,7 +370,7 @@ netAnalyze <- function(net,
     message("Compute network properties for group 1 ...")
   }
   
-  props1 <- calc_props(adjaMat = adja1,
+  props1 <- .calcProps(adjaMat = adja1,
                        dissMat = x$dissMat1,
                        assoMat = x$assoMat1,
                        centrLCC = centrLCC,
@@ -403,7 +403,7 @@ netAnalyze <- function(net,
       message("Compute network properties for group 2 ...")
     }
     
-    props2 <- calc_props(adjaMat = adja2,
+    props2 <- .calcProps(adjaMat = adja2,
                          dissMat = x$dissMat2,
                          assoMat = x$assoMat2,
                          centrLCC = centrLCC,

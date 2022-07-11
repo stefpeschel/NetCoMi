@@ -72,7 +72,7 @@
 #' @importFrom pulsar natural.connectivity
 
 
-calc_props <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
+.calcProps <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
                        sPathNorm, sPathAlgo, normNatConnect, 
                        weighted, isempty, clustMethod, clustPar, 
                        weightClustCoef, hubPar, hubQuant, lnormFit, 

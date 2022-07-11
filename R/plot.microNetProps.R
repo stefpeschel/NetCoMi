@@ -451,7 +451,7 @@ plot.microNetProps <- function(x,
   
   inputArgs <- c(as.list(environment()), list(...))
   
-  outputArgs <- except_plot_networks(inputArgs)
+  outputArgs <- .exceptPlotNetworks(inputArgs)
   
   for (i in 1:length(outputArgs)) {
     assign(names(outputArgs)[i], outputArgs[[i]])
@@ -483,10 +483,10 @@ plot.microNetProps <- function(x,
   #=============================================================================
   # Edge and node filtering
   
-  adja1 <- filter_edges(adja = adja1_orig, edgeFilter = edgeFilter,
+  adja1 <- .filterEdges(adja = adja1_orig, edgeFilter = edgeFilter,
                         edgeFilterPar = edgeFilterPar)
   
-  keep1 <- filter_nodes(adja = adja1, nodeFilter = nodeFilter,
+  keep1 <- .filterNodes(adja = adja1, nodeFilter = nodeFilter,
                         nodeFilterPar = nodeFilterPar, layout = layout,
                         degree = x$centralities$degree1,
                         between = x$centralities$between1,
@@ -497,10 +497,10 @@ plot.microNetProps <- function(x,
   if (twoNets) {
     adja2_orig <- x$input$adjaMat2
     
-    adja2 <- filter_edges(adja = adja2_orig, edgeFilter = edgeFilter,
+    adja2 <- .filterEdges(adja = adja2_orig, edgeFilter = edgeFilter,
                           edgeFilterPar = edgeFilterPar)
     
-    keep2 <- filter_nodes(adja = adja2_orig, nodeFilter = nodeFilter,
+    keep2 <- .filterNodes(adja = adja2_orig, nodeFilter = nodeFilter,
                           nodeFilterPar = nodeFilterPar, layout = layout,
                           degree = x$centralities$degree2,
                           between = x$centralities$between2,
@@ -618,7 +618,7 @@ plot.microNetProps <- function(x,
     clust2 <- x$clustering$clust2
     
     if (!(is.null(clust1) & is.null(clust2))) {
-      clustcolors <- get_clust_cols(clust1 = clust1, clust2 = clust2,
+      clustcolors <- .getClustCols(clust1 = clust1, clust2 = clust2,
                                     adja1 = adja1, adja2 = adja2,
                                     kept1 = kept1, kept2 = kept2,
                                     isempty1 = isempty1, isempty2 = isempty2,
@@ -792,7 +792,7 @@ plot.microNetProps <- function(x,
     } else {
       counts.tmp <- x$input$countMat1
     }
-    nodeSize1 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
+    nodeSize1 <- .getNodeSize(nodeSize = nodeSize, normPar = normPar,
                                nodeSizeSpread = nodeSizeSpread,
                                adja = adja1, countMat = counts.tmp,
                                normCounts = x$input$normCounts1,
@@ -810,7 +810,7 @@ plot.microNetProps <- function(x,
       } else {
         counts.tmp <- x$input$countMat2
       }
-      nodeSize2 <- get_node_size(nodeSize = nodeSize, normPar = normPar,
+      nodeSize2 <- .getNodeSize(nodeSize = nodeSize, normPar = normPar,
                                  nodeSizeSpread = nodeSizeSpread,
                                  adja = adja2, countMat = counts.tmp,
                                  normCounts = x$input$normCounts2, 
@@ -1205,7 +1205,7 @@ plot.microNetProps <- function(x,
   # Filter edges without influencing the layout (group 1)
   
   if (edgeInvisFilter != "none") {
-    adja1 <- filter_edges(adja1, edgeFilter = edgeInvisFilter,
+    adja1 <- .filterEdges(adja1, edgeFilter = edgeInvisFilter,
                           edgeFilterPar = edgeInvisPar)
   }
   
@@ -1329,7 +1329,7 @@ plot.microNetProps <- function(x,
     # Filter edges without influencing the layout (group 2)
     
     if (edgeInvisFilter != "none") {
-      adja2 <- filter_edges(adja2, edgeFilter = edgeInvisFilter,
+      adja2 <- .filterEdges(adja2, edgeFilter = edgeInvisFilter,
                             edgeFilterPar = edgeInvisPar)
     }
     

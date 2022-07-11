@@ -141,7 +141,7 @@ plot.diffnet <- function(x,
   
   inputArgs <- c(as.list(environment()), list(...))
   
-  outputArgs <- argcheck_plot_diffnet(inputArgs)
+  outputArgs <- .checkArgsPlotDiff(inputArgs)
   
   for (i in 1:length(outputArgs)) {
     assign(names(outputArgs)[i], outputArgs[[i]])
@@ -262,7 +262,7 @@ plot.diffnet <- function(x,
     lowtri <- lower.tri(corrMat1, diag = FALSE)
     corrVec1 <- corrMat1[lowtri]
     corrVec2 <- corrMat2[lowtri]
-    vector_names <- get_vec_names(t(corrMat1))
+    vector_names <- .getVecNames(t(corrMat1))
     names(corrVec1) <- vector_names
     names(corrVec2) <- vector_names
     

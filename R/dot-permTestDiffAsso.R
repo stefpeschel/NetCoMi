@@ -88,7 +88,7 @@
 #'
 #' @seealso \code{\link{diffnet}}
 
-permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
+.permTestDiffAsso <- function(countMat1, countMat2, countsJoint,
                                normCounts1, normCounts2,
                                assoMat1, assoMat2, 
                                paramsNetConstruct,
@@ -194,7 +194,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
     close(fmat_counts2)
     
   } else {
-    perm_group_mat <- get_perm_group_mat(n1 = n1, n2 = n2, n = n, nPerm = nPerm, 
+    perm_group_mat <- .getPermGroupMat(n1 = n1, n2 = n2, n = n, nPerm = nPerm, 
                                          matchDesign = matchDesign)
   }
   
@@ -276,13 +276,13 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
     p = 1:nPerm,
     .packages = c("filematrix"),
     .export = c(
-      "calc_association",
+      ".calcAssociation",
       "cclasso",
       "gcoda",
-      "diff_connect_pairs",
-      "diff_connect_variables",
-      "diff_connect_network",
-      "get_vec_names"
+      ".diffConnectPairs",
+      ".diffConnectVariables",
+      ".diffConnectNetwork",
+      ".getVecNames"
     ),
     .options.snow = opts
   ) %do_or_dopar% {
@@ -360,7 +360,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
           # were given or dissimilarity network is created
           
           suppressMessages(
-            count1.tmp <- zero_treat(countMat = count1.tmp, 
+            count1.tmp <- .zeroTreat(countMat = count1.tmp, 
                                      zeroMethod = zeroMethod,
                                      zeroParam = zeroPar, 
                                      needfrac = needfrac,
@@ -368,7 +368,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
                                      verbose = FALSE))
           
           suppressMessages(
-            count2.tmp <- zero_treat(countMat = count2.tmp, 
+            count2.tmp <- .zeroTreat(countMat = count2.tmp, 
                                      zeroMethod = zeroMethod,
                                      zeroParam = zeroPar, 
                                      needfrac = needfrac,
@@ -376,7 +376,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
                                      verbose = FALSE))
           
           suppressMessages(
-            count1.tmp <- norm_counts(countMat = count1.tmp, 
+            count1.tmp <- .normCounts(countMat = count1.tmp, 
                                       normMethod = normMethod,
                                       normParam = normPar, 
                                       zeroMethod = zeroMethod,
@@ -384,7 +384,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
                                       verbose = FALSE))
           
           suppressMessages(
-            count2.tmp <- norm_counts(countMat = count2.tmp, 
+            count2.tmp <- .normCounts(countMat = count2.tmp, 
                                       normMethod = normMethod,
                                       normParam = normPar, 
                                       zeroMethod = zeroMethod,
@@ -409,12 +409,12 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
         }
       }
       
-      assoMat1.tmp <- calc_association(count1.tmp,
+      assoMat1.tmp <- .calcAssociation(count1.tmp,
                                        measure = measure,
                                        measurePar = measurePar,
                                        verbose = FALSE)
       
-      assoMat2.tmp <- calc_association(count2.tmp,
+      assoMat2.tmp <- .calcAssociation(count2.tmp,
                                        measure = measure,
                                        measurePar = measurePar,
                                        verbose = FALSE)
@@ -438,20 +438,20 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
     
     # teststatistics for simulated data
     if ("connect.pairs" %in% method) {
-      connectPairs <- diff_connect_pairs(assoMat1.tmp,
+      connectPairs <- .diffConnectPairs(assoMat1.tmp,
                                          assoMat2.tmp,
                                          fisherTrans)
       returnlist[["connectPairs"]] <- connectPairs
     }
     if ("connect.variables" %in% method) {
-      connectVariables <- diff_connect_variables(assoMat1.tmp,
+      connectVariables <- .diffConnectVariables(assoMat1.tmp,
                                                  assoMat2.tmp,
                                                  nVar,
                                                  fisherTrans)
       returnlist[["connectVariables"]] <- connectVariables
     }
     if ("connect.network" %in% method) {
-      connectNetwork <- diff_connect_network(assoMat1.tmp,
+      connectNetwork <- .diffConnectNetwork(assoMat1.tmp,
                                              assoMat2.tmp,
                                              nVar,
                                              fisherTrans)
@@ -473,7 +473,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
   if ("connect.pairs" %in% method) {
     
     # test statistic for original data
-    connectPairsOrig <- diff_connect_pairs(assoMat1, assoMat2, fisherTrans)
+    connectPairsOrig <- .diffConnectPairs(assoMat1, assoMat2, fisherTrans)
     
     # test statistics for simulated data
     connectPairs <- matrix(NA, nPerm, length(connectPairsOrig),
@@ -535,7 +535,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
   
   if ("connect.variables" %in% method) {
     
-    connectVariablesOrig <- diff_connect_variables(assoMat1, assoMat2, nVar, 
+    connectVariablesOrig <- .diffConnectVariables(assoMat1, assoMat2, nVar, 
                                                    fisherTrans)
     
     connectVariables <- matrix(NA, nPerm, length(connectVariablesOrig),
@@ -571,7 +571,7 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
   }
   
   if ("connect.network" %in% method) {
-    connectNetworkOrig <- diff_connect_network(assoMat1, assoMat2, nVar, 
+    connectNetworkOrig <- .diffConnectNetwork(assoMat1, assoMat2, nVar, 
                                                fisherTrans)
     
     connectNetwork <- numeric(nPerm)
@@ -590,13 +590,13 @@ permtest_diff_asso <- function(countMat1, countMat2, countsJoint,
 
 
 # calculate test statistic for differential connectivity for all variable pairs
-diff_connect_pairs <- function(assoMat1, assoMat2, fisherTrans = TRUE) {
+.diffConnectPairs <- function(assoMat1, assoMat2, fisherTrans = TRUE) {
   
   # transform distance matrix to vector
   diag <- lower.tri(assoMat1, diag = FALSE)
   distvec1 <- assoMat1[diag]
   distvec2 <- assoMat2[diag]
-  names(distvec1) <- names(distvec2) <- get_vec_names(assoMat1)
+  names(distvec1) <- names(distvec2) <- .getVecNames(assoMat1)
   
   if (fisherTrans) {
     # Fisher transformation of correlation coefficients
@@ -612,7 +612,7 @@ diff_connect_pairs <- function(assoMat1, assoMat2, fisherTrans = TRUE) {
 
 # calculate test statistic for difference in connectivity between a single
 # variable and all other variables
-diff_connect_variables <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE) {
+.diffConnectVariables <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE) {
   
   if (fisherTrans) {
     # Fisher transformation of correlation coefficients
@@ -641,7 +641,7 @@ diff_connect_variables <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE)
 
 
 # calculate test statistic for difference in connectivity for the whole network
-diff_connect_network <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE) {
+.diffConnectNetwork <- function(assoMat1, assoMat2, nVar, fisherTrans = TRUE) {
   
   if (fisherTrans) {
     # Fisher transformation of correlation coefficients

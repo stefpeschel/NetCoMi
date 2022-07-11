@@ -377,7 +377,7 @@ netCompare <- function(x,
   if (permTest & verbose) message("Calculate network properties ... ",
                                   appendLF = FALSE)
   
-  props <- calc_diff_props(adja1 = adja1, adja2 = adja2,
+  props <- .calcDiffProps(adja1 = adja1, adja2 = adja2,
                            dissMat1 = dissMat1, dissMat2 = dissMat2,
                            assoMat1 = assoMat1, assoMat2 = assoMat2,
                            avDissIgnoreInf = parNA$avDissIgnoreInf,
@@ -486,7 +486,7 @@ netCompare <- function(x,
       }
       
     } else {
-      perm_group_mat <- get_perm_group_mat(n1 = n1, n2 = n2, n = n, 
+      perm_group_mat <- .getPermGroupMat(n1 = n1, n2 = n2, n = n, 
                                            nPerm = nPerm, 
                                            matchDesign = matchDesign)
     }
@@ -564,20 +564,20 @@ netCompare <- function(x,
       p = 1:nPerm,
       .packages = c("filematrix"),
       .export = c(
-        "calc_association",
+        ".calcAssociation",
         "cclasso",
         "gcoda",
         "sparsify",
         "multAdjust",
-        "trans_to_diss",
-        "trans_to_sim",
-        "trans_to_adja",
-        "scale_diss",
-        "norm_counts",
-        "zero_treat",
-        "calc_props",
-        "calc_diff_props",
-        "calc_jaccard"
+        ".transToDiss",
+        ".transToSim",
+        ".transToAdja",
+        ".scaleDiss",
+        ".normCounts",
+        ".zeroTreat",
+        ".calcProps",
+        ".calcDiffProps",
+        ".calcJaccard"
       ),
       .options.snow = opts
       
@@ -650,7 +650,7 @@ netCompare <- function(x,
             # were given or dissimilarity network is created
             
             suppressMessages(
-              count1.tmp <- zero_treat(countMat = count1.tmp,
+              count1.tmp <- .zeroTreat(countMat = count1.tmp,
                                        zeroMethod = parNC$zeroMethod,
                                        zeroParam = parNC$zeroPar,
                                        needfrac = parNC$needfrac,
@@ -659,7 +659,7 @@ netCompare <- function(x,
             )
             
             suppressMessages(
-              count2.tmp <- zero_treat(countMat = count2.tmp,
+              count2.tmp <- .zeroTreat(countMat = count2.tmp,
                                        zeroMethod = parNC$zeroMethod,
                                        zeroParam = parNC$zeroPar,
                                        needfrac = parNC$needfrac,
@@ -668,7 +668,7 @@ netCompare <- function(x,
             )
             
             suppressMessages(
-              count1.tmp <- norm_counts(countMat = count1.tmp,
+              count1.tmp <- .normCounts(countMat = count1.tmp,
                                         normMethod = parNC$normMethod,
                                         normParam = parNC$normPar,
                                         zeroMethod = parNC$zeroMethod,
@@ -677,7 +677,7 @@ netCompare <- function(x,
             )
             
             suppressMessages(
-              count2.tmp <- norm_counts(countMat = count2.tmp,
+              count2.tmp <- .normCounts(countMat = count2.tmp,
                                         normMethod = parNC$normMethod,
                                         normParam = parNC$normPar,
                                         zeroMethod = parNC$zeroMethod,
@@ -699,12 +699,12 @@ netCompare <- function(x,
           }
         }
         
-        assoMat1.tmp <- calc_association(count1.tmp,
+        assoMat1.tmp <- .calcAssociation(count1.tmp,
                                          measure = parNC$measure,
                                          measurePar = parNC$measurePar,
                                          verbose = FALSE)
         
-        assoMat2.tmp <- calc_association(count2.tmp,
+        assoMat2.tmp <- .calcAssociation(count2.tmp,
                                          measure = parNC$measure,
                                          measurePar = parNC$measurePar,
                                          verbose = FALSE)
@@ -722,8 +722,8 @@ netCompare <- function(x,
       #----------------------------------------------------
       
       if (distNet && parNC$scaleDiss) {
-        assoMat1.tmp <- scale_diss(assoMat1.tmp)
-        assoMat2.tmp <- scale_diss(assoMat1.tmp)
+        assoMat1.tmp <- .scaleDiss(assoMat1.tmp)
+        assoMat2.tmp <- .scaleDiss(assoMat1.tmp)
       }
       
       #----------------------------------------------------
@@ -745,7 +745,7 @@ netCompare <- function(x,
         }
       }
       
-      sparsReslt <- sparsify(assoMat = assoMat1.tmp,
+      sparsReslt <- .sparsify(assoMat = assoMat1.tmp,
                              countMat = count1.tmp,
                              sampleSize = n1,
                              measure = parNC$measure,
@@ -773,19 +773,19 @@ netCompare <- function(x,
         
       } else {
         assoMat1.tmp <- sparsReslt$assoNew
-        dissMat1.tmp <- trans_to_diss(x = assoMat1.tmp,
+        dissMat1.tmp <- .transToDiss(x = assoMat1.tmp,
                                       dissFunc = parNC$dissFunc,
                                       dissFuncPar = parNC$dissFuncPar)
       }
       
-      simMat1.tmp <- trans_to_sim(x = dissMat1.tmp,
+      simMat1.tmp <- .transToSim(x = dissMat1.tmp,
                                   simFunc = parNC$simFunc,
                                   simFuncPar = parNC$simFuncPar)
       
-      adja1.tmp <- trans_to_adja(x = simMat1.tmp, weighted = parNC$weighted)
+      adja1.tmp <- .transToAdja(x = simMat1.tmp, weighted = parNC$weighted)
       
       # network 2
-      sparsReslt <- sparsify( assoMat = assoMat2.tmp,
+      sparsReslt <- .sparsify(assoMat = assoMat2.tmp,
                               countMat = count2.tmp,
                               sampleSize = n2,
                               measure = parNC$measure,
@@ -814,16 +814,16 @@ netCompare <- function(x,
       } else {
         assoMat2.tmp <- sparsReslt$assoNew
         
-        dissMat2.tmp <- trans_to_diss(x = assoMat2.tmp,
+        dissMat2.tmp <- .transToDiss(x = assoMat2.tmp,
                                       dissFunc = parNC$dissFunc,
                                       dissFuncPar = parNC$dissFuncPar)
       }
       
-      simMat2.tmp <- trans_to_sim(x = dissMat2.tmp,
+      simMat2.tmp <- .transToSim(x = dissMat2.tmp,
                                   simFunc = parNC$simFunc,
                                   simFuncPar = parNC$simFuncPar)
       
-      adja2.tmp <- trans_to_adja(x = simMat2.tmp, weighted = parNC$weighted)
+      adja2.tmp <- .transToAdja(x = simMat2.tmp, weighted = parNC$weighted)
       
       dimnames(adja1.tmp) <- dimnames(adja1)
       dimnames(adja2.tmp) <- dimnames(adja2)
@@ -835,7 +835,7 @@ netCompare <- function(x,
       #----------------------------------------------------
       # compute network properties
       
-      prop.tmp <- calc_diff_props(adja1 = adja1.tmp,
+      prop.tmp <- .calcDiffProps(adja1 = adja1.tmp,
                                   adja2 = adja2.tmp,
                                   dissMat1 = dissMat1.tmp,
                                   dissMat2 = dissMat2.tmp,

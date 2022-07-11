@@ -16,8 +16,8 @@ cclasso(
 )
 }
 \arguments{
-\item{x}{numeric matrix (\emph{n}x\emph{p}) with samples in rows and OTUs/taxa in
-columns.}
+\item{x}{numeric matrix (\emph{n}x\emph{p}) with samples in rows and 
+OTUs/taxa in columns.}
 
 \item{counts}{logical indicating whether x constains counts or fractions.
 Defaults to \code{FALSE} meaning that x contains fractions so that rows
@@ -49,9 +49,9 @@ A list containing the following elements:
   \code{lam}\tab Final tuning parameter}
 }
 \description{
-Implementation of the CCLasso approach \cite{(Fang et al., 2015)},
-  which is published on GitHub \cite{(Fang, 2016)}. The function is extended
-  by a progress message.
+Implementation of the CCLasso approach 
+  \cite{(Fang et al., 2015)}, which is published on GitHub 
+  \cite{(Fang, 2016)}. The function is extended by a progress message.
 }
 \references{
 \insertRef{fang2015cclasso}{NetCoMi}\cr\cr

@@ -1,4 +1,4 @@
-calc_jaccard <- function(group1, group2, sigTest, greater) {
+.calcJaccard <- function(group1, group2, sigTest, greater) {
   N <- length(union(group1, group2))
   C <- length(intersect(group1, group2))
   jacc <- ifelse(N>0, C/N, 0)

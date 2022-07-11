@@ -9,7 +9,7 @@
 #' @param x symmetric matrix for which the column and row names should be
 #'   returned as a vector
 
-get_vec_names <- function(x) {
+.getVecNames <- function(x) {
   
   temp <- matrix(NA, nrow = nrow(x), ncol = nrow(x))
   

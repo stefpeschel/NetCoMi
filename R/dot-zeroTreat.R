@@ -1,4 +1,4 @@
-zero_treat <- function(countMat, zeroMethod, zeroParam, 
+.zeroTreat <- function(countMat, zeroMethod, zeroParam, 
                        needfrac, needint, verbose) {
   
   if (zeroMethod == "none") {

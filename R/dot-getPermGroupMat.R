@@ -1,4 +1,4 @@
-get_perm_group_mat <- function(n1, n2, n, nPerm, matchDesign) {
+.getPermGroupMat <- function(n1, n2, n, nPerm, matchDesign) {
   if (is.null(matchDesign)) {
     
     # group vector: n1 samples in group1 and n2 samples in group 2

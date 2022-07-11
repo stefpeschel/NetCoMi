@@ -1,4 +1,4 @@
-get_node_size <- function(nodeSize, normPar, nodeSizeSpread, adja, countMat, 
+.getNodeSize <- function(nodeSize, normPar, nodeSizeSpread, adja, countMat, 
                           normCounts, assoType, kept, cexNodes, cexHubs, hubs, 
                           highlightHubs, degree, between,  close, eigen) {
   
@@ -76,7 +76,7 @@ get_node_size <- function(nodeSize, normPar, nodeSizeSpread, adja, countMat,
       if (any(countMat == 0)) countMat <- countMat + 1
     }
     
-    normCounts <- norm_counts(countMat, normMethod = nodeSize, 
+    normCounts <- .normCounts(countMat, normMethod = nodeSize, 
                               normParam = normPar, zeroMethod = "none", 
                               needfrac = FALSE, verbose = FALSE)
     

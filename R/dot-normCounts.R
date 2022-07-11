@@ -1,4 +1,4 @@
-norm_counts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
+.normCounts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
                         verbose) {
   
   if (normMethod == "none") {

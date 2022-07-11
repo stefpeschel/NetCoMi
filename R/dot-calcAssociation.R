@@ -18,7 +18,7 @@
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 
-calc_association <- function(countMat, measure, measurePar, verbose) {
+.calcAssociation <- function(countMat, measure, measurePar, verbose) {
   
   if (measure == "pearson") {
     

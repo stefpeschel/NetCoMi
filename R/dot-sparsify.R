@@ -1,4 +1,4 @@
-sparsify <- function(assoMat,
+.sparsify <- function(assoMat,
                      countMat,
                      sampleSize,
                      measure,
@@ -57,7 +57,7 @@ sparsify <- function(assoMat,
       if (is.null(countMat)) {
         stop("Count matrix needed for sparsification via bootstrapping.")
       }
-      pvalsBoot <- boottest(countMat = countMat, assoMat = assoMat,
+      pvalsBoot <- .boottest(countMat = countMat, assoMat = assoMat,
                             nboot = nboot, measure = measure,
                             measurePar = measurePar, parallel = parallel,
                             cores = cores, logFile = logFile, verbose = verbose,

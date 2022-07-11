@@ -1,4 +1,4 @@
-checkPack <- function(measure, zeroMethod, normMethod, sparsMethod, adjust) {
+.checkPack <- function(measure, zeroMethod, normMethod, sparsMethod, adjust) {
   
   needpack <- character()
   

@@ -350,7 +350,7 @@ diffnet <- function(x,
     lowtri <- lower.tri(assoMat1, diag = FALSE)
     corrVector1 <- assoMat1[lowtri]
     corrVector2 <- assoMat2[lowtri]
-    vector_names <- get_vec_names(t(assoMat1))
+    vector_names <- .getVecNames(t(assoMat1))
     names(corrVector1) <- vector_names
     names(corrVector2) <- vector_names
     
@@ -389,7 +389,7 @@ diffnet <- function(x,
         if (parallel::detectCores() < cores) cores <- parallel::detectCores()
       }
       
-      permResult <- permtest_diff_asso(
+      permResult <- .permTestDiffAsso(
         countMat1 = countMat1,
         countMat2 = countMat2,
         countsJoint = countsJoint,

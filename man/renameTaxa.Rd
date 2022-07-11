@@ -46,8 +46,10 @@ name)}
 \item{\code{<subst_rank>}}{Taxonomic rank of substitute name in lower case}
 \item{\code{<subst_Rank>}}{Taxonomic rank of substitute name with first letter 
 in upper case}
-\item{\code{<subst_r>}}{Abbreviated taxonomic rank of substitute name in lower case}
-\item{\code{<subst_R>}}{Abbreviated taxonomic rank of substitute name in upper case}
+\item{\code{<subst_r>}}{Abbreviated taxonomic rank of substitute name in 
+lower case}
+\item{\code{<subst_R>}}{Abbreviated taxonomic rank of substitute name in 
+upper case}
 }}
 
 \item{unknown}{character vector giving the labels of unknown taxa, without 

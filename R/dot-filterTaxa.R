@@ -1,4 +1,4 @@
-filter_taxa <- function(countMat, filter, filterParam) {
+.filterTaxa <- function(countMat, filter, filterParam) {
   
   countMat_orig <- countMat
   #---------------------------------------------------------------------------

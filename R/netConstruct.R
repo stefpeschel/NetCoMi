@@ -794,7 +794,7 @@ netConstruct <- function(data,
   
   verbose <- as.numeric(verbose)
   
-  cond <- condition_handling(dataType = dataType, assoType = assoType,
+  cond <- .conditionHandling(dataType = dataType, assoType = assoType,
                              data2 = data2, measure = measure,
                              normMethod = normMethod, zeroMethod = zeroMethod,
                              sparsMethod = sparsMethod, dissFunc = dissFunc,
@@ -811,7 +811,7 @@ netConstruct <- function(data,
   #-----------------------------------------------------------------------------
   # install missing packages
   
-  checkPack(measure = measure, zeroMethod = zeroMethod, normMethod = normMethod,
+  .checkPack(measure = measure, zeroMethod = zeroMethod, normMethod = normMethod,
             sparsMethod = sparsMethod, adjust = adjust)
   
   #-----------------------------------------------------------------------------
@@ -1085,7 +1085,7 @@ netConstruct <- function(data,
     # sample filtering
     
     if (!twoNets || jointPrepro) {
-      keepRows <- filter_samples(countMat = countMatJoint, filter = filtSamp,
+      keepRows <- .filterSamples(countMat = countMatJoint, filter = filtSamp,
                                  filterParam = filtSampPar)
       
       if (length(keepRows) == 0) {
@@ -1106,10 +1106,10 @@ netConstruct <- function(data,
       n_old1 <- nrow(countMat1)
       n_old2 <- nrow(countMat2)
       
-      keepRows1 <- filter_samples(countMat = countMat1, filter = filtSamp,
+      keepRows1 <- .filterSamples(countMat = countMat1, filter = filtSamp,
                                   filterParam = filtSampPar)
       
-      keepRows2 <- filter_samples(countMat = countMat2, filter = filtSamp,
+      keepRows2 <- .filterSamples(countMat = countMat2, filter = filtSamp,
                                   filterParam = filtSampPar)
       
       if (distNet) {
@@ -1156,7 +1156,7 @@ netConstruct <- function(data,
     # taxa filtering
     
     if (!twoNets || jointPrepro) {
-      keepCols <- filter_taxa(countMat = countMatJoint, filter = filtTax,
+      keepCols <- .filterTaxa(countMat = countMatJoint, filter = filtTax,
                               filterParam = filtTaxPar)
       
       if (length(keepCols) != ncol(countMatJoint)) {
@@ -1174,9 +1174,9 @@ netConstruct <- function(data,
     } else {
       p_old1 <- ncol(countMat1)
       p_old2 <- ncol(countMat2)
-      keepCols1 <- filter_taxa(countMat = countMat1, filter = filtTax,
+      keepCols1 <- .filterTaxa(countMat = countMat1, filter = filtTax,
                                filterParam = filtTaxPar)
-      keepCols2 <- filter_taxa(countMat = countMat2,  filter = filtTax,
+      keepCols2 <- .filterTaxa(countMat = countMat2,  filter = filtTax,
                                filterParam = filtTaxPar)
       
       if (!distNet) {
@@ -1335,7 +1335,7 @@ netConstruct <- function(data,
     if (zeroMethod != "none") {
       if (!twoNets || jointPrepro) {
         if (verbose %in% 2:3) message("\nZero treatment:")
-        countMatJoint <- zero_treat(countMat = countMatJoint, 
+        countMatJoint <- .zeroTreat(countMat = countMatJoint, 
                                     zeroMethod = zeroMethod, 
                                     zeroParam = zeroPar, 
                                     needfrac = needfrac, 
@@ -1343,13 +1343,13 @@ netConstruct <- function(data,
                                     verbose = verbose)
       } else {
         if (verbose %in% 2:3) message("\nZero treatment in group 1:")
-        countMat1 <- zero_treat(countMat = countMat1, 
+        countMat1 <- .zeroTreat(countMat = countMat1, 
                                 zeroMethod = zeroMethod, zeroParam = zeroPar, 
                                 needfrac = needfrac, needint = needint, 
                                 verbose = verbose)
         
         if (verbose %in% 2:3) message("\nZero treatment in group 2:")
-        countMat2 <- zero_treat(countMat = countMat2, 
+        countMat2 <- .zeroTreat(countMat = countMat2, 
                                 zeroMethod = zeroMethod, zeroParam = zeroPar, 
                                 needfrac = needfrac, needint = needint, 
                                 verbose = verbose)
@@ -1372,7 +1372,7 @@ netConstruct <- function(data,
       if (verbose %in% 2:3 & (normMethod != "none" || needfrac)) {
         message("\nNormalization:")
       }
-      countMatJoint <- norm_counts(countMat = countMatJoint, 
+      countMatJoint <- .normCounts(countMat = countMatJoint, 
                                    normMethod = normMethod,
                                    normParam = normPar, 
                                    zeroMethod = zeroMethod,
@@ -1391,14 +1391,14 @@ netConstruct <- function(data,
       if (verbose %in% 2:3 & (normMethod != "none" || needfrac)) {
         message("\nNormalization in group 1:")
       }
-      countMat1 <- norm_counts(countMat = countMat1, normMethod = normMethod,
+      countMat1 <- .normCounts(countMat = countMat1, normMethod = normMethod,
                                normParam = normPar, zeroMethod = zeroMethod,
                                needfrac = needfrac, verbose = verbose)
       
       if (verbose %in% 2:3 & (normMethod != "none" || needfrac)) {
         message("\nNormalization in group 2:")
       }
-      countMat2 <- norm_counts(countMat = countMat2, normMethod = normMethod,
+      countMat2 <- .normCounts(countMat = countMat2, normMethod = normMethod,
                                normParam = normPar, zeroMethod = zeroMethod,
                                needfrac = needfrac, verbose = verbose)
     }
@@ -1461,7 +1461,7 @@ netConstruct <- function(data,
               appendLF = FALSE)
     }
     
-    assoMat1 <- calc_association(countMat = counts1, measure = measure,
+    assoMat1 <- .calcAssociation(countMat = counts1, measure = measure,
                                  measurePar = measurePar, verbose = verbose)
     
     if (verbose %in% 2:3) message("Done.")
@@ -1474,7 +1474,7 @@ netConstruct <- function(data,
                 appendLF = FALSE)
       }
       
-      assoMat2 <- calc_association(countMat = counts2, measure = measure,
+      assoMat2 <- .calcAssociation(countMat = counts2, measure = measure,
                                    measurePar = measurePar, verbose = verbose)
       if (verbose %in% 2:3) message("Done.")
       
@@ -1527,7 +1527,7 @@ netConstruct <- function(data,
       }
     }
     
-    sparsReslt <- sparsify(assoMat = assoMat1,
+    sparsReslt <- .sparsify(assoMat = assoMat1,
                            countMat = counts1,
                            sampleSize = sampleSize[1],
                            measure = measure,
@@ -1557,9 +1557,9 @@ netConstruct <- function(data,
     assoEst1 <- NULL
     dissMat1 <- sparsReslt$assoNew
     power1 <- sparsReslt$power
-    simMat1 <- trans_to_sim(x = dissMat1, simFunc = simFunc, 
+    simMat1 <- .transToSim(x = dissMat1, simFunc = simFunc, 
                             simFuncPar = simFuncPar)
-    adjaMat1 <- trans_to_adja(x = simMat1, weighted = weighted)
+    adjaMat1 <- .transToAdja(x = simMat1, weighted = weighted)
     
     if (twoNets) {
       dissEst2 <- assoMat2
@@ -1588,7 +1588,7 @@ netConstruct <- function(data,
         }
       }
       
-      sparsReslt <- sparsify(assoMat = assoMat2,
+      sparsReslt <- .sparsify(assoMat = assoMat2,
                              countMat = counts2,
                              sampleSize = sampleSize[2],
                              measure = measure,
@@ -1618,9 +1618,9 @@ netConstruct <- function(data,
       assoEst2 <- NULL
       dissMat2 <- sparsReslt$assoNew
       power2 <- sparsReslt$power
-      simMat2 <- trans_to_sim(x = dissMat2, simFunc = simFunc,
+      simMat2 <- .transToSim(x = dissMat2, simFunc = simFunc,
                               simFuncPar = simFuncPar)
-      adjaMat2 <- trans_to_adja(x = simMat2, weighted = weighted)
+      adjaMat2 <- .transToAdja(x = simMat2, weighted = weighted)
       
     } else {
       dissEst2 <- dissScale2 <- assoMat2 <- assoEst2 <- dissMat2 <-
@@ -1636,7 +1636,7 @@ netConstruct <- function(data,
       }
     }
     
-    sparsReslt <- sparsify(assoMat = assoMat1,
+    sparsReslt <- .sparsify(assoMat = assoMat1,
                            countMat = counts1,
                            sampleSize = sampleSize[1],
                            measure = measure,
@@ -1666,17 +1666,17 @@ netConstruct <- function(data,
     power1 <- sparsReslt$power
     dissEst1 <- dissScale1 <- NULL
     
-    dissMat1 <- trans_to_diss(x = assoMat1, dissFunc = dissFunc,
+    dissMat1 <- .transToDiss(x = assoMat1, dissFunc = dissFunc,
                               dissFuncPar = dissFuncPar)
     
     if (sparsMethod == "softThreshold") {
       simMat1 <- sparsReslt$simMat
       adjaMat1 <- assoMat1
     } else {
-      simMat1 <- trans_to_sim(x = dissMat1, simFunc = simFunc,
+      simMat1 <- .transToSim(x = dissMat1, simFunc = simFunc,
                               simFuncPar = simFuncPar)
       
-      adjaMat1 <- trans_to_adja(x = simMat1, weighted = weighted)
+      adjaMat1 <- .transToAdja(x = simMat1, weighted = weighted)
     }
     
     if (twoNets) {
@@ -1687,7 +1687,7 @@ netConstruct <- function(data,
         }
       }
       
-      sparsReslt <- sparsify(assoMat = assoMat2,
+      sparsReslt <- .sparsify(assoMat = assoMat2,
                              countMat = counts2,
                              sampleSize = sampleSize[2],
                              measure = measure,
@@ -1717,17 +1717,17 @@ netConstruct <- function(data,
       power2 <- sparsReslt$power
       dissEst2 <- dissScale2 <- NULL
       
-      dissMat2 <- trans_to_diss(x = assoMat2, dissFunc = dissFunc,
+      dissMat2 <- .transToDiss(x = assoMat2, dissFunc = dissFunc,
                                 dissFuncPar = dissFuncPar)
       
       if (sparsMethod == "softThreshold") {
         simMat2 <- sparsReslt$simMat
         adjaMat2 <- assoMat2
       } else {
-        simMat2 <- trans_to_sim(x = dissMat2, simFunc = simFunc,
+        simMat2 <- .transToSim(x = dissMat2, simFunc = simFunc,
                                 simFuncPar = simFuncPar)
         
-        adjaMat2 <- trans_to_adja(x = simMat2, weighted = weighted)
+        adjaMat2 <- .transToAdja(x = simMat2, weighted = weighted)
       }
       
     } else {

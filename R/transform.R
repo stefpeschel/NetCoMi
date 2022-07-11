@@ -1,4 +1,4 @@
-trans_to_diss <- function(x, dissFunc, dissFuncPar = NULL) {
+.transToDiss <- function(x, dissFunc, dissFuncPar = NULL) {
   
   if (is.function(dissFunc)) {
     dissMat <- do.call(dissFunc, c(list(x), dissFuncPar))
@@ -40,7 +40,7 @@ trans_to_diss <- function(x, dissFunc, dissFuncPar = NULL) {
 }
 
 
-trans_to_sim <- function(x, simFunc, simFuncPar = NULL) {
+.transToSim <- function(x, simFunc, simFuncPar = NULL) {
   if (is.function(simFunc)) {
     simMat <- do.call(simFunc, c(list(x), simFuncPar))
     return(simMat)
@@ -62,7 +62,7 @@ trans_to_sim <- function(x, simFunc, simFuncPar = NULL) {
 }
 
 
-trans_to_adja <- function(x, weighted) {
+.transToAdja <- function(x, weighted) {
   adjaMat <- x
   
   if (!weighted) {
@@ -72,7 +72,7 @@ trans_to_adja <- function(x, weighted) {
 }
 
 
-scale_diss <- function(x) {
+.scaleDiss <- function(x) {
   xUpper <- x[upper.tri(x)]
   xScale <- (x - min(xUpper)) / (max(xUpper) - min(xUpper)  + 1)
   diag(xScale) <- 0

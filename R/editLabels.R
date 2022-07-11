@@ -155,7 +155,7 @@ editLabels <- function(x,
         }
       }
       
-      pos <- first_unequal_element(dupnames)
+      pos <- .firstUnequalElement(dupnames)
       first_unequal <- pos$first_unequal
       all_unequal <- pos$all_unequal
       if (first_unequal == all_unequal) lpat <- 3

@@ -1,0 +1,57 @@
+#' @keywords internal
+.firstUnequalElement <- function(x) {
+  m <- matrix(unlist(x), nrow = length(x), byrow = TRUE)
+  
+  duplsum <- apply(m, 2, function(v) {
+    sum(duplicated(v) | duplicated(v, fromLast = TRUE))
+  })
+  
+  first_unequal <- which(duplsum < nrow(m))[1]
+  
+  all_unequal <- which(duplsum == 0)[1]
+  
+  return(list(first_unequal = first_unequal, all_unequal = all_unequal))
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+.sigTestRand <- function(randInd, nPermRand, clust1, clust2) {
+  randPerm <- numeric(nPermRand)
+  
+  for (i in 1:nPermRand) {
+    clust1.tmp <- gtools::permute(clust1)
+    clust2.tmp <- gtools::permute(clust2)
+    randPerm[i] <- WGCNA::randIndex(table(clust1.tmp, clust2.tmp), 
+                                    adjust = TRUE)
+  }
+  
+  randMean <- mean(randPerm)
+  randSD <- sd(randPerm)
+  
+  normRandPerm <- (randPerm - randMean) / randSD
+  normRand <- (randInd[1] - randMean) / randSD
+  
+  pval <-  (sum(normRandPerm >= abs(normRand)) + 
+              sum(normRandPerm <= -abs(normRand))) / nPermRand
+  
+  return(pval)
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Check condition and add error to 'errs' if not fulfilled 
+.checkArg <- function(cond, msg, errs) {
+  if (!cond) {
+    errs$nerr <- errs$nerr + 1
+    errs$msg <- c(errs$msg, msg)
+  }
+  return(errs)
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Compute empirical permutation p-value.
+# Used in netCompare()
+.calcPermPval <- function(tstat, tstatPerm, nPerm) {
+  (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
+}

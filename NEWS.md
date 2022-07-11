@@ -23,6 +23,52 @@ Function for editing node labels, i.e., shortening to a certain length
 and removing unwanted characters. It is used by NetCoMi’s plot functions
 plot.microNetProps() and plot.diffnet().
 
+### Style changes
+
+##### R code reformatted
+
+##### Functions renamed
+
+Internal functions have been renamed to follow general naming
+conventions, i.e. that of
+[Bioconductor](https://contributions.bioconductor.org/r-code.html):
+
+-   Use camelCase for all functions
+-   Non-exported functions have prefix “.”
+
+The following functions have been renamed:
+
+| Old names              | New names             |
+|:-----------------------|:----------------------|
+| boottest               | .boottest             |
+| calc_association       | .calcAssociation      |
+| calc_diff_props        | .calcDiffProps        |
+| calc_jaccard           | .calcJaccard          |
+| calc_props             | .calcProps            |
+| checkPack              | .checkPack            |
+| condition_handling     | .conditionHandling    |
+| diff_connect_pairs     | .diffConnectPairs     |
+| diff_connect_variables | .diffConnectVariables |
+| diff_connect_network   | .diffConnectNetwork   |
+| except_plot_networks   | .exceptPlotNetworks   |
+| filter_edges           | .filterEdges          |
+| filter_nodes           | .filterNodes          |
+| filter_samples         | .firstUnequalElement  |
+| filter_taxa            | .filterSamples        |
+| first_unequal_element  | .filterTaxa           |
+| get_clust_cols         | .getClustCols         |
+| get_node_size          | .getNodeSize          |
+| get_perm_group_mat     | .getPermGroupMat      |
+| get_vec_names          | .getVecNames          |
+| norm_counts            | .normCounts           |
+| permtest_diff_asso     | .permTestDiffAsso     |
+| scale_diss             | .scaleDiss            |
+| sparsify               | .sparsify             |
+| trans_to_diss          | .transToDiss          |
+| trans_to_sim           | .transToSim           |
+| trans_to_adja          | .transToAdja          |
+| zero_treat             | .zeroTreat            |
+
 ## NetCoMi 1.0.3
 
 This is a minor release with some bug fixes and changes in the
@@ -34,7 +80,7 @@ documentation.
     names, which is fixed.
 
 -   An edge list is added to the output of `netConstruct()` (issue
-    [#41](https://github.com/stefpeschel/NetCoMi/issues/41)). See the
+    [\#41](https://github.com/stefpeschel/NetCoMi/issues/41)). See the
     help page for details.
 
 -   `SPRING`’s fast version of latent correlation computation
@@ -50,23 +96,23 @@ documentation.
 
 -   Labels in the network plot can now be suppressed by setting
     `labels = FALSE` (issue
-    [#43](https://github.com/stefpeschel/NetCoMi/issues/43))
+    [\#43](https://github.com/stefpeschel/NetCoMi/issues/43))
 
 -   The `netCompare()` function threw an error if one of the permutation
     networks was empty, i.e. had no edges with weight different from
     zero (issue
-    [#38](https://github.com/stefpeschel/NetCoMi/issues/38)), which is
+    [\#38](https://github.com/stefpeschel/NetCoMi/issues/38)), which is
     now fixed.
 
--   Fix issues [#29](https://github.com/stefpeschel/NetCoMi/issues/29)
-    and [#40](https://github.com/stefpeschel/NetCoMi/issues/40), where
+-   Fix issues [\#29](https://github.com/stefpeschel/NetCoMi/issues/29)
+    and [\#40](https://github.com/stefpeschel/NetCoMi/issues/40), where
     permutation tests did not terminate for small sample sizes. Now, if
     the possible number of permutations (resulting from the sample size)
     is smaller than that defined by the user, the function stops and
     returns an error.
 
 -   Fix a bug in `diffnet()` (issue
-    [#51](https://github.com/stefpeschel/NetCoMi/issues/51)), where
+    [\#51](https://github.com/stefpeschel/NetCoMi/issues/51)), where
     colors in differential networks could not be changed.
 
 -   `diffnet()` threw an error if the `netConstruct()` argument

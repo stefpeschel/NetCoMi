@@ -1,4 +1,4 @@
-filter_samples <- function(countMat, filter, filterParam) {
+.filterSamples <- function(countMat, filter, filterParam) {
   
   countMat_orig <- countMat
   

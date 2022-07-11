@@ -1,4 +1,4 @@
-filter_edges <- function(adja, edgeFilter, edgeFilterPar) {
+.filterEdges <- function(adja, edgeFilter, edgeFilterPar) {
   
   if (edgeFilter == "threshold") {
     

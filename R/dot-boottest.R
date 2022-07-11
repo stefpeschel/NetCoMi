@@ -28,7 +28,7 @@
 #'   \code{corrMat}\tab estimated correlation matrix}
 #' @references{\insertRef{friedman2012inferring}{NetCoMi}}
 
-boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
+.boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                      parallel = FALSE, cores = 4, logFile = NULL,
                      verbose = TRUE, seed = NULL) {
   
@@ -63,7 +63,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       b = 1:nboot,
       .packages = c("gtools", "vegan", "LaplacesDemon"),
       .export = c(
-        "calc_association",
+        ".calcAssociation",
         "sparcc",
         "cclasso",
         "cclasso.sub",
@@ -89,7 +89,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       })
       colnames(count.tmp) <- colnames(countMat)
       
-      assoMat.tmp <- calc_association(count.tmp,
+      assoMat.tmp <- .calcAssociation(count.tmp,
                                       measure = measure,
                                       measurePar = measurePar)
       
@@ -131,7 +131,7 @@ boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
       })
       colnames(count.tmp) <- colnames(countMat)
       
-      assoMat.tmp <- calc_association(count.tmp, measure = measure,
+      assoMat.tmp <- .calcAssociation(count.tmp, measure = measure,
                                       measurePar = measurePar)
       
       reslist[[b]] <- assoMat.tmp
