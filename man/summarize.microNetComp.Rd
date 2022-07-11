@@ -8,10 +8,14 @@
 \method{summary}{microNetComp}(
   object,
   groupNames = NULL,
-  showRand = TRUE,
   showCentr = "all",
-  pAdjust = TRUE,
   numbNodes = 10L,
+  showGlobal = TRUE,
+  showGlobalLCC = TRUE,
+  showJacc = TRUE,
+  showRand = TRUE,
+  showGCD = TRUE,
+  pAdjust = TRUE,
   digits = 3L,
   digitsPval = 6L,
   ...
@@ -25,19 +29,36 @@
 
 \item{groupNames}{character vector with two elements giving the group names
 for the two networks. If \code{NULL}, the names are adopted
-from \code{object}}
+from \code{object}.}
 
 \item{showCentr}{character vector indicating which centrality measures
 should be included in the summary. Possible values are "all", "degree",
 "betweenness", "closeness", "eigenvector" and "none".}
 
-\item{pAdjust}{logical. If \code{TRUE} the permutation p-values adjusted for
-multiple testing are shown.}
-
 \item{numbNodes}{integer indicating for how many nodes the centrality
 values shall be printed. Defaults to 10 meaning that the first 10 taxa
 with highest absolute group difference of the specific centrality
 measure are shown.}
+
+\item{showGlobal}{logical. If \code{TRUE}, global network properties for the 
+whole network are printed.}
+
+\item{showGlobalLCC}{logical. If \code{TRUE}, global network properties for 
+the largest connected component are printed. If the network is connected 
+(number of components is 1) the global properties are printed only once 
+(if one of the arguments \code{showGlobal} and \code{showGlobalLCC}) is 
+\code{TRUE}.}
+
+\item{showJacc}{logical. If \code{TRUE}, the Jaccard index is printed.}
+
+\item{showRand}{logical. If \code{TRUE}, the adjusted Rand index (if 
+existent) is returned.}
+
+\item{showGCD}{logical. If \code{TRUE}, the Graphlet Correlation Distance 
+(if existent) is printed.}
+
+\item{pAdjust}{logical. The permutation p-values (if existent) are adjusted 
+if \code{TRUE} (default) and not adjusted if \code{FALSE}.}
 
 \item{digits}{integer giving the number of decimal places to which the 
 results are rounded. Defaults to 3L.}
@@ -45,10 +66,10 @@ results are rounded. Defaults to 3L.}
 \item{digitsPval}{integer giving the number of decimal places to which the 
 p-values are rounded. Defaults to 6L.}
 
-\item{...}{not used}
+\item{...}{not used.}
 
 \item{x}{object of class \code{summary.microNetComp} (returned by 
-to \code{\link{summary.microNetComp}}).}
+\code{\link{summary.microNetComp}}).}
 }
 \description{
 The main results returned by \code{\link{netCompare}} are

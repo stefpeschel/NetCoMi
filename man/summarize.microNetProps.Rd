@@ -8,7 +8,12 @@
 \method{summary}{microNetProps}(
   object,
   groupNames = NULL,
+  showCompSize = TRUE,
+  showGlobal = TRUE,
+  showGlobalLCC = TRUE,
+  showCluster = TRUE,
   clusterLCC = FALSE,
+  showHubs = TRUE,
   showCentr = "all",
   numbNodes = NULL,
   digits = 5L,
@@ -25,8 +30,23 @@
 corresponding to the two networks. If \code{NULL}, the names are adopted
 from \code{object}. Ignored if \code{object} contains a single network.}
 
+\item{showCompSize}{logical. If \code{TRUE}, the component sizes are printed.}
+
+\item{showGlobal}{logical. If \code{TRUE}, global network properties for the 
+whole network are printed.}
+
+\item{showGlobalLCC}{logical. If \code{TRUE}, global network properties for 
+the largest connected component are printed. If the network is connected 
+(number of components is 1) the global properties are printed only once 
+(if one of the arguments \code{showGlobal} and \code{showGlobalLCC}) is 
+\code{TRUE}.}
+
+\item{showCluster}{logical. If \code{TRUE}, the cluster(s) are printed.}
+
 \item{clusterLCC}{logical. If \code{TRUE}, clusters are printed only for the
 largest connected component. Defaults to \code{FALSE} (whole network).}
+
+\item{showHubs}{logical. If \code{TRUE}, the detected hubs are printed.}
 
 \item{showCentr}{character vector indicating for which centrality measures
 the results shall be printed. Possible values are "all", "degree",
@@ -44,7 +64,7 @@ the second group.}
 \item{digits}{integer giving the number of decimal places to which the 
 results are rounded. Defaults to 5L.}
 
-\item{...}{not used}
+\item{...}{not used.}
 
 \item{x}{object of class \code{summary.microNetProps} (returned by 
 to \code{\link{summary.microNetProps}}).}

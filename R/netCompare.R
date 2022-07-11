@@ -1068,7 +1068,7 @@ netCompare <- function(x,
     
     pvalDiffGlobal <-  pvalDiffGlobalLCC <- list()
     
-    pvalDiffGlobalLCC[["pvalnComp"]] <- 
+    pvalDiffGlobal[["pvalnComp"]] <- 
       .calcPermPval(tstat = props$diffsGlobal[["diffnComp"]],
                     tstatPerm = permDiffsGlobal[, "diffnComp"],
                     nPerm = nPerm)

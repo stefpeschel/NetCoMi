@@ -71,3 +71,21 @@
 .calcPermPval <- function(tstat, tstatPerm, nPerm) {
   (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
 }
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Function for creating significance codes
+# Used in summary.microNetComp
+.getSigCode <- function(x) {
+  if (x <= 0.001) {
+    return("***")
+  } else if (x <= 0.01) {
+    return("** ")
+  } else if (x <= 0.05) {
+    return("*  ")
+  } else if (x <= 0.1) {
+    return(".  ")
+  } else {
+    return(" ")
+  }
+}
