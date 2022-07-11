@@ -448,13 +448,13 @@ plot.microNetProps <- function(x,
                                mar = c(1, 3, 3, 3),
                                doPlot = TRUE,
                                ...) {
+
+  argsIn <- as.list(environment())
   
-  inputArgs <- c(as.list(environment()), list(...))
-  
-  outputArgs <- .exceptPlotNetworks(inputArgs)
-  
-  for (i in 1:length(outputArgs)) {
-    assign(names(outputArgs)[i], outputArgs[[i]])
+  argsOut <- .checkArgsPlotMNP(argsIn)
+
+  for (i in 1:length(argsOut)) {
+    assign(names(argsOut)[i], argsOut[[i]])
   }
   
   xgroups <- x$input$groups

@@ -139,13 +139,16 @@ plot.diffnet <- function(x,
                          mar = c(2,2,4,6),
                          ...) {
   
-  inputArgs <- c(as.list(environment()), list(...))
+  # Check input arguments
+  argsIn <- as.list(environment())
   
-  outputArgs <- .checkArgsPlotDiff(inputArgs)
+  argsOut <- .checkArgsPlotDiff(argsIn)
   
-  for (i in 1:length(outputArgs)) {
-    assign(names(outputArgs)[i], outputArgs[[i]])
+  for (i in 1:length(argsOut)) {
+    assign(names(argsOut)[i], argsOut[[i]])
   }
+  
+  #-----------------------------------------------------------------------------
   
   corrMat1 <- x$assoMat1
   corrMat2 <- x$assoMat2

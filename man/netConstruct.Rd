@@ -50,11 +50,13 @@ netConstruct(
 \arguments{
 \item{data}{numeric matrix. Can be a count matrix (rows are samples, columns
 are OTUs/taxa), a phyloseq object, or an association/dissimilarity matrix
-(\code{dataType} must be set).}
-
-\item{data2}{optional numeric matrix corresponding to group 2. Can be either
+(\code{dataType} must be set).
 a second count matrix/phyloseq object or a second association/dissimilarity
 matrix.}
+
+\item{data2}{optional numeric matrix used for constructing a second 
+network (belonging to group 2). Can be either a second count 
+matrix/phyloseq object or a second association/dissimilarity matrix.}
 
 \item{dataType}{character indicating the data type. Defaults to "counts",
 which means that \code{data} (and data2) is a count matrix or object of
@@ -63,8 +65,8 @@ are "correlation", "partialCorr" (partial correlation), "condDependence"
 (conditional dependence), "proportionality" and "dissimilarity".}
 
 \item{group}{optional binary vector used for splitting the data into two
-groups. If \code{group} is \code{NULL} (default), a single network is
-constructed. See details.}
+groups. If \code{group} is \code{NULL} (default) and \code{data2} is not 
+set, a single network is constructed. See details.}
 
 \item{matchDesign}{Numeric vector with two elements specifying an optional 
 matched-group (i.e. matched-pair) design, which is used for the permutation 
@@ -193,11 +195,15 @@ arguments are \code{softThreshType}, \code{softThreshPower}, and
 neighbor graph using \code{\link[cccd]{nng}}. Corresponding
 arguments are \code{kNeighbor}, and \code{knnMutual}.}}}
 
-\item{thresh}{numeric value defining the threshold if \code{sparsMethod} is
-set to \code{"threshold"}. Defaults to 0.3.}
+\item{thresh}{numeric vector with one or two elements defining the threshold 
+used for sparsification if \code{sparsMethod} is set to \code{"threshold"}. 
+If two networks are constructed and one value is given, it is used 
+for both groups. Defaults to 0.3.}
 
-\item{alpha}{significance level. Only used if Student's t-test or bootstrap
-procedure is used as sparsification method. Defaults to 0.05.}
+\item{alpha}{numeric vector with one or two elements indicating the 
+significance level. Only used if Student's t-test or bootstrap
+procedure is used as sparsification method. If two networks are constructed 
+and one value is given, it is used for both groups. Defaults to 0.05.}
 
 \item{adjust}{character indicating the method used for multiple testing
 adjustment (if Student's t-test or bootstrap procedure is used for edge
@@ -216,10 +222,12 @@ by \code{adjust = "adaptBH"}). Accepts the provided options of the
 Can alternatively be \code{"farco"} for
 the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.}
 
-\item{lfdrThresh}{threshold for local FDR (if \code{adjust} is set to
-\code{"locfdr"}). Defaults to 0.2 meaning that associations with a
+\item{lfdrThresh}{numeric vector with one or two elements defining the 
+threshold(s) for local FDR correction (if \code{adjust = "locfdr"}). 
+Defaults to 0.2 meaning that associations with a
 corresponding local FDR less than or equal to 0.2 are identified as
-significant.}
+significant. If two networks are constructed and one value is given, it is 
+used for both groups.}
 
 \item{nboot}{integer indicating the number of bootstrap samples, if
 bootstrapping is used as sparsification method.}
@@ -242,19 +250,22 @@ method (\code{sparsMethod = "softThreshold"}). Possible values are
 to the available options for the argument \code{type} of
 \code{\link[WGCNA]{adjacency}} from \code{WGCNA} package).}
 
-\item{softThreshPower}{power for soft thresholding. Only used if
-\code{edgeSelect} is set to \code{"softThreshold"}. Expects either a single
-numeric value (used for a single or both networks) or a vector with two
-values (one for each network). If no power is set, it is computed using
-\code{\link[WGCNA]{pickSoftThreshold}}, where the argument
+\item{softThreshPower}{numeric vector with one or two elements defining the 
+power for soft thresholding. Only used if
+\code{edgeSelect = "softThreshold"}. If two networks are constructed and 
+one value is given, it is used for both groups. If no power is set, it is 
+computed using \code{\link[WGCNA]{pickSoftThreshold}}, where the argument
 \code{softThreshCut} is needed in addition.}
 
-\item{softThreshCut}{numeric value between 0 and 1 indicating the desired
-minimum scale free topology fitting index (corresponds to the argument
-"RsquaredCut" in \code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.}
+\item{softThreshCut}{numeric vector with one or two elements (each between 0 
+and 1) indicating the desired minimum scale free topology fitting index 
+(corresponds to the argument "RsquaredCut" in 
+\code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.
+If two networks are constructed and one value is given, it is 
+used for both groups.}
 
 \item{kNeighbor}{integer specifying the number of neighbors if the k-nearest
-neighbor method is used for sparsification.Defaults to 3L.}
+neighbor method is used for sparsification. Defaults to 3L.}
 
 \item{knnMutual}{logical used for k-nearest neighbor sparsification. If
 \code{TRUE}, the neighbors must be mutual. Defaults to \code{FALSE}.}
@@ -286,10 +297,12 @@ Defaults to \code{TRUE}.}
 adjacencies. \code{FALSE} leads to a binary adjacency matrix whose entries
 equal 1 for (sparsified) similarity values > 0, and 0 otherwise.}
 
-\item{sampleSize}{integer giving the number of samples that have been used
-for computing the association matrix. Only needed if an association matrix
+\item{sampleSize}{numeric vector with one or two elements giving the number 
+of samples that have been used for computing the association matrix. 
+Only needed if an association matrix
 is given instead of a count matrix and if, in addition, Student's t-test is
-used for edge selection.}
+used for edge selection. If two networks are constructed and one value is 
+given, it is used for both groups.}
 
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,
@@ -520,7 +533,7 @@ plot(props1)
 
 amgut.genus.phy <- phyloseq::tax_glom(amgut2.filt.phy, taxrank = "Rank6")
 
-dim(otu_table(amgut.genus.renamed))
+dim(phyloseq::otu_table(amgut.genus.phy))
 
 # Rename taxonomic table and make Rank6 (genus) unique
 amgut.genus.renamed <- renameTaxa(amgut.genus.phy, pat = "<name>", 
@@ -553,11 +566,11 @@ plot(props_genus,
 # - Association measure: Pearson correlation
 # - Taxa filtering: Keep the 50 taxa with highest frequency
 # - Sample filtering: Keep samples with a total number of reads of at least 
-    1000 and with at least 10 taxa with a non-zero count
+#  1000 and with at least 10 taxa with a non-zero count
 # - Zero replacement: A pseudo count of 0.5 is added to all counts
 # - Normalization: clr transformation
 # - Sparsification: Threshold = 0.3 
-    (an edge exists between taxa with an estimated association >= 0.3)
+#  (an edge exists between taxa with an estimated association >= 0.3)
 
 net2 <- netConstruct(amgut2.filt.phy, 
                      measure = "pearson",

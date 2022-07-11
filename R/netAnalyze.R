@@ -280,48 +280,23 @@ netAnalyze <- function(net,
                        normEigen = TRUE,
                        connectivity = TRUE,
                        graphlet = TRUE,
-                       verbose = TRUE) {
-  x <- net
-  stopifnot(inherits(x, "microNet"))
+                       verbose = 1) {
   
-  if (is.null(clustMethod)) {
-    if (net$assoType == "dissimilarity") {
-      clustMethod <- "hierarchical"
-    } else {
-      clustMethod <- "cluster_fast_greedy"
-    }
-    
-    
-  } else {
-    clustMethod <- match.arg(clustMethod, c("none", "hierarchical",
-                                            "cluster_edge_betweenness",
-                                            "cluster_fast_greedy",
-                                            "cluster_leading_eigen",
-                                            "cluster_louvain",
-                                            "cluster_optimal",
-                                            "cluster_spinglass",
-                                            "cluster_walktrap"))
+  # Check input arguments
+  argsIn <- as.list(environment())
+
+  if (verbose == 2) message("Checking input arguments ... ", appendLF = FALSE)
+  
+  argsOut <- .checkArgsNetAna(argsIn)
+  
+  for (i in 1:length(argsOut)) {
+    assign(names(argsOut)[i], argsOut[[i]])
   }
   
-  if (is.null(clustPar2)) clustPar2 <- clustPar
+  if (verbose == 2) message("Done.")
   
-  hubPar <- match.arg(hubPar, c("degree", "betweenness", "closeness",
-                                "eigenvector"), several.ok = TRUE)
-  
-  sPathAlgo <- match.arg(sPathAlgo, c("automatic", "unweighted",
-                                      "dijkstra", "bellman-ford", 
-                                      "johnson"))
-  
-  verbose <- as.numeric(verbose)
-  
-  if (!is.null(clustPar)) stopifnot(is.list(clustPar))
-  stopifnot(is.logical(lnormFit))
-  stopifnot(is.logical(weightDeg))
-  stopifnot(is.logical(normDeg))
-  stopifnot(is.logical(normBetw))
-  stopifnot(is.logical(normClose))
-  stopifnot(is.logical(normEigen))
-  
+  x <- net
+
   twoNets <- x$twoNets
   groups <- x$groups
   adja1 <- x$adjaMat1

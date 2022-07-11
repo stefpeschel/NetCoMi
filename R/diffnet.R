@@ -239,69 +239,18 @@ diffnet <- function(x,
                     fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
                     assoPerm = NULL) {
   
-  stopifnot(inherits(x, "microNet"))
+  # Check input arguments
+  argsIn <- as.list(environment())
   
-  if (x$assoType == "dissimilarity") {
-    stop("Differential network not implemented for dissimilarity-based networks.")
+  if (verbose) message("Checking input arguments ... ", appendLF = FALSE)
+
+  argsOut <- .checkArgsDiffnet(argsIn)
+  
+  for (i in 1:length(argsOut)) {
+    assign(names(argsOut)[i], argsOut[[i]])
   }
   
-  if (is.null(x$groups)) {
-    stop("'net' is a single network. A group vector must be passed to 'NetConstruct()'
-         for network comparison.")
-  }
-  
-  diffMethod <- match.arg(diffMethod, choices = c("discordant", "permute",
-                                                  "fisherTest"))
-  if (discordThresh < 0 || discordThresh > 1) {
-    stop("'discordThresh' must be in [0,1].")
-  }
-  
-  nPerm <- as.integer(nPerm)
-  
-  if (permPvalsMethod != "pseudo") permPvalsMethod <- "pseudo"
-  
-  if (verbose %in% c(0,1)) {
-    verbose <- as.logical(verbose)
-  } else {
-    stopifnot(is.logical(verbose))
-  }
-  
-  if (!is.null(logFile)) stopifnot(is.character(logFile))
-  
-  stopifnot(is.numeric(alpha))
-  if (alpha < 0) {
-    stop("Significance level 'alpha' must be in [0,1].")
-  }
-  if (alpha > 1) {
-    alpha <- alpha / 100
-    message("'alpha' transformed to ", alpha, ".")
-  }
-  
-  adjust <- match.arg(adjust, c(p.adjust.methods, "lfdr", "adaptBH"))
-  
-  if (lfdrThresh < 0 || lfdrThresh > 1) {
-    stop("'lfdrThresh' must be in [0,1].")
-  }
-  
-  trueNullMethod <- match.arg(trueNullMethod, c("convest", "lfdr", "mean",
-                                                "hist", "farco"))
-  
-  if (diffMethod != "discordant" && adjust == "adaptBH" && 
-      !requireNamespace("limma", quietly = TRUE)) {
-    
-    message("Installing missing package 'limma' ...")
-    
-    if (!requireNamespace("BiocManager", quietly = TRUE)) {
-      utils::install.packages("BiocManager")
-    }
-    
-    BiocManager::install("limma", dependencies = TRUE)
-    message("Done.")
-    
-    message("Check whether installed package can be loaded ...")
-    requireNamespace("limma")
-    message("Done.")
-  }
+  if (verbose) message("Done.")
   
   #-----------------------------------------------------------------------------
   

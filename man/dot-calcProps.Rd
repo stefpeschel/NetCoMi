@@ -61,6 +61,10 @@ closeness centrality.}
 \item{normNatConnect}{logical. If \code{TRUE} (default), the normalized 
 natural connectivity is returned.}
 
+\item{weighted}{logical indicating whether the network is weighted.}
+
+\item{isempty}{logical indicating whether the network is empty.}
+
 \item{clustMethod}{character indicating the clustering algorithm. Possible
 values are \code{"hierarchical"} for a hierarchical algorithm based on
 dissimilarity values, or the clustering methods provided by the igraph
@@ -115,10 +119,6 @@ for the largest connected component (LCC). If \code{TRUE}
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,
 \code{"2"}(default): all progress messages are shown. Can also be logical.}
-
-\item{clustPar2}{optional list with clustering parameters for the second
-network. If \code{NULL} and \code{net} contains two networks,
-\code{clustPar} is used for the second network as well.}
 }
 \description{
 Calculates network properties for a given adjacency matrix

@@ -25,7 +25,7 @@ netAnalyze(
   normEigen = TRUE,
   connectivity = TRUE,
   graphlet = TRUE,
-  verbose = TRUE
+  verbose = 1
 )
 }
 \arguments{

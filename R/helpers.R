@@ -37,6 +37,22 @@
   return(pval)
 }
 
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# R code from match.arg()
+# Used in functions for argument checking
+.getMatchArgTxt <- function(arg, choices) {
+  sprintf(
+    ngettext(
+      length(chs <- unique(choices[nzchar(choices)])),
+      paste0("\"", arg, "\" should be %s."),
+      paste0("\"", arg, "\" should be one of: %s.")
+    ),
+    paste(dQuote(chs), collapse = ", ")
+  )
+}
+
 #-------------------------------------------------------------------------------
 #' @keywords internal
 # Check condition and add error to 'errs' if not fulfilled 

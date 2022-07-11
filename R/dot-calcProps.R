@@ -25,6 +25,8 @@
 #'   between two nodes.
 #' @param normNatConnect logical. If \code{TRUE} (default), the normalized 
 #'   natural connectivity is returned.
+#' @param weighted logical indicating whether the network is weighted.
+#' @param isempty logical indicating whether the network is empty.
 #' @param clustMethod character indicating the clustering algorithm. Possible
 #'   values are \code{"hierarchical"} for a hierarchical algorithm based on
 #'   dissimilarity values, or the clustering methods provided by the igraph
@@ -34,9 +36,6 @@
 #' @param clustPar list with parameters passed to the clustering functions.
 #'   If hierarchical clustering is used, the parameters are passed to
 #'   \code{\link[stats]{hclust}} as well as \code{\link[stats]{cutree}}.
-#' @param clustPar2 optional list with clustering parameters for the second
-#'   network. If \code{NULL} and \code{net} contains two networks,
-#'   \code{clustPar} is used for the second network as well.
 #' @param weightClustCoef logical indicating whether (global) clustering 
 #'   coefficient should be weighted (\code{TRUE}, default) or unweighted 
 #'   (\code{FALSE}).
@@ -72,14 +71,33 @@
 #' @importFrom pulsar natural.connectivity
 
 
-.calcProps <- function(adjaMat, dissMat, assoMat, avDissIgnoreInf,
-                       sPathNorm, sPathAlgo, normNatConnect, 
-                       weighted, isempty, clustMethod, clustPar, 
-                       weightClustCoef, hubPar, hubQuant, lnormFit, 
-                       connectivity, graphlet,
-                       weightDeg, normDeg, normBetw, normClose, normEigen,
-                       centrLCC, jaccard = FALSE, jaccQuant = NULL, 
+.calcProps <- function(adjaMat,
+                       dissMat,
+                       assoMat,
+                       avDissIgnoreInf,
+                       sPathNorm,
+                       sPathAlgo,
+                       normNatConnect,
+                       weighted,
+                       isempty,
+                       clustMethod,
+                       clustPar,
+                       weightClustCoef,
+                       hubPar,
+                       hubQuant,
+                       lnormFit,
+                       connectivity,
+                       graphlet,
+                       weightDeg,
+                       normDeg,
+                       normBetw,
+                       normClose,
+                       normEigen,
+                       centrLCC,
+                       jaccard = FALSE,
+                       jaccQuant = NULL,
                        verbose = 0) {
+  
   
   
   #== Create igraph objects and decompose graph ================================
@@ -287,7 +305,7 @@
   }
   
   #== Average dissimilarity/distance ===========================================
-  
+
   if (weighted) {
     dissVec <- dissMat[lower.tri(dissMat)]
     dissVec_lcc <- dissMat_lcc[lower.tri(dissMat_lcc)]
@@ -315,7 +333,7 @@
   } else {
     avDiss <- avDiss_lcc <- 1
   }
-  
+
   #== global network properties ================================================
   
   if (verbose == 2) {

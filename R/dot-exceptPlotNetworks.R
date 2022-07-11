@@ -1,5 +1,7 @@
 .exceptPlotNetworks<- function(args) {
   
+  #argcheck_plot_microNetProps <- function(args) {
+  
   twoNets <- args$x$input$twoNets
   
   # x
@@ -9,7 +11,9 @@
   layout <- args$layout
   if (is.null(layout)) {
     layout <- "spring"
+    
   } else {
+    
     layout.tmp <- try(match.fun(layout), silent = TRUE)
     
     if (inherits(layout.tmp, "try-error")) {
@@ -17,6 +21,17 @@
         if (!any(rownames(layout) %in% rownames(args$x$input$adjaMat1))) {
           warning("Rownames of layout matrix don't match node names.")
         }
+      } else if (is.list(layout)) {
+        stopifnot(length(layout) == 2)
+        
+        if (!any(rownames(layout[[1]]) %in% rownames(args$x$input$adjaMat1))) {
+          warning("Rownames of layout matrix don't match node names.")
+        }
+        
+        if (!any(rownames(layout[[2]]) %in% rownames(args$x$input$adjaMat2))) {
+          warning("Rownames of layout matrix don't match node names.")
+        }
+        
       } else {
         stopifnot(layout %in% c("spring", "circle", "groups"))
       }
@@ -41,7 +56,7 @@
   # groupNames
   if (!is.null(args$groupNames)) {
     if ((!is.vector(args$groupNames)) || length(args$groupNames) != 2) {
-      stop("Argument 'groupNames' must be a vector with two elements.")
+      stop("Argument \"groupNames\" must be a vector with two elements.")
     }
   }
   
@@ -57,7 +72,7 @@
   stopifnot(is.numeric(labelLength) || length(labelLength) == 1)
   if (!is.integer(labelLength)) {
     if (labelLength %% 1 != 0) {
-      warning("Argument 'labelLength' coerced to integer.")
+      warning("Argument \"labelLength\" coerced to integer.")
     }
     labelLength <-  as.integer(labelLength)
   }
@@ -116,8 +131,8 @@
                          silent = TRUE)
     if (inherits(nodeColor.tmp, "try-error")) {
       if (!is.character(nodeColor)) {
-        stop("Possible values for 'nodeColor' are: \n", 
-             "'cluster', 'feature', 'colorVec', ", 
+        stop("Possible values for \"nodeColor\" are: \n", 
+             "\"cluster\", \"feature\", \"colorVec\", ", 
              "or a character defining a color.")
       }
     } else {
@@ -134,7 +149,7 @@
   stopifnot(is.numeric(sameColThresh) || length(sameColThresh) == 1)
   if (!is.integer(sameColThresh)) {
     if (sameColThresh %% 1 != 0) {
-      warning("Argument 'sameColThresh' coerced to integer.")
+      warning("Argument \"sameColThresh\" coerced to integer.")
     }
     sameColThresh <-  as.integer(sameColThresh)
   }
@@ -177,7 +192,7 @@
   
   # negDiffCol
   if (!is.null(args$colorNegAsso)) {
-    warning("Name of 'colorNegAsso' has changed to 'negDiffCol'")
+    warning("Name of \"colorNegAsso\" has changed to \"negDiffCol\"")
     args$negDiffCol <- args$colorNegAsso
     args$colorNegAsso <- NULL
   }
@@ -216,6 +231,8 @@
   
   # mar
   stopifnot(is.numeric(args$mar) & (length(args$mar) == 4))
+  
+  stopifnot(is.logical(args$doPlot))
   
   return(args)
   

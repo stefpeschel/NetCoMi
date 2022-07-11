@@ -143,17 +143,19 @@
 #' @param data numeric matrix. Can be a count matrix (rows are samples, columns
 #'   are OTUs/taxa), a phyloseq object, or an association/dissimilarity matrix
 #'   (\code{dataType} must be set).
-#' @param data2 optional numeric matrix corresponding to group 2. Can be either
 #'   a second count matrix/phyloseq object or a second association/dissimilarity
 #'   matrix.
+#' @param data2 optional numeric matrix used for constructing a second 
+#'   network (belonging to group 2). Can be either a second count 
+#'   matrix/phyloseq object or a second association/dissimilarity matrix.
 #' @param dataType character indicating the data type. Defaults to "counts",
 #'   which means that \code{data} (and data2) is a count matrix or object of
 #'   class \code{\link[phyloseq:phyloseq-class]{phyloseq}}. Further options
 #'   are "correlation", "partialCorr" (partial correlation), "condDependence"
 #'   (conditional dependence), "proportionality" and "dissimilarity".
 #' @param group optional binary vector used for splitting the data into two
-#'   groups. If \code{group} is \code{NULL} (default), a single network is
-#'   constructed. See details.
+#'   groups. If \code{group} is \code{NULL} (default) and \code{data2} is not 
+#'   set, a single network is constructed. See details.
 #' @param matchDesign Numeric vector with two elements specifying an optional 
 #'   matched-group (i.e. matched-pair) design, which is used for the permutation 
 #'   tests in \code{\link{netCompare}} and \code{\link{diffnet}}. \code{c(1,1)} 
@@ -267,10 +269,14 @@
 #'   \item{\code{"knn"}}{Construct a k-nearest neighbor or mutual k-nearest
 #'   neighbor graph using \code{\link[cccd]{nng}}. Corresponding
 #'   arguments are \code{kNeighbor}, and \code{knnMutual}.}}
-#' @param thresh numeric value defining the threshold if \code{sparsMethod} is
-#'   set to \code{"threshold"}. Defaults to 0.3.
-#' @param alpha significance level. Only used if Student's t-test or bootstrap
-#'   procedure is used as sparsification method. Defaults to 0.05.
+#' @param thresh numeric vector with one or two elements defining the threshold 
+#'   used for sparsification if \code{sparsMethod} is set to \code{"threshold"}. 
+#'   If two networks are constructed and one value is given, it is used 
+#'   for both groups. Defaults to 0.3.
+#' @param alpha numeric vector with one or two elements indicating the 
+#'   significance level. Only used if Student's t-test or bootstrap
+#'   procedure is used as sparsification method. If two networks are constructed 
+#'   and one value is given, it is used for both groups. Defaults to 0.05.
 #' @param adjust character indicating the method used for multiple testing
 #'   adjustment (if Student's t-test or bootstrap procedure is used for edge
 #'   selection). Possible values are \code{"lfdr"} (default) for local
@@ -286,10 +292,12 @@
 #'   \code{"convest"}(default), \code{"lfdr"}, \code{"mean"}, and \code{"hist"}.
 #'   Can alternatively be \code{"farco"} for
 #'   the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.
-#' @param lfdrThresh threshold for local FDR (if \code{adjust} is set to
-#'   \code{"locfdr"}). Defaults to 0.2 meaning that associations with a
+#' @param lfdrThresh numeric vector with one or two elements defining the 
+#'   threshold(s) for local FDR correction (if \code{adjust = "locfdr"}). 
+#'   Defaults to 0.2 meaning that associations with a
 #'   corresponding local FDR less than or equal to 0.2 are identified as
-#'   significant.
+#'   significant. If two networks are constructed and one value is given, it is 
+#'   used for both groups.
 #' @param nboot integer indicating the number of bootstrap samples, if
 #'   bootstrapping is used as sparsification method.
 #' @param cores integer indicating the number of CPU cores used for
@@ -307,17 +315,20 @@
 #'   \code{"signed"}, \code{"unsigned"}, and \code{"signed hybrid"} (according
 #'   to the available options for the argument \code{type} of
 #'   \code{\link[WGCNA]{adjacency}} from \code{WGCNA} package).
-#' @param softThreshPower power for soft thresholding. Only used if
-#'   \code{edgeSelect} is set to \code{"softThreshold"}. Expects either a single
-#'   numeric value (used for a single or both networks) or a vector with two
-#'   values (one for each network). If no power is set, it is computed using
-#'   \code{\link[WGCNA]{pickSoftThreshold}}, where the argument
+#' @param softThreshPower numeric vector with one or two elements defining the 
+#'   power for soft thresholding. Only used if
+#'   \code{edgeSelect = "softThreshold"}. If two networks are constructed and 
+#'   one value is given, it is used for both groups. If no power is set, it is 
+#'   computed using \code{\link[WGCNA]{pickSoftThreshold}}, where the argument
 #'   \code{softThreshCut} is needed in addition.
-#' @param softThreshCut numeric value between 0 and 1 indicating the desired
-#'   minimum scale free topology fitting index (corresponds to the argument
-#'   "RsquaredCut" in \code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.
+#' @param softThreshCut numeric vector with one or two elements (each between 0 
+#'   and 1) indicating the desired minimum scale free topology fitting index 
+#'   (corresponds to the argument "RsquaredCut" in 
+#'   \code{\link[WGCNA]{pickSoftThreshold}}). Defaults to 0.8.
+#'   If two networks are constructed and one value is given, it is 
+#'   used for both groups.
 #' @param kNeighbor integer specifying the number of neighbors if the k-nearest
-#'   neighbor method is used for sparsification.Defaults to 3L.
+#'   neighbor method is used for sparsification. Defaults to 3L.
 #' @param knnMutual logical used for k-nearest neighbor sparsification. If
 #'   \code{TRUE}, the neighbors must be mutual. Defaults to \code{FALSE}.
 #' @param dissFunc method used for transforming associations into 
@@ -341,10 +352,12 @@
 #' @param weighted logical. If \code{TRUE}, similarity values are used as
 #'   adjacencies. \code{FALSE} leads to a binary adjacency matrix whose entries
 #'   equal 1 for (sparsified) similarity values > 0, and 0 otherwise.
-#' @param sampleSize integer giving the number of samples that have been used
-#'   for computing the association matrix. Only needed if an association matrix
+#' @param sampleSize numeric vector with one or two elements giving the number 
+#'   of samples that have been used for computing the association matrix. 
+#'   Only needed if an association matrix
 #'   is given instead of a count matrix and if, in addition, Student's t-test is
-#'   used for edge selection.
+#'   used for edge selection. If two networks are constructed and one value is 
+#'   given, it is used for both groups.
 #' @param verbose integer indicating the level of verbosity. Possible values:
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages, \code{"3"} messages returned 
@@ -428,7 +441,7 @@
 #' 
 #' amgut.genus.phy <- phyloseq::tax_glom(amgut2.filt.phy, taxrank = "Rank6")
 #' 
-#' dim(otu_table(amgut.genus.renamed))
+#' dim(phyloseq::otu_table(amgut.genus.phy))
 #' 
 #' # Rename taxonomic table and make Rank6 (genus) unique
 #' amgut.genus.renamed <- renameTaxa(amgut.genus.phy, pat = "<name>", 
@@ -461,11 +474,11 @@
 #' # - Association measure: Pearson correlation
 #' # - Taxa filtering: Keep the 50 taxa with highest frequency
 #' # - Sample filtering: Keep samples with a total number of reads of at least 
-#'     1000 and with at least 10 taxa with a non-zero count
+#' #  1000 and with at least 10 taxa with a non-zero count
 #' # - Zero replacement: A pseudo count of 0.5 is added to all counts
 #' # - Normalization: clr transformation
 #' # - Sparsification: Threshold = 0.3 
-#'     (an edge exists between taxa with an estimated association >= 0.3)
+#' #  (an edge exists between taxa with an estimated association >= 0.3)
 #' 
 #' net2 <- netConstruct(amgut2.filt.phy, 
 #'                      measure = "pearson",
@@ -590,34 +603,38 @@ netConstruct <- function(data,
                          verbose = 2,
                          seed = NULL) {
   
-  dataType <-  match.arg(dataType, choices = c("counts",
-                                               "phyloseq",
-                                               "correlation",
-                                               "partialCorr",
-                                               "condDependence",
-                                               "proportionality",
-                                               "dissimilarity"))
+  # Check input arguments
+  argsIn <- as.list(environment())
   
+  # Initialize variables (to pass devtools check)
+  assoType <- distNet <- needfrac <- needint <- parallel <- NULL
+  
+  if (verbose %in% 2:3) {
+    message("Checking input arguments ... ", 
+            appendLF = FALSE)
+  }
+  
+  argsOut <- .checkArgsNetConst(argsIn)
+  
+  for (i in 1:length(argsOut)) {
+    assign(names(argsOut)[i], argsOut[[i]])
+  }
+  
+  if (verbose %in% 2:3) message("Done.")
+  
+  #-----------------------------------------------------------------------------
+
   if (dataType == "phyloseq") {
     dataType <- "counts"
   }
   
   if (dataType =="counts") {
-    
-    measure <- match.arg(measure,
-                         choices = c("pearson", "spearman", "bicor",
-                                     "sparcc", "cclasso", "ccrepe",
-                                     "propr",
-                                     "spieceasi", "spring", "gcoda",
-                                     "euclidean", "bray", "kld", "ckld",
-                                     "jeffrey", "jsd", "aitchison"))
-    
-    #---------------------------------------------------------------------------
+
     # handle phyloseq objects
     
     if (inherits(data, "phyloseq")) {
       
-      otutab <- otu_table(data)
+      otutab <- phyloseq::otu_table(data)
       
       if (!is.null(taxRank)) {
         taxtab <- as(tax_table(data), "matrix")
@@ -663,7 +680,7 @@ netConstruct <- function(data,
     if (!is.null(data2)) {
       if (inherits(data2, "phyloseq")) {
         
-        otutab <- otu_table(data2)
+        otutab <- phyloseq::otu_table(data2)
         
         if (!is.null(taxRank)) {
           taxtab <- as(tax_table(data2), "matrix")
@@ -707,122 +724,32 @@ netConstruct <- function(data,
       }
     }
     
-    #---------------------------------------------------------------------------
-    
-    assoType <-
-      if (measure %in% c("pearson", "spearman", "bicor", "sparcc",
-                         "cclasso", "ccrepe")) {
-        "correlation"
-      } else if (measure %in% c("propr")) {
-        "proportionality"
-      } else if (measure %in% c("spieceasi", "spring", "gcoda")) {
-        "condDependence"
-      } else if (measure %in% c("euclidean", "kld", "jeffrey", "jsd",
-                                "ckld", "aitchison", "bray")) {
-        "dissimilarity"
-      }
-    
-  } else {
-    measure <- "none"
-    assoType <- dataType
-  }
-  
-  #-----------------------------------------------------------------------------
-  # exception handling of arguments
-  
-  distNet <- ifelse(assoType == "dissimilarity", TRUE, FALSE)
-  
-  filtTax <- match.arg(filtTax,
-                       choices = c("totalReads", "relFreq", "numbSamp",
-                                   "highestVar", "highestFreq", "none"),
-                       several.ok = TRUE)
-  
-  filtSamp <- match.arg(filtSamp,
-                        choices = c("totalReads", "numbTaxa", "highestFreq",
-                                    "none"), several.ok = TRUE)
-  
-  if ((!"none" %in% filtSamp) && !is.null(matchDesign)) {
-    stop("Filtering samples is not possible for matched subjects.")
-  }
-  
-  sparsMethod <- match.arg(sparsMethod,
-                           choices = c("none", "t-test", "bootstrap",
-                                       "threshold", "softThreshold", "knn"))
-  
-  if (!is.function(dissFunc)) {
-    dissFunc <- match.arg(dissFunc, choices = c("signed", "unsigned", 
-                                                "signedPos", "TOMdiss"))
-  }
-  
-  softThreshType <- match.arg(softThreshType,
-                              choices = c("signed", "unsigned", 
-                                          "signed hybrid"))
-  
-  zeroMethod <- match.arg(zeroMethod,
-                          choices = c("none", "pseudo",
-                                      "multRepl", "alrEM", "bayesMult"))
-  
-  normMethod <- match.arg(normMethod,
-                          choices = c("none", "fractions", "TSS", "CSS", "COM", 
-                                      "rarefy", "VST", "clr", "mclr"))
-  
-  adjust <- match.arg(adjust, c(p.adjust.methods, "lfdr", "adaptBH"))
-  
-  trueNullMethod <- match.arg(trueNullMethod, c("farco", "lfdr", "mean",
-                                                "hist", "convest"))
-  
-  if (filtTax[1] != "none") {
-    names(filtTaxPar) <- match.arg(names(filtTaxPar),
-                                   choices = c( "totalReads",
-                                                "relFreq",
-                                                "numbSamp",
-                                                "highestVar",
-                                                "highestFreq"),
-                                   several.ok = TRUE)
-  }
-  
-  if (filtSamp[1] != "none") {
-    names(filtSampPar) <- match.arg(names(filtSampPar),
-                                    choices = c( "totalReads",
-                                                 "numbTaxa",
-                                                 "highestFreq"),
-                                    several.ok = TRUE)
   }
   
   #-----------------------------------------------------------------------------
   # check whether arguments are compatible and change if necessary
   
-  verbose <- as.numeric(verbose)
-  
-  cond <- .conditionHandling(dataType = dataType, assoType = assoType,
+  plausCheck <- .checkPlausNetConst(dataType = dataType, assoType = assoType,
                              data2 = data2, measure = measure,
                              normMethod = normMethod, zeroMethod = zeroMethod,
                              sparsMethod = sparsMethod, dissFunc = dissFunc,
                              sampleSize = sampleSize, verbose = verbose)
-  
-  sparsMethod <- cond$sparsMethod
-  dissFunc <- cond$dissFunc
-  zeroMethod <- cond$zeroMethod
-  normMethod <- cond$normMethod
-  sampleSize <- cond$sampleSize
-  needfrac <- cond$needfrac
-  needint <- cond$needint
-  
+
+  for (i in 1:length(plausCheck)) {
+    assign(names(plausCheck)[i], plausCheck[[i]])
+  }
+
   #-----------------------------------------------------------------------------
   # install missing packages
   
-  .checkPack(measure = measure, zeroMethod = zeroMethod, normMethod = normMethod,
-            sparsMethod = sparsMethod, adjust = adjust)
+  .checkPackNetConst(measure = measure,
+                     zeroMethod = zeroMethod,
+                     normMethod = normMethod,
+                     sparsMethod = sparsMethod,
+                     adjust = adjust)
   
   #-----------------------------------------------------------------------------
-  # set cores and seed
-  
-  if (cores > 1) {
-    parallel <- TRUE
-    if (parallel::detectCores() < cores) cores <- parallel::detectCores()
-  } else {
-    parallel <- FALSE
-  }
+  # set seed
   
   if (!is.null(seed)) set.seed(seed)
   
@@ -1851,7 +1778,8 @@ netConstruct <- function(data,
   output$groups <- groups
   output$matchDesign <- matchDesign
   output$sampleSize <- sampleSize
-  output$softThreshPower <- list(power1 = power1, power2 = power2) # calculated power
+  output$softThreshPower <- list(power1 = power1, 
+                                 power2 = power2) # calculated power
   output$assoType <- assoType
   output$twoNets <- twoNets
   

@@ -1,4 +1,6 @@
-.conditionHandling <- function(dataType,
+# Plausibility checking for arguments of netConstruct()
+
+.checkPlausNetConst <- function(dataType,
                                assoType,
                                data2,
                                measure,
@@ -25,8 +27,8 @@
   if (measure %in% c("pearson", "spearman", "bicor")) {
     if (!normMethod %in% c("VST", "clr", "mclr")) {
       if (verbose > 0) {
-        message("Attention! The chosen combination of association measure
-and normalization is not robust to compositional effects.\n")
+        message("Attention! The chosen combination of association measure ", 
+                "and normalization is not robust to compositional effects.\n")
       }
     }
   }
@@ -34,8 +36,8 @@ and normalization is not robust to compositional effects.\n")
   if (measure %in% c("bray", "euclidean")) {
     if (!normMethod %in% c("VST", "clr", "mclr")) {
       if (verbose > 0) {
-        message("Attention! The chosen combination of dissimilarity measure
-and normalization is not robust to compositional effects.\n")
+        message("Attention! The chosen combination of dissimilarity measure ",
+                "and normalization is not robust to compositional effects.\n")
       }
     }
   }
@@ -50,26 +52,26 @@ and normalization is not robust to compositional effects.\n")
     if (measure %in% c("sparcc", "spring", "spieceasi")) {
       if (zeroMethod != "none") {
         zeroMethod <- "none"
-        msg <- c(msg, paste0("Zero handling included in '", measure, "'."))
+        msg <- c(msg, paste0("Zero handling included in \"", measure, "\"."))
       }
       
       if (normMethod != "none") {
         normMethod <- "none"
-        msg <- c(msg, paste0("Normalization ignored for measure '",
-                             measure, "'."))
+        msg <- c(msg, paste0("Normalization ignored for measure \"",
+                             measure, "\"."))
       }
       
       #-------------------------------------------------------------------------
     } else if (measure %in% c("cclasso", "gcoda")) {
       if (zeroMethod == "none") {
         zeroMethod <- "multRepl"
-        msg <- c(msg, paste0("Zero replacement needed for measure '",
-                             measure, "'. 'multRepl' used."))
+        msg <- c(msg, paste0("Zero replacement needed for measure \"",
+                             measure, "\". \"multRepl\" used."))
       }
       
       if (!normMethod %in% c("none", "fractions")) {
-        msg <- c(msg, paste0("Normalization ignored for measure '",
-                             measure, "'."))
+        msg <- c(msg, paste0("Normalization ignored for measure \"",
+                             measure, "\"."))
       }
       
       if (zeroMethod == "pseudo") {
@@ -83,13 +85,13 @@ and normalization is not robust to compositional effects.\n")
     } else if (measure %in% c("aitchison", "ckld")) {
       if (zeroMethod == "none") {
         zeroMethod <- "multRepl"
-        msg <- c(msg, paste0("Zero replacement needed for measure '",
-                             measure, "'. 'multRepl' used."))
+        msg <- c(msg, paste0("Zero replacement needed for measure \"",
+                             measure, "\". \"multRepl\" used."))
       }
       
       if (!normMethod %in% c("fractions")) {
-        msg <- c(msg, paste0("Counts normalized to fractions for measure '",
-                             measure, "'."))
+        msg <- c(msg, paste0("Counts normalized to fractions for measure \"",
+                             measure, "\"."))
       }
       
       if (zeroMethod == "pseudo") {
@@ -103,8 +105,8 @@ and normalization is not robust to compositional effects.\n")
     } else if (measure == "ccrepe") {
       if (normMethod != "fractions") {
         msg <- c(msg, 
-                 paste0("Measure '", measure, "' needs fractions as input. ",
-                        "'normMethod' changed to 'fractions'."))
+                 paste0("Measure \"", measure, "\" needs fractions as input. ",
+                        "\"normMethod\" changed to \"fractions\"."))
       }
       if (zeroMethod %in% c("none", "pseudo")) {
         normMethod <- "fractions"
@@ -118,14 +120,14 @@ and normalization is not robust to compositional effects.\n")
       
       if (zeroMethod == "none") {
         zeroMethod <- "multRepl"
-        msg <- c(msg, paste0("Zero replacement needed for measure '",
-                             measure, "'. '", zeroMethod, "' used."))
+        msg <- c(msg, paste0("Zero replacement needed for measure \"",
+                             measure, "\". \"", zeroMethod, "\" used."))
       }
       
       if (normMethod != "none") {
         normMethod <- "none"
-        msg <- c(msg, paste0("Normalization ignored for measure '",
-                             measure, "'."))
+        msg <- c(msg, paste0("Normalization ignored for measure \"",
+                             measure, "\"."))
       }
       
       #-------------------------------------------------------------------------
@@ -137,8 +139,8 @@ and normalization is not robust to compositional effects.\n")
         } else {
           zeroMethod <- "multRepl"
         }
-        msg <- c(msg, paste0("Zero replacement needed for measure '",
-                             measure, "'. '", zeroMethod, "' used."))
+        msg <- c(msg, paste0("Zero replacement needed for measure \"",
+                             measure, "\". \"", zeroMethod, "\" used."))
       }
       
     }
@@ -159,8 +161,8 @@ and normalization is not robust to compositional effects.\n")
       if (zeroMethod == "none") {
         zeroMethod <- "multRepl"
         msg <- c(msg, 
-                 paste0("Zero replacement needed for clr transformation. '",
-                        zeroMethod, "' used."))
+                 paste0("Zero replacement needed for clr transformation. \"",
+                        zeroMethod, "\" used."))
       }
       
       needfrac <- TRUE
@@ -169,7 +171,7 @@ and normalization is not robust to compositional effects.\n")
     if (measure %in% c("spring", "spieceasi", "gcoda")) {
       if (sparsMethod != "none") {
         sparsMethod <- "none"
-        msg <- c(msg, paste0("Sparsification included in '", measure, "'."))
+        msg <- c(msg, paste0("Sparsification included in \"", measure, "\"."))
       }
       
     }
@@ -182,20 +184,25 @@ and normalization is not robust to compositional effects.\n")
   if (assoType == "dissimilarity") {
     if (!sparsMethod %in% c("none", "threshold", "knn")) {
       stop(
-        "Sparsification method '", sparsMethod,
-        "' not implemented for dissimilarities.
-        Possible options are: 'none', 'threshold', and 'knn'."
+        "Sparsification method \"", sparsMethod,
+        "\" not implemented for dissimilarities.
+        Possible options are: \"none\", \"threshold\", and \"knn\"."
       )
     }
     
   }
-  
+
+  if (assoType != "dissimilarity" & sparsMethod == "knn") {
+    stop("Sparsification method \"knn\" is only available for dissimilarity ", 
+         "networks.")
+  }
+
   if (assoType == "proportionality") {
     if (!sparsMethod %in% c("none", "threshold")) {
       stop(
-        "Edge selection method '", sparsMethod,
-        "' not implemented for proportionality.
-        Possible options are: 'none' and 'threshold'."
+        "Edge selection method \"", sparsMethod,
+        "\" not implemented for proportionality.
+        Possible options are: \"none\" and \"threshold\"."
       )
     }
   }
@@ -210,7 +217,7 @@ and normalization is not robust to compositional effects.\n")
       
       if (is.null(data2)) {
         if (length(sampleSize) > 1) {
-          warning("Length of 'sampleSize' > 1. ", 
+          warning("Length of \"sampleSize\" > 1. ", 
                   "Only the first element is taken.")
           sampleSize <- sampleSize[1]
         }
@@ -227,13 +234,13 @@ and normalization is not robust to compositional effects.\n")
   
   if (sparsMethod == "softThreshold") {
     if (assoType != "correlation") {
-      stop("Sparsification method 'softThreshold' ", 
+      stop("Sparsification method \"softThreshold\" ", 
            "only possible for correlations.")
     }
     
     if (dissFunc != "TOMdiss") {
       dissFunc <- "TOMdiss"
-      msg <- c(msg, paste0("Only TOM dissimilarity (dissFunc = 'TOMdiss') ",
+      msg <- c(msg, paste0("Only TOM dissimilarity (dissFunc = \"TOMdiss\") ",
                            "possible for soft thresholding."))
     }
   }

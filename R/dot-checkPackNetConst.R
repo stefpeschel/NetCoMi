@@ -1,4 +1,8 @@
-.checkPack <- function(measure, zeroMethod, normMethod, sparsMethod, adjust) {
+# Check whether packages needed for the current netConstruct() run 
+# are available.
+
+.checkPackNetConst <- function(measure, zeroMethod, normMethod, 
+                               sparsMethod, adjust) {
   
   needpack <- character()
   

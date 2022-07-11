@@ -307,13 +307,17 @@ netCompare <- function(x,
                        assoPerm = NULL, dissPerm = NULL) {
   
   # Check input arguments
-  args_in <- as.list(environment())
+  argsIn <- as.list(environment())
   
-  args_out <- .checkArgsNetComp(args_in)
+  if (verbose) message("Checking input arguments ... ", appendLF = FALSE)
   
-  for (i in 1:length(args_out)) {
-    assign(names(args_out)[i], args_out[[i]])
+  argsOut <- .checkArgsNetComp(argsIn)
+  
+  for (i in 1:length(argsOut)) {
+    assign(names(argsOut)[i], argsOut[[i]])
   }
+  
+  if (verbose) message("Done.")
   
   #-----------------------------------------------------------------------------
   
@@ -406,7 +410,7 @@ netCompare <- function(x,
   
   if (permTest & verbose) message("Done.")
   
-  callArgs <- args_in
+  callArgs <- argsIn
   callArgs$x <- NULL
   
   output <- list(jaccDeg = props$jaccDeg,

@@ -10,66 +10,66 @@
   #errs$msg <- NULL
   
   errs <- .checkArg(cond = inherits(args$x, "microNetProps"), 
-                    msg = paste0("'x' must be of class 'microNetProps' ", 
+                    msg = paste0("\"x\" must be of class \"microNetProps\" ", 
                                  "(returned by netAnalyze())"), 
                     errs = errs)
   
   errs <- .checkArg(cond = is.logical(args$computeAsso), 
-                    msg = "'computeAsso' must be logical", 
+                    msg = "\"computeAsso\" must be logical", 
                     errs = errs)
   
   errs <- .checkArg(cond = (is.numeric(args$nPerm) & args$nPerm >= 0), 
-                    msg = "'nPerm' must be an integer >= 0", 
+                    msg = "\"nPerm\" must be an integer >= 0", 
                     errs = errs)
   
   args$nPerm <- as.integer(args$nPerm)
   
   errs <- .checkArg(cond = (is.numeric(args$cores) & args$cores >= 0), 
-                    msg = "'cores' must be an integer >= 0", 
+                    msg = "\"cores\" must be an integer >= 0", 
                     errs = errs)
   
   args$cores <- as.integer(args$cores) 
   
   errs <- .checkArg(cond = is.numeric(args$seed), 
-                    msg = "'seed' must be numeric (is interpreted as integer)", 
+                    msg = "\"seed\" must be numeric (is interpreted as integer)", 
                     errs = errs)
   
   args$seed <- as.integer(args$seed) 
   
   errs <- .checkArg(cond = is.character(args$fileStoreAssoPerm), 
-                    msg = "'fileStoreAssoPerm' must be of type character", 
+                    msg = "\"fileStoreAssoPerm\" must be of type character", 
                     errs = errs)
   
   errs <- .checkArg(cond = length(args$fileStoreAssoPerm) == 1, 
-                    msg = "'fileStoreAssoPerm' must be of length 1", 
+                    msg = "\"fileStoreAssoPerm\" must be of length 1", 
                     errs = errs)
   
   errs <- .checkArg(cond = is.logical(args$append), 
-                    msg = "'append' must be logical", 
+                    msg = "\"append\" must be logical", 
                     errs = errs)
   
   errs <- .checkArg(cond = is.logical(args$storeCountsPerm), 
-                    msg = "'storeCountsPerm' must be logical", 
+                    msg = "\"storeCountsPerm\" must be logical", 
                     errs = errs)
   
   if (args$storeCountsPerm) {
     errs <- .checkArg(cond = is.character(args$fileStoreCountsPerm), 
-                      msg = "'fileStoreCountsPerm' must be of type character", 
+                      msg = "\"fileStoreCountsPerm\" must be of type character", 
                       errs = errs)
     
     errs <- .checkArg(cond = length(args$fileStoreCountsPerm) == 2, 
-                      msg = "'fileStoreCountsPerm' must be of length 2", 
+                      msg = "\"fileStoreCountsPerm\" must be of length 2", 
                       errs = errs)
   }
   
   if (!is.null(args$logFile)) {
     errs <- .checkArg(cond = is.character(args$logFile), 
-                      msg = "'logFile' must be of type character", 
+                      msg = "\"logFile\" must be of type character", 
                       errs = errs)
   }
   
   errs <- .checkArg(cond = is.logical(args$verbose), 
-                    msg = "'verbose' must be logical", 
+                    msg = "\"verbose\" must be logical", 
                     errs = errs)
   
   #-----------------------------------------------------------------------------
@@ -89,7 +89,11 @@
       errvec <- paste0(1:errs$nerr, ": ", errs$msg, collapse = "\n")
     }
     
+    # Temporarily change allowed length of messages
+    tmp <- options("warning.length")
+    options(warning.length = 5000L)
     stop("\nin ", fn_call , "\n", errvec, call.=FALSE)
+    options(warning.length = tmp$warning.length)
   }
   
   return(args)
