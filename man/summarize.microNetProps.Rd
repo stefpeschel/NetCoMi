@@ -18,8 +18,8 @@
 \method{print}{summary.microNetProps}(x, ...)
 }
 \arguments{
-\item{object}{object of class \code{microNetProps} inheriting from a call to
-\code{\link{netAnalyze}}.}
+\item{object}{object of class \code{microNetProps} (returned by 
+\code{\link{netAnalyze}}).}
 
 \item{groupNames}{character vector with two elements giving the group names
 corresponding to the two networks. If \code{NULL}, the names are adopted
@@ -46,11 +46,11 @@ results are rounded. Defaults to 5L.}
 
 \item{...}{not used}
 
-\item{x}{object of class \code{summary.microNetProps} inheriting from a call
-to \code{\link{summary.microNetProps}}.}
+\item{x}{object of class \code{summary.microNetProps} (returned by 
+to \code{\link{summary.microNetProps}}).}
 }
 \description{
-The main results returned from \code{\link{netAnalyze}} are
+The main results returned by \code{\link{netAnalyze}} are
   printed in a well-arranged format.
 }
 \seealso{

@@ -78,10 +78,10 @@ context("netAnalyze: Test centrLCC")
 
 centrLCC <- c(TRUE, FALSE)
 
-for(i in 1:length(centrLCC)){
+for (i in 1:length(centrLCC)) {
   context(centrLCC[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -97,10 +97,10 @@ context("netAnalyze: Test avDissIgnoreInf ")
 
 avDissIgnoreInf <- c(TRUE, FALSE)
 
-for(i in 1:length(avDissIgnoreInf)){
+for (i in 1:length(avDissIgnoreInf)) {
   context(avDissIgnoreInf[i])
 
-  for(net in networks){
+  for (net in networks) {
     #cat("avDissIgnoreInf: ", avDissIgnoreInf[i], "\n")
     #print(net)
     testprops<- netAnalyze(get(net),
@@ -121,10 +121,10 @@ context("netAnalyze: Test sPathAlgo")
 
 sPathAlgo <- c("unweighted", "dijkstra", "bellman-ford", "johnson", "automatic")
 
-for(i in 1:length(sPathAlgo)){
+for (i in 1:length(sPathAlgo)) {
   context(sPathAlgo[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -141,10 +141,10 @@ context("netAnalyze: Test sPathNorm")
 
 sPathNorm <- c(TRUE, FALSE)
 
-for(i in 1:length(sPathNorm)){
+for (i in 1:length(sPathNorm)) {
   context(sPathNorm[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -161,10 +161,10 @@ context("netAnalyze: Test normNatConnect")
 
 normNatConnect <- c(TRUE, FALSE)
 
-for(i in 1:length(normNatConnect)){
+for (i in 1:length(normNatConnect)) {
   context(normNatConnect[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -181,10 +181,10 @@ context("netAnalyze: Test connectivity")
 
 connectivity <- c(TRUE, FALSE)
 
-for(i in 1:length(connectivity)){
+for (i in 1:length(connectivity)) {
   context(connectivity[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -210,10 +210,10 @@ clustMethod <- c("none",
                  #"cluster_spinglass",
                  "cluster_walktrap")
 
-for(i in 1:length(clustMethod)){
+for (i in 1:length(clustMethod)) {
   context(clustMethod[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = clustMethod[i],
                            hubPar = "eigenvector", hubQuant = 0.95)
@@ -224,10 +224,10 @@ for(i in 1:length(clustMethod)){
 
 context("netAnalyze: Test hierarchical clustering")
 
-for(i in 1:length(clustMethod)){
+for (i in 1:length(clustMethod)) {
   context("hierarchical")
   
-  for(net in networks[4:6]){
+  for (net in networks[4:6]) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "hierarchical",
                            clustPar = list(method = "complete", k = 3),
@@ -245,10 +245,10 @@ context("netAnalyze: Test weightClustCoef")
 
 weightClustCoef <- c(TRUE, FALSE)
 
-for(i in 1:length(weightClustCoef)){
+for (i in 1:length(weightClustCoef)) {
   context(weightClustCoef[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -265,7 +265,7 @@ context("netAnalyze: Test hubPar with multiple hub parameters")
 
 hubPar <- c("degree", "betweenness", "closeness")
 
-for(net in networks){
+for (net in networks) {
   testprops<- netAnalyze(get(net),
                          clustMethod = "cluster_fast_greedy",
                          hubPar = hubPar, hubQuant = 0.95)
@@ -277,7 +277,7 @@ context("netAnalyze: Test hubPar with eigencentr")
 
 hubPar <- c("eigenvector")
 
-for(net in networks){
+for (net in networks) {
   testprops<- netAnalyze(get(net),
                          clustMethod = "cluster_fast_greedy",
                          hubPar = hubPar, hubQuant = 0.95)
@@ -292,10 +292,10 @@ context("netAnalyze: Test lnormFit ")
 
 lnormFit <- c(TRUE, FALSE)
 
-for(i in 1:length(lnormFit)){
+for (i in 1:length(lnormFit)) {
   context(lnormFit[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -312,10 +312,10 @@ context("netAnalyze: Test weightDeg ")
 
 weightDeg <- c(TRUE, FALSE)
 
-for(i in 1:length(weightDeg)){
+for (i in 1:length(weightDeg)) {
   context(weightDeg[i])
   
-  for(net in networks){
+  for (net in networks) {
     testprops<- netAnalyze(get(net),
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", hubQuant = 0.95,
@@ -329,7 +329,7 @@ for(i in 1:length(weightDeg)){
 #===============================================================================
 context("netAnalyze: with non-normalized centralities")
 
-for(net in networks){
+for (net in networks) {
 testprops<- netAnalyze(get(net), clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", centrLCC = TRUE,
                        normDeg = FALSE,

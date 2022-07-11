@@ -3,13 +3,13 @@
 #' @keywords internal
 
 .checkArgsCreateAP <- function(args) {
-
+  
   # Variable for collecting error messages
   errs <- list()
   errs$nerr <- 0
   #errs$msg <- NULL
   
-  errs <- .checkArg(cond = "microNetProps" %in% class(args$x), 
+  errs <- .checkArg(cond = inherits(args$x, "microNetProps"), 
                     msg = paste0("'x' must be of class 'microNetProps' ", 
                                  "(returned by netAnalyze())"), 
                     errs = errs)
@@ -39,7 +39,7 @@
   errs <- .checkArg(cond = is.character(args$fileStoreAssoPerm), 
                     msg = "'fileStoreAssoPerm' must be of type character", 
                     errs = errs)
-    
+  
   errs <- .checkArg(cond = length(args$fileStoreAssoPerm) == 1, 
                     msg = "'fileStoreAssoPerm' must be of length 1", 
                     errs = errs)
@@ -47,7 +47,7 @@
   errs <- .checkArg(cond = is.logical(args$append), 
                     msg = "'append' must be logical", 
                     errs = errs)
-
+  
   errs <- .checkArg(cond = is.logical(args$storeCountsPerm), 
                     msg = "'storeCountsPerm' must be logical", 
                     errs = errs)
@@ -85,13 +85,13 @@
     # Enumerate only for more than one errors
     if (errs$nerr == 1) {
       errvec <- paste0(errs$msg, collapse = "\n")
-    } else{
+    } else {
       errvec <- paste0(1:errs$nerr, ": ", errs$msg, collapse = "\n")
     }
     
     stop("\nin ", fn_call , "\n", errvec, call.=FALSE)
   }
-
+  
   return(args)
 }
 

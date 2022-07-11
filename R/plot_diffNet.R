@@ -52,8 +52,8 @@
 #'   "Strep'coc'1", "Strep'coc'2", and "Strep'myc".
 #' @param charToRm vector with characters to remove from node names. Ignored if
 #'   labels are given via \code{labels}.
-#' @param labelScale logical. If \code{TRUE}, node labels are scaled according to
-#'   node size
+#' @param labelScale logical. If \code{TRUE}, node labels are scaled according 
+#'   to node size
 #' @param labelFont integer defining the font of node labels. Defaults to 1.
 #' @param rmSingles logical. If \code{TRUE}, unconnected nodes are removed.
 #' @param nodeColor character or numeric value specifying node colors. Can also
@@ -138,15 +138,15 @@ plot.diffnet <- function(x,
                          cexLegend = 1,
                          mar = c(2,2,4,6),
                          ...) {
-
+  
   inputArgs <- c(as.list(environment()), list(...))
-
+  
   outputArgs <- argcheck_plot_diffnet(inputArgs)
   
   for (i in 1:length(outputArgs)) {
     assign(names(outputArgs)[i], outputArgs[[i]])
   }
-
+  
   corrMat1 <- x$assoMat1
   corrMat2 <- x$assoMat2
   
@@ -164,7 +164,7 @@ plot.diffnet <- function(x,
   if (all(diffMat == 0)) {
     stop("Network is empty.")
   }
-
+  
   if (edgeFilter != "none") {
     
     if (edgeFilter == "highestDiff") {
@@ -174,40 +174,40 @@ plot.diffnet <- function(x,
     }
     
   }
-
+  
   if (rmSingles) {
     corrMat1.orig <- corrMat1
     corrMat2.orig <- corrMat2
     diffMat.orig <- diffMat
-
+    
     zeros <- sapply(1:nrow(diffMat), function(i) { all(diffMat[i, ] == 0) })
     names(zeros) <- colnames(diffMat)
-
-
+    
+    
     if (any(zeros)) {
       torm <- which(zeros == TRUE)
     } else {
       torm <- NULL
     }
-
+    
     if (length(torm) != 0) corrMat1 <- corrMat1[-torm, -torm]
     if (length(torm) != 0) corrMat2 <- corrMat2[-torm, -torm]
     if (length(torm) != 0) diffMat <- diffMat[-torm, -torm]
-
+    
     kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in% 
                                            colnames(diffMat))]
-
+    
   }
-
+  
   if (legend) {
     if (is.null(legendTitle)) {
       legendTitle = "Associations"
     }
     if (is.null(legendGroupnames)) {
-
+      
       legtitle1 <- paste0("group '" , x$groups[1], "'" )
       legtitle2 <- paste0("group '" , x$groups[2], "'" )
-
+      
     } else {
       stopifnot(is.vector(legendGroupnames))
       stopifnot(length(legendGroupnames) == 2)
@@ -215,23 +215,23 @@ plot.diffnet <- function(x,
       legtitle2 <- legendGroupnames[2]
     }
   }
-
+  
   #=============================================================================
   # define edge colors
-
+  
   if (x$diffMethod == "discordant") {
-
+    
     # create color matrix
     if (is.null(edgeCol)) {
       edgeCol <- c("hotpink", "aquamarine", "red", "orange", "green", "blue")
     } else {
       stopifnot(length(edgeCol) == 6)
     }
-
+    
     if (edgeTransp > 0) {
       colVec <- colToTransp(colVec, edgeTransp)
     }
-
+    
     classMat <- x$classMat
     edgeColMat <- classMat
     
@@ -246,18 +246,18 @@ plot.diffnet <- function(x,
         if (classMat[i,j] == 8) edgeColMat[i,j] <- edgeCol[4]
       }
     }
-
-
+    
+    
   } else {
-
+    
     if (is.null(edgeCol)) {
       edgeCol <- c("chartreuse2", "chartreuse4", "cyan", "magenta", "orange",
                    "red", "blue", "black", "purple")
     } else {
       stopifnot(length(edgeCol) == 9)
     }
-
-
+    
+    
     # transform correlation matrices to vectors
     lowtri <- lower.tri(corrMat1, diag = FALSE)
     corrVec1 <- corrMat1[lowtri]
@@ -265,7 +265,7 @@ plot.diffnet <- function(x,
     vector_names <- get_vec_names(t(corrMat1))
     names(corrVec1) <- vector_names
     names(corrVec2) <- vector_names
-
+    
     colVec <- rep("black", length(corrVec1))
     if (any(corrVec1==0) || any(corrVec2 == 0)) {
       colVec[corrVec1 > 0 & corrVec2 > 0] <- edgeCol[1]
@@ -284,27 +284,27 @@ plot.diffnet <- function(x,
       colVec[corrVec1 < 0 & corrVec2 > 0] <- edgeCol[3]
       colVec[corrVec1 < 0 & corrVec2 < 0] <- edgeCol[4]
     }
-
+    
     if (edgeTransp > 0) {
       colVec <- colToTransp(colVec, edgeTransp)
     }
-
+    
     edgeColMat <- corrMat1
     edgeColMat[lower.tri(edgeColMat)] <- colVec
     edgeColMat <- t(edgeColMat)
     edgeColMat[lower.tri(edgeColMat)] <- colVec
   }
-
-
-
+  
+  
+  
   if (rmSingles) {
     edgeColMat <- edgeColMat[kept, kept]
   }
-
+  
   #=============================================================================
-
+  
   nodeSize <- (7*exp(-ncol(diffMat)/80)+1) * cexNodes
-
+  
   if (is.null(title)) {
     main <- "Differential network"
   } else if (title == FALSE) {
@@ -313,12 +313,12 @@ plot.diffnet <- function(x,
     stopifnot(is.character(title))
     main <- title
   }
-
+  
   #=============================================================================
   # rename taxa
-
+  
   if (is.null(labels)) {
-
+    
     labelsout <- editLabels(rownames(diffMat), 
                             shortenLabels = shortenLabels,
                             labelLength = labelLength,
@@ -332,25 +332,25 @@ plot.diffnet <- function(x,
   } else {
     labelsout <- labels[kept]
   }
-
+  
   #=============================================================================
   # node colors
   if (nodeTransp > 0) {
     nodeColor <- colToTransp(nodeColor, nodeTransp)
   }
-
+  
   #=============================================================================
-
-
+  
+  
   q <- qgraph(diffMat, layout = layout, color = nodeColor,
               label.scale = labelScale, labels = labelsout,
               label.font = labelFont, label.cex = cexLabels, vsize = nodeSize,
               border.color = borderCol, border.width = borderWidth,
               edge.color = edgeColMat, edge.width = edgeWidth,
               repulsion = repulsion, mar = mar, ...)
-
+  
   if (legend) {
-
+    
     leg_args <- as.list(legendArgs)
     
     if (is.character(legendPos)) {
@@ -364,11 +364,11 @@ plot.diffnet <- function(x,
       leg_args$x <- legendPos[1]
       leg_args$y <- legendPos[2]
     }
-
+    
     if (x$diffMethod %in% c("discordant")) {
       
       leg_args$legend <- c(legtitle1, 0, 0, "-", "-", "+", "+", 
-                    legtitle2, "-", "+", 0, "+", 0, "-")
+                           legtitle2, "-", "+", 0, "+", 0, "-")
       leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 7))
       leg_args$lty <- c(rep(1,7), rep(-1,7))
       leg_args$pch <- c(rep(-1, 7), rep(20,7))
@@ -377,14 +377,14 @@ plot.diffnet <- function(x,
       if (length(edgeCol) == 9) {
         
         leg_args$legend <- c(legtitle1, "+", "+", "+", "-", "-", "-", 0, 0, 0, 
-                      legtitle2, "+", 0, "-", "+", 0, "-", "+", 0, "-")
+                             legtitle2, "+", 0, "-", "+", 0, "-", "+", 0, "-")
         leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 10))
         leg_args$lty <- c(rep(1,10), rep(-1,10))
         leg_args$pch <- c(rep(-1, 10), rep(20,10))
-
+        
       } else {
         leg_args$legend <- c(legtitle1, "+", "+", "-", "-", 
-                      legtitle2, "+", "-", "+", "-")
+                             legtitle2, "+", "-", "+", "-")
         leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 5))
         leg_args$lty <- c(rep(1,5), rep(-1,5))
         leg_args$pch <- c(rep(-1, 5), rep(20,5))
@@ -395,17 +395,17 @@ plot.diffnet <- function(x,
     leg_args$title <- legendTitle
     leg_args$ncol <- 2
     if (is.null(leg_args$lwd)) leg_args$lwd <- 2
-
+    
     do.call("legend", leg_args)
   }
-
+  
   if (main != "") {
     title(main = list(main, cex = cexTitle ))
   }
-
+  
   lay <- q$layout
   rownames(lay) <- colnames(diffMat)
   invisible(lay)
-
+  
 }
 

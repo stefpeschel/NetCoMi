@@ -45,9 +45,9 @@
 
 gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
                   nlambda = 15, ebic.gamma = 0.5, cores = 1L, verbose = TRUE) {
-
+  
   # Counts or fractions?
-  if(counts) {
+  if (counts) {
     x <- x + pseudo
     x <- x / Matrix::rowSums(x)
   }
@@ -59,59 +59,60 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   lambda.max <- max(max(S - diag(p)), -min(S - diag(p)))
   lambda.min <- lambda.min.ratio * lambda.max
   lambda <- exp(seq(log(lambda.max), log(lambda.min), length = nlambda))
-
+  
   # Compute solution paths for gcoda
   icov <- diag(p)
-  if(cores > 1){
+  if (cores > 1) {
     cl <- snow::makeCluster(cores)
     #snow::clusterExport(cl, c("S", "icov", "lambda"), envir = environment())
     doSNOW::registerDoSNOW(cl)
     '%do_or_dopar%' <- get('%dopar%')
-    if(verbose) message("Start parallel foreach loop ...")
-  } else{
+    if (verbose) message("Start parallel foreach loop ...")
+  } else {
     '%do_or_dopar%' <- get('%do%')
   }
   
-  if(verbose){
+  if (verbose) {
     pb <- utils::txtProgressBar(0,nlambda,style=3)
-    progress <- function(n){
+    progress <- function(n) {
       setTxtProgressBar(pb,n)
     }
-
+    
     opts <- list(progress=progress)
-  } else{
+  } else {
     opts <- list()
   }
-
+  
   fit.tmp <- foreach(i = 1:nlambda, .export = c("gcoda_sub", "obj_gcoda"), 
                      .noexport = "x", .options.snow = opts) %do_or_dopar% {
-                      
-                      if(verbose) progress(i)
-                      
-                      
-                      outlist <- list()
-
-                      out.gcoda <- gcoda_sub(A = S, iSig = icov, lambda = lambda[i])
-                      icov <- out.gcoda$iSig
-                      
-                      outlist[["nloglik"]] <- out.gcoda$nloglik
-                      outlist[["icov"]] <- icov
-                      outlist[["path"]] <- 0 + (abs(icov) > 1e-6)
-                      diag(outlist[["path"]]) <- 0
-                      outlist[["df"]] <- sum(outlist[["path"]]) / 2
-                      
-                      outlist
+                       
+                       if (verbose) progress(i)
+                       
+                       
+                       outlist <- list()
+                       
+                       out.gcoda <- gcoda_sub(A = S, iSig = icov, 
+                                              lambda = lambda[i])
+                       icov <- out.gcoda$iSig
+                       
+                       outlist[["nloglik"]] <- out.gcoda$nloglik
+                       outlist[["icov"]] <- icov
+                       outlist[["path"]] <- 0 + (abs(icov) > 1e-6)
+                       diag(outlist[["path"]]) <- 0
+                       outlist[["df"]] <- sum(outlist[["path"]]) / 2
+                       
+                       outlist
                      }
   
-  if(verbose) close(pb)
-
-  if(verbose & cores > 1){
+  if (verbose) close(pb)
+  
+  if (verbose & cores > 1) {
     message("Stopping socket cluster ... ", appendLF = FALSE)
   }
   
-  if(cores > 1) snow::stopCluster(cl)
+  if (cores > 1) snow::stopCluster(cl)
   
-  if(verbose & cores > 1){
+  if (verbose & cores > 1) {
     message("Done.")
   }
   
@@ -124,24 +125,24 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   fit$path <- list()
   fit$icov <- list()
   
-  for(i in 1:nlambda){
+  for (i in 1:nlambda) {
     fit$nloglik[i] <- fit.tmp[[i]]$nloglik
     fit$df[i] <- fit.tmp[[i]]$df
     fit$path[[i]] <- fit.tmp[[i]]$path
     fit$icov[[i]] <- fit.tmp[[i]]$icov
   }
-
+  
   #####################################
   # Continue if edge density is too small
   imax <- nlambda + 15
   emin <- p * (p - 1) / 2 * 0.618
-
-  if(fit$df[i] <= emin && i <= imax && lambda[i] > 1e-6 && verbose){
+  
+  if (fit$df[i] <= emin && i <= imax && lambda[i] > 1e-6 && verbose) {
     message("\nEdge density too small. Continuing ...")
   }
   
   while(fit$df[i] <= emin && i <= imax && lambda[i] > 1e-6) {
-    if(verbose) message("nlambda = ", i, " ... Going on ...\r",appendLF=FALSE)
+    if (verbose) message("nlambda = ", i, " ... Going on ...\r",appendLF=FALSE)
     lambda <- c(lambda, lambda[i]/2)
     i <- i + 1
     fit$lambda[i] <- lambda[i]
@@ -154,7 +155,7 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
     fit$df[i] <- sum(fit$path[[i]]) / 2
   }
   
-  if(verbose) message("")
+  if (verbose) message("")
   # Compute EBIC score for lambda selection
   fit$ebic.score <- n * fit$nloglik + log(n) * fit$df +
     4 * ebic.gamma * log(p) * fit$df
@@ -171,14 +172,14 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
 gcoda_sub <- function(A, iSig = NULL, lambda = 0.1, tol_err = 1e-4,
                       k_max = 100) {
   p <- ncol(A)
-  if(is.null(iSig)) {
+  if (is.null(iSig)) {
     iSig <- diag(p)
   }
-
+  
   err <- 1
   k <- 0
   fval_cur <- Inf
-
+  
   while(err > tol_err && k < k_max) {
     iSig_O <- Matrix::rowSums(iSig)
     iS_iSig <- 1 / sum(iSig_O)
@@ -188,22 +189,22 @@ gcoda_sub <- function(A, iSig = NULL, lambda = 0.1, tol_err = 1e-4,
       sum(iSig_O2 * A_iSig_O2) + iS_iSig
     iSig2 <- huge::huge(x = A2, lambda = lambda, method = "glasso", 
                         verbose = FALSE)$icov[[1]]
-
+    
     fval_new <- obj_gcoda(iSig = iSig2, A = A, lambda = lambda)
     xerr <- max(abs(iSig2 - iSig) / (abs(iSig2) + 1))
     err <- min(xerr, abs(fval_cur - fval_new)/(abs(fval_new) + 1))
-
+    
     k <- k + 1
     iSig <- iSig2
     fval_cur <- fval_new
   }
   nloglik <- fval_cur - lambda * sum(abs(iSig))
-
-  if(k >= k_max) {
+  
+  if (k >= k_max) {
     cat("WARNING of gcoda_sub:\n", "\tMaximum Iteration:", k_max,
         "&& Relative error:", err, "!\n")
   }
-
+  
   return(list(iSig = iSig, nloglik = nloglik))
 }
 #----------------------------------------

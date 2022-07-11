@@ -1,11 +1,11 @@
 #' @title CCLasso: Correlation inference of Composition data through Lasso method
 #'
-#' @description Implementation of the CCLasso approach \cite{(Fang et al., 2015)},
-#'   which is published on GitHub \cite{(Fang, 2016)}. The function is extended
-#'   by a progress message.
+#' @description Implementation of the CCLasso approach 
+#'   \cite{(Fang et al., 2015)}, which is published on GitHub 
+#'   \cite{(Fang, 2016)}. The function is extended by a progress message.
 #'
-#' @param x numeric matrix (\emph{n}x\emph{p}) with samples in rows and OTUs/taxa in
-#'   columns.
+#' @param x numeric matrix (\emph{n}x\emph{p}) with samples in rows and 
+#'   OTUs/taxa in columns.
 #' @param counts logical indicating whether x constains counts or fractions.
 #'   Defaults to \code{FALSE} meaning that x contains fractions so that rows
 #'   sum up to 1.
@@ -45,7 +45,7 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   p <- ncol(x);
   n <- nrow(x);
   # Counts or Fractions?
-  if(counts) {
+  if (counts) {
     x <- x + pseudo;
     x <- x / rowSums(x);
   }
@@ -55,18 +55,18 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   vx <- stats::var(xlog);
   # initial value
   res <- list();
-  if(is.null(sig)) {
+  if (is.null(sig)) {
     res$sig <- diag(rep(1, p));
   }
   else {
     res$sig <- sig;
   }
-  #-------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
   # weight diagonal for loss
   rmean.vx <- rowMeans(vx);
   wd <- 1 / diag(vx - rmean.vx - rep(rmean.vx, each = p) + mean(rmean.vx));
   wd2 <- sqrt(wd);
-  #-------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
   # preparation for update sigma in augmented lagrange method
   rho <- 1; # needed
   u.f <- eigen(diag(rep(1, p)) - 1 / p)$vectors; # needed
@@ -75,13 +75,13 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   wd.u.eig <- eigen(wd.u);
   d0.wd <- 2 / outer(wd.u.eig$values, wd.u.eig$values, "+"); # needed
   u0.wd <- wd.u.eig$vectors; # needed
-  #-------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
   n_lam <- length(lams);
   tol.zero <- 1e-8;
   
-  #-------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
   # cross validation
-  if(n_lam == 1) {
+  if (n_lam == 1) {
     lamA <- lams[1];
   }
   else {
@@ -90,10 +90,10 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
     k.loss <- n_lam;
     n.b <- floor(n / K);
     # loss <- rep(0, n_lam);
-    for(i in 1:n_lam) {
-
+    for (i in 1:n_lam) {
+      
       loss.cur <- 0;
-      for(k in 1:K) {
+      for (k in 1:K) {
         # testing data and training data
         itest <- (n.b * (k-1) + 1):(n.b * k);
         vxk <- stats::var(xlog[itest, ]);
@@ -115,15 +115,15 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
       }
       
       thresh <- tol.loss * max(loss.cur, loss.old, 1)
-      if(verbose){
+      if (verbose) {
         
         message("current loss diff.: ", 
                 sprintf("%.6f", round(loss.cur - loss.old, 6)), 
                 " (breaks if >= ", sprintf("%.6f", round(thresh, 6)),
                 ")\r", appendLF=FALSE)
       }
-
-      if(loss.cur - loss.old >= thresh) {
+      
+      if (loss.cur - loss.old >= thresh) {
         k.loss <- i - 1;
         break;
       }
@@ -139,16 +139,16 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
     }
   }
   
-  if(verbose) message("")
-  #-------------------------------------------------------------------------------
+  if (verbose) message("")
+  #-----------------------------------------------------------------------------
   res <- cclasso.sub(vx = vx, wd = wd, lam = lamA,
                      u.f = u.f, u0.wd = u0.wd, d0.wd = d0.wd,
                      sig = res$sig, rho = rho, kmax = kmax);
-  #-------------------------------------------------------------------------------
-  #-------------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
+  #-----------------------------------------------------------------------------
   #
   res$sig[abs(res$sig) <= tol.zero] <- 0;
-  if(min(eigen(res$sig)$values) <= tol.zero) {
+  if (min(eigen(res$sig)$values) <= tol.zero) {
     sig.sparse <- abs(res$sig) > tol.zero;
     diag(res$sig) <- diag(res$sig) * sign(diag(res$sig));
     res$sig <- as.matrix(nearPD(res$sig)$mat) * sig.sparse;
@@ -167,7 +167,7 @@ cclasso.sub <- function(vx, wd, lam, u.f, u0.wd, d0.wd, sig = NULL,
   p <- ncol(vx);
   # initial value
   lam.rho <- lam / rho;
-  if(is.null(sig)) {
+  if (is.null(sig)) {
     sig <- diag(rep(1, p));
   }
   sig2 <- sig;
@@ -197,12 +197,11 @@ cclasso.sub <- function(vx, wd, lam, u.f, u0.wd, d0.wd, sig = NULL,
     k <- k + 1;
   }
   #
-  if(k >= kmax) {
+  if (k >= kmax) {
     cat("Warning:", "Maximum ", kmax,
         "iteration while relative error is", err, "\n");
   }
   #
   return(list(sig = sig, k = k));
 }
-
 

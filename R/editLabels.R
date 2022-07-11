@@ -117,26 +117,26 @@ editLabels <- function(x,
   stopifnot(is.logical(addBrack))
   
   stopifnot(is.logical(verbose))
-
+  
   # Define label pattern
   if (is.null(labelPattern)) {
     labelPattern <- c(4, "'", 3, "'", 3)
   } else {
     stopifnot(length(labelPattern) %in% c(3, 5))
   }
-
+  
   # Intelligent approach
   if (shortenLabels == "intelligent") {
-
+    
     for (char in charToRm) {
       labels <- gsub(char, "", labels)
     }
-
+    
     labels[labels == ""] <- "-"
     shortlabels <- substring(labels, 1,labelLength)
-
+    
     dupli <- which(duplicated(shortlabels))
-
+    
     # find duplicates in variable names
     while(length(dupli) > 0) {
       lpat <- length(labelPattern)
@@ -154,7 +154,7 @@ editLabels <- function(x,
           }
         }
       }
-
+      
       pos <- first_unequal_element(dupnames)
       first_unequal <- pos$first_unequal
       all_unequal <- pos$all_unequal
@@ -170,20 +170,22 @@ editLabels <- function(x,
       } else {
         cut3 <- 0
       }
-
+      
       
       if (first_unequal > length(dupnames[[1]])) {
         shortlabels[ind] <- substring(labels[ind], 1, cut1)
-
+        
       } else {
         for (k in 1:length(dupnames)) {
           str1 <- paste(dupnames[[k]][1:cut1], collapse = "")
           str2 <- labelPattern[2]
-          str3 <- paste(dupnames[[k]][first_unequal:(first_unequal+cut2-1)], collapse = "")
+          str3 <- paste(dupnames[[k]][first_unequal:(first_unequal+cut2-1)], 
+                        collapse = "")
           
           if (lpat == 5) {
             str4 <- labelPattern[4]
-            str5 <- paste(dupnames[[k]][all_unequal:(all_unequal+cut3-1)], collapse = "")
+            str5 <- paste(dupnames[[k]][all_unequal:(all_unequal+cut3-1)], 
+                          collapse = "")
           }
           
           if (addBrack) {
@@ -220,35 +222,35 @@ editLabels <- function(x,
           
         }
       }
-
+      
       dupli <- dupli[!dupli %in% ind]
     }
     
     if (any(duplicated(shortlabels)) & verbose) {
       message("Shortened labels could not be made unique.")
     }
-
+    
     labels <- shortlabels
-
+    
     # Simple approach
   } else if (shortenLabels == "simple") {
-
+    
     for (char in charToRm) {
       labels <- gsub(char, "", labels)
     }
-
+    
     labels[labels == ""] <- "-"
     labels <- substr(labels, 1, labelLength)
     
     # Only unwanted characters removed, no shortening
   } else if (!is.null(charToRm)) {
-
+    
     for (char in charToRm) {
       labels <- gsub(char, "", labels)
     }
-
+    
   }
-
+  
   return(labels)
 }
 

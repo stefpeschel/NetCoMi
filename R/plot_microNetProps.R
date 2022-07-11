@@ -450,10 +450,10 @@ plot.microNetProps <- function(x,
                                ...) {
   
   inputArgs <- c(as.list(environment()), list(...))
-
+  
   outputArgs <- except_plot_networks(inputArgs)
   
-  for(i in 1:length(outputArgs)){
+  for (i in 1:length(outputArgs)) {
     assign(names(outputArgs)[i], outputArgs[[i]])
   }
   

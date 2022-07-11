@@ -1,16 +1,37 @@
-calc_diff_props <- function(adja1, adja2, 
-                            dissMat1, dissMat2, 
-                            assoMat1, assoMat2,
-                            avDissIgnoreInf, sPathNorm, sPathAlgo, 
-                            connectivity, normNatConnect,
-                            weighted, clustMethod, clustPar, clustPar2, 
-                            weightClustCoef, hubPar,
-                            hubQuant, jaccQuant, lnormFit, weightDeg, 
-                            normDeg, normBetw, normClose, normEigen, centrLCC,
-                            testJacc = TRUE, jaccTestGreater = FALSE,
-                            testRand = TRUE, nPermRand = 1000, 
-                            gcd, gcdOrb = NULL) {
-
+calc_diff_props <- function(adja1,
+                            adja2,
+                            dissMat1,
+                            dissMat2,
+                            assoMat1,
+                            assoMat2,
+                            avDissIgnoreInf,
+                            sPathNorm,
+                            sPathAlgo,
+                            connectivity,
+                            normNatConnect,
+                            weighted,
+                            clustMethod,
+                            clustPar,
+                            clustPar2,
+                            weightClustCoef,
+                            hubPar,
+                            hubQuant,
+                            jaccQuant,
+                            lnormFit,
+                            weightDeg,
+                            normDeg,
+                            normBetw,
+                            normClose,
+                            normEigen,
+                            centrLCC,
+                            testJacc = TRUE,
+                            jaccTestGreater = FALSE,
+                            testRand = TRUE,
+                            nPermRand = 1000,
+                            gcd,
+                            gcdOrb = NULL) {
+  
+  
   isempty1 <- all(adja1[lower.tri(adja1)] == 0)
   isempty2 <- all(adja2[lower.tri(adja2)] == 0)
   
@@ -136,7 +157,7 @@ calc_diff_props <- function(adja1, adja2,
     modul1 <- modul2 <- modul1_lcc <- modul2_lcc <- NA
     diffmod <- diffmod_lcc <- NA
   }
-
+  
   #--------------------------------------------------------------------------
   # connectivity
   
@@ -198,7 +219,7 @@ calc_diff_props <- function(adja1, adja2,
   c1names <- names(clust1_lcc.tmp)
   c2names <- names(clust2_lcc.tmp)
   uniNames <- union(c1names, c2names)
-
+  
   clust1_lcc <- clust2_lcc <- rep(0, length(uniNames))
   names(clust1_lcc) <- names(clust2_lcc) <- uniNames
   
@@ -213,8 +234,8 @@ calc_diff_props <- function(adja1, adja2,
                  pval = NA)
     
     randInd_lcc <- c(value = WGCNA::randIndex(table(clust1_lcc, clust2_lcc),
-                                             adjust = TRUE), pval = NA)
-
+                                              adjust = TRUE), pval = NA)
+    
     # significance test for Rand index
     if (testRand) {
       randInd["pval"] <- .sigTestRand(randInd = randInd[1],
@@ -244,7 +265,7 @@ calc_diff_props <- function(adja1, adja2,
   
   #--------------------------------------------------------------------------
   # Graphlet Correlation Distance (GCD)
-
+  
   if (gcd) {
     gcd <- calcGCD(adja1 = adja1, adja2 = adja2, orbits = gcdOrb)
     adja1_lcc <- props1$adjaMat_lcc

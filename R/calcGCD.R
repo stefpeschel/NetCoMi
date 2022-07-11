@@ -84,8 +84,8 @@
 #' 
 #' @export
 
-calcGCD <- function(adja1, adja2, orbits = c(0:2, 4:11)){
-
+calcGCD <- function(adja1, adja2, orbits = c(0:2, 4:11)) {
+  
   if (!is.numeric(orbits)) {
     stop("'orbits' vector must be numeric.")
   }
@@ -93,7 +93,7 @@ calcGCD <- function(adja1, adja2, orbits = c(0:2, 4:11)){
   if (length(orbits) < 2) {
     stop("At least two orbits must be selected to compute the GCD.")
   }
-
+  
   if (any(orbits < 0) | any(orbits > 14) | length(orbits) > 15) {
     stop("Only orbits 0 to 14 (from 4-node graphlets) are allowed.")
   }
@@ -121,7 +121,7 @@ calcGCD <- function(adja1, adja2, orbits = c(0:2, 4:11)){
   
   ocount1 <- gcm1.list$ocount
   ocount2 <- gcm2.list$ocount
-
+  
   # GC vectors
   corvec1 <- gcm1[upper.tri(gcm1)]
   corvec2 <- gcm2[upper.tri(gcm2)]

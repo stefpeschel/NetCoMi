@@ -69,7 +69,8 @@
 #'   # Run netcompare using the stored permutation count matrices 
 #'   # (association matrices are still computed within netCompare):
 #'   amgut_comp1 <- netCompare(amgut_props, permTest = TRUE, nPerm = 100L, 
-#'                             fileLoadCountsPerm = c("countsPerm1", "countsPerm2"),
+#'                             fileLoadCountsPerm = c("countsPerm1", 
+#'                                                    "countsPerm2"),
 #'                             seed = 123456)
 #'                             
 #'   # Run netcompare using the stored permutation association matrices:
@@ -109,7 +110,8 @@ createAssoPerm <- function(x,
                            fileStoreAssoPerm = "assoPerm",
                            append = TRUE,
                            storeCountsPerm = FALSE,
-                           fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
+                           fileStoreCountsPerm = c("countsPerm1", 
+                                                   "countsPerm2"),
                            logFile = NULL, 
                            verbose = TRUE) {
   
@@ -212,7 +214,7 @@ createAssoPerm <- function(x,
       fmat <- suppressWarnings(try(fm.open(filenamebase = fileStoreAssoPerm), 
                                    silent = TRUE))
       
-      if (class(fmat) == "try-error") {
+      if (inherits(fmat, "try-error")) {
         fmat <- fm.create(filenamebase = fileStoreAssoPerm, 
                           nrow = (nVar * nPerm), ncol = (2 * nVar))
         
@@ -264,8 +266,8 @@ createAssoPerm <- function(x,
           suppressWarnings(try(fm.open(filenamebase = fileStoreCountsPerm[2]), 
                                silent = TRUE))
         
-        if (class(fmat_counts1) == "try-error" || 
-           class(fmat_counts2) == "try-error") {
+        if (inherits(fmat_counts1, "try-error") ||  
+            inherits(fmat_counts2, "try-error")) {
           fmat_counts1 <- fm.create(filenamebase = fileStoreCountsPerm[1], 
                                     nrow = (n1 * nPerm), ncol = nVar)
           

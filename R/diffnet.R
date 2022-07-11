@@ -216,50 +216,58 @@
 #' @importFrom stats pnorm
 #' @export
 
-diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
-                    fisherTrans = TRUE, nPerm = 1000L,
+diffnet <- function(x,
+                    diffMethod = "permute",
+                    discordThresh = 0.8,
+                    fisherTrans = TRUE,
+                    nPerm = 1000L,
                     permPvalsMethod = "pseudo",
-                    cores = 1L, verbose = TRUE, logFile = NULL,
-                    seed = NULL, alpha = 0.05, adjust = "lfdr",
-                    lfdrThresh = 0.2, trueNullMethod = "convest",
+                    cores = 1L,
+                    verbose = TRUE,
+                    logFile = NULL,
+                    seed = NULL,
+                    alpha = 0.05,
+                    adjust = "lfdr",
+                    lfdrThresh = 0.2,
+                    trueNullMethod = "convest",
                     pvalsVec = NULL,
                     fileLoadAssoPerm  = NULL,
                     fileLoadCountsPerm = NULL,
                     storeAssoPerm = FALSE,
                     fileStoreAssoPerm = "assoPerm",
                     storeCountsPerm = FALSE,
-                    fileStoreCountsPerm = c("countsPerm1", "countsPerm2"), 
+                    fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
                     assoPerm = NULL) {
-
-  stopifnot(class(x) == "microNet")
-
+  
+  stopifnot(inherits(x, "microNet"))
+  
   if (x$assoType == "dissimilarity") {
     stop("Differential network not implemented for dissimilarity-based networks.")
   }
-
+  
   if (is.null(x$groups)) {
     stop("'net' is a single network. A group vector must be passed to 'NetConstruct()'
          for network comparison.")
   }
-
+  
   diffMethod <- match.arg(diffMethod, choices = c("discordant", "permute",
                                                   "fisherTest"))
   if (discordThresh < 0 || discordThresh > 1) {
     stop("'discordThresh' must be in [0,1].")
   }
-
+  
   nPerm <- as.integer(nPerm)
-
+  
   if (permPvalsMethod != "pseudo") permPvalsMethod <- "pseudo"
-
+  
   if (verbose %in% c(0,1)) {
     verbose <- as.logical(verbose)
   } else {
     stopifnot(is.logical(verbose))
   }
-
+  
   if (!is.null(logFile)) stopifnot(is.character(logFile))
-
+  
   stopifnot(is.numeric(alpha))
   if (alpha < 0) {
     stop("Significance level 'alpha' must be in [0,1].")
@@ -268,18 +276,18 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     alpha <- alpha / 100
     message("'alpha' transformed to ", alpha, ".")
   }
-
+  
   adjust <- match.arg(adjust, c(p.adjust.methods, "lfdr", "adaptBH"))
-
+  
   if (lfdrThresh < 0 || lfdrThresh > 1) {
     stop("'lfdrThresh' must be in [0,1].")
   }
-
+  
   trueNullMethod <- match.arg(trueNullMethod, c("convest", "lfdr", "mean",
                                                 "hist", "farco"))
   
   if (diffMethod != "discordant" && adjust == "adaptBH" && 
-     !requireNamespace("limma", quietly = TRUE)) {
+      !requireNamespace("limma", quietly = TRUE)) {
     
     message("Installing missing package 'limma' ...")
     
@@ -294,21 +302,21 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     requireNamespace("limma")
     message("Done.")
   }
-
+  
   #-----------------------------------------------------------------------------
-
+  
   countMat1 <- x$countMat1
   countMat2 <- x$countMat2
   countsJoint <- x$countsJoint
   
   normCounts1 <- x$normCounts1
   normCounts2 <- x$normCounts2
-
+  
   assoMat1 <- x$assoEst1
   assoMat2 <- x$assoEst2
-
+  
   if (diffMethod == "discordant") {
-
+    
     if (!requireNamespace("discordant", quietly = TRUE)) {
       
       message("Installing missing package 'discordant' ...")
@@ -326,7 +334,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     }
     
     if (!is.null(seed)) set.seed(seed)
-
+    
     if (is.null(countsJoint)) {
       combMat <- rbind(countMat1, countMat2)
     } else {
@@ -335,9 +343,9 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     
     # Create object of class ExpressionSet
     x_expr <- Biobase::ExpressionSet(assayData = t(combMat))
-
+    
     groups <- c(rep(1, nrow(normCounts1)), rep(2, nrow(normCounts2)))
-
+    
     # Transform correlation matrices to vectors
     lowtri <- lower.tri(assoMat1, diag = FALSE)
     corrVector1 <- assoMat1[lowtri]
@@ -345,92 +353,99 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     vector_names <- get_vec_names(t(assoMat1))
     names(corrVector1) <- vector_names
     names(corrVector2) <- vector_names
-
+    
     # Get classes with probabilities
     discord <- discordant::discordantRun(corrVector1, corrVector2, x_expr)
-
+    
     # Matrix with assigned classes (with highest probabilities)
     classMat <- discord$classMatrix
     classMat[upper.tri(classMat)] <- t(classMat)[upper.tri(t(classMat))]
     diag(classMat) <- 1
-
+    
     # Matrix with probabilities that correlations are different between the groups
     # (equals sum of probabilities for classes 2,3,4,6,7,8)
     diffProbs <- discord$discordPPMatrix
     diffProbs[upper.tri(diffProbs)] <- t(diffProbs)[upper.tri(t(diffProbs))]
     diag(diffProbs) <- 0
-
+    
     diffMat <- abs(assoMat1 - assoMat2)
     diffMat[diffProbs < discordThresh] <- 0
     output <- list(assoMat1 = assoMat1, assoMat2 = assoMat2,
-                   diffMat = diffMat, classMat = classMat, diffProbs = diffProbs)
-
+                   diffMat = diffMat, classMat = classMat, 
+                   diffProbs = diffProbs)
+    
   } else if (diffMethod == "permute") {
     
     matchDesign <- x$matchDesign
     callNetConstr <- x$call
-
+    
     pvalsVecInput <- pvalsVec
-
+    
     if (is.null(pvalsVec)) {
-
+      
       cores <- as.integer(cores)
-
+      
       if (cores > 1) {
         if (parallel::detectCores() < cores) cores <- parallel::detectCores()
       }
-
-      permResult <- permtest_diff_asso(countMat1 = countMat1,
-                                       countMat2 = countMat2,
-                                       countsJoint = countsJoint,
-                                       normCounts1 = normCounts1, 
-                                       normCounts2 = normCounts2,
-                                       assoMat1 = assoMat1,
-                                       assoMat2 = assoMat2,
-                                       paramsNetConstruct = x$parameters,
-                                       method = "connect.pairs",
-                                       fisherTrans = fisherTrans,
-                                       pvalsMethod = permPvalsMethod,
-                                       adjust = adjust, adjust2 = "none",
-                                       alpha = alpha, lfdrThresh = lfdrThresh,
-                                       verbose = verbose, nPerm = nPerm,
-                                       matchDesign = matchDesign,
-                                       callNetConstr = callNetConstr,
-                                       cores = cores, logFile = logFile,
-                                       seed = seed, 
-                                       fileLoadAssoPerm = fileLoadAssoPerm,
-                                       fileLoadCountsPerm = fileLoadCountsPerm,
-                                       storeAssoPerm = storeAssoPerm,
-                                       fileStoreAssoPerm = fileStoreAssoPerm,
-                                       storeCountsPerm = storeCountsPerm,
-                                       fileStoreCountsPerm = fileStoreCountsPerm,
-                                       assoPerm = assoPerm)
-
+      
+      permResult <- permtest_diff_asso(
+        countMat1 = countMat1,
+        countMat2 = countMat2,
+        countsJoint = countsJoint,
+        normCounts1 = normCounts1,
+        normCounts2 = normCounts2,
+        assoMat1 = assoMat1,
+        assoMat2 = assoMat2,
+        paramsNetConstruct = x$parameters,
+        method = "connect.pairs",
+        fisherTrans = fisherTrans,
+        pvalsMethod = permPvalsMethod,
+        adjust = adjust,
+        adjust2 = "none",
+        alpha = alpha,
+        lfdrThresh = lfdrThresh,
+        verbose = verbose,
+        nPerm = nPerm,
+        matchDesign = matchDesign,
+        callNetConstr = callNetConstr,
+        cores = cores,
+        logFile = logFile,
+        seed = seed,
+        fileLoadAssoPerm = fileLoadAssoPerm,
+        fileLoadCountsPerm = fileLoadCountsPerm,
+        storeAssoPerm = storeAssoPerm,
+        fileStoreAssoPerm = fileStoreAssoPerm,
+        storeCountsPerm = storeCountsPerm,
+        fileStoreCountsPerm = fileStoreCountsPerm,
+        assoPerm = assoPerm
+      )
+      
       pvalsVec <- permResult$pvalsVec
       pAdjustVec <- permResult$pAdjustVec
       
       testStatData <- permResult$testStatData
       testStatPerm <- permResult$testStatPerm
-
+      
       nExceedsVec <- permResult$nExceedsVec
-
+      
     } else {
-
+      
       # Adjust for multiple testing
       if (verbose & adjust != "none") {
         message("Adjust for multiple testing using '", adjust, "' ... ",
                 appendLF = FALSE)
       }
       pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
-                            trueNullMethod = trueNullMethod, verbose = verbose)
+                               trueNullMethod = trueNullMethod, verbose = verbose)
       if (verbose & adjust != "none") message("Done.")
-
+      
       testStatData <- NULL
       testStatPerm <- NULL
       
       nExceedsVec <- NULL
     }
-
+    
     diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
     diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
     
@@ -444,7 +459,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     } else {
       diffVecAdjust[pAdjustVec > alpha] <- 0
     }
-
+    
     diffMat[lower.tri(diffMat)] <- diffVec
     diffMat[upper.tri(diffMat)] <- t(diffMat)[upper.tri(t(diffMat))]
     
@@ -461,7 +476,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     pAdjustMat[upper.tri(pAdjustMat)] <- t(pAdjustMat)[upper.tri(t(pAdjustMat))]
     
     output = list()
-
+    
     output[["diffMat"]] <- diffMat
     output[["diffAdjustMat"]] <- diffAdjustMat
     
@@ -477,24 +492,24 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     
     output[["assoMat1"]] <- assoMat1
     output[["assoMat2"]] <- assoMat2
-
+    
   }else { #Fisher's z-test
-
+    
     assoVec1 <- as.vector(assoMat1[lower.tri(assoMat1)])
     assoVec2 <- as.vector(assoMat2[lower.tri(assoMat2)])
-
+    
     assoVec1[assoVec1 == 1] <- 0.9999
     assoVec2[assoVec2 == 1] <- 0.9999
     assoVec1[assoVec1 == -1] <- -0.9999
     assoVec2[assoVec2 == -1] <- -0.9999
-
+    
     n1 <- nrow(normCounts1)
     n2 <- nrow(normCounts2)
     z1 <- atanh(assoVec1)
     z2 <- atanh(assoVec2)
     diff_z <- (z1 - z2)/sqrt(1/(n1 - 3) + (1/(n2 - 3)))
     pvalsVec <- 2 * (1 - pnorm(abs(diff_z)))
-
+    
     # Adjust for multiple testing
     if (verbose & adjust != "none") {
       message("Adjust for multiple testing using '", adjust, "' ... ",
@@ -505,14 +520,14 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
                              trueNullMethod = trueNullMethod, verbose = verbose)
     
     if (verbose & adjust != "none") message("Done.")
-
+    
     diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
     diag(diffMat) <- diag(diffAdjustMat) <- 0
     
     diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
     
     diffVec[pvalsVec > alpha] <- 0
-
+    
     # Identify links
     if (adjust == "none") {
       diffVecAdjust <- diffVec
@@ -522,7 +537,7 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     } else {
       diffVecAdjust[pAdjustVec > alpha] <- 0
     }
-
+    
     diffMat[lower.tri(diffMat)] <- diffVec
     diffMat[upper.tri(diffMat)] <- t(diffMat)[upper.tri(t(diffMat))]
     
@@ -554,13 +569,13 @@ diffnet <- function(x, diffMethod = "permute", discordThresh = 0.8,
     
     output[["assoMat1"]] <- assoMat1
     output[["assoMat2"]] <- assoMat2
-
+    
   }
   
   if (verbose & all(diffMat == 0)) {
     message("No differentially associated taxa detected.")
   }
-
+  
   output[["groups"]] <- x$groups
   output[["diffMethod"]] <- diffMethod
   output[["call"]] <- match.call()

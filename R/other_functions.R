@@ -11,7 +11,7 @@
 #'
 #' @importFrom qgraph qgraph.layout.fruchtermanreingold
 
-springLayout <- function(adjaMat, repulse.rad = NULL){
+springLayout <- function(adjaMat, repulse.rad = NULL) {
   E <- list()
   input <- adjaMat
   nNodes <- nrow(input)
@@ -30,15 +30,15 @@ springLayout <- function(adjaMat, repulse.rad = NULL){
   E$from <- E$from[keep]
   E$to <- E$to[keep]
   E$weight <- E$weight[keep]
-
+  
   layout <- qgraph.layout.fruchtermanreingold(cbind(E$from, E$to),
-                                             abs(E$weight/max(abs(E$weight)))^2,
-                                             nNodes, rotation = NULL,
-                                             layout.control = 0.5, niter = NULL,
-                                             max.delta = NULL,
-                                             area = NULL, cool.exp = NULL,
-                                             repulse.rad = repulse.rad,
-                                             init = NULL, constraints = NULL)
+                                              abs(E$weight/max(abs(E$weight)))^2,
+                                              nNodes, rotation = NULL,
+                                              layout.control = 0.5, niter = NULL,
+                                              max.delta = NULL,
+                                              area = NULL, cool.exp = NULL,
+                                              repulse.rad = repulse.rad,
+                                              init = NULL, constraints = NULL)
   return(layout)
 }
 
@@ -54,16 +54,16 @@ num2hex <- function(x) {
 
 
 
-first_unequal_element <- function(x,y){
+first_unequal_element <- function(x,y) {
   stopiter <- FALSE
   lx <- length(x)
   ly <- length(y)
   i <- 0
   
-  while(stopiter == FALSE){
+  while(stopiter == FALSE) {
     i <- i + 1
-    if(x[i] != y[i]) stopiter <- TRUE
-    if(x[i] == "[" & y[i] == "[") stopiter <- TRUE
+    if (x[i] != y[i]) stopiter <- TRUE
+    if (x[i] == "[" & y[i] == "[") stopiter <- TRUE
   }
   
   return(i)
@@ -71,26 +71,26 @@ first_unequal_element <- function(x,y){
 
 
 
-first_unequal_element <- function(x){
+first_unequal_element <- function(x) {
   m <- matrix(unlist(x), nrow = length(x), byrow = TRUE)
   
   stopiter <- FALSE
   i <- 0
-
+  
   duplsum <- apply(m, 2, 
                    function(v) sum(duplicated(v) | duplicated(v, fromLast=TRUE)))
   first_unequal <- which(duplsum < nrow(m))[1]
   all_unequal <- which(duplsum == 0)[1]
   return(list(first_unequal = first_unequal, all_unequal = all_unequal))
-
+  
   return(i)
 }
 
 
-.sigTestRand <- function(randInd, nPermRand, clust1, clust2){
+.sigTestRand <- function(randInd, nPermRand, clust1, clust2) {
   randPerm <- numeric(nPermRand)
   
-  for(i in 1:nPermRand){
+  for (i in 1:nPermRand) {
     clust1.tmp <- gtools::permute(clust1)
     clust2.tmp <- gtools::permute(clust2)
     randPerm[i] <- WGCNA::randIndex(table(clust1.tmp, clust2.tmp), 

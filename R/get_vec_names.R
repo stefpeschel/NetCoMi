@@ -9,8 +9,8 @@
 #' @param x symmetric matrix for which the column and row names should be
 #'   returned as a vector
 
-get_vec_names <- function(x){
-
+get_vec_names <- function(x) {
+  
   temp <- matrix(NA, nrow = nrow(x), ncol = nrow(x))
   
   diag <- lower.tri(temp, diag = FALSE)
@@ -29,7 +29,7 @@ get_vec_names <- function(x){
       namesMatrix <- rbind(namesMatrix, tempMatrix)
     }
   }
-
+  
   vector_names <- apply(namesMatrix, 1, function(k) paste(k[1],
                                                           "_", k[2], sep = ""))
   return(vector_names)

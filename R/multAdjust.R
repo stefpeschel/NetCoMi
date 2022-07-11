@@ -41,29 +41,29 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose) {
   }
   
   #-----------------------------------------------------------------------------
-
+  
   if (adjust == "lfdr") {
     
     if (verbose) {
       message("")
       message("Execute fdrtool() ...")
     }
-
+    
     pAdjust <- fdrtool::fdrtool(pvals, statistic = "pvalue", plot = FALSE,
                                 verbose = verbose)$lfdr
     names(pAdjust) <- names(pvals)
-
+    
   } else if (adjust == "adaptBH") {
-
+    
     m <- length(pvals)
     ind <- m:1
     o <- order(pvals, decreasing = TRUE)
     ro <- order(o)
-
+    
     if (trueNullMethod == "farco") {
       R <- 0
       iter <- TRUE
-
+      
       while(iter) {
         pTrueNull <- 1- (R/m)  # proportion of true null hypotheses
         pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
@@ -74,8 +74,8 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose) {
       if (verbose) {
         message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
       }
-
-
+      
+      
     } else {
       # trueNullMethod must be one of "lfdr", "mean", "hist", or "convest"
       pTrueNull <- limma::propTrueNull(pvals, method = trueNullMethod)
@@ -84,12 +84,12 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose) {
       }
       pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
     }
-
+    
     names(pAdjust) <- names(pvals)
-
+    
   } else {
     pAdjust <- stats::p.adjust(pvals, adjust)
   }
-
+  
   return(pAdjust)
 }

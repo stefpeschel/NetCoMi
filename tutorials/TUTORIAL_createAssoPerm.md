@@ -58,12 +58,12 @@ colnames(counts_matched) <- colnames(counts_yes)
 rownames(counts_matched) <- 1:150
 ind_yes <- ind_no <- 1
 
-for(i in 1:150){
-  if((i-1)%%3 == 0){
+for (i in 1:150){
+  if ((i-1)%%3 == 0){
     counts_matched[i, ] <- counts_yes[ind_yes, ]
     rownames(counts_matched)[i] <- rownames(counts_yes)[ind_yes]
     ind_yes <- ind_yes + 1
-  } else{
+  } else {
     counts_matched[i, ] <- counts_no[ind_no, ]
     rownames(counts_matched)[i] <- rownames(counts_no)[ind_no]
     ind_no <- ind_no + 1
@@ -513,16 +513,16 @@ nPerm_all <- 100
 blocksize <- 20
 repetitions <- nPerm_all / blocksize
 
-for(i in 1:repetitions){
+for (i in 1:repetitions){
   print(i)
-  if(i == 1){
+  if (i == 1){
     # Create a new file in the first run
     tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
                           permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
                           computeAsso = TRUE,
                           fileStoreAssoPerm = "assoPerm",
                           storeCountsPerm = FALSE, append = FALSE)
-  } else{
+  } else {
     tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
                           permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
                           computeAsso = TRUE,
@@ -650,7 +650,7 @@ blocksize <- 20
 repetitions <- nPerm_all / blocksize  # 5 repetitions
 
 # Execute as standard for-loop:
-for(i in 1:repetitions){
+for (i in 1:repetitions){
   tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
                         permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
                         computeAsso = TRUE,
@@ -746,7 +746,7 @@ snow::stopCluster(cl)
 # needs an external file)
 assoPerm_all <- NULL
 
-for(i in 1:repetitions){
+for (i in 1:repetitions){
   
   assoPerm_tmp <- fm.open(filenamebase = paste0("assoPerm", i) , readonly = TRUE)
   

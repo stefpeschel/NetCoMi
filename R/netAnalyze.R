@@ -280,19 +280,19 @@ netAnalyze <- function(net,
                        normEigen = TRUE,
                        connectivity = TRUE,
                        graphlet = TRUE,
-                       verbose = TRUE){
+                       verbose = TRUE) {
   x <- net
-  stopifnot(class(x) == "microNet")
-
-  if(is.null(clustMethod)){
-    if(net$assoType == "dissimilarity"){
+  stopifnot(inherits(x, "microNet"))
+  
+  if (is.null(clustMethod)) {
+    if (net$assoType == "dissimilarity") {
       clustMethod <- "hierarchical"
-    } else{
+    } else {
       clustMethod <- "cluster_fast_greedy"
     }
     
     
-  } else{
+  } else {
     clustMethod <- match.arg(clustMethod, c("none", "hierarchical",
                                             "cluster_edge_betweenness",
                                             "cluster_fast_greedy",
@@ -303,8 +303,8 @@ netAnalyze <- function(net,
                                             "cluster_walktrap"))
   }
   
-  if(is.null(clustPar2)) clustPar2 <- clustPar
-
+  if (is.null(clustPar2)) clustPar2 <- clustPar
+  
   hubPar <- match.arg(hubPar, c("degree", "betweenness", "closeness",
                                 "eigenvector"), several.ok = TRUE)
   
@@ -313,43 +313,44 @@ netAnalyze <- function(net,
                                       "johnson"))
   
   verbose <- as.numeric(verbose)
-
-  if(!is.null(clustPar)) stopifnot(is.list(clustPar))
+  
+  if (!is.null(clustPar)) stopifnot(is.list(clustPar))
   stopifnot(is.logical(lnormFit))
   stopifnot(is.logical(weightDeg))
   stopifnot(is.logical(normDeg))
   stopifnot(is.logical(normBetw))
   stopifnot(is.logical(normClose))
   stopifnot(is.logical(normEigen))
-
+  
   twoNets <- x$twoNets
   groups <- x$groups
   adja1 <- x$adjaMat1
-
+  
   #=============================================================================
-
+  
   isempty1 <- all(adja1[lower.tri(adja1)] == 0)
   isempty2 <- NULL
-  if(!twoNets & isempty1) stop("Network is empty.")
-
-  if(all(adja1[lower.tri(adja1)] > 0) & !weightDeg){
-    if(verbose > 0){
+  if (!twoNets & isempty1) stop("Network is empty.")
+  
+  if (all(adja1[lower.tri(adja1)] > 0) & !weightDeg) {
+    if (verbose > 0) {
       message(paste0('Weighted degree used (unweighted degree not meaningful ',
                      'for a fully connected network).'))
     }
-
+    
     weightDeg <- TRUE
   }
-
-
-  if(twoNets){
+  
+  
+  if (twoNets) {
     adja2 <- x$adjaMat2
-
+    
     isempty2 <- all(adja2[lower.tri(adja2)] == 0)
-    if(isempty1 & isempty2) stop("There are no connected nodes in both networks.")
-
-    if(all(adja2[lower.tri(adja2)] > 0) & !weightDeg){
-      if(verbose > 0){
+    if (isempty1 & isempty2) 
+      stop("There are no connected nodes in both networks.")
+    
+    if (all(adja2[lower.tri(adja2)] > 0) & !weightDeg) {
+      if (verbose > 0) {
         message(paste0('Weighted degree used (unweighted degree not meaningful ',
                        'for a fully connected network).'))
       }
@@ -357,56 +358,77 @@ netAnalyze <- function(net,
     }
   }
   
-  if(weightDeg && normDeg){
+  if (weightDeg && normDeg) {
     normDeg <- FALSE
-    if(verbose > 0){
+    if (verbose > 0) {
       message("Argument 'normDeg' set to FALSE")
       message("(no normalization implemented for weighted degree).")
     } 
   }
-
-  if(verbose == 2 && twoNets){
+  
+  if (verbose == 2 && twoNets) {
     message("Compute network properties for group 1 ...")
   }
-  props1 <- calc_props(adjaMat = adja1, dissMat = x$dissMat1, 
-                       assoMat = x$assoMat1, centrLCC = centrLCC,
+  
+  props1 <- calc_props(adjaMat = adja1,
+                       dissMat = x$dissMat1,
+                       assoMat = x$assoMat1,
+                       centrLCC = centrLCC,
                        avDissIgnoreInf = avDissIgnoreInf,
-                       sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
-                       normNatConnect = normNatConnect, 
-                       weighted = x$parameters$weighted, isempty = isempty1, 
-                       clustMethod = clustMethod, clustPar = clustPar, 
+                       sPathNorm = sPathNorm,
+                       sPathAlgo = sPathAlgo,
+                       normNatConnect = normNatConnect,
+                       weighted = x$parameters$weighted,
+                       isempty = isempty1,
+                       clustMethod = clustMethod,
+                       clustPar = clustPar,
                        weightClustCoef = weightClustCoef,
-                       hubPar = hubPar, hubQuant = hubQuant,
-                       lnormFit = lnormFit, 
-                       connectivity = connectivity, graphlet = graphlet,
+                       hubPar = hubPar,
+                       hubQuant = hubQuant,
+                       lnormFit = lnormFit,
+                       connectivity = connectivity,
+                       graphlet = graphlet,
                        weightDeg = weightDeg,
-                       normDeg = normDeg, normBetw = normBetw,
-                       normClose = normClose, normEigen = normEigen,
+                       normDeg = normDeg,
+                       normBetw = normBetw,
+                       normClose = normClose,
+                       normEigen = normEigen,
                        verbose = verbose)
+  
   props2 <- NULL
-
-  if(twoNets){
-    if(verbose == 2){
+  
+  if (twoNets) {
+    if (verbose == 2) {
       message("__________________________________________")
       message("Compute network properties for group 2 ...")
     }
-    props2 <- calc_props(adjaMat = adja2, dissMat = x$dissMat2, 
-                         assoMat = x$assoMat2, centrLCC = centrLCC,
+    
+    props2 <- calc_props(adjaMat = adja2,
+                         dissMat = x$dissMat2,
+                         assoMat = x$assoMat2,
+                         centrLCC = centrLCC,
                          avDissIgnoreInf = avDissIgnoreInf,
-                         sPathNorm = sPathNorm, sPathAlgo = sPathAlgo,
-                         normNatConnect = normNatConnect, 
-                         weighted = x$parameters$weighted, isempty = isempty2, 
-                         clustMethod = clustMethod, clustPar = clustPar2, 
+                         sPathNorm = sPathNorm,
+                         sPathAlgo = sPathAlgo,
+                         normNatConnect = normNatConnect,
+                         weighted = x$parameters$weighted,
+                         isempty = isempty2,
+                         clustMethod = clustMethod,
+                         clustPar = clustPar2,
                          weightClustCoef = weightClustCoef,
-                         hubPar = hubPar, hubQuant = hubQuant,
-                         lnormFit = lnormFit, 
-                         connectivity = connectivity, graphlet = graphlet,
+                         hubPar = hubPar,
+                         hubQuant = hubQuant,
+                         lnormFit = lnormFit,
+                         connectivity = connectivity,
+                         graphlet = graphlet,
                          weightDeg = weightDeg,
-                         normDeg = normDeg, normBetw = normBetw,
-                         normClose = normClose, normEigen = normEigen,
+                         normDeg = normDeg,
+                         normBetw = normBetw,
+                         normClose = normClose,
+                         normEigen = normEigen,
                          verbose = verbose)
   }
-
+  
   #=============================================================================
   output <- list()
   
@@ -414,7 +436,7 @@ netAnalyze <- function(net,
   
   output$compSize1 <- props1$compSize
   
-  if(twoNets){
+  if (twoNets) {
     output$lccNames2 <- props2$lccNames
     output$compSize2 <- props2$compSize
   }
@@ -425,9 +447,9 @@ netAnalyze <- function(net,
                             tree2 = props2$tree)
   
   output$clusteringLCC <- list(clust1 = props1$clust_lcc,
-                                clust2 = props2$clust_lcc,
-                                tree1 = props1$tree_lcc,
-                                tree2 = props2$tree_lcc)
+                               clust2 = props2$clust_lcc,
+                               tree1 = props1$tree_lcc,
+                               tree2 = props2$tree_lcc)
   
   output$centralities <- list(degree1 = props1$deg,
                               degree2 = props2$deg,
@@ -483,8 +505,8 @@ netAnalyze <- function(net,
                                 density2 = props2$density_lcc,
                                 pep1 = props1$pep_lcc,
                                 pep2 = props2$pep_lcc)
-
-  if(graphlet){
+  
+  if (graphlet) {
     output$graphlet <- list(ocount1 = props1$ocount,
                             ocount2 = props2$ocount,
                             gcm1 = props1$gcm,
@@ -516,7 +538,7 @@ netAnalyze <- function(net,
                                   normEigen = normEigen)
   
   output$paramsNetConstruct <- x$parameters
-
+  
   output$input <- list(assoMat1 = x$assoMat1,
                        assoMat2 = x$assoMat2,
                        dissMat1 = x$dissMat1,
@@ -546,7 +568,7 @@ netAnalyze <- function(net,
                        call = x$call)
   
   output$isempty <- list(isempty1 = isempty1, isempty2 = isempty2)
-
+  
   class(output) <- "microNetProps"
   return(output)
 }

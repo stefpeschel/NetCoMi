@@ -39,7 +39,7 @@ ftaxpar <- c(list(totalReads = 1000), list(relFreq = 0.05),
 
 dims <- c(127, 125, 3, 127, 50, 50)
 
-for(i in 1:length(ftax)){
+for (i in 1:length(ftax)) {
   testnet <- netConstruct(amgut1.filt,
                           filtTax = ftax[i],
                           filtTaxPar = ftaxpar[i-1],
@@ -63,7 +63,7 @@ fsampar <- c(list(totalReads = 1000), list(numbTaxa = 50),list(highestFreq = 50)
 
 dims <- c(289, 289, 282, 50)
 
-for(i in 1:length(fsamp)){
+for (i in 1:length(fsamp)) {
   testnet <- netConstruct(amgut1.filt,
                           filtSamp = fsamp[i],
                           filtSampPar = fsampar[i-1],
@@ -84,29 +84,29 @@ set.seed(123456)
 measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
               "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
-for(i in 1:length(measures)){
+for (i in 1:length(measures)) {
   
   context(measures[i])
   
   measure.tmp <- measures[i]
   
-  if(measure.tmp == "spieceasi_gl"){
+  if (measure.tmp == "spieceasi_gl") {
     measurePar <- list(method = "glasso",
                       nlambda=5,
                       pulsar.params = list(rep.num=5,
                                            thresh = 0.2))
     measure.tmp <- "spieceasi"
-  } else if(measure.tmp == "spieceasi_mb"){
+  } else if (measure.tmp == "spieceasi_mb") {
     measurePar <- list(method = "mb",
                        nlambda=5,
                        pulsar.params = list(rep.num=5,
                                             thresh = 0.2))
     measure.tmp <- "spieceasi"
-  } else if(measure.tmp == "spring"){
+  } else if (measure.tmp == "spring") {
     measurePar <- list(nlambda = 5, rep.num = 5)
-  } else if(measure.tmp == "gcoda"){
+  } else if (measure.tmp == "gcoda") {
     measurePar <- list(nlambda = 5)
-  } else{
+  } else {
     measurePar <- NULL
   }
   
@@ -183,7 +183,7 @@ set.seed(123456)
 measures <- c("euclidean", "bray", "kld", "jeffrey", "ckld",
               "jsd", "aitchison")
 
-for(i in 1:length(measures)){
+for (i in 1:length(measures)) {
   context(measures[i])
   
   testnet1 <- netConstruct(amgut1.filt,
@@ -215,7 +215,7 @@ set.seed(123456)
 
 zeroMethod <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
 
-for(i in 1:length(zeroMethod)){
+for (i in 1:length(zeroMethod)) {
   context(zeroMethod[i])
   
   testnet <- netConstruct(amgut1.filt,
@@ -246,8 +246,8 @@ set.seed(123456)
 normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr", "mclr")
 zeroMethod <- c("none", "pseudo", "multRepl")
 
-for(i in 1:length(normMethod)){
-  for(z in 1:length(zeroMethod)){
+for (i in 1:length(normMethod)) {
+  for (z in 1:length(zeroMethod)) {
     # context(paste0("normMethod: ", normMethod[i], "; zeroMethod: ", zeroMethod[z]))
     
     testnet <- netConstruct(amgut1.filt,
@@ -281,7 +281,7 @@ set.seed(123456)
 sparsMethod <- c("none", "t-test", #"bootstrap", 
                  "threshold", "softThreshold")
 
-for(i in 1:length(sparsMethod)){
+for (i in 1:length(sparsMethod)) {
   context(sparsMethod[i])
   
   testnet <- netConstruct(amgut1.filt,
@@ -316,7 +316,7 @@ set.seed(123456)
 adjustMethod <- c("lfdr", "holm", "BH", "BY", rep("adaptBH", 5))
 trueNullMethod <- c(rep("convest", 5), "lfdr", "mean", "hist", "farco")
 
-for(i in 1:length(adjustMethod)){
+for (i in 1:length(adjustMethod)) {
   context(adjustMethod[i])
   
   testnet <- netConstruct(amgut1.filt,
@@ -352,12 +352,12 @@ set.seed(123456)
 
 softThreshType <- c("signed", "unsigned", "signed hybrid")
 
-for(i in 1:length(softThreshType)){
+for (i in 1:length(softThreshType)) {
   context(softThreshType[i])
   
-  if(i == 1){
+  if (i == 1) {
     softThreshPower <- 5
-  } else{
+  } else {
     softThreshPower <- NULL
   }
   
@@ -392,7 +392,7 @@ set.seed(123456)
 
 knnMutual <- c(TRUE, FALSE)
 
-for(i in 1:length(knnMutual)){
+for (i in 1:length(knnMutual)) {
   context(knnMutual[i])
   
   testnet <- netConstruct(amgut1.filt,
@@ -423,7 +423,7 @@ set.seed(123456)
 
 dissFunc <- c("signed", "unsigned", "signedPos", "TOMdiss")
 
-for(i in 1:length(dissFunc)){
+for (i in 1:length(dissFunc)) {
   context(dissFunc[i])
   
   testnet <- netConstruct(amgut1.filt,
@@ -450,7 +450,7 @@ for(i in 1:length(dissFunc)){
 #-------------------------------------------------------------------------------
 # 'dissFunc' is a function
 
-testfunc <- function(x){
+testfunc <- function(x) {
   xvec <- x[lower.tri(x)]
   dissvec <- sqrt(0.5 * (1-xvec))
   
@@ -491,7 +491,7 @@ mtext("dissFunc as function", side = 3, cex = 1.5)
 #===============================================================================
 # Similarity function
 
-testfunc <- function(x, power){
+testfunc <- function(x, power) {
   1/(1 + x^power) 
 }
 
@@ -528,7 +528,7 @@ context("scaleDiss")
 
 scaleDiss <- c(TRUE, FALSE)
 
-for(i in 1:length(scaleDiss)){
+for (i in 1:length(scaleDiss)) {
   context(scaleDiss[i])
   
   testnet <- netConstruct(amgut1.filt,
@@ -740,7 +740,7 @@ ftaxpar <- c(list(totalReads = 1000), list(relFreq = 0.05),
 
 dims <- c(127, 125, 3, 127, 50, 50)
 
-for(i in 1:length(ftax)){
+for (i in 1:length(ftax)) {
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
                           filtTax = ftax[i],
                           filtTaxPar = ftaxpar[i-1],
@@ -755,7 +755,7 @@ for(i in 1:length(ftax)){
 
 dims <- c(138, 123, 2, 138, 41, 42)
 
-for(i in 1:length(ftax)){
+for (i in 1:length(ftax)) {
   testnet <- netConstruct(amgut_male, amgut_female,
                           filtTax = ftax[i],
                           filtTaxPar = ftaxpar[i-1],
@@ -771,7 +771,7 @@ for(i in 1:length(ftax)){
 
 # dissimilarity networks
 dims <- c(49, 49, 6, 49, 49, 49)
-for(i in 1:length(ftax)){
+for (i in 1:length(ftax)) {
   testnet <- netConstruct(amgut1.filt, group = groups_diss,
                           filtTax = ftax[i],
                           filtTaxPar = ftaxpar[i-1],
@@ -797,7 +797,7 @@ fsampar <- c(list(totalReads = 1000), list(numbTaxa = 30),list(highestFreq = 100
 
 dims <- c(289, 289, 288, 100)
 
-for(i in 1:length(fsamp)){
+for (i in 1:length(fsamp)) {
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
                           filtSamp = fsamp[i],
                           filtSampPar = fsampar[i-1],
@@ -813,7 +813,7 @@ for(i in 1:length(fsamp)){
 dims1 <- c(146, 127, 128, 100)
 dims2 <- c(126, 114, 114, 100)
 
-for(i in 1:length(fsamp)){
+for (i in 1:length(fsamp)) {
   testnet <- netConstruct(amgut_female, amgut_male,
                           filtSamp = fsamp[i],
                           filtSampPar = fsampar[i-1],
@@ -831,7 +831,7 @@ for(i in 1:length(fsamp)){
 
 dims <- c(289, 270, 228, 13)
 
-for(i in 1:length(fsamp)){
+for (i in 1:length(fsamp)) {
   testnet <- netConstruct(amgut1.filt, group = groups_diss,
                           filtSamp = fsamp[i],
                           filtSampPar = fsampar[i-1],
@@ -853,29 +853,29 @@ set.seed(123456)
 measures <- c("pearson", "spearman", "bicor", "sparcc", "propr",
               "cclasso", "ccrepe", "gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
-for(i in 1:length(measures)){
+for (i in 1:length(measures)) {
   
   context(measures[i])
   
   measure.tmp <- measures[i]
   
-  if(measure.tmp == "spieceasi_gl"){
+  if (measure.tmp == "spieceasi_gl") {
     measurePar <- list(method = "glasso",
                        nlambda=5,
                        pulsar.params = list(rep.num=5,
                                             thresh = 0.3))
     measure.tmp <- "spieceasi"
-  } else if(measure.tmp == "spieceasi_mb"){
+  } else if (measure.tmp == "spieceasi_mb") {
     measurePar <- list(method = "mb",
                        nlambda=5,
                        pulsar.params = list(rep.num=5,
                                             thresh = 0.3))
     measure.tmp <- "spieceasi"
-  } else if(measure.tmp == "spring"){
+  } else if (measure.tmp == "spring") {
     measurePar <- list(nlambda = 5, rep.num = 5)
-  } else if(measure.tmp == "gcoda"){
+  } else if (measure.tmp == "gcoda") {
     measurePar <- list(nlambda = 5)
-  } else{
+  } else {
     measurePar <- NULL
   }
   
@@ -896,7 +896,7 @@ for(i in 1:length(measures)){
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
   
-  if(i <= 5){
+  if (i <= 5) {
     netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
   }
 }
@@ -912,7 +912,7 @@ set.seed(123456)
 measures <- c("euclidean", "bray", "kld", "jeffrey", "ckld",
               "jsd", "aitchison")
 
-for(i in 1:length(measures)){
+for (i in 1:length(measures)) {
   context(measures[i])
   
   testnet1 <- netConstruct(amgut1.filt, group = groups_diss,
@@ -943,7 +943,7 @@ set.seed(123456)
 
 zeroMethod <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
 
-for(i in 1:length(zeroMethod)){
+for (i in 1:length(zeroMethod)) {
   context(zeroMethod[i])
   
   testnet <- netConstruct(amgut1.filt,  group = groups_asso,
@@ -976,8 +976,8 @@ set.seed(123456)
 normMethod <- c("none", "fractions", "TSS", "CSS", "COM", "rarefy", "clr", "mclr")
 zeroMethod <- c("none", "pseudo", "multRepl")
 
-for(i in 1:length(normMethod)){
-  for(z in 1:length(zeroMethod)){
+for (i in 1:length(normMethod)) {
+  for (z in 1:length(zeroMethod)) {
     
     context(paste0("normMethod: ", normMethod[i], "; zeroMethod: ", zeroMethod[z]))
     
@@ -1013,7 +1013,7 @@ set.seed(123456)
 
 sparsMethod <- c("none", "t-test", "bootstrap", "threshold", "softThreshold")
 
-for(i in 1:length(sparsMethod)){
+for (i in 1:length(sparsMethod)) {
   context(sparsMethod[i])
   
   testnet <- netConstruct(amgut1.filt, group = groups_asso,
@@ -1036,7 +1036,7 @@ for(i in 1:length(sparsMethod)){
   plot(testprops)
   mtext(sparsMethod[i], side = 3, cex = 1.5)
   
-  if(i != 3){
+  if (i != 3) {
     netcomp_asso <- netCompare(testprops, permTest = TRUE, nPerm = 4, cores = 1L)
   }
 }

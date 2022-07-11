@@ -65,8 +65,8 @@
 #' 
 #' @export
 
-calcGCM <- function(adja, orbits = c(0:2, 4:11)){
-
+calcGCM <- function(adja, orbits = c(0:2, 4:11)) {
+  
   # Install missing packages
   if (!"orca" %in% utils::installed.packages()[,"Package"]) {
     message("Installing missing package: orca\n")
@@ -80,7 +80,7 @@ calcGCM <- function(adja, orbits = c(0:2, 4:11)){
   if (length(orbits) < 2) {
     stop("At least two orbits must be selected to compute the GCD.")
   }
-
+  
   if (any(orbits < 0) | any(orbits > 14) | length(orbits) > 15) {
     stop("Only orbits 0 to 14 (from 4-node graphlets) are allowed.")
   }
@@ -93,20 +93,20 @@ calcGCM <- function(adja, orbits = c(0:2, 4:11)){
     stop("Numbers of rows and columns of 'adja' differ.", 
          "'adja' must be an adjacency matrix.")
   }
-
+  
   # Get orbit counts
   ocount <- .getOrbcounts(adja = adja, orbits = orbits)
-
+  
   # A pseudo count of 1 is added to all columns
   # (to avoid NAs in the correlation matrix due to unobserved orbits)
   pseudo <- rep(1, ncol(ocount))
   ocount <- rbind(ocount, pseudo)
-
+  
   # Compute Graphlet Correlation Matrix
   gcm <- suppressWarnings(cor(ocount, method = "spearman"))
   
   out <- list(gcm = gcm, ocount = ocount)
-
+  
   return(out)
 }
 
@@ -116,23 +116,23 @@ calcGCM <- function(adja, orbits = c(0:2, 4:11)){
   
   net <- igraph::graph_from_adjacency_matrix(adja, weighted=T,
                                              mode="undirected", diag=F)
-
+  
   edgelist <- igraph::get.edgelist(net, names = FALSE)
   edgelist <- apply(edgelist, 2, as.integer)
-
+  
   # Get orbit counts
   ocounts <- orca::count4(edgelist)
-
+  
   # Select orbits of interest
   orbits <- paste0("O", orbits)
   ocounts <- ocounts[, orbits]
-
+  
   # Fill up count matrix so that nrow equals number of nodes
   nnodes <- ncol(adja)
   
-  if (nrow(ocounts) < nnodes){
+  if (nrow(ocounts) < nnodes) {
     ocounts <- rbind(ocounts, matrix(0, nrow = nnodes-nrow(ocounts), 
-                                       ncol = ncol(ocounts)))
+                                     ncol = ncol(ocounts)))
   }
   
   rownames(ocounts) <- rownames(adja)

@@ -30,114 +30,126 @@
 
 boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                      parallel = FALSE, cores = 4, logFile = NULL,
-                     verbose = TRUE, seed = NULL){
-
-  if(!is.null(seed)) set.seed(seed)
-
-  if(parallel){
-
-    if(!is.null(seed)) seeds <- sample.int(1e8, size = nboot)
-
+                     verbose = TRUE, seed = NULL) {
+  
+  if (!is.null(seed)) set.seed(seed)
+  
+  if (parallel) {
+    
+    if (!is.null(seed)) seeds <- sample.int(1e8, size = nboot)
+    
     cl <- makeCluster(cores, outfile = "")
-
+    
     doSNOW::registerDoSNOW(cl)
-
-    if(verbose %in% 2:3){
+    
+    if (verbose %in% 2:3) {
       message("")
       pb <- utils::txtProgressBar(0, nboot, style=3)
-      progress <- function(n){
+      progress <- function(n) {
         utils::setTxtProgressBar(pb,n)
       }
       opts <- list(progress=progress)
-    } else{
+    } else {
       opts <- list()
     }
-
-
-    if(!is.null(logFile)) cat("", file= logFile, append=FALSE)
-
-    reslist <- foreach(b = 1:nboot,
-                       .packages = c("gtools", "vegan", "LaplacesDemon"),
-                       .export = c("calc_association", "sparcc", "cclasso",
-                                   "cclasso.sub", "gcoda"),
-                       .options.snow = opts) %dopar% {
-
-                         if(!is.null(seed)) set.seed(seeds[b])
-
-                         if(verbose %in% 2:3) progress(b)
-
-                         if(!is.null(logFile)){
-                           cat(paste("Iteration", b,"\n"), file=logFile,
-                               append=TRUE)
-                         }
-
-                         count.tmp <- sapply(1:ncol(countMat), function(i){
-                           ind <- sample(1:nrow(countMat), nrow(countMat),
-                                         replace = TRUE)
-                           countMat[ind, i]
-                         })
-                         colnames(count.tmp) <- colnames(countMat)
-
-                         assoMat.tmp <- calc_association(count.tmp,
-                                                         measure = measure,
-                                                         measurePar = measurePar)
-
-                         assoMat.tmp
-                       }
-
-    if(verbose %in% 2:3) close(pb)
-
-    stopCluster(cl)
-    foreach::registerDoSEQ()
-
-    invisible(gc)
-    remove(cl)
-
-  } else{   # no parallelization
-    reslist <- list()
-
-    if(verbose %in% 2:3){
-      message("")
-      pb <- utils::txtProgressBar(0, nboot, style=3)
-      progress <- function(n){
-        utils::setTxtProgressBar(pb,n)
+    
+    
+    if (!is.null(logFile)) cat("", file= logFile, append=FALSE)
+    
+    #---------------------------------------------------------------------------
+    # Run foreach
+    
+    reslist <- foreach(
+      b = 1:nboot,
+      .packages = c("gtools", "vegan", "LaplacesDemon"),
+      .export = c(
+        "calc_association",
+        "sparcc",
+        "cclasso",
+        "cclasso.sub",
+        "gcoda"
+      ),
+      .options.snow = opts
+    ) %dopar% {
+      
+      
+      if (!is.null(seed)) set.seed(seeds[b])
+      
+      if (verbose %in% 2:3) progress(b)
+      
+      if (!is.null(logFile)) {
+        cat(paste("Iteration", b,"\n"), file=logFile,
+            append=TRUE)
       }
-    }
-
-    for(b in 1:nboot){
-
-      if(verbose %in% 2:3){
-        #progr <- round(b/nboot*100)
-        #message(progr,"%\r",appendLF=FALSE)
-        progress(b)
-      }
-
-      count.tmp <- sapply(1:ncol(countMat), function(i){
+      
+      count.tmp <- sapply(1:ncol(countMat), function(i) {
         ind <- sample(1:nrow(countMat), nrow(countMat),
                       replace = TRUE)
         countMat[ind, i]
       })
       colnames(count.tmp) <- colnames(countMat)
-
+      
+      assoMat.tmp <- calc_association(count.tmp,
+                                      measure = measure,
+                                      measurePar = measurePar)
+      
+      assoMat.tmp
+    }
+    #---------------------------------------------------------------------------
+    
+    if (verbose %in% 2:3) close(pb)
+    
+    stopCluster(cl)
+    foreach::registerDoSEQ()
+    
+    invisible(gc)
+    remove(cl)
+    
+  } else {   # no parallelization
+    reslist <- list()
+    
+    if (verbose %in% 2:3) {
+      message("")
+      pb <- utils::txtProgressBar(0, nboot, style=3)
+      progress <- function(n) {
+        utils::setTxtProgressBar(pb,n)
+      }
+    }
+    
+    for (b in 1:nboot) {
+      
+      if (verbose %in% 2:3) {
+        #progr <- round(b/nboot*100)
+        #message(progr,"%\r",appendLF=FALSE)
+        progress(b)
+      }
+      
+      count.tmp <- sapply(1:ncol(countMat), function(i) {
+        ind <- sample(1:nrow(countMat), nrow(countMat),
+                      replace = TRUE)
+        countMat[ind, i]
+      })
+      colnames(count.tmp) <- colnames(countMat)
+      
       assoMat.tmp <- calc_association(count.tmp, measure = measure,
                                       measurePar = measurePar)
-
+      
       reslist[[b]] <- assoMat.tmp
     }
   }
-
-  if(verbose %in% 2:3) close(pb)
-
+  
+  if (verbose %in% 2:3) close(pb)
+  
   assoMat.orig <- assoMat
-
+  
   # create matrices with logicals if bootstrap associations are at least as
   # extreme as associatins of original data
   sample.greater <- lapply(reslist, function(x) abs(x) >= abs(assoMat.orig))
-
+  
   # p values are proportion of associations that are greater or equal
   pvals <- (Reduce('+', sample.greater) + 1) / (nboot + 1)
   dimnames(pvals) <- list(colnames(countMat), colnames(countMat))
-
+  
   return(pvals)
 }
 

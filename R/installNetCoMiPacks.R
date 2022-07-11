@@ -53,7 +53,7 @@ installNetCoMiPacks <- function(onlyMissing = TRUE, lib = NULL, ...) {
   } else {
     instpack <- needpack
   }
-
+  
   if (length(instpack) != 0) {
     
     if (length(instpack) > 1) {
@@ -82,5 +82,5 @@ installNetCoMiPacks <- function(onlyMissing = TRUE, lib = NULL, ...) {
   } else {
     message("All packages already installed.")
   }
-
+  
 }

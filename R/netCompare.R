@@ -311,7 +311,7 @@ netCompare <- function(x,
   
   args_out <- .checkArgsNetComp(args_in)
   
-  for (i in 1:length(args_out)){
+  for (i in 1:length(args_out)) {
     assign(names(args_out)[i], args_out[[i]])
   }
   
@@ -332,7 +332,7 @@ netCompare <- function(x,
   twoNets <- x$input$twoNets
   callNetConstr <- x$input$call
   
-  if(is.null(lnormFit)){
+  if (is.null(lnormFit)) {
     lnormFit <- parNA$lnormFit
   }
   
@@ -480,7 +480,8 @@ netCompare <- function(x,
       
     } else if (!is.null(fileLoadCountsPerm)) {
       
-      if (storeCountsPerm && identical(fileLoadCountsPerm, fileStoreCountsPerm)) {
+      if (storeCountsPerm && identical(fileLoadCountsPerm, 
+                                       fileStoreCountsPerm)) {
         storeCountsPerm <- FALSE
       }
       

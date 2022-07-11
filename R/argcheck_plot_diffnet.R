@@ -1,20 +1,20 @@
-argcheck_plot_diffnet<- function(args){
+argcheck_plot_diffnet<- function(args) {
 
   # x
-  stopifnot(class(args$x) == "diffnet")
+  stopifnot(inherits(args$x, "diffnet"))
 
   # layout
   layout <- args$layout
-  if(is.null(layout)){
+  if (is.null(layout)) {
     layout <- "spring"
-  } else{
+  } else {
     layout.tmp <- try(match.fun(layout), silent = TRUE)
 
-    if(class(layout.tmp) == "try-error"){
-      if(!is.matrix(layout)){
+    if (inherits(layout.tmp, "try-error")) {
+      if (!is.matrix(layout)) {
         stopifnot(layout %in% c("spring", "circle", "groups"))
       }
-    } else{
+    } else {
       layout <- layout.tmp
     }
   }
@@ -30,8 +30,8 @@ argcheck_plot_diffnet<- function(args){
   # labelLength
   labelLength <- args$labelLength
   stopifnot(is.numeric(labelLength) || length(labelLength) == 1)
-  if(!is.integer(labelLength)){
-    if(labelLength %% 1 != 0){
+  if (!is.integer(labelLength)) {
+    if (labelLength %% 1 != 0) {
       warning("Argument 'labelLength' coerced to integer.")
     }
     labelLength <-  as.integer(labelLength)
@@ -39,7 +39,7 @@ argcheck_plot_diffnet<- function(args){
   args$labelLength <- labelLength
 
   # labelPattern
-  if(!is.null(args$labelPattern)){
+  if (!is.null(args$labelPattern)) {
     stopifnot(is.vector(args$labelPattern) & (length(args$labelPattern) %in% c(3, 5)))
   }
 
@@ -50,7 +50,7 @@ argcheck_plot_diffnet<- function(args){
 
   # labelFont
   stopifnot(is.numeric(args$labelFont))
-  if(!is.null(args$hubLabelFont)){
+  if (!is.null(args$hubLabelFont)) {
     stopifnot(is.numeric(args$hubLabelFont))
   }
 

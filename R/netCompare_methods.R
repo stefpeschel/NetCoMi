@@ -32,7 +32,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                                  pAdjust = TRUE,
                                  numbNodes = 10L, digits = 3L, 
                                  digitsPval = 6L, ...) {
-
+  
   showCentr <- match.arg(showCentr, choices = c("all", "none", "degree", 
                                                 "betweenness", "closeness", 
                                                 "eigenvector"),
@@ -97,7 +97,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   rand[1,1] <- round(object$randInd[1], digits)
   rand[1,2] <- round(object$randInd[2], digitsPval)
   
-  if(is.na(object$randInd[2])){
+  if (is.na(object$randInd[2])) {
     # no p-value computed
     rand <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
                                  dimnames = list("ARI", 
@@ -105,7 +105,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
     rand[1, 1] <- round(object$randInd[1], digits)
     rand[1, 2] <- round(object$randIndLCC[1], digits)
     
-  } else{
+  } else {
     rand <- as.data.frame(matrix(0, nrow = 2, ncol = 2,
                                  dimnames = list(c("ARI", "p-value"),
                                                  c("wholeNet", "      LCC"))))
@@ -128,7 +128,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
   } else {
     gcd <- NULL
   }
-
+  
   #============================================================
   # global network properties
   
@@ -195,7 +195,8 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                                                                        group2),
                                                         "   difference"))))
     
-    propdiffs_lcc <- as.data.frame(matrix(0, nrow = length(glob_rnames_lcc), ncol = 3,
+    propdiffs_lcc <- as.data.frame(matrix(0, nrow = length(glob_rnames_lcc), 
+                                          ncol = 3,
                                           dimnames = list(glob_rnames_lcc,
                                                           c(group1, paste0("  ",
                                                                            group2),
@@ -209,7 +210,8 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
                                                         "   abs.diff.",
                                                         "    p-value", " "))))
     
-    propdiffs_lcc <- as.data.frame(matrix(0, nrow = length(glob_rnames_lcc), ncol = 5,
+    propdiffs_lcc <- as.data.frame(matrix(0, nrow = length(glob_rnames_lcc), 
+                                          ncol = 5,
                                           dimnames = list(glob_rnames_lcc,
                                                           c(group1, paste0("  ",
                                                                            group2),
@@ -367,7 +369,7 @@ summary.microNetComp <- function(object, groupNames = NULL, pAdjust = TRUE,
     topProps <- list(topDeg = topDeg, topBetw = topBetw, topClose = topClose,
                      topEigen = topEigen)
   }
-
+  
   structure(list(jaccmat = jaccmat, propdiffs = propdiffs, 
                  propdiffs_lcc = propdiffs_lcc, rand = rand, gcd = gcd,
                  properties = object$properties, topProps = topProps,
@@ -431,7 +433,7 @@ print.summary.microNetComp <- function(x, ...) {
   print(x$jaccmat)
   cat("-----\n")
   cat("Jaccard index in [0,1] (1 means perfect agreement)\n")
-
+  
   cat("\n______________________________")
   cat("\nAdjusted Rand index (similarity betw. clusterings)\n")
   cat("``````````````````````````````````````````````````\n")
@@ -440,12 +442,12 @@ print.summary.microNetComp <- function(x, ...) {
   cat("ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
                    ARI=0: expected for two random clusterings\n")
   
-  if(nrow(x$rand) == 2){
+  if (nrow(x$rand) == 2) {
     nPerm <- x$callArgs$nPermRand
     cat("p-value: permutation test (n=", nPerm, 
         ") with null hypothesis ARI=0\n", sep = "")
   }
-
+  
   if (!is.null(x$gcd)) {
     cat("\n______________________________")
     cat("\nGraphlet Correlation Distance\n")

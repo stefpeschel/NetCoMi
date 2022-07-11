@@ -26,7 +26,7 @@
 #' @importFrom grDevices col2rgb rgb
 #' @export
 
-colToTransp <- function(col, percent = 50){
+colToTransp <- function(col, percent = 50) {
   stopifnot(is.numeric(percent) && percent <= 100 && percent >= 0)
   
   rgbVal <- grDevices::col2rgb(col)
