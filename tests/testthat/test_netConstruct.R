@@ -213,7 +213,7 @@ context("netConstruct with different methods for zero replacement")
 
 set.seed(123456)
 
-zeroMethod <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
+zeroMethod <- c("none", "pseudo", "pseudoZO", "multRepl", "alrEM", "bayesMult")
 
 for (i in 1:length(zeroMethod)) {
   context(zeroMethod[i])

@@ -66,7 +66,7 @@ are "correlation", "partialCorr" (partial correlation), "condDependence"
 
 \item{group}{optional binary vector used for splitting the data into two
 groups. If \code{group} is \code{NULL} (default) and \code{data2} is not 
-set, a single network is constructed. See details.}
+set, a single network is constructed. See 'Details.'}
 
 \item{matchDesign}{Numeric vector with two elements specifying an optional 
 matched-group (i.e. matched-pair) design, which is used for the permutation 
@@ -90,7 +90,7 @@ and \code{"euclidean"}, \code{"bray"}, \code{"kld"}, \code{"jeffrey"},
 measures. Parameters are set via \code{measurePar}.}
 
 \item{measurePar}{list with parameters passed to the function for computing
-associations/dissimilarities. See details for the respective functions. 
+associations/dissimilarities. See 'Details' for the respective functions. 
 For SpiecEasi or SPRING as association measure, an additional list element
 "symBetaMode" is accepted to define the "mode" argument of 
 \code{\link[SpiecEasi]{symBeta}}.}
@@ -112,7 +112,8 @@ of reads of at least x.}
 least x\% of the total number of reads.}
 \item{\code{"numbSamp"}}{Keep taxa observed in at least x samples.}
 \item{\code{"highestVar"}}{Keep the x taxa with highest variance.}
-\item{\code{"highestFreq"}}{Keep the x taxa with highest frequency.}}
+\item{\code{"highestFreq"}}{Keep the x taxa with highest frequency.}
+}
 Except for "highestVar" and "highestFreq", different filter methods can be
 combined. The values x are set via \code{filtTaxPar}.}
 
@@ -146,14 +147,10 @@ given and \code{taxRank = NULL}, the row names of the OTU table are used
 as node labels.}
 
 \item{zeroMethod}{character indicating the method used for zero replacement.
-Possible values are: \code{"none"} (default), \code{"pseudo"}
-(a predefined pseudo count (1 by default) is added to the original count 
-data), \code{"multRepl"} (multiplicative replacement using
-\code{\link[zCompositions]{multRepl}}), \code{"alrEM"} (modified EM
-alr-algorithm using \code{\link[zCompositions]{lrEM}}), \code{"bayesMult"}
-(Bayesian-multiplicative replacement using
-\code{\link[zCompositions]{cmultRepl}}). The corresponding parameters are
-set via \code{zeroPar}. \code{zeroMethod} is ignored if the approach for
+Possible values are: \code{"none"} (default), \code{"pseudo"}, 
+\code{"pseudoZO"}, \code{"multRepl"}, \code{"alrEM"}, \code{"bayesMult"}. 
+See 'Details'. The corresponding parameters are set via \code{zeroPar}. 
+\code{zeroMethod} is ignored if the approach for
 calculating the associations/dissimilarity includes zero handling.
 Defaults to \code{"multRepl"} or \code{"pseudo"} (depending on the expected
 input of the normalization function and measure) if zero replacement is
@@ -161,15 +158,16 @@ required.}
 
 \item{zeroPar}{list with parameters passed to the function for zero
 replacement (\code{zeroMethod}). See the help page of the respective
-function for details. If \code{zeroMethod = "pseudo"}, the pseudocount can
-be specified using \code{pseudocount = x} as list element (where x is 
-numeric).}
+function for details. If \code{zeroMethod} is \code{"pseudo"} or 
+\code{"pseudoZO"}, the pseudo count can be specified via 
+\code{zeroPar = list(pseudocount = x)} (where x is numeric).}
 
-\item{normMethod}{character indicating the normalization method (in order to
+\item{normMethod}{character indicating the normalization method (to
 make counts of different samples comparable). Possible options are:
 \code{"none"} (default), \code{"TSS"} (or \code{"fractions"}), \code{"CSS"},
 \code{"COM"}, \code{"rarefy"}, \code{"VST"}, \code{"clr"}, and 
-\code{"mclr"}. The corresponding parameters are set via \code{normPar}.}
+\code{"mclr"}. See 'Details'. The corresponding parameters are set via 
+\code{normPar}.}
 
 \item{normPar}{list with parameters passed to the function for normalization
 (defined by \code{normMethod}).}
@@ -276,7 +274,7 @@ dissimilarities. Can be a character with one of the following values:
 \code{"TOMdiss"}.
 Alternatively, a function is accepted with the association matrix as first
 argument and optional further arguments, which can be set via
-\code{dissFuncPar}. Ignored for dissimilarity measures. See details.}
+\code{dissFuncPar}. Ignored for dissimilarity measures. See 'Details.'}
 
 \item{dissFuncPar}{optional list with parameters if a function is passed to
 \code{dissFunc}.}
@@ -406,7 +404,7 @@ The object returned by \code{netConstruct} can either be passed to
   In the network plot, group 1 is shown on the left and group 2 on the 
   right if not defined otherwise (see \code{\link{plot.microNetProps}}).
   \cr\cr
-  \strong{Association measures:}
+  \strong{Association measures}
   \tabular{ll}{
   Argument \tab Function\cr
   \code{"pearson"}\tab \code{\link[stats]{cor}} \cr
@@ -420,7 +418,7 @@ The object returned by \code{netConstruct} can either be passed to
   \code{"gcoda"}\tab \code{\link[NetCoMi]{gcoda}} \cr
   \code{"propr"}\tab \code{\link[propr]{propr}}}
   \cr
-  \strong{Dissimilarity measures:}
+  \strong{Dissimilarity measures}
   \tabular{lll}{
   Argument \tab Function \tab Measure\cr
   \code{"euclidean"} \tab \code{\link[vegan]{vegdist}} \tab
@@ -450,7 +448,7 @@ The object returned by \code{netConstruct} can either be passed to
   vector of ratios x/y.}
   \item{Aitchison distance:}{Euclidean distance of the clr-transformed data.}
   }\cr
-  \strong{Methods for zero replacement:}
+  \strong{Methods for zero replacement}
   \tabular{lll}{
   Argument \tab Method \tab Function\cr
   \code{"none"} \tab No zero replacement (only available if no zero
@@ -459,6 +457,9 @@ The object returned by \code{netConstruct} can either be passed to
   \code{"pseudo"} \tab A pseudo count (defined by \code{pseudocount} as 
   optional element of \code{zeroPar}) is added to all counts. A unit zero 
   count is used by default.\tab -\cr
+  \code{"pseudoZO"} \tab A pseudo count (defined by \code{pseudocount} as 
+  optional element of \code{zeroPar}) is added to zero counts only. 
+  A unit zero count is used by default.\tab -\cr
   \code{"multRepl"} \tab Multiplicative simple replacement \tab
  \code{\link[zCompositions:multRepl]{multRepl}}\cr
   \code{"alrEM"} \tab Modified EM alr-algorithm 
@@ -466,7 +467,7 @@ The object returned by \code{netConstruct} can either be passed to
   \code{"bayesMult"} \tab Bayesian-multiplicative replacement\tab
   \code{\link[zCompositions:cmultRepl]{cmultRepl}}\cr
   }
-  \strong{Normalization methods:}
+  \strong{Normalization methods}
   \tabular{lll}{
   Argument \tab Method \tab Function\cr
   \code{"TSS"} \tab Total sum scaling \tab t(apply(countMat, 1, function(x)
@@ -483,10 +484,11 @@ The object returned by \code{netConstruct} can either be passed to
   \code{"mclr"} \tab Modified central log ratio transformation\tab
   \code{\link[SPRING]{mclr}}
   }
-  These methods (except rarefying) are described in
-  \cite{Badri et al.(2018)}.
+  These methods (except for rarefying) are described in
+  \cite{Badri et al.(2020)}.
   \cr\cr
-  \strong{Transforming associations into dissimilarities:}
+  \strong{Transformation methods}\cr
+  Functions used for transforming associations into dissimilarities:
   \tabular{ll}{
   Argument \tab Function\cr
   \code{"signed"} \tab sqrt(0.5 * (1 - x))\cr

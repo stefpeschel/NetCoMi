@@ -348,7 +348,7 @@
 #' amgut_net <- netConstruct(amgut1.filt,
 #'                           measure = "aitchison", filtSamp = "highestFreq",
 #'                           filtSampPar = list(highestFreq = 50),
-#'                           zeroMethod = "pseudo", sparsMethod = "knn")
+#'                           zeroMethod = "pseudoZO", sparsMethod = "knn")
 #'
 #' # network analysis:
 #' amgut_props <- netAnalyze(amgut_net, clustMethod = "hierarchical",

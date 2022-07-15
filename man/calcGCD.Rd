@@ -61,7 +61,7 @@ net <- netConstruct(amgut1.filt,
                     filtTaxPar = list(highestFreq = 50),
                     measure = "pearson",
                     normMethod = "clr",
-                    zeroMethod = "pseudo",
+                    zeroMethod = "pseudoZO",
                     sparsMethod = "thresh",
                     thresh = 0.5)
 

@@ -187,7 +187,7 @@
   #-------------------
   # zeroMethod
   
-  choices <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
+  choices <- c("none", "pseudo", "pseudoZO", "multRepl", "alrEM", "bayesMult")
   
   args$zeroMethod <- try(match.arg(args$zeroMethod, choices), silent = TRUE)
   

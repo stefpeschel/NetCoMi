@@ -74,7 +74,7 @@
                              measure, "\"."))
       }
       
-      if (zeroMethod == "pseudo") {
+      if (zeroMethod %in% c("pseudo", "pseudoZO")) {
         normMethod <- "fractions"
       } else {
         normMethod <- "none"
@@ -94,7 +94,7 @@
                              measure, "\"."))
       }
       
-      if (zeroMethod == "pseudo") {
+      if (zeroMethod %in% c("pseudo", "pseudoZO")) {
         normMethod <- "fractions"
       } else {
         normMethod <- "none"
@@ -108,7 +108,7 @@
                  paste0("Measure \"", measure, "\" needs fractions as input. ",
                         "\"normMethod\" changed to \"fractions\"."))
       }
-      if (zeroMethod %in% c("none", "pseudo")) {
+      if (zeroMethod %in% c("none", "pseudo", "pseudoZO")) {
         normMethod <- "fractions"
       } else {
         normMethod <- "none"
@@ -135,7 +135,7 @@
       
       if (zeroMethod == "none") {
         if (normMethod %in% c("VST", "rarefy")) {
-          zeroMethod <- "pseudo"
+          zeroMethod <- "pseudoZO"
         } else {
           zeroMethod <- "multRepl"
         }
@@ -148,7 +148,7 @@
     #-------------------------------------------------------------------------
     #-------------------------------------------------------------------------
     if (normMethod %in% c("TSS", "fractions") & 
-        !zeroMethod %in% c("none", "pseudo")) {
+        !zeroMethod %in% c("none", "pseudo", "pseudoZO")) {
       normMethod <- "none"
       needfrac <- TRUE
     }

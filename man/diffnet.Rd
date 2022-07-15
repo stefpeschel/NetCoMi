@@ -208,7 +208,7 @@ amgut_net <- netConstruct(amgut1.filt, group = group,
                           measure = "pearson",
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 30),
-                          zeroMethod = "pseudo", normMethod = "clr")
+                          zeroMethod = "pseudoZO", normMethod = "clr")
 
 #---------------------
 # Differential network

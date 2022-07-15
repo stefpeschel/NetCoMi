@@ -24,9 +24,43 @@
     
     if (needint) {
       if (zeroParam$pseudocount != 1) {
-        message("Counts coerced to integer mode (for normalization method).
-   Consider using unit pseudo counts for zero treatment:
-   'zeroMethod = pseudo', zeroPar = list(pseudocount = 1)")
+        message("Counts coerced to integer mode (needed for normalization ", 
+                "method). \nConsider using unit pseudo counts for zero ", 
+                "treatment: \n'zeroMethod = pseudo', ", 
+                "zeroPar = list(pseudocount = 1)")
+      }
+      countMat.tmp <- ceiling(countMat_repl)
+      countMat_repl <- apply(countMat.tmp, 2, as.integer)
+      rownames(countMat_repl) <- rownames(countMat.tmp)
+      
+      attributes(countMat_repl)$scale <- "integer"
+      
+    } else {
+      attributes(countMat_repl)$scale <- "pseudo-counts"
+    }
+    
+  } else if (zeroMethod =="pseudoZO") {
+    
+    if (is.null(zeroParam$pseudocount)) {
+      zeroParam$pseudocount <- 1
+    }
+    
+    countMat_repl <- countMat
+    
+    countMat_repl[countMat_repl == 0] <- zeroParam$pseudocount
+    
+    countMat_repl <- countMat + zeroParam$pseudocount
+    
+    if (verbose %in% 2:3) {
+      message("Zero counts replaced by ", zeroParam$pseudocount)
+    } 
+    
+    if (needint) {
+      if (zeroParam$pseudocount != 1) {
+        message("Counts coerced to integer mode (needed for normalization ", 
+                "method). \nConsider using unit pseudo counts for zero ", 
+                "treatment: \n'zeroMethod = pseudo', ", 
+                "zeroPar = list(pseudocount = 1)")
       }
       countMat.tmp <- ceiling(countMat_repl)
       countMat_repl <- apply(countMat.tmp, 2, as.integer)
@@ -146,7 +180,7 @@
       countMat_repl <- 
         tryCatch(do.call(zCompositions::cmultRepl, zeroParam),
                  error=function(e) {
-                   print(paste("Function for zero replacement caused an error: ", 
+                   print(paste("Function for zero replacement caused an error:", 
                                e))
                  })
       
@@ -166,8 +200,8 @@
       
       attributes(countMat_repl)$scale <- "integer"
       
-      message("Counts coerced to integer mode (for normalization method).
-   Consider using 'zeroMethod = pseudo'.")
+      message("Counts coerced to integer mode (for normalization method). ",
+              "Consider using 'zeroMethod = pseudo'.")
       
     } else {
       attributes(countMat_repl)$scale <- "pseudo-counts"

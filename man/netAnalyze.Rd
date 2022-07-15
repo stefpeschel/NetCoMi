@@ -255,7 +255,7 @@ data("amgut1.filt")
 amgut_net1 <- netConstruct(amgut1.filt, measure = "pearson",
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
-                           zeroMethod = "pseudo", normMethod = "clr",
+                           zeroMethod = "pseudoZO", normMethod = "clr",
                            sparsMethod = "threshold", thresh = 0.4)
 
 ### Network analysis

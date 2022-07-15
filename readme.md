@@ -120,7 +120,9 @@ together with some information on their implementation in R:
 
 **Methods for zero replacement:**
 
--   Adding a predefined pseudo count
+-   Add a predefined pseudo count to the count table
+-   Replace only zeros in the count table by a predefined pseudo count
+    (ratios between non-zero values are preserved)
 -   Multiplicative replacement
     ([`multRepl`](https://rdrr.io/cran/zCompositions/man/multRepl.html)
     from `zCompositions` package)
@@ -343,9 +345,9 @@ summary(props_single, numbNodes = 5L)
     ## Positive edge percentage 88.34951
     ## Edge density              0.08408
     ## Natural connectivity      0.02714
-    ## 
-    ##  *Dissimilarity = 1 - edge weight
-    ## **Path length: Units with average dissimilarity
+    ## -----
+    ## *: Dissimilarity = 1 - edge weight
+    ## **: Path length = Units with average dissimilarity
     ## 
     ## ______________________________
     ## Clusters
@@ -465,13 +467,11 @@ net_single2 <- netConstruct(amgut2.filt.phy,
                             verbose = 3)
 ```
 
+    ## Checking input arguments ... Done.
     ## 2 rows with zero sum removed.
-
     ## 138 taxa and 294 samples remaining.
-
     ## 
     ## Zero treatment:
-
     ## Execute multRepl() ...
 
     ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
@@ -572,6 +572,10 @@ net_single3 <- netConstruct(amgut_genus_renamed,
                             thresh = 0.3, 
                             verbose = 3)
 ```
+
+    ## Checking input arguments ...
+
+    ## Done.
 
     ## 2 rows with zero sum removed.
 
@@ -802,8 +806,12 @@ Alternatively, a group vector could be passed to `group`, according to
 which the data set is split into two groups:
 
 ``` r
+# Get count table
+countMat <- phyloseq::otu_table(amgut2.filt.phy)
+
 # netConstruct() expects samples in rows
-countMat <- t(amgut2.filt.phy@otu_table@.Data)
+countMat <- t(as(countMat, "matrix"))
+
 group_vec <- phyloseq::get_variable(amgut2.filt.phy, "SEASONAL_ALLERGIES")
 
 # Select the two groups of interest (level "none" is excluded)
@@ -876,11 +884,10 @@ summary(props_season)
     ## 
     ## Component sizes
     ## ```````````````
-    ## Group 1:            
+    ## group '1':            
     ## size: 31 8 1
     ##    #:  1 1 4
-    ## 
-    ## Group 2:          
+    ## group '2':          
     ## size: 41 1
     ##    #:  1 2
     ## ______________________________
@@ -907,9 +914,9 @@ summary(props_season)
     ## Positive edge percentage 100.00000 100.00000
     ## Edge density               0.06977   0.08638
     ## Natural connectivity       0.02979   0.03072
-    ## 
-    ##  *Dissimilarity = 1 - edge weight
-    ## **Path length: Sum of dissimilarities along the path
+    ## -----
+    ## *: Dissimilarity = 1 - edge weight
+    ## **: Path length = Sum of dissimilarities along the path
     ## 
     ## ______________________________
     ## Clusters
@@ -1068,7 +1075,7 @@ why it is a hub on the right, but not on the left.
 
 However, if the layout of one group is simply taken over to the other,
 one of the networks (here the “seasonal allergies” group) is usually not
-that nice-looking due to the long edges. Therefore, NetCoMi (>= 1.0.2)
+that nice-looking due to the long edges. Therefore, NetCoMi (\>= 1.0.2)
 offers a further option (`layoutGroup = "union"`), where a union of the
 two layouts is used in both groups. In doing so, the nodes are placed as
 optimal as possible equally for both networks.
@@ -1127,7 +1134,7 @@ summary(comp_season,
     ##                          No allergies   Allergies    difference
     ## Relative LCC size               0.721       0.953         0.233
     ## Clustering coefficient          0.272       0.296         0.024
-    ## Moduarity                       0.518       0.548         0.030
+    ## Modularity                      0.518       0.548         0.030
     ## Positive edge percentage      100.000     100.000         0.000
     ## Edge density                    0.112       0.095         0.017
     ## Natural connectivity            0.043       0.033         0.010
@@ -1140,17 +1147,17 @@ summary(comp_season,
     ##                          No allergies   Allergies    difference
     ## Number of components            6.000       3.000         3.000
     ## Clustering coefficient          0.318       0.296         0.022
-    ## Moduarity                       0.627       0.548         0.079
+    ## Modularity                      0.627       0.548         0.079
     ## Positive edge percentage      100.000     100.000         0.000
     ## Edge density                    0.070       0.086         0.017
     ## Natural connectivity            0.030       0.031         0.001
     ## -----
     ##  *: Dissimilarity = 1 - edge weight
-    ## **Path length: Sum of dissimilarities along the path
+    ## **: Path length = Sum of dissimilarities along the path
     ## 
     ## ______________________________
     ## Jaccard index (similarity betw. sets of most central nodes)
-    ## ``````````````````````````````````````````````````````````
+    ## ```````````````````````````````````````````````````````````
     ##                     Jacc   P(<=Jacc)     P(>=Jacc)    
     ## degree             0.286    0.475500      0.738807    
     ## betweenness centr. 0.077    0.038537 *    0.994862    
@@ -1158,22 +1165,31 @@ summary(comp_season,
     ## eigenvec. centr.   0.667    0.996144      0.018758 *  
     ## hub taxa           0.000    0.666667      1.000000    
     ## -----
-    ## Jaccard index ranges from 0 (compl. different) to 1 (sets equal)
+    ## Jaccard index in [0,1] (1 indicates perfect agreement)
     ## 
     ## ______________________________
     ## Adjusted Rand index (similarity betw. clusterings)
     ## ``````````````````````````````````````````````````
-    ##    ARI       p-value
-    ##  0.327             0
+    ##         wholeNet       LCC
+    ## ARI        0.327     0.321
+    ## p-value    0.000     0.000
     ## -----
-    ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings,
+    ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
     ##                    ARI=0: expected for two random clusterings
-    ## p-value: two-tailed test with null hypothesis ARI=0
+    ## p-value: permutation test (n=1000) with null hypothesis ARI=0
+    ## 
+    ## ______________________________
+    ## Graphlet Correlation Distance
+    ## `````````````````````````````
+    ##     wholeNet       LCC
+    ## GCD    0.937     1.388
+    ## -----
+    ## GCD >= 0 (GCD=0 indicates perfect agreement between GCMs)
     ## 
     ## ______________________________
     ## Centrality measures
     ## - In decreasing order
-    ## - Computed for the complete network
+    ## - Computed for the whole network
     ## ````````````````````````````````````
     ## Degree (unnormalized):
     ##        No allergies Allergies abs.diff.
@@ -1232,25 +1248,18 @@ net_season_pears <- netConstruct(data = amgut_split$no,
                                  verbose = 3)
 ```
 
+    ## Checking input arguments ... Done.
     ## Infos about changed arguments:
-
-    ## Zero replacement needed for clr transformation. 'multRepl' used.
-
+    ## Zero replacement needed for clr transformation. "multRepl" used.
+    ## 
     ## Data filtering ...
-
     ## 95 taxa removed in each data set.
-
     ## 1 rows with zero sum removed in group 1.
-
     ## 1 rows with zero sum removed in group 2.
-
     ## 43 taxa and 162 samples remaining in group 1.
-
     ## 43 taxa and 120 samples remaining in group 2.
-
     ## 
     ## Zero treatment in group 1:
-
     ## Execute multRepl() ...
 
     ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
@@ -1283,6 +1292,7 @@ diff_season <- diffnet(net_season_pears,
                        adjust = "lfdr")
 ```
 
+    ## Checking input arguments ... Done.
     ## Adjust for multiple testing using 'lfdr' ... 
     ## Execute fdrtool() ...
 
@@ -1377,15 +1387,13 @@ net_aitchison <- netConstruct(amgut1.filt,
                               verbose = 3)
 ```
 
+    ## Checking input arguments ... Done.
     ## Infos about changed arguments:
-
-    ## Counts normalized to fractions for measure 'aitchison'.
-
+    ## Counts normalized to fractions for measure "aitchison".
+    ## 
     ## 127 taxa and 289 samples remaining.
-
     ## 
     ## Zero treatment:
-
     ## Execute multRepl() ...
 
     ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).

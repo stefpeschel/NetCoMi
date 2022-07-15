@@ -84,7 +84,7 @@ The function creates and returns a matrix with permuted group
                             measure = "pearson",
                             filtTax = "highestVar",
                             filtTaxPar = list(highestVar = 30),
-                            zeroMethod = "pseudo", normMethod = "clr")
+                            zeroMethod = "pseudoZO", normMethod = "clr")
 
   # Network analysis:
   amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy")

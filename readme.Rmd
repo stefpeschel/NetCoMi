@@ -142,7 +142,8 @@ from `LaplacesDemon` package)
 
 **Methods for zero replacement:**
 
-- Adding a predefined pseudo count
+- Add a predefined pseudo count to the count table
+- Replace only zeros in the count table by a predefined pseudo count (ratios between non-zero values are preserved)
 - Multiplicative replacement ([`multRepl`](https://rdrr.io/cran/zCompositions/man/multRepl.html) 
 from `zCompositions` package)
 - Modified EM alr-algorithm ([`lrEM`](https://rdrr.io/cran/zCompositions/man/lrEM.html) 
@@ -661,8 +662,12 @@ Alternatively, a group vector could be passed to `group`, according to which
 the data set is split into two groups:
 
 ```{r netcomp_spring_2, eval=FALSE}
+# Get count table
+countMat <- phyloseq::otu_table(amgut2.filt.phy)
+
 # netConstruct() expects samples in rows
-countMat <- t(amgut2.filt.phy@otu_table@.Data)
+countMat <- t(as(countMat, "matrix"))
+
 group_vec <- phyloseq::get_variable(amgut2.filt.phy, "SEASONAL_ALLERGIES")
 
 # Select the two groups of interest (level "none" is excluded)
