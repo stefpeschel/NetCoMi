@@ -1,16 +1,15 @@
 ---
 output: github_document
 ---
-## NetCoMi 1.0.3.90xx <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+## NetCoMi 1.0.3.9000 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
 
-The features and bug fixes implemented in version 1.0.3.90xx are available on 
+The features and bug fixes implemented in version 1.0.3.9000 are available on 
 **develop branch** only.
 
 ### New features
 
-#### renameTaxa()
-
-Function for renaming taxa in a taxonomic table. It comes with functionality for 
+* **renameTaxa()**: New function for renaming taxa in a taxonomic table. 
+It comes with functionality for 
 making unknown and unclassified taxa unique and substituting them by the next 
 higher known taxonomic level, e.g., an unknown genus "g__" can automatically be 
 renamed to "1_Streptococcaceae(F)". User-defined patterns determine the format 
@@ -18,25 +17,57 @@ of known and substituted names. Unknown names (e.g., NAs) and unclassified taxa
 can be handled separately. Duplicated names within one or more chosen ranks can 
 also be made unique by numbering them consecutively.
 
-#### editLabels()
+* **editLabels()**: New function for editing node labels, i.e., shortening to a 
+certain length and removing unwanted characters. It is used by NetCoMi's plot 
+functions plot.microNetProps() and plot.diffnet().
 
-Function for editing node labels, i.e., shortening to a certain length and 
-removing unwanted characters. It is used by NetCoMi's plot functions 
-plot.microNetProps() and plot.diffnet().
+* in `netCompare()`: The **adjusted Rand index** is also computed for the 
+largest connected component (LCC). The summary method has been adapted.
 
-### Style changes
+* Argument **"testRand"** added to `netCompare()`. Performing a permutation 
+test for the adjusted Rand index can now be disabled to save run time.
 
-##### R code reformatted
+* **Graphlet-based network measures** implemented. NetCoMi contains two new 
+exported functions **`calcGCM()`** and **`calcGCD()`** to compute the Graphlet 
+Correlation Matrix (GCM) of a network and the Graphlet Correlation Distance 
+(GCD) between two networks. 
+Orbits for graphlets with up to four nodes are considered. 
+Furthermore, the GCM is computed with `netAnalyze()` and the 
+GCD with `netCompare()` (for the whole network and the largest connected 
+component, respectively). Also the orbit counts are returned. The GCD is added 
+to the summary for class `microNetComp` objects returned by `netCompare()`.
 
-##### Functions renamed
+* Argument **"doPlot"** added to `plot.microNetProps()` to suppress the plot if 
+only the return value is of interest. 
 
-Internal functions have been renamed to follow general naming conventions, 
+* New **"show"** arguments are added to the summary methods for class 
+`microNetProps` and `microNetComp` objects. They specify which network 
+properties should be printed in the summary. See the help pages of
+`summary.microNetProps` and `summary.microNetComp()` for details.
+
+* New zero replacement method **"pseudoZO"** available in `netConstruct()`. 
+Instead of adding the desired pseudo count to the whole count matrix, it is 
+added to zero counts only if `pseudoZO` is chosen. The behavior of "pseudo" 
+(a further available method where a pseudo count is added to all counts) has not changed. 
+Adding a pseudo count only to zeros preserves the ratios between non-zero 
+counts, which is desirable. 
+
+### Style
+
+* The whole R code has been reformatted to follow general conventions.
+
+* The element `"clustering_lcc"` as part of the `netAnalyze` output has changed 
+to `"clusteringLCC"` to be in line with the remaining output. 
+
+* Input argument checking of exported function has been revised. New functions 
+`.checkArgsXxx()` are added to perform argument checking outside the main 
+functions. 
+
+* Non-exported functions have been renamed to follow general naming conventions, 
 i.e. that of [Bioconductor](https://contributions.bioconductor.org/r-code.html):
-
-* Use camelCase for all functions
-* Non-exported functions have prefix "."
-
-The following functions have been renamed:
+    + Use camelCase for all functions.
+    + Non-exported functions have prefix "."
+    + The following functions have been renamed:
 
 ```{r, echo=FALSE, results='asis'}
 library(knitr)
@@ -48,12 +79,9 @@ oldnames <- c(
   "calc_diff_props",
   "calc_jaccard",
   "calc_props",
-  "checkPack",
-  "condition_handling",
   "diff_connect_pairs",
   "diff_connect_variables",
   "diff_connect_network",
-  "except_plot_networks",
   "filter_edges",
   "filter_nodes",
   "filter_samples",
@@ -79,17 +107,14 @@ newnames <- c(
   ".calcDiffProps",
   ".calcJaccard",
   ".calcProps",
-  ".checkPack",
-  ".conditionHandling",
   ".diffConnectPairs",
   ".diffConnectVariables",
   ".diffConnectNetwork",
-  ".exceptPlotNetworks",
   ".filterEdges",
   ".filterNodes",
-  ".firstUnequalElement",
   ".filterSamples",
   ".filterTaxa",
+  ".firstUnequalElement",
   ".getClustCols",
   ".getNodeSize",
   ".getPermGroupMat",
