@@ -9,9 +9,11 @@
   errs$nerr <- 0
   #errs$msg <- NULL
   
-  errs <- .checkArg(cond = inherits(args$x, "microNetProps"), 
-                    msg = paste0("\"x\" must be of class \"microNetProps\" ", 
-                                 "(returned by netAnalyze())"), 
+  errs <- .checkArg(cond = inherits(args$x, "microNetProps") | 
+                      inherits(args$x, "microNet"), 
+                    msg = paste0("\"x\" must be of class \"microNet\" ", 
+                                 "or \"microNetProps\" (returned by ", 
+                                 "netConstruct() or netAnalyze())."), 
                     errs = errs)
   
   errs <- .checkArg(cond = is.logical(args$computeAsso), 

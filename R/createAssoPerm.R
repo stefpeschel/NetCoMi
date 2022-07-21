@@ -4,7 +4,8 @@
 #'   labels and saves association matrices computed for the permuted data to 
 #'   an external file.
 #'
-#' @param x object of class \code{"microNetProps"} (returned by 
+#' @param x object of class \code{"microNet"} or \code{"microNetProps"} 
+#'   (returned by \code{\link[NetCoMi]{netConstruct}} or 
 #'   \code{\link[NetCoMi]{netAnalyze}}).
 #' @param computeAsso logical indicating whether the association matrices should
 #'   be computed. If \code{FALSE}, only the permuted group labels are computed 
@@ -58,6 +59,8 @@
 #' 
 #'   # Use 'createAssoPerm' to create "permuted" count and association matrices,
 #'   # which can be reused by netCompare() and diffNet()
+#'   # Note: 
+#'   # createAssoPerm() accepts objects 'amgut_net' and 'amgut_props' as input
 #'   
 #'   createAssoPerm(amgut_props, nPerm = 100L, 
 #'                  computeAsso = TRUE,
@@ -125,25 +128,44 @@ createAssoPerm <- function(x,
   }
   
   #-----------------------------------------------------------------------------
-  
-  # Parameters used for network construction
-  parNC <- x$paramsNetConstruct
-  
-  assoType <- x$input$assoType
+  if (inherits(x, "microNet")) {
+    
+    # Parameters used for network construction
+    parNC <- x$parameters
+    
+    assoType <- x$assoType
+    xgroups <- x$groups
+    matchDesign <- x$matchDesign
+    twoNets <- x$twoNets
+    callNetConstr <- x$call
+    
+    count1 <- x$countMat1
+    count2 <- x$countMat2
+    countsJoint <- x$countsJoint
+    
+    count_norm1 <- x$normCounts1
+    count_norm2 <- x$normCounts2
+    
+  } else { # class=microNetProps
+    
+    parNC <- x$paramsNetConstruct
+    
+    assoType <- x$input$assoType
+    xgroups <- x$input$groups 
+    matchDesign <- x$input$matchDesign
+    twoNets <- x$input$twoNets
+    callNetConstr <- x$input$call
+    
+    count1 <- x$input$countMat1
+    count2 <- x$input$countMat2
+    countsJoint <- x$input$countsJoint
+    
+    count_norm1 <- x$input$normCounts1
+    count_norm2 <- x$input$normCounts2
+  }
+
   distNet <- ifelse(assoType == "dissimilarity", TRUE, FALSE)
-  
-  xgroups <- x$input$groups
-  matchDesign <- x$input$matchDesign
-  twoNets <- x$input$twoNets
-  callNetConstr <- x$input$call
-  
-  count1 <- x$input$countMat1
-  count2 <- x$input$countMat2
-  countsJoint <- x$input$countsJoint
-  
-  count_norm1 <- x$input$normCounts1
-  count_norm2 <- x$input$normCounts2
-  
+
   if (!twoNets) {
     stop("Input contains only a single network.")
   }

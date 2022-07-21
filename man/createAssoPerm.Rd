@@ -20,7 +20,8 @@ createAssoPerm(
 )
 }
 \arguments{
-\item{x}{object of class \code{"microNetProps"} (returned by 
+\item{x}{object of class \code{"microNet"} or \code{"microNetProps"} 
+(returned by \code{\link[NetCoMi]{netConstruct}} or 
 \code{\link[NetCoMi]{netAnalyze}}).}
 
 \item{computeAsso}{logical indicating whether the association matrices should
@@ -91,6 +92,8 @@ The function creates and returns a matrix with permuted group
 
   # Use 'createAssoPerm' to create "permuted" count and association matrices,
   # which can be reused by netCompare() and diffNet()
+  # Note: 
+  # createAssoPerm() accepts objects 'amgut_net' and 'amgut_props' as input
   
   createAssoPerm(amgut_props, nPerm = 100L, 
                  computeAsso = TRUE,

@@ -21,7 +21,7 @@ available on **develop branch** only.
     is used by NetCoMi’s plot functions plot.microNetProps() and
     plot.diffnet().
 
--   in `netCompare()`: The **adjusted Rand index** is also computed for
+-   In `netCompare()`: The **adjusted Rand index** is also computed for
     the largest connected component (LCC). The summary method has been
     adapted.
 
@@ -57,6 +57,8 @@ available on **develop branch** only.
     pseudo count only to zeros preserves the ratios between non-zero
     counts, which is desirable.
 
+-   `createAssoPerm()` now accepts objects of class `microNet` as input
+    (in addition to objects of class `microNetProps`).
 ### Style
 
 -   The whole R code has been reformatted to follow general conventions.
