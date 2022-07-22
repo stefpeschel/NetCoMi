@@ -6,7 +6,7 @@ reloading count tables, association matrices and network properties of
 the permuted data if **permutation tests** are performed with
 `netCompare()` or `diffnet()`.
 
-NetCoMi (>=1.0.2) includes the function `createAssoPerm()` for creating
+NetCoMi (\>=1.0.2) includes the function `createAssoPerm()` for creating
 either only a matrix with permuted group labels or storing count tables
 and association matrices of the permuted data. The stored files can be
 passed to `netCompare()` and `diffnet()` so that users can repeatedly
@@ -49,8 +49,8 @@ lact_yes <- phyloseq::subset_samples(amgut2.filt.phy, LACTOSE == "yes")
 lact_no  <- phyloseq::subset_samples(amgut2.filt.phy, LACTOSE == "no")
 
 # Extract count tables
-counts_yes <- t(as.matrix(otu_table(lact_yes)))
-counts_no <- t(as.matrix(otu_table(lact_no)))
+counts_yes <- t(as(phyloseq::otu_table(lact_yes), "matrix"))
+counts_no <- t(as(phyloseq::otu_table(lact_no), "matrix"))
 
 # Build the 1:2 matched data set
 counts_matched <- matrix(NA, nrow = 150, ncol = ncol(counts_yes))
@@ -58,8 +58,8 @@ colnames(counts_matched) <- colnames(counts_yes)
 rownames(counts_matched) <- 1:150
 ind_yes <- ind_no <- 1
 
-for (i in 1:150){
-  if ((i-1)%%3 == 0){
+for (i in 1:150) {
+  if ((i-1)%%3 == 0) {
     counts_matched[i, ] <- counts_yes[ind_yes, ]
     rownames(counts_matched)[i] <- rownames(counts_yes)[ind_yes]
     ind_yes <- ind_yes + 1
@@ -88,20 +88,15 @@ net_amgut <- netConstruct(counts_matched,
                           seed = 123456)
 ```
 
+    ## Checking input arguments ... Done.
     ## Data filtering ...
-
     ## 88 taxa removed.
-
     ## 50 taxa and 150 samples remaining.
-
     ## 
     ## Zero treatment:
-
     ## Pseudo count of 1 added.
-
     ## 
     ## Normalization:
-
     ## Execute clr(){SpiecEasi} ... Done.
     ## 
     ## Calculate 'pearson' associations ... Done.
@@ -150,6 +145,7 @@ comp_amgut_orig <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
                           seed = 123456)
 ```
 
+    ## Checking input arguments ... Done.
     ## Calculate network properties ... Done.
     ## Files 'assoPerm_comp.bmat and assoPerm_comp.desc.txt created. 
     ## Execute permutation tests ...
@@ -179,7 +175,7 @@ summary(comp_amgut_orig)
     ##                          group '1'   group '2'    abs.diff.     p-value  
     ## Relative LCC size            0.480       0.400        0.080    0.950495  
     ## Clustering coefficient       0.510       0.635        0.125    0.584158  
-    ## Moduarity                    0.261       0.175        0.085    0.524752  
+    ## Modularity                   0.261       0.175        0.085    0.524752  
     ## Positive edge percentage    57.627      62.500        4.873    0.554455  
     ## Edge density                 0.214       0.295        0.081    0.693069  
     ## Natural connectivity         0.080       0.109        0.029    0.742574  
@@ -192,18 +188,18 @@ summary(comp_amgut_orig)
     ##                          group '1'   group '2'    abs.diff.     p-value  
     ## Number of components        21.000      27.000        6.000    0.861386  
     ## Clustering coefficient       0.463       0.635        0.172    0.247525  
-    ## Moduarity                    0.332       0.252        0.080    0.504950  
+    ## Modularity                   0.332       0.252        0.080    0.504950  
     ## Positive edge percentage    58.462      63.333        4.872    0.564356  
     ## Edge density                 0.053       0.049        0.004    0.871287  
     ## Natural connectivity         0.030       0.031        0.001    0.772277  
     ## -----
     ## p-values: one-tailed test with null hypothesis diff=0
     ##  *: Dissimilarity = 1 - edge weight
-    ## **Path length: Units with average dissimilarity
+    ## **: Path length = Units with average dissimilarity
     ## 
     ## ______________________________
     ## Jaccard index (similarity betw. sets of most central nodes)
-    ## ``````````````````````````````````````````````````````````
+    ## ```````````````````````````````````````````````````````````
     ##                     Jacc   P(<=Jacc)     P(>=Jacc)    
     ## degree             0.615    0.991177      0.034655 *  
     ## betweenness centr. 0.312    0.546936      0.660877    
@@ -211,17 +207,26 @@ summary(comp_amgut_orig)
     ## eigenvec. centr.   0.625    0.995960      0.015945 *  
     ## hub taxa           0.500    0.888889      0.407407    
     ## -----
-    ## Jaccard index ranges from 0 (compl. different) to 1 (sets equal)
+    ## Jaccard index in [0,1] (1 indicates perfect agreement)
     ## 
     ## ______________________________
     ## Adjusted Rand index (similarity betw. clusterings)
     ## ``````````````````````````````````````````````````
-    ##    ARI       p-value
-    ##  0.383             0
+    ##         wholeNet       LCC
+    ## ARI        0.383     0.281
+    ## p-value    0.000     0.000
     ## -----
-    ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings,
+    ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
     ##                    ARI=0: expected for two random clusterings
-    ## p-value: two-tailed test with null hypothesis ARI=0
+    ## p-value: permutation test (n=1000) with null hypothesis ARI=0
+    ## 
+    ## ______________________________
+    ## Graphlet Correlation Distance
+    ## `````````````````````````````
+    ##     wholeNet       LCC
+    ## GCD    0.914     2.241
+    ## -----
+    ## GCD >= 0 (GCD=0 indicates perfect agreement between GCMs)
     ## 
     ## ______________________________
     ## Centrality measures
@@ -296,6 +301,7 @@ comp_amgut1 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
                           seed = 123456)
 ```
 
+    ## Checking input arguments ... Done.
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
 
@@ -322,14 +328,12 @@ diffnet_amgut <- diffnet(net_amgut, diffMethod = "permute", nPerm = 100,
                           storeCountsPerm = FALSE)
 ```
 
+    ## Checking input arguments ... Done.
     ## Execute permutation tests ...
 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   1%  |                                                                              |=                                                                     |   2%  |                                                                              |==                                                                    |   3%  |                                                                              |===                                                                   |   4%  |                                                                              |====                                                                  |   5%  |                                                                              |====                                                                  |   6%  |                                                                              |=====                                                                 |   7%  |                                                                              |======                                                                |   8%  |                                                                              |======                                                                |   9%  |                                                                              |=======                                                               |  10%  |                                                                              |========                                                              |  11%  |                                                                              |========                                                              |  12%  |                                                                              |=========                                                             |  13%  |                                                                              |==========                                                            |  14%  |                                                                              |==========                                                            |  15%  |                                                                              |===========                                                           |  16%  |                                                                              |============                                                          |  17%  |                                                                              |=============                                                         |  18%  |                                                                              |=============                                                         |  19%  |                                                                              |==============                                                        |  20%  |                                                                              |===============                                                       |  21%  |                                                                              |===============                                                       |  22%  |                                                                              |================                                                      |  23%  |                                                                              |=================                                                     |  24%  |                                                                              |==================                                                    |  25%  |                                                                              |==================                                                    |  26%  |                                                                              |===================                                                   |  27%  |                                                                              |====================                                                  |  28%  |                                                                              |====================                                                  |  29%  |                                                                              |=====================                                                 |  30%  |                                                                              |======================                                                |  31%  |                                                                              |======================                                                |  32%  |                                                                              |=======================                                               |  33%  |                                                                              |========================                                              |  34%  |                                                                              |========================                                              |  35%  |                                                                              |=========================                                             |  36%  |                                                                              |==========================                                            |  37%  |                                                                              |===========================                                           |  38%  |                                                                              |===========================                                           |  39%  |                                                                              |============================                                          |  40%  |                                                                              |=============================                                         |  41%  |                                                                              |=============================                                         |  42%  |                                                                              |==============================                                        |  43%  |                                                                              |===============================                                       |  44%  |                                                                              |================================                                      |  45%  |                                                                              |================================                                      |  46%  |                                                                              |=================================                                     |  47%  |                                                                              |==================================                                    |  48%  |                                                                              |==================================                                    |  49%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================                                  |  51%  |                                                                              |====================================                                  |  52%  |                                                                              |=====================================                                 |  53%  |                                                                              |======================================                                |  54%  |                                                                              |======================================                                |  55%  |                                                                              |=======================================                               |  56%  |                                                                              |========================================                              |  57%  |                                                                              |=========================================                             |  58%  |                                                                              |=========================================                             |  59%  |                                                                              |==========================================                            |  60%  |                                                                              |===========================================                           |  61%  |                                                                              |===========================================                           |  62%  |                                                                              |============================================                          |  63%  |                                                                              |=============================================                         |  64%  |                                                                              |==============================================                        |  65%  |                                                                              |==============================================                        |  66%  |                                                                              |===============================================                       |  67%  |                                                                              |================================================                      |  68%  |                                                                              |================================================                      |  69%  |                                                                              |=================================================                     |  70%  |                                                                              |==================================================                    |  71%  |                                                                              |==================================================                    |  72%  |                                                                              |===================================================                   |  73%  |                                                                              |====================================================                  |  74%  |                                                                              |====================================================                  |  75%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================                |  77%  |                                                                              |=======================================================               |  78%  |                                                                              |=======================================================               |  79%  |                                                                              |========================================================              |  80%  |                                                                              |=========================================================             |  81%  |                                                                              |=========================================================             |  82%  |                                                                              |==========================================================            |  83%  |                                                                              |===========================================================           |  84%  |                                                                              |============================================================          |  85%  |                                                                              |============================================================          |  86%  |                                                                              |=============================================================         |  87%  |                                                                              |==============================================================        |  88%  |                                                                              |==============================================================        |  89%  |                                                                              |===============================================================       |  90%  |                                                                              |================================================================      |  91%  |                                                                              |================================================================      |  92%  |                                                                              |=================================================================     |  93%  |                                                                              |==================================================================    |  94%  |                                                                              |==================================================================    |  95%  |                                                                              |===================================================================   |  96%  |                                                                              |====================================================================  |  97%  |                                                                              |===================================================================== |  98%  |                                                                              |===================================================================== |  99%  |                                                                              |======================================================================| 100%
 
-    ## Adjust for multiple testing using 'lfdr' ...
-
-    ## 
-
+    ## Adjust for multiple testing using 'lfdr' ... 
     ## Execute fdrtool() ...
 
     ## Step 1... determine cutoff point
@@ -432,6 +436,7 @@ comp_amgut2 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
                           seed = 123456)
 ```
 
+    ## Checking input arguments ... Done.
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
 
@@ -513,9 +518,9 @@ nPerm_all <- 100
 blocksize <- 20
 repetitions <- nPerm_all / blocksize
 
-for (i in 1:repetitions){
+for (i in 1:repetitions) {
   print(i)
-  if (i == 1){
+  if (i == 1) {
     # Create a new file in the first run
     tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
                           permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
@@ -585,6 +590,7 @@ comp_amgut3 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
                           storeCountsPerm = FALSE, seed = 123456)
 ```
 
+    ## Checking input arguments ... Done.
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
 
@@ -650,7 +656,7 @@ blocksize <- 20
 repetitions <- nPerm_all / blocksize  # 5 repetitions
 
 # Execute as standard for-loop:
-for (i in 1:repetitions){
+for (i in 1:repetitions) {
   tmp <- createAssoPerm(props_amgut, nPerm = blocksize, 
                         permGroupMat = permGroupMat[(i-1) * blocksize + 1:blocksize, ],
                         computeAsso = TRUE,
@@ -694,11 +700,7 @@ for (i in 1:repetitions){
 ``` r
 # OR execute in parallel:
 library("foreach")
-```
 
-    ## Warning: Paket 'foreach' wurde unter R Version 4.1.2 erstellt
-
-``` r
 cores <- 2 # Please choose an appropriate number of cores
 
 cl <- snow::makeCluster(cores)
@@ -711,7 +713,7 @@ pb <- utils::txtProgressBar(0, repetitions, style=3)
     ##   |                                                                              |                                                                      |   0%
 
 ``` r
-progress <- function(n){
+progress <- function(n) {
   utils::setTxtProgressBar(pb, n)
 }
       
@@ -746,7 +748,7 @@ snow::stopCluster(cl)
 # needs an external file)
 assoPerm_all <- NULL
 
-for (i in 1:repetitions){
+for (i in 1:repetitions) {
   
   assoPerm_tmp <- fm.open(filenamebase = paste0("assoPerm", i) , readonly = TRUE)
   
@@ -776,6 +778,7 @@ comp_amgut4 <- netCompare(props_amgut, permTest = TRUE, nPerm = 100,
                           storeCountsPerm = FALSE, seed = 123456)
 ```
 
+    ## Checking input arguments ... Done.
     ## Calculate network properties ... Done.
     ## Execute permutation tests ...
 

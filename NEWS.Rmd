@@ -55,6 +55,20 @@ non-zero counts, which is desirable.
 * `createAssoPerm()` now accepts objects of class `microNet` as input (in 
 addition to objects of class `microNetProps`).
 
+
+### Fixes
+
+* In **permutation tests**: The permuted group labels must now be different from 
+the original group vector. In other words, the original group vector is strictly 
+avoided in the matrix with permuted group labels. So far, only duplicates were 
+avoided. Only in exact permutation tests (if `nPerm` equals the possible number 
+of permutations), the original group vector is still included in the permutation 
+matrix. The calculation of p-values has been adapted to the new behavior: 
+*p=B/N* for exact p-values and *p=(B+1)/(N+1)* for approximated p-values, where 
+*B* is the number of permutation test statistics being larger than or equal to 
+the observed one, and *N* is the number of permutations. So far, *p=(B+1)/(N+1)* 
+has been used in all cases.
+
 ### Style
 
 * The whole R code has been reformatted to follow general conventions.

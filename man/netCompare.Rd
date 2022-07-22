@@ -216,9 +216,10 @@ Calculate and compare network properties for microbial networks
   the group labels are randomly reassigned to the samples while the group
   sizes are kept. The associations are then re-estimated for each permuted
   data set. The p-values are calculated as the proportion of
-  "permutation-differences" being larger than the observed difference. A
-  pseudo-count is added to the numerator and denominator in order to avoid
-  zero p-values. The p-values should be adjusted for multiple testing.
+  "permutation-differences" being larger than or equal to the observed 
+  difference. In non-exact tests, a pseudo-count is added to the numerator 
+  and denominator to avoid p-values of zero. Several methods for adjusting 
+  the p-values for multiplicity are available.
 
   \strong{Jaccard's index:}\cr
   Jaccard's index expresses for each centrality measure how equal the sets of

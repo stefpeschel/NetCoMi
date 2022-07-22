@@ -127,8 +127,7 @@
   normMethod <- paramsNetConstruct$normMethod
   normPar <- paramsNetConstruct$normPar
   jointPrepro <- paramsNetConstruct$jointPrepro
-  
-  
+
   if (!is.null(seed)) {
     set.seed(seed)
   }
@@ -470,6 +469,21 @@
   
   if (verbose) close(pb) 
   
+  # Define whether permutation test is exact or approximative
+  if (is.null(matchDesign)) {
+    if (nPerm == choose(n, n1)) {
+      exact <- TRUE
+    } else {
+      exact <- FALSE
+    }
+  } else {
+    if (nPerm == .getMaxCombMatch(matchDesign = matchDesign, n = n)) {
+      exact <- TRUE
+    } else {
+      exact <- FALSE
+    }
+  }
+  
   if ("connect.pairs" %in% method) {
     
     # test statistic for original data
@@ -485,9 +499,18 @@
     
     if (pvalsMethod == "pseudo") {
       
-      pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
-        (sum(connectPairs[, i] >= connectPairsOrig[i]) + 1) / (nPerm + 1)
-      })
+      if (exact) {
+        # Exact permutation test
+        pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
+          sum(connectPairs[, i] >= connectPairsOrig[i]) / nPerm
+        })
+        
+      } else {
+        # Approximated p-values
+        pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
+          (sum(connectPairs[, i] >= connectPairsOrig[i]) + 1) / (nPerm + 1)
+        })
+      }
       
     } #else {
     #   pvalsVec <- calc_perm_pvals(tstatPerm = connectPairs,
@@ -546,10 +569,22 @@
       connectVariables[i, ] <- result[[i]]$connectVariables
     }
     
-    pvalsConnectVariables <- sapply(1:ncol(connectVariables), function(i) {
-      (sum(connectVariables[, i] >= connectVariablesOrig[i]) + 1) / (nPerm + 1)
-    })
-    
+    if (exact) {
+      # Exact permutation test
+      pvalsConnectVariables <-
+        sapply(1:ncol(connectVariables), function(i) {
+          sum(connectVariables[, i] >= connectVariablesOrig[i]) / nPerm
+        })
+      
+    } else {
+      # Approximated p-values
+      pvalsConnectVariables <-
+        sapply(1:ncol(connectVariables), function(i) {
+          (sum(connectVariables[, i] >= connectVariablesOrig[i]) + 1) / 
+            (nPerm + 1)
+        })
+    }
+
     names(pvalsConnectVariables) <- names(connectVariablesOrig)
     
     output[["pvalsConnectVariables"]] <- pvalsConnectVariables
@@ -580,7 +615,17 @@
       connectNetwork[i] <- result[[i]]$connectNetwork
     }
     
-    pvalConnectNetwork <- sum(connectNetwork >= connectNetworkOrig) / nPerm
+    if (exact) {
+      # Exact permutation test
+      pvalConnectNetwork <- sum(connectNetwork >= connectNetworkOrig)/ nPerm
+      
+    } else {
+      # Approximated p-values
+      pvalConnectNetwork <- (sum(connectNetwork >= connectNetworkOrig) + 1) / 
+        (nPerm + 1)
+    }
+    
+    
     output[["pvalConnectNetwork"]] <- pvalConnectNetwork
   }
   

@@ -68,8 +68,13 @@
 #' @keywords internal
 # Compute empirical permutation p-value.
 # Used in netCompare()
-.calcPermPval <- function(tstat, tstatPerm, nPerm) {
-  (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
+.calcPermPval <- function(tstat, tstatPerm, nPerm, exact) {
+  if (exact) {
+    sum(tstatPerm >= tstat) / nPerm
+  } else {
+    (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
+  }
+  
 }
 
 #-------------------------------------------------------------------------------
@@ -88,4 +93,48 @@
   } else {
     return(" ")
   }
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Make permutation group matrix unique and remove original group vector
+# Used in .getPermGroupMat
+.cleanPermMat <- function(perm_group_mat, groupvec, exact = FALSE){
+  perm_group_mat <- unique.matrix(perm_group_mat)
+  
+  if (!exact) {
+    # Remove original group vector from permutations (if existent)
+    origInPerm <- sapply(1:nrow(perm_group_mat),
+                         function(i) {
+                           identical(perm_group_mat[i, ], groupvec)
+                         })
+    
+    if (any(origInPerm)) {
+      perm_group_mat <- perm_group_mat[!origInPerm, ]
+    }
+  }
+  
+  return(perm_group_mat)
+}
+
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Get the maximum number of permutations for matched set designs
+# Used in .getPermGroupMat
+.getMaxCombMatch <- function(matchDesign, n) {
+  # size of matching sets
+  set_size <- sum(matchDesign)
+  
+  # number of sets
+  n_sets <- n / set_size
+  
+  # possible combinations within each set
+  possib <- factorial(matchDesign[1] + matchDesign[2]) / 
+    (factorial(matchDesign[1]) * factorial(matchDesign[2]))
+  
+  # maximum number of permutations
+  maxcomb <- possib^n_sets
+  
+  return(maxcomb)
 }

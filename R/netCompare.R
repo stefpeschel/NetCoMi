@@ -105,9 +105,10 @@
 #'   the group labels are randomly reassigned to the samples while the group
 #'   sizes are kept. The associations are then re-estimated for each permuted
 #'   data set. The p-values are calculated as the proportion of
-#'   "permutation-differences" being larger than the observed difference. A
-#'   pseudo-count is added to the numerator and denominator in order to avoid
-#'   zero p-values. The p-values should be adjusted for multiple testing.
+#'   "permutation-differences" being larger than or equal to the observed 
+#'   difference. In non-exact tests, a pseudo-count is added to the numerator 
+#'   and denominator to avoid p-values of zero. Several methods for adjusting 
+#'   the p-values for multiplicity are available.
 #'
 #'   \strong{Jaccard's index:}\cr
 #'   Jaccard's index expresses for each centrality measure how equal the sets of
@@ -1064,6 +1065,21 @@ netCompare <- function(x,
     #---------------------------------------------------------------------------
     # Compute p-values
     
+    # Define whether permutation test is exact or approximative
+    if (is.null(x$input$matchDesign)) {
+      if (nPerm == choose(n, n1)) {
+        exact <- TRUE
+      } else {
+        exact <- FALSE
+      }
+    } else {
+      if (nPerm == .getMaxCombMatch(matchDesign = x$input$matchDesign, n = n)) {
+        exact <- TRUE
+      } else {
+        exact <- FALSE
+      }
+    }
+    
     pvalnames <- paste0("pval", names)
     
     pvalDiffGlobal <-  pvalDiffGlobalLCC <- list()
@@ -1071,50 +1087,50 @@ netCompare <- function(x,
     pvalDiffGlobal[["pvalnComp"]] <- 
       .calcPermPval(tstat = props$diffsGlobal[["diffnComp"]],
                     tstatPerm = permDiffsGlobal[, "diffnComp"],
-                    nPerm = nPerm)
+                    nPerm = nPerm, exact = exact)
     
     
     pvalDiffGlobalLCC[["pvallccSize"]] <-
       .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSize"]],
                     tstatPerm = permDiffsGlobal_lcc[, "difflccSize"],
-                    nPerm = nPerm)
+                    nPerm = nPerm, exact = exact)
     
     pvalDiffGlobalLCC[["pvallccSizeRel"]] <-
       .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSizeRel"]],
                     tstatPerm = permDiffsGlobal_lcc[, "difflccSizeRel"],
-                    nPerm = nPerm)
+                    nPerm = nPerm, exact = exact)
     
     for (i in seq_along(pvalnames)) {
       pvalDiffGlobal[[pvalnames[i]]] <-  
         .calcPermPval(tstat = props$diffsGlobal[[names_diff[i]]],
                       tstatPerm = permDiffsGlobal[, names_diff[i]],
-                      nPerm = nPerm)
+                      nPerm = nPerm, exact = exact)
       
       pvalDiffGlobalLCC[[pvalnames[i]]] <- 
         .calcPermPval(tstat = props$diffsGlobalLCC[[names_diff[i]]],
                       tstatPerm = permDiffsGlobal_lcc[, names_diff[i]],
-                      nPerm = nPerm)
+                      nPerm = nPerm, exact = exact)
     }
     
     pvalDiffDeg <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffDeg[i],
                     tstatPerm = absDiffsPermDeg[, i],
-                    nPerm = nPerm)})
+                    nPerm = nPerm, exact = exact)})
     
     pvalDiffBetw <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffBetw[i],
                     tstatPerm = absDiffsPermBetw[, i],
-                    nPerm = nPerm)})
+                    nPerm = nPerm, exact = exact)})
     
     pvalDiffClose <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffClose[i],
                     tstatPerm = absDiffsPermClose[, i],
-                    nPerm = nPerm)})
+                    nPerm = nPerm, exact = exact)})
     
     pvalDiffEigen <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffEigen[i],
                     tstatPerm = absDiffsPermEigen[, i],
-                    nPerm = nPerm)})
+                    nPerm = nPerm, exact = exact)})
     
     names(pvalDiffDeg) <- names(pvalDiffBetw) <- 
       names(pvalDiffClose) <- names(pvalDiffEigen) <- colnames(adja1)
