@@ -120,6 +120,11 @@ calcGCM <- function(adja, orbits = c(0:2, 4:11)) {
   edgelist <- igraph::get.edgelist(net, names = FALSE)
   edgelist <- apply(edgelist, 2, as.integer)
   
+  # Transform into matrix if network consists of one edge only
+  if (is.vector(edgelist)) {
+    edgelist <- t(as.matrix(edgelist))
+  }
+  
   # Get orbit counts
   ocounts <- orca::count4(edgelist)
   
