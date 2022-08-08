@@ -2,6 +2,7 @@
 # NetCoMi <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="260" />
 
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
 
 NetCoMi (**Net**work **Co**nstruction and Comparison for **Mi**crobiome
 Data) provides functionality for constructing, analyzing, and comparing
@@ -166,6 +167,15 @@ follows:
 ``` r
 devtools::install_github("GraceYoon/SPRING")
 devtools::install_github("zdk123/SpiecEasi")
+```
+
+You can also install NetCoMi from conda bioconda channel with
+
+```
+# You can install an individual environment firstly with
+# conda create -n NetCoMi
+# conda activate NetCoMi
+conda install -c bioconda -c conda-forge r-netcomi
 ```
 
 Packages that are optionally required in certain settings are not
