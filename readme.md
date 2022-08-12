@@ -169,15 +169,6 @@ devtools::install_github("GraceYoon/SPRING")
 devtools::install_github("zdk123/SpiecEasi")
 ```
 
-You can also install NetCoMi from conda bioconda channel with
-
-```
-# You can install an individual environment firstly with
-# conda create -n NetCoMi
-# conda activate NetCoMi
-conda install -c bioconda -c conda-forge r-netcomi
-```
-
 Packages that are optionally required in certain settings are not
 installed together with NetCoMi. These can be installed automatically
 using:
@@ -191,6 +182,18 @@ installNetCoMiPacks()
 
 If not installed via `installNetCoMiPacks()`, the required package is
 installed by the respective NetCoMi function when needed.
+
+### Bioconda
+
+Thanks to [@daydream-boost](https://github.com/daydream-boost), NetCoMi
+can also be installed from conda bioconda channel with
+
+``` bash
+# You can install an individual environment firstly with
+# conda create -n NetCoMi
+# conda activate NetCoMi
+conda install -c bioconda -c conda-forge r-netcomi
+```
 
 ## Development version
 
