@@ -2,6 +2,7 @@
 # NetCoMi <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="260" />
 
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
 
 NetCoMi (**Net**work **Co**nstruction and Comparison for **Mi**crobiome
 Data) provides functionality for constructing, analyzing, and comparing
@@ -181,6 +182,18 @@ installNetCoMiPacks()
 
 If not installed via `installNetCoMiPacks()`, the required package is
 installed by the respective NetCoMi function when needed.
+
+### Bioconda
+
+Thanks to [@daydream-boost](https://github.com/daydream-boost), NetCoMi
+can also be installed from conda bioconda channel with
+
+``` bash
+# You can install an individual environment firstly with
+# conda create -n NetCoMi
+# conda activate NetCoMi
+conda install -c bioconda -c conda-forge r-netcomi
+```
 
 ## Development version
 
