@@ -278,7 +278,7 @@ context("netConstruct with different sparsification methods")
 
 set.seed(123456)
 
-sparsMethod <- c("none", "t-test", #"bootstrap", 
+sparsMethod <- c("none", "t-test", "bootstrap", 
                  "threshold", "softThreshold")
 
 for (i in 1:length(sparsMethod)) {
@@ -293,16 +293,19 @@ for (i in 1:length(sparsMethod)) {
                           measure = "pearson", adjust = "adaptBH",
                           sparsMethod = sparsMethod[i],
                           thresh = 0.3, softThreshPower = 10,
-                          dissFunc = "signed", nboot = 1000, cores = 4,
-                          seed = 20190101, logFile = NULL)
+                          dissFunc = "signed", nboot = 5, cores = 1,
+                          seed = 20190101, logFile = NULL,
+                          verbose = FALSE)
   
-  testprops<- netAnalyze(testnet,
-                         clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
-  
-  plot(testprops)
-  mtext(sparsMethod[i], side = 3, cex = 1.5)
+  if (sparsMethod[i] != "bootstrap") {
+    testprops<- netAnalyze(testnet,
+                           clustMethod = "cluster_fast_greedy",
+                           hubPar = "eigenvector", normDeg = FALSE,
+                           hubQuant = 0.95, lnormFit = FALSE)
+    
+    plot(testprops)
+    mtext(sparsMethod[i], side = 3, cex = 1.5)
+  }
 }
 
 

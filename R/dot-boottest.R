@@ -31,7 +31,7 @@
 .boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                      parallel = FALSE, cores = 4, logFile = NULL,
                      verbose = TRUE, seed = NULL) {
-  
+
   if (!is.null(seed)) set.seed(seed)
   
   if (parallel) {
@@ -54,7 +54,7 @@
     }
     
     
-    if (!is.null(logFile)) cat("", file= logFile, append=FALSE)
+    if (!is.null(logFile)) cat("", file = logFile, append = FALSE)
     
     #---------------------------------------------------------------------------
     # Run foreach
@@ -89,9 +89,10 @@
       })
       colnames(count.tmp) <- colnames(countMat)
       
-      assoMat.tmp <- .calcAssociation(count.tmp,
+      assoMat.tmp <- .calcAssociation(countMat = count.tmp, 
                                       measure = measure,
-                                      measurePar = measurePar)
+                                      measurePar = measurePar,
+                                      verbose = 0)
       
       assoMat.tmp
     }
@@ -131,8 +132,10 @@
       })
       colnames(count.tmp) <- colnames(countMat)
       
-      assoMat.tmp <- .calcAssociation(count.tmp, measure = measure,
-                                      measurePar = measurePar)
+      assoMat.tmp <- .calcAssociation(countMat = count.tmp, 
+                                      measure = measure,
+                                      measurePar = measurePar,
+                                      verbose = 0)
       
       reslist[[b]] <- assoMat.tmp
     }
