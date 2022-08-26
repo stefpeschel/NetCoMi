@@ -75,6 +75,12 @@ available on **develop branch** only.
     is the number of permutations. So far, *p=(B+1)/(N+1)* has been used
     in all cases.
 
+-   In `netConstruct()`: Using **“bootstrap”** as sparsification method
+    in combination with on of the association methods “bicor”,
+    “cclasso”, “ccrepe”, or “gcoda” led to the error:
+    `argument "verbose" is missing, with no default`, which has been
+    fixed.
+
 ### Style
 
 -   The whole R code has been reformatted to follow general conventions.
