@@ -236,10 +236,10 @@ bootstrapping. If cores > 1, bootstrapping is performed parallel.
 \code{\link[parallel]{detectCores}}. Then, core arguments of the function 
 used for association estimation (if provided) should be set to 1.}
 
-\item{logFile}{if bootstrapping is used as sparsification method, a log file
-containing the iteration numbers is stored into the current working
-directory. Defaults to \code{"log.txt"}. If\code{ NULL}, no log file is
-created.}
+\item{logFile}{character defining a log file to which the iteration numbers 
+are stored if bootstrapping is used for sparsification. The file is written 
+to the current working directory. Defaults to \code{"log.txt"}. 
+If\code{ NULL}, no log file is created.}
 
 \item{softThreshType}{character indicating the method used for transforming
 correlations into similarities if soft thresholding is used as sparsification
