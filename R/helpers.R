@@ -13,6 +13,33 @@
   return(list(first_unequal = first_unequal, all_unequal = all_unequal))
 }
 
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Turn two consecutive numbers in a vector into one element with 
+# double-digit number. Used in editLabels().
+.sing2doubDigit <- function(string) {
+  
+  trues <- suppressWarnings({!is.na(as.numeric(string))})
+  
+  ptrues <- which(trues)
+  
+  torm <- NULL
+  
+  if (sum(trues) > 1) {
+    for (i in 1:(length(ptrues) - 1)) {
+      if ((ptrues[i] + 1) == ptrues[i + 1]) {
+        string[ptrues[i]] <- paste0(string[ptrues[i]], string[ptrues[i + 1]])
+        torm <- c(torm, ptrues[i + 1])
+      }
+    }
+    
+    string <- string[-torm]
+  }
+
+  return(string)
+}
+
 #-------------------------------------------------------------------------------
 #' @keywords internal
 .sigTestRand <- function(randInd, nPermRand, clust1, clust2) {
@@ -99,7 +126,7 @@
 #' @keywords internal
 # Make permutation group matrix unique and remove original group vector
 # Used in .getPermGroupMat
-.cleanPermMat <- function(perm_group_mat, groupvec, exact = FALSE){
+.cleanPermMat <- function(perm_group_mat, groupvec, exact = FALSE) {
   perm_group_mat <- unique.matrix(perm_group_mat)
   
   if (!exact) {

@@ -144,6 +144,11 @@ editLabels <- function(x,
       ind <- which(shortlabels == shortlabels[dupli[1]])
       dupnames <- strsplit(labels[ind], "")
       
+      # Turn two consecutive numbers into double-digit numbers
+      for (i in seq_along(dupnames)) {
+        dupnames[[i]] <- .sing2doubDigit(dupnames[[i]])
+      }
+      
       # Make length of duplicate names equal
       lvec <- unlist(lapply(dupnames, length))
       l <- max(lvec)
