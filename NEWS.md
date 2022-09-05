@@ -81,6 +81,11 @@ available on **develop branch** only.
     `argument "verbose" is missing, with no default`, which has been
     fixed.
 
+-   In `editLabels()`: The function (and thus also `plot.microNetProps`)
+    threw an error if taxa have been renamed with `renameTaxa` and the
+    data contain more than 9 taxa with equal names, so that double-digit
+    numbers were added to avoid duplicates.
+
 ### Style
 
 -   The whole R code has been reformatted to follow general conventions.
