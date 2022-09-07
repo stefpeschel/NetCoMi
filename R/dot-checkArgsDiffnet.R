@@ -10,7 +10,7 @@
   #errs$msg <- NULL
   
   #-------------------
-  # class
+  # x
   errs <- 
     .checkArg(cond = inherits(args$x, "microNet"), 
               msg = paste0("\"x\" must be of class \"microNet\" returned by ", 
@@ -22,10 +22,9 @@
          "networks.")
   }
   
-  if (is.null(args$x$groups)) {
+  if (is.null(args$x$assoMat2)) {
     stop("\"x\" is a single network. Differential network cannot be computed.")
   }
-  
   
   #-------------------
   # diffMethod
@@ -40,6 +39,17 @@
                 errs = errs)
   }
   
+  if (args$diffMethod == "permute" && args$x$parameters$dataType != "counts") {
+    stop(paste0("Permutation test only possible if count matrices were used ", 
+                "for network construction. Use Fisher test instead."))
+  }
+  
+  if (args$diffMethod == "discordant" && 
+      args$x$parameters$dataType != "counts") {
+    stop(paste0("Discordant method only possible if count matrices were used ", 
+                "for network construction. Use Fisher test instead."))
+  }
+  
   #-------------------
   # discordThresh
   errs <- 
@@ -48,6 +58,26 @@
                 args$discordThresh[1] >= 0 & args$discordThresh[1] <= 1, 
               msg = "\"discordThresh\" must be a numeric value in [0, 1].", 
               errs = errs)
+  
+  #-------------------
+  # n1, n2
+  if (args$diffMethod == "fisherTest" && 
+      args$x$parameters$dataType != "counts") {
+    errs <- 
+      .checkArg(is.numeric(args$n1) & length(args$n1) == 1 &
+                  is.numeric(args$n2) & length(args$n2) == 1,
+                msg = paste0("\"n1\" and \"n2\" must be single numeric values ", 
+                             "(needed because count matrices are missing)."), 
+                errs = errs)
+  }
+
+  if (!is.null(args$n1)) {
+    args$n1 <- as.integer(args$n1)
+  }
+  
+  if (!is.null(args$n2)) {
+    args$n2 <- as.integer(args$n2)
+  }
   
   #-------------------
   # fisherTrans

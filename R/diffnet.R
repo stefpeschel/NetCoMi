@@ -30,6 +30,9 @@
 #'   taxa is differentially correlated between the groups. Taxa pairs with a
 #'   posterior above this threshold are connected in the network. Defaults to
 #'   0.8.
+#' @param n1,n2 integer giving the sample sizes of the two data sets used for 
+#'   network construction. Needed for Fisher's z-test if association matrices 
+#'   instead of count matrices were used for network construction.
 #' @param fisherTrans logical. If \code{TRUE} (default), Fisher-transformed
 #'   correlations are used for permutation tests.
 #' @param nPerm integer giving the number of permutations for the permutation
@@ -219,6 +222,8 @@
 diffnet <- function(x,
                     diffMethod = "permute",
                     discordThresh = 0.8,
+                    n1 = NULL,
+                    n2 = NULL,
                     fisherTrans = TRUE,
                     nPerm = 1000L,
                     permPvalsMethod = "pseudo",
@@ -238,11 +243,11 @@ diffnet <- function(x,
                     storeCountsPerm = FALSE,
                     fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
                     assoPerm = NULL) {
-  
+
   # Check input arguments
   argsIn <- as.list(environment())
   
-  if (verbose) message("Checking input arguments ... ", appendLF = FALSE)
+  if (verbose) message("Checking input arguments ... \n", appendLF = FALSE)
 
   argsOut <- .checkArgsDiffnet(argsIn)
   
@@ -253,7 +258,7 @@ diffnet <- function(x,
   if (verbose) message("Done.")
   
   #-----------------------------------------------------------------------------
-  
+
   countMat1 <- x$countMat1
   countMat2 <- x$countMat2
   countsJoint <- x$countsJoint
@@ -263,6 +268,11 @@ diffnet <- function(x,
   
   assoMat1 <- x$assoEst1
   assoMat2 <- x$assoEst2
+  
+  if (is.null(n1)) {
+    n1 <- nrow(x$normCounts1)
+    n2 <- nrow(x$normCounts2)
+  }
   
   if (diffMethod == "discordant") {
     
@@ -452,11 +462,11 @@ diffnet <- function(x,
     assoVec1[assoVec1 == -1] <- -0.9999
     assoVec2[assoVec2 == -1] <- -0.9999
     
-    n1 <- nrow(normCounts1)
-    n2 <- nrow(normCounts2)
     z1 <- atanh(assoVec1)
     z2 <- atanh(assoVec2)
+    
     diff_z <- (z1 - z2)/sqrt(1/(n1 - 3) + (1/(n2 - 3)))
+    
     pvalsVec <- 2 * (1 - pnorm(abs(diff_z)))
     
     # Adjust for multiple testing

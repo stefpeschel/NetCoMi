@@ -54,18 +54,42 @@ summary(netcomp_diss)
 
 #-------------------------------------------------------------------------------
 context("differential network")
+set.seed(123456)
 
 context("permutation test")
-
-diff_perm <- diffnet(assonet2, diffMethod = "permute", nPerm = 100, cores = 1L,
+diff_perm <- diffnet(assonet2, diffMethod = "permute", nPerm = 20, cores = 1L,
                      adjust = "none")
 
 context("Fisher test")
 diff_fisher <- diffnet(assonet2, diffMethod = "fisherTest", adjust = "none")
 
+context("Discordant method")
+diff_discord <- diffnet(assonet2, diffMethod = "discordant", adjust = "none")
+
 context("test plot.diffnet")
 plot(diff_perm)
 plot(diff_fisher)
+plot(diff_discord)
+
+
+assonet3 <- netConstruct(assonet2$assoEst1, 
+                         data2 = assonet2$assoEst2,
+                         dataType = "correlation",
+                         filtTax = "highestVar",
+                         filtTaxPar = list(highestVar = 50),
+                         filtSamp = "totalReads",
+                         filtSampPar = list(totalReads = 1000),
+                         zeroMethod = "none", normMethod = "none",
+                         measure = "pearson",
+                         sparsMethod = "threshold", thresh = 0.3,
+                         dissFunc = "signed",
+                         seed = 20190101)
+
+context("Fisher test")
+diff_fisher <- diffnet(assonet3, diffMethod = "fisherTest", adjust = "none",
+                       n1 = sum(groups_asso == 0), n2 = sum(groups_asso == 1))
+
+
 
 #-------------------------------------------------------------------------------
 context("Small sample size")

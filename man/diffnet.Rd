@@ -8,6 +8,8 @@ diffnet(
   x,
   diffMethod = "permute",
   discordThresh = 0.8,
+  n1 = NULL,
+  n2 = NULL,
   fisherTrans = TRUE,
   nPerm = 1000L,
   permPvalsMethod = "pseudo",
@@ -46,6 +48,10 @@ a threshold for the posterior probability that a pair of
 taxa is differentially correlated between the groups. Taxa pairs with a
 posterior above this threshold are connected in the network. Defaults to
 0.8.}
+
+\item{n1, n2}{integer giving the sample sizes of the two data sets used for 
+network construction. Needed for Fisher's z-test if association matrices 
+instead of count matrices were used for network construction.}
 
 \item{fisherTrans}{logical. If \code{TRUE} (default), Fisher-transformed
 correlations are used for permutation tests.}
