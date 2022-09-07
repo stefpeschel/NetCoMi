@@ -726,6 +726,33 @@ netConstruct <- function(data,
       }
     }
     
+  } else {
+    # Catch the case that row and column names are missing
+    
+    if (xor(is.null(rownames(data)), is.null(colnames(data))) || 
+        !identical(rownames(data), colnames(data))) {
+      stop("Row and column names must match.")
+    }
+    
+    if (is.null(rownames(data))) {
+      message("Row and columns names of 'data' missing. ", 
+              "Numbers are used instead.")
+      rownames(data) <- colnames(data) <- 1:nrow(data)
+    }
+    
+    
+    if (!is.null(data2)) {
+      if (xor(is.null(rownames(data2)), is.null(colnames(data2))) || 
+          !identical(rownames(data2), colnames(data2))) {
+        stop("Row and column names must match.")
+      }
+      
+      if (is.null(rownames(data2))) {
+        message("Row and columns names of 'data2' missing. ", 
+                "Numbers are used instead.")
+        rownames(data2) <- colnames(data2) <- 1:nrow(data2)
+      }
+    }
   }
   
   #-----------------------------------------------------------------------------
