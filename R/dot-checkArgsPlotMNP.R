@@ -9,15 +9,13 @@
   errs$nerr <- 0
   #errs$msg <- NULL
   
-  twoNets <- args$x$input$twoNets
-  
   #-------------------
   # class
-  errs <- 
-    .checkArg(cond = inherits(args$x, "microNetProps"), 
-              msg = paste0("\"x\" must be of class \"microNetProps\" ", 
-                           "returned by netAnalyze()."), 
-              errs = errs)
+  if (!inherits(args$x, "microNetProps")) {
+    stop("\"x\" must be of class \"microNetProps\" returned by netAnalyze().")
+  }
+  
+  twoNets <- args$x$input$twoNets
   
   #-------------------
   # layout
