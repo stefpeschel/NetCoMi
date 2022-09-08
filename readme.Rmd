@@ -301,11 +301,14 @@ net_single <- readRDS("./data/net_single_spring.rds")
 ```
 
 
-**Note:** Since the fast version of latent correlation computation (for which 
-the [mixedCCA](https://github.com/irinagain/mixedCCA) package is used in `SPRING`) 
-is currently unavailable, the `SPRING` parameter `Rmethod` is internally set to 
-"original". Accordingly, execution time is currently considerably increased for 
-the SPRING approach.
+**Note:** The fast version of latent correlation computation (for which 
+`SPRING` uses the [mixedCCA](https://github.com/irinagain/mixedCCA) package) 
+is available again, but so far only on GitHub. To use the
+multilinear approximation method already, please install `mixedCCA` from GitHub (`devtools::install_github("irinagain/mixedCCA")`) and set the SPRING 
+argument `Rmethod` to "approx": `measurePar = list(Rmethod = "approx", ...)`. 
+Note that `netConstruct()` will throw a warning in the current NetCoMi version. 
+Using the multilinear approximation considerably decreases execution time.
+
 
 **Analyzing the constructed network** 
 

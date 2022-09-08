@@ -285,11 +285,15 @@ net_single <- netConstruct(amgut1.filt,
                            seed = 123456)
 ```
 
-**Note:** Since the fast version of latent correlation computation (for
-which the [mixedCCA](https://github.com/irinagain/mixedCCA) package is
-used in `SPRING`) is currently unavailable, the `SPRING` parameter
-`Rmethod` is internally set to “original”. Accordingly, execution time
-is currently considerably increased for the SPRING approach.
+**Note:** The fast version of latent correlation computation (for which
+`SPRING` uses the [mixedCCA](https://github.com/irinagain/mixedCCA)
+package) is available again, but so far only on GitHub. To use the
+multilinear approximation method already, please install `mixedCCA` from
+GitHub (`devtools::install_github("irinagain/mixedCCA")`) and set the
+SPRING argument `Rmethod` to “approx”:
+`measurePar = list(Rmethod = "approx", ...)`. Note that `netConstruct()`
+will throw a warning in the current NetCoMi version. Using the
+multilinear approximation considerably decreases execution time.
 
 **Analyzing the constructed network**
 
@@ -1089,7 +1093,7 @@ why it is a hub on the right, but not on the left.
 
 However, if the layout of one group is simply taken over to the other,
 one of the networks (here the “seasonal allergies” group) is usually not
-that nice-looking due to the long edges. Therefore, NetCoMi (>= 1.0.2)
+that nice-looking due to the long edges. Therefore, NetCoMi (\>= 1.0.2)
 offers a further option (`layoutGroup = "union"`), where a union of the
 two layouts is used in both groups. In doing so, the nodes are placed as
 optimal as possible equally for both networks.
