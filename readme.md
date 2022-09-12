@@ -9,7 +9,8 @@ release.
 # NetCoMi <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="260" />
 
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
+[![install with
+bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
 
 NetCoMi (**Net**work **Co**nstruction and Comparison for **Mi**crobiome
 Data) provides functionality for constructing, analyzing, and comparing
@@ -290,15 +291,16 @@ net_single <- netConstruct(amgut1.filt,
                            zeroMethod = "none",
                            sparsMethod = "none", 
                            dissFunc = "signed",
-                           verbose = 3,
+                           verbose = 2,
                            seed = 123456)
 ```
 
-**Note:** Since the fast version of latent correlation computation (for
-which the [mixedCCA](https://github.com/irinagain/mixedCCA) package is
-used in `SPRING`) is currently unavailable, the `SPRING` parameter
-`Rmethod` is internally set to “original”. Accordingly, execution time
-is currently considerably increased for the SPRING approach.
+    ## Checking input arguments ... Done.
+    ## Data filtering ...
+    ## 77 taxa removed.
+    ## 50 taxa and 289 samples remaining.
+    ## 
+    ## Calculate 'spring' associations ... Done.
 
 **Analyzing the constructed network**
 
@@ -340,20 +342,20 @@ summary(props_single, numbNodes = 5L)
     ## Largest connected component (LCC):
     ##                                  
     ## Relative LCC size         0.96000
-    ## Clustering coefficient    0.33595
+    ## Clustering coefficient    0.33594
     ## Modularity                0.53407
     ## Positive edge percentage 88.34951
     ## Edge density              0.09131
-    ## Natural connectivity      0.02856
+    ## Natural connectivity      0.02855
     ## Vertex connectivity       1.00000
     ## Edge connectivity         1.00000
     ## Average dissimilarity*    0.97035
-    ## Average path length**     2.36877
+    ## Average path length**     2.36912
     ## 
     ## Whole network:
     ##                                  
     ## Number of components      3.00000
-    ## Clustering coefficient    0.33595
+    ## Clustering coefficient    0.33594
     ## Modularity                0.53407
     ## Positive edge percentage 88.34951
     ## Edge density              0.08408
@@ -399,23 +401,23 @@ summary(props_single, numbNodes = 5L)
     ## 268332 0.24144
     ## 259569 0.23404
     ## 470973 0.21462
-    ## 119010 0.19704
+    ## 119010 0.19611
     ## 
     ## Closeness centrality (normalized):
     ##               
-    ## 288134 0.68431
-    ## 311477 0.68417
-    ## 199487 0.68108
-    ## 302160 0.67528
-    ## 188236 0.66867
+    ## 288134 0.68426
+    ## 311477 0.68413
+    ## 199487 0.68099
+    ## 302160 0.67518
+    ## 188236 0.66852
     ## 
     ## Eigenvector centrality (normalized):
     ##               
     ## 288134 1.00000
-    ## 311477 0.94406
-    ## 190597 0.90806
-    ## 199487 0.85436
-    ## 188236 0.72730
+    ## 311477 0.94417
+    ## 190597 0.90794
+    ## 199487 0.85439
+    ## 188236 0.72684
 
 **Visualizing the network**
 
@@ -455,8 +457,8 @@ read out as follows:
 p$q1$Arguments$cut
 ```
 
-    ##       75% 
-    ## 0.3367287
+    ##      75% 
+    ## 0.337099
 
 ### Single network with Pearson correlation as association measure
 
@@ -811,9 +813,21 @@ net_season <- netConstruct(data = amgut_split$no,
                            zeroMethod = "none",
                            sparsMethod = "none", 
                            dissFunc = "signed",
-                           verbose = 3,
+                           verbose = 2,
                            seed = 123456)
 ```
+
+    ## Checking input arguments ... Done.
+    ## Data filtering ...
+    ## 95 taxa removed in each data set.
+    ## 1 rows with zero sum removed in group 1.
+    ## 1 rows with zero sum removed in group 2.
+    ## 43 taxa and 162 samples remaining in group 1.
+    ## 43 taxa and 120 samples remaining in group 2.
+    ## 
+    ## Calculate 'spring' associations ... Done.
+    ## 
+    ## Calculate associations in group 2 ... Done.
 
 Alternatively, a group vector could be passed to `group`, according to
 which the data set is split into two groups:
@@ -900,33 +914,33 @@ summary(props_season)
     ## group '1':            
     ## size: 31 8 1
     ##    #:  1 1 4
-    ## group '2':          
-    ## size: 41 1
-    ##    #:  1 2
+    ## group '2':            
+    ## size: 33 8 1
+    ##    #:  1 1 2
     ## ______________________________
     ## Global network properties
     ## `````````````````````````
     ## Largest connected component (LCC):
     ##                          group '1' group '2'
-    ## Relative LCC size          0.72093   0.95349
-    ## Clustering coefficient     0.27184   0.29563
-    ## Modularity                 0.51794   0.54832
+    ## Relative LCC size          0.72093   0.76744
+    ## Clustering coefficient     0.27184   0.30165
+    ## Modularity                 0.51794   0.46625
     ## Positive edge percentage 100.00000 100.00000
-    ## Edge density               0.11183   0.09512
-    ## Natural connectivity       0.04296   0.03257
+    ## Edge density               0.11183   0.12500
+    ## Natural connectivity       0.04295   0.04127
     ## Vertex connectivity        1.00000   1.00000
     ## Edge connectivity          1.00000   1.00000
-    ## Average dissimilarity*     0.68093   0.67856
-    ## Average path length**      2.23420   2.49366
+    ## Average dissimilarity*     0.68109   0.68438
+    ## Average path length**      2.23469   1.90957
     ## 
     ## Whole network:
     ##                          group '1' group '2'
-    ## Number of components       6.00000   3.00000
-    ## Clustering coefficient     0.31801   0.29563
-    ## Modularity                 0.62749   0.54832
+    ## Number of components       6.00000   4.00000
+    ## Clustering coefficient     0.29318   0.29908
+    ## Modularity                 0.62240   0.55591
     ## Positive edge percentage 100.00000 100.00000
-    ## Edge density               0.06977   0.08638
-    ## Natural connectivity       0.02979   0.03072
+    ## Edge density               0.06866   0.08527
+    ## Natural connectivity       0.02970   0.03067
     ## -----
     ## *: Dissimilarity = 1 - edge weight
     ## **: Path length = Sum of dissimilarities along the path
@@ -938,7 +952,7 @@ summary(props_season)
     ## ```````````````````````````````` 
     ## group '1':                 
     ## name: 0  1  2 3 4
-    ##    #: 4 10 13 8 8
+    ##    #: 4 13 10 8 8
     ## 
     ## group '2':                  
     ## name: 0 1  2 3 4 5
@@ -949,9 +963,7 @@ summary(props_season)
     ## - In alphabetical/numerical order
     ## - Based on log-normal quantiles of centralities
     ## ```````````````````````````````````````````````
-    ##  group '1' group '2'
-    ##               322235
-    ## 
+    ## No hubs detected.
     ## ______________________________
     ## Centrality measures
     ## - In decreasing order
@@ -963,7 +975,7 @@ summary(props_season)
     ##  364563         7         5
     ##  259569         7         5
     ##  184983         6         5
-    ##    9715         5         4
+    ##  331820         4         3
     ##            ______    ______
     ##  322235         7         9
     ##  363302         4         9
@@ -973,45 +985,45 @@ summary(props_season)
     ## 
     ## Betweenness centrality (unnormalized):
     ##         group '1' group '2'
-    ##  364563       148        82
-    ##  188236       144        87
+    ##  364563       148        42
+    ##  188236       144        79
     ##  259569       122        39
     ##  331820       115         8
-    ##  322235       106       226
+    ##  322235       106       130
     ##            ______    ______
-    ##  158660         0       317
-    ##  470239         5       256
-    ##   10116         0       233
-    ##  322235       106       226
-    ##  326792         0       161
+    ##  322235       106       130
+    ##  363302         6        94
+    ##  188236       144        79
+    ##  158660         0        77
+    ##  326792         0        73
     ## 
     ## Closeness centrality (unnormalized):
     ##         group '1' group '2'
-    ##  364563  22.67435   25.8268
-    ##  259569  22.19566  23.95331
-    ##  322235  22.16201  30.01882
-    ##  188236   21.1072  26.37219
-    ##  184983  20.05729  22.58749
+    ##  364563  22.66873  23.54233
+    ##  259569  22.18963  22.06266
+    ##  322235  22.15731   27.2048
+    ##  188236  21.10268  24.10371
+    ##  184983  20.05519  20.73662
     ##            ______    ______
-    ##  322235  22.16201  30.01882
-    ##  158660  17.64517  27.65208
-    ##  363302  17.27045  27.60924
-    ##  326792  17.95217  26.47107
-    ##  188236   21.1072  26.37219
+    ##  322235  22.15731   27.2048
+    ##  363302  17.26815  25.40731
+    ##  188236  21.10268  24.10371
+    ##  158660  17.63934  23.98657
+    ##  326792  17.94914  23.72108
     ## 
     ## Eigenvector centrality (unnormalized):
     ##         group '1' group '2'
-    ##  364563   0.30443   0.21366
-    ##  184983   0.29043    0.2695
-    ##  188236   0.23918   0.23401
-    ##  516022   0.23486   0.14099
-    ##  190464   0.22311   0.21348
+    ##  364563   0.30443   0.17201
+    ##  184983   0.29058   0.21749
+    ##  188236    0.2392   0.18812
+    ##  516022   0.23493   0.11371
+    ##  190464   0.22309   0.17235
     ##            ______    ______
-    ##  363302   0.21619   0.38174
-    ##  322235   0.14534   0.29655
-    ##  194648   0.17437   0.28065
-    ##  184983   0.29043    0.2695
-    ##  188236   0.23918   0.23401
+    ##  363302   0.21628   0.30803
+    ##  322235   0.14515   0.23792
+    ##  194648   0.17443   0.22625
+    ##  184983   0.29058   0.21749
+    ##  188236    0.2392   0.18812
 
 In the above setting, only one hub node (in the “Seasonal allergies”
 network) has been identified.
@@ -1145,24 +1157,24 @@ summary(comp_season,
     ## `````````````````````````
     ## Largest connected component (LCC):
     ##                          No allergies   Allergies    difference
-    ## Relative LCC size               0.721       0.953         0.233
-    ## Clustering coefficient          0.272       0.296         0.024
-    ## Modularity                      0.518       0.548         0.030
+    ## Relative LCC size               0.721       0.767         0.047
+    ## Clustering coefficient          0.272       0.302         0.030
+    ## Modularity                      0.518       0.466         0.052
     ## Positive edge percentage      100.000     100.000         0.000
-    ## Edge density                    0.112       0.095         0.017
-    ## Natural connectivity            0.043       0.033         0.010
+    ## Edge density                    0.112       0.125         0.013
+    ## Natural connectivity            0.043       0.041         0.002
     ## Vertex connectivity             1.000       1.000         0.000
     ## Edge connectivity               1.000       1.000         0.000
-    ## Average dissimilarity*          0.681       0.679         0.002
-    ## Average path length**           2.234       2.494         0.259
+    ## Average dissimilarity*          0.681       0.684         0.003
+    ## Average path length**           2.235       1.910         0.325
     ## 
     ## Whole network:
     ##                          No allergies   Allergies    difference
-    ## Number of components            6.000       3.000         3.000
-    ## Clustering coefficient          0.318       0.296         0.022
-    ## Modularity                      0.627       0.548         0.079
+    ## Number of components            6.000       4.000         2.000
+    ## Clustering coefficient          0.293       0.299         0.006
+    ## Modularity                      0.622       0.556         0.066
     ## Positive edge percentage      100.000     100.000         0.000
-    ## Edge density                    0.070       0.086         0.017
+    ## Edge density                    0.069       0.085         0.017
     ## Natural connectivity            0.030       0.031         0.001
     ## -----
     ##  *: Dissimilarity = 1 - edge weight
@@ -1172,11 +1184,11 @@ summary(comp_season,
     ## Jaccard index (similarity betw. sets of most central nodes)
     ## ```````````````````````````````````````````````````````````
     ##                     Jacc   P(<=Jacc)     P(>=Jacc)    
-    ## degree             0.286    0.475500      0.738807    
-    ## betweenness centr. 0.077    0.038537 *    0.994862    
-    ## closeness centr.   0.267    0.404065      0.790760    
-    ## eigenvec. centr.   0.667    0.996144      0.018758 *  
-    ## hub taxa           0.000    0.666667      1.000000    
+    ## degree             0.368    0.720663      0.456912    
+    ## betweenness centr. 0.231    0.322424      0.861268    
+    ## closeness centr.   0.308    0.552039      0.677576    
+    ## eigenvec. centr.   0.615    0.991177      0.034655 *  
+    ## hub taxa           0.000    1.000000      1.000000    
     ## -----
     ## Jaccard index in [0,1] (1 indicates perfect agreement)
     ## 
@@ -1184,8 +1196,8 @@ summary(comp_season,
     ## Adjusted Rand index (similarity betw. clusterings)
     ## ``````````````````````````````````````````````````
     ##         wholeNet       LCC
-    ## ARI        0.327     0.321
-    ## p-value    0.000     0.000
+    ## ARI        0.327     0.190
+    ## p-value    0.000     0.001
     ## -----
     ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
     ##                    ARI=0: expected for two random clusterings
@@ -1195,7 +1207,7 @@ summary(comp_season,
     ## Graphlet Correlation Distance
     ## `````````````````````````````
     ##     wholeNet       LCC
-    ## GCD    0.937     1.388
+    ## GCD    0.808       1.3
     ## -----
     ## GCD >= 0 (GCD=0 indicates perfect agreement between GCMs)
     ## 
@@ -1214,19 +1226,19 @@ summary(comp_season,
     ## 
     ## Betweenness centrality (unnormalized):
     ##        No allergies Allergies abs.diff.
-    ## 158660            0       317       317
-    ## 470239            5       256       251
-    ## 10116             0       233       233
-    ## 326792            0       161       161
-    ## 322235          106       226       120
+    ## 331820          115         8       107
+    ## 364563          148        42       106
+    ## 549871           97         0        97
+    ## 363302            6        94        88
+    ## 259569          122        39        83
     ## 
     ## Closeness centrality (unnormalized):
     ##        No allergies Allergies abs.diff.
-    ## 181016        0.000    22.879    22.879
-    ## 361496        0.000    22.251    22.251
-    ## 549871       19.787     0.000    19.787
-    ## 278234        0.000    15.093    15.093
-    ## 10116         7.039    20.964    13.924
+    ## 181016        0.000    20.130    20.130
+    ## 361496        0.000    20.007    20.007
+    ## 549871       19.781     0.000    19.781
+    ## 278234        0.000    13.671    13.671
+    ## 363302       17.268    25.407     8.139
     ## 
     ## _________________________________________________________
     ## Significance codes: ***: 0.001, **: 0.01, *: 0.05, .: 0.1
@@ -1305,7 +1317,8 @@ diff_season <- diffnet(net_season_pears,
                        adjust = "lfdr")
 ```
 
-    ## Checking input arguments ... Done.
+    ## Checking input arguments ... 
+    ## Done.
     ## Adjust for multiple testing using 'lfdr' ... 
     ## Execute fdrtool() ...
 
@@ -1419,7 +1432,11 @@ net_aitchison <- netConstruct(amgut1.filt,
     ## 
     ## Calculate 'aitchison' dissimilarities ... Done.
     ## 
-    ## Sparsify dissimilarities via 'knn' ... Done.
+    ## Sparsify dissimilarities via 'knn' ... Registered S3 methods overwritten by 'proxy':
+    ##   method               from    
+    ##   print.registry_field registry
+    ##   print.registry_entry registry
+    ## Done.
 
 For cluster detection, we use hierarchical clustering with average
 linkage. Internally, `k=3` is passed to

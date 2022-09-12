@@ -60,6 +60,12 @@ available on **develop branch** only.
 -   `createAssoPerm()` now accepts objects of class `microNet` as input
     (in addition to objects of class `microNetProps`).
 
+-   `SPRING`’s fast version of latent correlation computation
+    (implemented in [mixedCCA](https://github.com/irinagain/mixedCCA))
+    is available again. It can be used by setting the `netConstruct()`
+    parameter `measurePar$Rmethod` to “approx”, which is now the default
+    again.
+
 ### Fixes
 
 -   In **permutation tests**: The permuted group labels must now be

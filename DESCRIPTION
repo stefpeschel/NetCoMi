@@ -23,6 +23,7 @@ Imports:
     igraph,
     MASS,
     Matrix,
+    mixedCCA (>= 1.6.2),
     orca,
     phyloseq,
     pulsar,

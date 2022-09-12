@@ -420,7 +420,8 @@
 #' # - Sample filtering: Keep samples with a total number of reads 
 #' #   of at least 1000
 #' 
-#' net1 <- netConstruct(amgut2.filt.phy, measure = "spieceasi",
+#' net1 <- netConstruct(amgut2.filt.phy, 
+#'                      measure = "spieceasi",
 #'                      measurePar = list(method = "mb",
 #'                                        pulsar.params = list(rep.num = 10),
 #'                                        symBetaMode = "ave"),
