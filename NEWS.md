@@ -86,6 +86,17 @@ available on **develop branch** only.
     data contain more than 9 taxa with equal names, so that double-digit
     numbers were added to avoid duplicates.
 
+-   Issues in network analysis and plotting if association matrices are
+    used for network construction, but have no row and column names.
+    (issue [\#65](https://github.com/stefpeschel/NetCoMi/issues/65))
+
+-   `diffnet()` threw an error if association matrices are used for
+    network construction instead of count matrices. (issue
+    [\#66](https://github.com/stefpeschel/NetCoMi/issues/66))
+
+-   `plot.microNetProps()` now directly returns an error if `x` has not
+    the expected class.
+
 ### Style
 
 -   The whole R code has been reformatted to follow general conventions.
