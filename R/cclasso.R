@@ -141,18 +141,28 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   
   if (verbose) message("")
   #-----------------------------------------------------------------------------
+  
   res <- cclasso.sub(vx = vx, wd = wd, lam = lamA,
                      u.f = u.f, u0.wd = u0.wd, d0.wd = d0.wd,
                      sig = res$sig, rho = rho, kmax = kmax);
-  #-----------------------------------------------------------------------------
-  #-----------------------------------------------------------------------------
-  #
-  res$sig[abs(res$sig) <= tol.zero] <- 0;
-  if (min(eigen(res$sig)$values) <= tol.zero) {
-    sig.sparse <- abs(res$sig) > tol.zero;
-    diag(res$sig) <- diag(res$sig) * sign(diag(res$sig));
-    res$sig <- as.matrix(nearPD(res$sig)$mat) * sig.sparse;
+
+  res$sig[abs(res$sig) <= tol.zero] <- 0
+  
+  #---------
+  # Edited by Stefanie Peschel:
+  eigres <- eigen(res$sig)$values
+  
+  if (typeof(eigres) == "complex") {
+    eigres <- Re(eigres)
   }
+  #---------
+    
+  if (min(eigres) <= tol.zero) {
+    sig.sparse <- abs(res$sig) > tol.zero
+    diag(res$sig) <- diag(res$sig) * sign(diag(res$sig))
+    res$sig <- as.matrix(Matrix::nearPD(res$sig)$mat) * sig.sparse
+  }
+  
   # get correlation matrix from covariance matrix
   Is <- sqrt(1 / diag(res$sig));
   cor.w <- Is * res$sig * rep(Is, each = p);
@@ -161,6 +171,8 @@ cclasso <- function(x, counts = F, pseudo = 0.5, sig = NULL,
   #
   return(list(cov.w = res$sig, cor.w = cor.w, lam = lamA));
 }
+
+
 # cclasso for only one lambda
 cclasso.sub <- function(vx, wd, lam, u.f, u0.wd, d0.wd, sig = NULL,
                         rho = 1, kmax = 5000, x.tol = 1e-6) {
@@ -204,4 +216,5 @@ cclasso.sub <- function(vx, wd, lam, u.f, u0.wd, d0.wd, sig = NULL,
   #
   return(list(sig = sig, k = k));
 }
+
 
