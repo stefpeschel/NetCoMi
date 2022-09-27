@@ -32,7 +32,6 @@ Imports:
     RColorBrewer,
     Rdpack,
     rlang,
-    snow,
     SPRING,
     stats,
     utils,

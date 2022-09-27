@@ -703,7 +703,7 @@ library("foreach")
 
 cores <- 2 # Please choose an appropriate number of cores
 
-cl <- snow::makeCluster(cores)
+cl <- parallel::makeCluster(cores)
 doSNOW::registerDoSNOW(cl)
 
 # Create progress bar:
@@ -741,7 +741,7 @@ close(pb)
 
 ``` r
 # Stop cluster
-snow::stopCluster(cl)
+parallel::stopCluster(cl)
 
 
 # Combine the matrices and store them into a new file (because netCompare() 

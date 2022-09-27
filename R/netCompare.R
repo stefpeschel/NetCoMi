@@ -301,7 +301,6 @@
 #'   \insertRef{real1996probabilistic}{NetCoMi}\cr\cr
 #'   \insertRef{yaveroglu2014revealing}{NetCoMi}
 #' @import foreach doSNOW filematrix
-#' @importFrom snow makeCluster stopCluster
 #' @importFrom stats sd
 #' @importFrom WGCNA randIndex
 #' @importFrom utils txtProgressBar setTxtProgressBar
@@ -573,8 +572,10 @@ netCompare <- function(x,
     if (cores > 1) {
       if (parallel::detectCores() < cores) cores <- parallel::detectCores()
       
-      cl <- snow::makeCluster(cores, outfile = "")
+      cl <- parallel::makeCluster(cores, outfile = "")
+      
       doSNOW::registerDoSNOW(cl)
+      
       '%do_or_dopar%' <- get('%dopar%')
       
     } else {
@@ -787,26 +788,25 @@ netCompare <- function(x,
       }
       
       sparsReslt <- .sparsify(assoMat = assoMat1.tmp,
-                             countMat = count1.tmp,
-                             sampleSize = n1,
-                             measure = parNC$measure,
-                             measurePar = parNC$measurePar,
-                             assoType = assoType,
-                             sparsMethod = parNC$sparsMethod,
-                             thresh = parNC$thresh[1],
-                             alpha = parNC$alpha[1],
-                             adjust = parNC$adjust,
-                             lfdrThresh = parNC$lfdrThresh,
-                             trueNullMethod = parNC$trueNullMethod,
-                             nboot = parNC$nboot,
-                             softThreshType = parNC$softThreshType,
-                             softThreshPower = power1,
-                             softThreshCut = stcut1,
-                             kNeighbor = parNC$kNeighbor,
-                             knnMutual = parNC$knnMutual,
-                             parallel = FALSE,
-                             cores = 1L,
-                             verbose = FALSE)
+                              countMat = count1.tmp,
+                              sampleSize = n1,
+                              measure = parNC$measure,
+                              measurePar = parNC$measurePar,
+                              assoType = assoType,
+                              sparsMethod = parNC$sparsMethod,
+                              thresh = parNC$thresh[1],
+                              alpha = parNC$alpha[1],
+                              adjust = parNC$adjust,
+                              lfdrThresh = parNC$lfdrThresh,
+                              trueNullMethod = parNC$trueNullMethod,
+                              nboot = parNC$nboot,
+                              softThreshType = parNC$softThreshType,
+                              softThreshPower = power1,
+                              softThreshCut = stcut1,
+                              kNeighbor = parNC$kNeighbor,
+                              knnMutual = parNC$knnMutual,
+                              cores = 1L,
+                              verbose = FALSE)
       
       if (distNet) {
         dissMat1.tmp <- sparsReslt$assoNew
@@ -844,7 +844,6 @@ netCompare <- function(x,
                               softThreshCut = stcut2,
                               kNeighbor = parNC$kNeighbor,
                               knnMutual = parNC$knnMutual,
-                              parallel = FALSE,
                               cores = 1L,
                               verbose = FALSE)
       
@@ -954,7 +953,7 @@ netCompare <- function(x,
       }
     }
     
-    if (cores > 1) snow::stopCluster(cl)
+    if (cores > 1) parallel::stopCluster(cl)
     
     if (verbose) {
       message("Done.")

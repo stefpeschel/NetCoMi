@@ -246,7 +246,7 @@
   if (verbose) message("Execute permutation tests ... ")
   
   if (cores > 1) {
-    cl <- makeCluster(cores, outfile = "")
+    cl <- parallel::makeCluster(cores, outfile = "")
     doSNOW::registerDoSNOW(cl)
     if (!is.null(logFile)) cat("", file=logFile, append=FALSE)
     '%do_or_dopar%' <- get('%dopar%')
@@ -461,7 +461,7 @@
   }
   #-----------------------------------------------------------------------------
   
-  if (cores > 1) stopCluster(cl)
+  if (cores > 1) parallel::stopCluster(cl)
   
   #____________________________________________________
   

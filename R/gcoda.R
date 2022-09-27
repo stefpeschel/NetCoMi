@@ -63,7 +63,7 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
   # Compute solution paths for gcoda
   icov <- diag(p)
   if (cores > 1) {
-    cl <- snow::makeCluster(cores)
+    cl <- parallel::makeCluster(cores)
     #snow::clusterExport(cl, c("S", "icov", "lambda"), envir = environment())
     doSNOW::registerDoSNOW(cl)
     '%do_or_dopar%' <- get('%dopar%')
@@ -110,7 +110,7 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
     message("Stopping socket cluster ... ", appendLF = FALSE)
   }
   
-  if (cores > 1) snow::stopCluster(cl)
+  if (cores > 1) parallel::stopCluster(cl)
   
   if (verbose & cores > 1) {
     message("Done.")

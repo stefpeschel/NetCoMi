@@ -98,7 +98,6 @@
 #'  # for only 100 permutations
 #' }
 #' @import foreach doSNOW filematrix
-#' @importFrom snow makeCluster stopCluster
 #' @importFrom stats sd
 #' @importFrom WGCNA randIndex
 #' @importFrom utils txtProgressBar setTxtProgressBar
@@ -365,7 +364,7 @@ createAssoPerm <- function(x,
                 appendLF = FALSE)
       }
       
-      cl <- makeCluster(cores, outfile = "")
+      cl <- parallel::makeCluster(cores, outfile = "")
       registerDoSNOW(cl)
       '%do_or_dopar%' <- get('%dopar%')
       
@@ -510,7 +509,7 @@ createAssoPerm <- function(x,
       if (verbose) {
         message("Stopping socket cluster ... ", appendLF = FALSE)
       }
-      snow::stopCluster(cl)
+      parallel::stopCluster(cl)
       if (verbose) {
         message("Done.")
       }
