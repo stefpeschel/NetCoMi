@@ -521,8 +521,8 @@
   #-------------------
   # cut
   if (!is.null(args$cut)) {
-    errs <- .checkArg(cond = is.numeric(cut) & 
-                        length(cut) %in% 1:2, 
+    errs <- .checkArg(cond = is.numeric(args$cut) & 
+                        length(args$cut) %in% 1:2, 
                       msg = paste0("\"cut\" must be numeric with one or two ", 
                                    "elements."), 
                       errs = errs)

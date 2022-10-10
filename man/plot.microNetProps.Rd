@@ -352,7 +352,8 @@ plotted) or vector of length two. The default is set analogous to that in
 larger graphs the cut value is automatically chosen to be equal to the
 maximum of the 75th quantile of absolute edge strengths or the edge
 strength corresponding to 2n-th edge strength (n being the number of
-nodes.)"}
+nodes.)" If two networks are plotted, the mean of the two determined cut 
+parameters is used so that edge thicknesses are comparable.}
 
 \item{edgeTranspLow}{numeric value between 0 and 100 specifying the
 transparency of edges with weight below \code{cut}. The higher this value,
@@ -405,41 +406,60 @@ Returns (invisibly) a list with the following elements: \tabular{ll}{
 Plotting objects of class \code{microNetProps}.
 }
 \examples{
-# load data sets from American Gut Project (from SpiecEasi package)
+# Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
-# network construction 
-# (dissimilarity-based network, where nodes are subjects):
-amgut_net <- netConstruct(amgut1.filt,
-                          measure = "aitchison", filtSamp = "highestFreq",
-                          filtSampPar = list(highestFreq = 50),
-                          zeroMethod = "pseudoZO", sparsMethod = "knn")
+# Network construction
+amgut_net <- netConstruct(amgut1.filt, measure = "pearson",
+                          filtTax = "highestVar",
+                          filtTaxPar = list(highestVar = 50),
+                          zeroMethod = "pseudoZO", normMethod = "clr",
+                          sparsMethod = "threshold", thresh = 0.3)
 
-# network analysis:
-amgut_props <- netAnalyze(amgut_net, clustMethod = "hierarchical",
-                          clustPar = list(k=2))
+# Network analysis
+amgut_props <- netAnalyze(amgut_net)
 
-### network plots
-# clusters are used for node coloring: 
-plot(amgut_props, nodeColor = "cluster")
+### Network plots ###
+# Clusters are used for node coloring: 
+plot(amgut_props, 
+     nodeColor = "cluster")
 
-# a higher repulsion places nodes with high edge weight closer together:
-plot(amgut_props, nodeColor = "cluster", repulsion = 1.3)
+# Remove singletons
+plot(amgut_props, 
+     nodeColor = "cluster", 
+     rmSingles = TRUE)
 
-# a feature vector is used for node coloring:
+# A higher repulsion places nodes with high edge weight closer together
+plot(amgut_props, 
+     nodeColor = "cluster", 
+     rmSingles = TRUE, 
+     repulsion = 1.2)
+
+# A feature vector is used for node coloring
+# (this could be a vector with phylum names of the ASVs)
 set.seed(123456)
-colVec <- sample(1:5, nrow(amgut1.filt), replace = TRUE)
-names(colVec) <- rownames(amgut1.filt)
+featVec <- sample(1:5, nrow(amgut1.filt), replace = TRUE)
 
-plot(amgut_props, nodeColor = "feature", featVecCol = colVec,
+# Names must be equal to ASV names
+names(featVec) <- colnames(amgut1.filt)
+
+plot(amgut_props, 
+     rmSingles = TRUE, 
+     nodeColor = "feature", 
+     featVecCol = featVec,
      colorVec = heat.colors(5))
 
-# with a further feature vector for node shapes
+# Use a further feature vector for node shapes
 shapeVec <- sample(1:3, nrow(amgut1.filt), replace = TRUE)
-names(shapeVec) <- rownames(amgut1.filt)
+names(shapeVec) <- colnames(amgut1.filt)
 
-plot(amgut_props, nodeColor = "feature", featVecCol = colVec,
-     colorVec = heat.colors(5), nodeShape = c("circle", "square", "diamond"),
-     featVecShape = shapeVec, highlightHubs = FALSE)
+plot(amgut_props,
+     rmSingles = TRUE,
+     nodeColor = "feature",
+     featVecCol = featVec,
+     colorVec = heat.colors(5), 
+     nodeShape = c("circle", "square", "diamond"),
+     featVecShape = shapeVec, 
+     highlightHubs = FALSE)
 
 }
