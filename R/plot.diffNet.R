@@ -149,9 +149,10 @@ plot.diffnet <- function(x,
   }
   
   #-----------------------------------------------------------------------------
-  
   corrMat1 <- x$assoMat1
   corrMat2 <- x$assoMat2
+  
+  isAdjust <- FALSE
   
   if (is.null(x$diffAdjustMat)) {
     diffMat <- x$diffMat
@@ -159,13 +160,23 @@ plot.diffnet <- function(x,
   } else {
     if (adjusted) {
       diffMat <- x$diffAdjustMat
+      
+      if (x$adjusted != "none") {
+        isAdjust <- TRUE
+      }
+
     } else {
       diffMat <- x$diffMat
     }
   }
   
   if (all(diffMat == 0)) {
-    stop("Network is empty.")
+    if (isAdjust) {
+      stop("There are no differential correlations to plot ",
+           "(after multiple testing adjustment).")
+    } else {
+      stop("There are no differential correlations to plot.")
+    }
   }
   
   if (edgeFilter != "none") {

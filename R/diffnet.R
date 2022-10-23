@@ -540,7 +540,7 @@ diffnet <- function(x,
       
     } else { # Fisher test or permutation test
       
-      if(adjust == "none") {
+      if (adjust == "none") {
         if (all(diffMat == 0)) {
           message("No significant differential associations detected.")
         }
@@ -555,6 +555,7 @@ diffnet <- function(x,
 
   output[["groups"]] <- x$groups
   output[["diffMethod"]] <- diffMethod
+  output[["adjusted"]] <- adjust
   output[["call"]] <- match.call()
   
   class(output) <- "diffnet"
