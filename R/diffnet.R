@@ -531,10 +531,28 @@ diffnet <- function(x,
     
   }
   
-  if (verbose & all(diffMat == 0)) {
-    message("No differentially associated taxa detected.")
+  if (verbose) {
+    
+    if (diffMethod == "discordant") {
+      if (all(diffMat == 0)) {
+        message("No differential associations detected.")
+      }
+      
+    } else { # Fisher test or permutation test
+      
+      if(adjust == "none") {
+        if (all(diffMat == 0)) {
+          message("No significant differential associations detected.")
+        }
+      } else {
+        if (all(diffAdjustMat == 0)) {
+          message("No significant differential associations detected ", 
+                  "after multiple testing adjustment.")
+        }
+      }
+    }
   }
-  
+
   output[["groups"]] <- x$groups
   output[["diffMethod"]] <- diffMethod
   output[["call"]] <- match.call()
