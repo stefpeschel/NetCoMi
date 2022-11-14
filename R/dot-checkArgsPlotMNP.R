@@ -43,8 +43,10 @@
           warning("Rownames of layout matrix do not match node names.")
         }
         
-        if (!any(rownames(layout[[2]]) %in% rownames(args$x$input$adjaMat2))) {
-          warning("Rownames of layout matrix do not match node names.")
+        if (!is.null(layout[[2]])) {
+          if (!any(rownames(layout[[2]]) %in% rownames(args$x$input$adjaMat2))) {
+            warning("Rownames of layout matrix do not match node names.")
+          }
         }
         
       } else {

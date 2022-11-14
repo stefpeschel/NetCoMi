@@ -13,7 +13,7 @@
   groupNames = NULL,
   groupsChanged = FALSE,
   labels = NULL,
-  shortenLabels = "simple",
+  shortenLabels = "none",
   labelLength = 6L,
   labelPattern = c(5, "'", 3, "'", 3),
   charToRm = NULL,
