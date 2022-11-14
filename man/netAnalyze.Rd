@@ -68,10 +68,11 @@ to \code{"hierarchical"} for sample similarity networks.}
 
 \item{clustPar}{list with parameters passed to the clustering functions.
 If hierarchical clustering is used, the parameters are passed to
-\code{\link[stats]{hclust}} as well as \code{\link[stats]{cutree}}.}
+\code{\link[stats]{hclust}} and \code{\link[stats]{cutree}} (default is 
+\code{list(method = "average", k = 3)}.}
 
-\item{clustPar2}{optional list with clustering parameters for the second
-network. If \code{NULL} and \code{net} contains two networks,
+\item{clustPar2}{same as \code{clustPar} but for the second network. 
+If \code{NULL} and \code{net} contains two networks,
 \code{clustPar} is used for the second network as well.}
 
 \item{weightClustCoef}{logical indicating whether (global) clustering 
@@ -266,34 +267,35 @@ Determine network properties for objects of class
 # Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
-# Network construction:
+# Network construction
 amgut_net1 <- netConstruct(amgut1.filt, measure = "pearson",
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
                            zeroMethod = "pseudoZO", normMethod = "clr",
                            sparsMethod = "threshold", thresh = 0.4)
 
-### Network analysis
-# Using eigenvector centrality as hub score:
+# Network analysis
+
+# Using eigenvector centrality as hub score
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
                            
 summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
 
-# Using degree, betweenness and closeness centrality as hub scores:
+# Using degree, betweenness and closeness centrality as hub scores
 amgut_props2 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = c("degree", "betweenness", "closeness"))
 
 summary(amgut_props2, showCentr = "all",  numbNodes = 5L, digits = 5L)
 
-# Calculate centralities only for the largest connected component:
+# Calculate centralities only for the largest connected component
 amgut_props3 <- netAnalyze(amgut_net1, centrLCC = TRUE, 
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
 
 summary(amgut_props3, showCentr = "none", clusterLCC = TRUE)
 
-# Network plot:
+# Network plot
 plot(amgut_props1)
 plot(amgut_props2)
 plot(amgut_props3)
