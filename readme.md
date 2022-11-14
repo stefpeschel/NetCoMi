@@ -53,16 +53,17 @@ differentially associated taxa are connected.
 2.  [Installation](#installation)
 3.  [Development version](#development-version)
 4.  [Usage](#usage)
-    -   [Single network with
-        SPRING](#single-network-with-spring-as-association-measure)
-    -   [Single network with
-        Pearson](#single-network-with-pearson-correlation-as-association-measure)
-    -   [Single network on genus
-        level](#single-association-network-on-genus-level)
-    -   [Network comparison](#network-comparison)
-    -   [Differential networks](#differential-networks)
-    -   [Dissimilarity-based Networks](#dissimilarity-based-networks)
-    -   [Soil microbiome example](#soil-microbiome-example)
+    - [Network with SPRING as association
+      measure](#network-with-spring-as-association-measure)
+    - [Network with Pearson
+      correlations](#network-with-pearson-correlation-as-association-measure)
+    - [Network on genus level](#network-on-genus-level)
+    - [Association matrix as
+      input](#using-an-association-matrix-as-input)
+    - [Network comparison](#network-comparison)
+    - [Differential networks](#differential-networks)
+    - [Dissimilarity-based Networks](#dissimilarity-based-networks)
+    - [Soil microbiome example](#soil-microbiome-example)
 5.  [References](#references)
 
 ## Overview of methods included in NetCoMi
@@ -72,81 +73,80 @@ together with some information on their implementation in R:
 
 **Association measures:**
 
--   Pearson coefficient
-    ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor)
-    from `stats` package)
--   Spearman coefficient
-    ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor)
-    from `stats` package)
--   Biweight Midcorrelation
-    [`bicor()`](https://rdrr.io/cran/WGCNA/man/bicor.html) from `WGCNA`
-    package
--   SparCC
-    ([`sparcc()`](https://rdrr.io/github/zdk123/SpiecEasi/man/sparcc.html)
-    from `SpiecEasi` package)
--   CCLasso ([R code on GitHub](https://github.com/huayingfang/CCLasso))
--   CCREPE
-    ([`ccrepe`](https://bioconductor.org/packages/release/bioc/html/ccrepe.html)
-    package)
--   SpiecEasi ([`SpiecEasi`](https://github.com/zdk123/SpiecEasi)
-    package)
--   SPRING ([`SPRING`](https://github.com/GraceYoon/SPRING) package)
--   gCoda ([R code on GitHub](https://github.com/huayingfang/gCoda))
--   propr
-    ([`propr`](https://cran.r-project.org/web/packages/propr/index.html)
-    package)
+- Pearson coefficient
+  ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor)
+  from `stats` package)
+- Spearman coefficient
+  ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor)
+  from `stats` package)
+- Biweight Midcorrelation
+  [`bicor()`](https://rdrr.io/cran/WGCNA/man/bicor.html) from `WGCNA`
+  package
+- SparCC
+  ([`sparcc()`](https://rdrr.io/github/zdk123/SpiecEasi/man/sparcc.html)
+  from `SpiecEasi` package)
+- CCLasso ([R code on GitHub](https://github.com/huayingfang/CCLasso))
+- CCREPE
+  ([`ccrepe`](https://bioconductor.org/packages/release/bioc/html/ccrepe.html)
+  package)
+- SpiecEasi ([`SpiecEasi`](https://github.com/zdk123/SpiecEasi) package)
+- SPRING ([`SPRING`](https://github.com/GraceYoon/SPRING) package)
+- gCoda ([R code on GitHub](https://github.com/huayingfang/gCoda))
+- propr
+  ([`propr`](https://cran.r-project.org/web/packages/propr/index.html)
+  package)
 
 **Dissimilarity measures:**
 
--   Euclidean distance
-    ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
-    from `vegan` package)
--   Bray-Curtis dissimilarity
-    ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
-    from `vegan` package)
--   Kullback-Leibler divergence (KLD)
-    ([`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
-    `LaplacesDemon` package)
--   Jeffrey divergence (own code using
-    [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
-    `LaplacesDemon` package)
--   Jensen-Shannon divergence (own code using
-    [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
-    `LaplacesDemon` package)
--   Compositional KLD (own implementation following \[Martín-Fernández
-    et al., 1999\])
--   Aitchison distance
-    ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
-    and [`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html)
-    from `SpiecEasi` package)
+- Euclidean distance
+  ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
+  from `vegan` package)
+- Bray-Curtis dissimilarity
+  ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
+  from `vegan` package)
+- Kullback-Leibler divergence (KLD)
+  ([`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
+  `LaplacesDemon` package)
+- Jeffrey divergence (own code using
+  [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
+  `LaplacesDemon` package)
+- Jensen-Shannon divergence (own code using
+  [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
+  `LaplacesDemon` package)
+- Compositional KLD (own implementation following \[Martín-Fernández et
+  al., 1999\])
+- Aitchison distance
+  ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
+  and [`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html)
+  from `SpiecEasi` package)
 
 **Methods for zero replacement:**
 
--   Add a predefined pseudo count to the count table
--   Replace only zeros in the count table by a predefined pseudo count
-    (ratios between non-zero values are preserved)
--   Multiplicative replacement
-    ([`multRepl`](https://rdrr.io/cran/zCompositions/man/multRepl.html)
-    from `zCompositions` package)
--   Modified EM alr-algorithm
-    ([`lrEM`](https://rdrr.io/cran/zCompositions/man/lrEM.html) from
-    `zCompositions` package)
--   Bayesian-multiplicative replacement
-    ([`cmultRepl`](https://rdrr.io/cran/zCompositions/man/cmultRepl.html)
-    from `zCompositions` package)
+- Add a predefined pseudo count to the count table
+- Replace only zeros in the count table by a predefined pseudo count
+  (ratios between non-zero values are preserved)
+- Multiplicative replacement
+  ([`multRepl`](https://rdrr.io/cran/zCompositions/man/multRepl.html)
+  from `zCompositions` package)
+- Modified EM alr-algorithm
+  ([`lrEM`](https://rdrr.io/cran/zCompositions/man/lrEM.html) from
+  `zCompositions` package)
+- Bayesian-multiplicative replacement
+  ([`cmultRepl`](https://rdrr.io/cran/zCompositions/man/cmultRepl.html)
+  from `zCompositions` package)
 
 **Normalization methods:**
 
--   Total Sum Scaling (TSS) (own implementation)
--   Cumulative Sum Scaling (CSS) ([`cumNormMat`]() from `metagenomeSeq`
-    package)
--   Common Sum Scaling (COM) (own implementation)
--   Rarefying ([`rrarefy`]() from `vegan` package)
--   Variance Stabilizing Transformation (VST)
-    ([`varianceStabilizingTransformation`]() from `DESeq2` package)
--   Centered log-ratio (clr) transformation
-    ([`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html)
-    from `SpiecEasi` package))
+- Total Sum Scaling (TSS) (own implementation)
+- Cumulative Sum Scaling (CSS) ([`cumNormMat`]() from `metagenomeSeq`
+  package)
+- Common Sum Scaling (COM) (own implementation)
+- Rarefying ([`rrarefy`]() from `vegan` package)
+- Variance Stabilizing Transformation (VST)
+  ([`varianceStabilizingTransformation`]() from `DESeq2` package)
+- Centered log-ratio (clr) transformation
+  ([`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html) from
+  `SpiecEasi` package))
 
 TSS, CSS, COM, VST, and the clr transformation are described in \[Badri
 et al., 2020\].
@@ -244,7 +244,7 @@ data("amgut1.filt")
 data("amgut2.filt.phy")
 ```
 
-### Single network with SPRING as association measure
+### Network with SPRING as association measure
 
 **Network construction and analysis**
 
@@ -254,10 +254,10 @@ associations (conditional dependence) between OTUs.
 
 The data are filtered within `netConstruct()` as follows:
 
--   Only samples with a total number of reads of at least 1000 are
-    included (argument `filtSamp`).
--   Only the 50 taxa with highest frequency are included (argument
-    `filtTax`).
+- Only samples with a total number of reads of at least 1000 are
+  included (argument `filtSamp`).
+- Only the 50 taxa with highest frequency are included (argument
+  `filtTax`).
 
 `measure` defines the association or dissimilarity measure, which is
 `"spring"` in our case. Additional arguments are passed to `SPRING()`
@@ -279,7 +279,7 @@ The `verbose` argument is set to 3 so that all messages generated by
 `netConstruct()` as well as messages of external functions are printed.
 
 ``` r
-net_single <- netConstruct(amgut1.filt,
+net_spring <- netConstruct(amgut1.filt,
                            filtTax = "highestFreq",
                            filtTaxPar = list(highestFreq = 50),
                            filtSamp = "totalReads",
@@ -300,7 +300,13 @@ net_single <- netConstruct(amgut1.filt,
     ## 77 taxa removed.
     ## 50 taxa and 289 samples remaining.
     ## 
-    ## Calculate 'spring' associations ... Done.
+    ## Calculate 'spring' associations ... Registered S3 method overwritten by 'dendextend':
+    ##   method     from 
+    ##   rev.hclust vegan
+    ## Registered S3 method overwritten by 'seriation':
+    ##   method         from 
+    ##   reorder.hclust vegan
+    ## Done.
 
 **Analyzing the constructed network**
 
@@ -320,15 +326,24 @@ Hubs are nodes with an eigenvector centrality value above the empirical
 `weightDeg` and `normDeg` are set to `FALSE` so that the degree of a
 node is simply defined as number of nodes that are adjacent to the node.
 
+By default, a heatmap of the Graphlet Correlation Matrix (GCM) is
+returned (with graphlet correlations in the upper triangle and
+significance codes resulting from Student’s t-test in the lower
+triangle). See `?calcGCM` and `?testGCM` for details.
+
 ``` r
-props_single <- netAnalyze(net_single, 
+props_spring <- netAnalyze(net_spring, 
                            centrLCC = TRUE,
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector",
                            weightDeg = FALSE, normDeg = FALSE)
+```
 
+![](man/figures/readme/single_spring_2-1.png)<!-- -->
+
+``` r
 #?summary.microNetProps
-summary(props_single, numbNodes = 5L)
+summary(props_spring, numbNodes = 5L)
 ```
 
     ## 
@@ -419,6 +434,29 @@ summary(props_single, numbNodes = 5L)
     ## 199487 0.85439
     ## 188236 0.72684
 
+**Plotting the GCM heatmap manually**
+
+``` r
+plotHeat(mat = props_spring$graphletLCC$gcm1,
+         pmat = props_spring$graphletLCC$pAdjust1,
+         type = "mixed",
+         title = "GCM", 
+         colorLim = c(-1, 1),
+         mar = c(2, 0, 2, 0))
+
+# Add rectangles highlighting the four types of orbits
+graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
+               ybottom = c(11.5,  7.5, 4.5,  0.5),
+               xright  = c( 1.5,  4.5, 7.5, 11.5),
+               ytop    = c(10.5, 10.5, 7.5,  4.5),
+               lwd = 2, xpd = NA)
+
+text(6, -0.2, xpd = NA, 
+     "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05")
+```
+
+![](man/figures/readme/single_spring_heat-1.png)<!-- -->
+
 **Visualizing the network**
 
 We use the determined clusters as node colors and scale the node sizes
@@ -430,7 +468,7 @@ according to the node’s eigenvector centrality.
 ```
 
 ``` r
-p <- plot(props_single, 
+p <- plot(props_spring, 
           nodeColor = "cluster", 
           nodeSize = "eigenvector",
           title1 = "Network on OTU level with SPRING associations", 
@@ -460,7 +498,7 @@ p$q1$Arguments$cut
     ##      75% 
     ## 0.337099
 
-### Single network with Pearson correlation as association measure
+### Network with Pearson correlation as association measure
 
 Let’s construct another network using Pearson’s correlation coefficient
 as association measure. The input is now a `phyloseq` object.
@@ -473,7 +511,7 @@ A threshold of 0.3 is used as sparsification method, so that only OTUs
 with an absolute correlation greater than or equal to 0.3 are connected.
 
 ``` r
-net_single2 <- netConstruct(amgut2.filt.phy,  
+net_pears <- netConstruct(amgut2.filt.phy,  
                             measure = "pearson",
                             normMethod = "clr", 
                             zeroMethod = "multRepl",
@@ -504,9 +542,13 @@ net_single2 <- netConstruct(amgut2.filt.phy,
 Network analysis and plotting:
 
 ``` r
-props_single2 <- netAnalyze(net_single2, clustMethod = "cluster_fast_greedy")
+props_pears <- netAnalyze(net_pears, clustMethod = "cluster_fast_greedy")
+```
 
-plot(props_single2, 
+![](man/figures/readme/single_pears_2-1.png)<!-- -->
+
+``` r
+plot(props_pears, 
      nodeColor = "cluster", 
      nodeSize = "eigenvector",
      title1 = "Network on OTU level with Pearson correlations", 
@@ -518,21 +560,20 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single_pears_1-1.png)<!-- -->
+![](man/figures/readme/single_pears_3-1.png)<!-- -->
 
 Let’s improve the visualization by changing the following arguments:
 
--   `repulsion = 0.8`: Place the nodes further apart
--   `rmSingles = TRUE`: Single nodes are removed
--   `labelScale = FALSE` and `cexLabels = 1.6`: All labels have equal
-    size and are enlarged to improve readability of small node’s labels
--   `nodeSizeSpread = 3` (default is 4): Node sizes are more similar if
-    the value is decreased. This argument (in combination with
-    `cexNodes`) is useful to enlarge small nodes while keeping the size
-    of big nodes.
+- `repulsion = 0.8`: Place the nodes further apart
+- `rmSingles = TRUE`: Single nodes are removed
+- `labelScale = FALSE` and `cexLabels = 1.6`: All labels have equal size
+  and are enlarged to improve readability of small node’s labels
+- `nodeSizeSpread = 3` (default is 4): Node sizes are more similar if
+  the value is decreased. This argument (in combination with `cexNodes`)
+  is useful to enlarge small nodes while keeping the size of big nodes.
 
 ``` r
-plot(props_single2, 
+plot(props_pears, 
      nodeColor = "cluster", 
      nodeSize = "eigenvector",
      repulsion = 0.8,
@@ -550,9 +591,9 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/single_pears_2-1.png)<!-- -->
+![](man/figures/readme/single_pears_4-1.png)<!-- -->
 
-### Single association network on genus level
+### Network on genus level
 
 We now construct a further network, where OTUs are agglomerated to
 genera.
@@ -578,14 +619,14 @@ amgut_genus_renamed <- renameTaxa(amgut_genus,
 
 ``` r
 # Network construction and analysis
-net_single3 <- netConstruct(amgut_genus_renamed,
-                            taxRank = "Rank6",
-                            measure = "pearson",
-                            zeroMethod = "multRepl",
-                            normMethod = "clr", 
-                            sparsMethod = "threshold", 
-                            thresh = 0.3, 
-                            verbose = 3)
+net_genus <- netConstruct(amgut_genus_renamed,
+                          taxRank = "Rank6",
+                          measure = "pearson",
+                          zeroMethod = "multRepl",
+                          normMethod = "clr",
+                          sparsMethod = "threshold",
+                          thresh = 0.3,
+                          verbose = 3)
 ```
 
     ## Checking input arguments ...
@@ -614,32 +655,34 @@ net_single3 <- netConstruct(amgut_genus_renamed,
     ## Sparsify associations via 'threshold' ... Done.
 
 ``` r
-props_single3 <- netAnalyze(net_single3, clustMethod = "cluster_fast_greedy")
+props_genus <- netAnalyze(net_genus, clustMethod = "cluster_fast_greedy")
 ```
+
+![](man/figures/readme/single_genus_1-1.png)<!-- -->
 
 **Network plots**
 
 Modifications:
 
--   Fruchterman-Reingold layout algorithm from `igraph` package used
-    (passed to `plot` as matrix)
--   Shortened labels (using the “intelligent” method, which avoids
-    duplicates)
--   Fixed node sizes, where hubs are enlarged
--   Node color is gray for all nodes (transparancy is lower for hub
-    nodes by default)
+- Fruchterman-Reingold layout algorithm from `igraph` package used
+  (passed to `plot` as matrix)
+- Shortened labels (using the “intelligent” method, which avoids
+  duplicates)
+- Fixed node sizes, where hubs are enlarged
+- Node color is gray for all nodes (transparancy is lower for hub nodes
+  by default)
 
 ``` r
 # Compute layout
-graph3 <- igraph::graph_from_adjacency_matrix(net_single3$adjaMat1, 
+graph3 <- igraph::graph_from_adjacency_matrix(net_genus$adjaMat1, 
                                               weighted = TRUE)
 set.seed(123456)
 lay_fr <- igraph::layout_with_fr(graph3)
 
 # Row names of the layout matrix must match the node names
-rownames(lay_fr) <- rownames(net_single3$adjaMat1)
+rownames(lay_fr) <- rownames(net_genus$adjaMat1)
 
-plot(props_single3,
+plot(props_genus,
      layout = lay_fr,
      shortenLabels = "intelligent",
      labelLength = 10,
@@ -663,20 +706,20 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 Since the above visualization is obviously not optimal, we make further
 adjustments:
 
--   This time, the Fruchterman-Reingold layout algorithm is computed
-    within the plot function and thus applied to the “reduced” network
-    without singletons
--   Labels are not scaled to node sizes
--   Single nodes are removed
--   Node sizes are scaled to the column sums of clr-transformed data
--   Node colors represent the determined clusters
--   Border color of hub nodes is changed from black to darkgray
--   Label size of hubs is enlarged
+- This time, the Fruchterman-Reingold layout algorithm is computed
+  within the plot function and thus applied to the “reduced” network
+  without singletons
+- Labels are not scaled to node sizes
+- Single nodes are removed
+- Node sizes are scaled to the column sums of clr-transformed data
+- Node colors represent the determined clusters
+- Border color of hub nodes is changed from black to darkgray
+- Label size of hubs is enlarged
 
 ``` r
 set.seed(123456)
 
-plot(props_single3,
+plot(props_genus,
      layout = "layout_with_fr",
      shortenLabels = "intelligent",
      labelLength = 10,
@@ -705,7 +748,7 @@ column sums in the matrix with normalized counts returned by
 `netConstruct()`.
 
 ``` r
-sort(colSums(net_single3$normCounts1), decreasing = TRUE)[1:10]
+sort(colSums(net_genus$normCounts1), decreasing = TRUE)[1:10]
 ```
 
     ##             Bacteroides              Klebsiella        Faecalibacterium 
@@ -720,17 +763,16 @@ sort(colSums(net_single3$normCounts1), decreasing = TRUE)[1:10]
 In order to further improve our plot, we use the following
 modifications:
 
--   This time, we choose the “spring” layout as part of `qgraph()` (the
-    function is generally used for network plotting in NetCoMi)
--   A repulsion value below 1 places the nodes further apart
--   Labels are not shortened anymore
--   Nodes (bacteria on genus level) are colored according to the
-    respective phylum
--   Edges representing positive associations are colored in blue,
-    negative ones in orange (just to give an example for alternative
-    edge coloring)
--   Transparency is increased for edges with high weight to improve the
-    readability of node labels
+- This time, we choose the “spring” layout as part of `qgraph()` (the
+  function is generally used for network plotting in NetCoMi)
+- A repulsion value below 1 places the nodes further apart
+- Labels are not shortened anymore
+- Nodes (bacteria on genus level) are colored according to the
+  respective phylum
+- Edges representing positive associations are colored in blue, negative
+  ones in orange (just to give an example for alternative edge coloring)
+- Transparency is increased for edges with high weight to improve the
+  readability of node labels
 
 ``` r
 # Get phyla names
@@ -742,7 +784,7 @@ names(phyla) <- taxtab[, "Rank6"]
 # Define phylum colors
 phylcol <- c("cyan", "blue3", "red", "lawngreen", "yellow", "deeppink")
 
-plot(props_single3,
+plot(props_genus,
      layout = "spring",
      repulsion = 0.84,
      shortenLabels = "none",
@@ -766,7 +808,7 @@ plot(props_single3,
      cexTitle = 2.3)
 
 # Colors used in the legend should be equally transparent as in the plot
-phylcol_transp <- NetCoMi:::colToTransp(phylcol, 60)
+phylcol_transp <- colToTransp(phylcol, 60)
 
 legend(-1.2, 1.2, cex = 2, pt.cex = 2.5, title = "Phylum:", 
        legend=levels(phyla), col = phylcol_transp, bty = "n", pch = 16) 
@@ -778,9 +820,87 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 ![](man/figures/readme/single_genus_5-1.png)<!-- -->
 
+### Using an association matrix as input
+
+The QMP data set provided by the `SPRING` package is used to demonstrate
+how NetCoMi is used to analyze a precomputed network (given as
+association matrix).
+
+The data set contains quantitative count data (true absolute values),
+which SPRING can deal with. See `?QMP` for details.
+
+`nlambda` and `rep.num` are set to 10 for a decreased execution time,
+but should be higher for real data.
+
+``` r
+library(SPRING)
+
+# Load the QMP data set
+data("QMP") 
+
+# Run SPRING for association estimation
+fit_spring <- SPRING(QMP, 
+                     quantitative = TRUE, 
+                     lambdaseq = "data-specific",
+                     nlambda = 10, 
+                     rep.num = 10,
+                     seed = 123456, 
+                     ncores = 1,
+                     verbose = FALSE)
+
+# Optimal lambda
+opt.K <- fit_spring$output$stars$opt.index
+    
+# Association matrix
+assoMat <- as.matrix(SpiecEasi::symBeta(fit_spring$output$est$beta[[opt.K]],
+                                        mode = "ave"))
+rownames(assoMat) <- colnames(assoMat) <- colnames(QMP)
+```
+
+The association matrix is now passed to `netConstruct` to start the
+usual NetCoMi workflow. Note that the `dataType` argument must be set
+appropriately.
+
+``` r
+# Network construction and analysis
+net_asso <- netConstruct(data = assoMat,
+                         dataType = "condDependence",
+                         sparsMethod = "none",
+                         verbose = 0)
+
+props_asso <- netAnalyze(net_asso, clustMethod = "hierarchical")
+```
+
+![](man/figures/readme/association_input_2-1.png)<!-- -->
+
+``` r
+plot(props_asso,
+     layout = "spring",
+     repulsion = 1.2,
+     shortenLabels = "none",
+     labelScale = TRUE,
+     rmSingles = TRUE,
+     nodeSize = "eigenvector",
+     nodeSizeSpread = 2,
+     nodeColor = "cluster",
+     hubBorderCol = "gray60",
+     cexNodes = 1.8,
+     cexLabels = 2,
+     cexHubLabels = 2.2,
+     title1 = "Network for QMP data", 
+     showTitle = TRUE,
+     cexTitle = 2.3)
+
+legend(0.7, 1.1, cex = 2.2, title = "estimated association:",
+       legend = c("+","-"), lty = 1, lwd = 3, col = c("#009900","red"), 
+       bty = "n", horiz = TRUE)
+```
+
+![](man/figures/readme/association_input_3-1.png)<!-- -->
+
 ### Network comparison
 
-Now let’s look how two networks are compared using NetCoMi.
+Now let’s look how NetCoMi is used to compare two networks.
 
 **Network construction**
 
@@ -871,21 +991,20 @@ To demonstrate further functionalities of `netAnalyze()`, we play around
 with the available arguments, even if the chosen setting might not be
 optimal.
 
--   `centrLCC = FALSE`: Centralities are calculated for all nodes (not
-    only for the largest connected component).
--   `avDissIgnoreInf = TRUE`: Nodes with an infinite dissimilarity are
-    ignored when calculating the average dissimilarity.
--   `sPathNorm = FALSE`: Shortest paths are not normalized by average
-    dissimilarity.
--   `hubPar = c("degree", "between", "closeness")`: Hubs are nodes with
-    highest degree, betweenness, and closeness centrality at the same
-    time.
--   `lnormFit = TRUE` and `hubQuant = 0.9`: A log-normal distribution is
-    fitted to the centrality values to identify nodes with “highest”
-    centrality values. Here, a node is identified as hub if for each of
-    the three centrality measures, the node’s centrality value is above
-    the 90% quantile of the fitted log-normal distribution.
--   The non-normalized centralities are used for all four measures.
+- `centrLCC = FALSE`: Centralities are calculated for all nodes (not
+  only for the largest connected component).
+- `avDissIgnoreInf = TRUE`: Nodes with an infinite dissimilarity are
+  ignored when calculating the average dissimilarity.
+- `sPathNorm = FALSE`: Shortest paths are not normalized by average
+  dissimilarity.
+- `hubPar = c("degree", "eigenvector")`: Hubs are nodes with highest
+  degree and eigenvector centrality at the same time.
+- `lnormFit = TRUE` and `hubQuant = 0.9`: A log-normal distribution is
+  fitted to the centrality values to identify nodes with “highest”
+  centrality values. Here, a node is identified as hub if for each of
+  the three centrality measures, the node’s centrality value is above
+  the 90% quantile of the fitted log-normal distribution.
+- The non-normalized centralities are used for all four measures.
 
 **Note! The arguments must be set carefully, depending on the research
 questions. NetCoMi’s default values are not generally preferable in all
@@ -897,14 +1016,18 @@ props_season <- netAnalyze(net_season,
                            avDissIgnoreInf = TRUE,
                            sPathNorm = FALSE,
                            clustMethod = "cluster_fast_greedy",
-                           hubPar = c("degree", "between", "closeness"),
+                           hubPar = c("degree", "eigenvector"),
                            hubQuant = 0.9,
                            lnormFit = TRUE,
                            normDeg = FALSE,
                            normBetw = FALSE,
                            normClose = FALSE,
                            normEigen = FALSE)
+```
 
+![](man/figures/readme/netcomp_spring_3-1.png)<!-- -->
+
+``` r
 summary(props_season)
 ```
 
@@ -963,7 +1086,10 @@ summary(props_season)
     ## - In alphabetical/numerical order
     ## - Based on log-normal quantiles of centralities
     ## ```````````````````````````````````````````````
-    ## No hubs detected.
+    ##  group '1' group '2'
+    ##     184983    322235
+    ##     364563    363302
+    ## 
     ## ______________________________
     ## Centrality measures
     ## - In decreasing order
@@ -1024,9 +1150,6 @@ summary(props_season)
     ##  194648   0.17443   0.22625
     ##  184983   0.29058   0.21749
     ##  188236    0.2392   0.18812
-
-In the above setting, only one hub node (in the “Seasonal allergies”
-network) has been identified.
 
 **Visual network comparison**
 
@@ -1112,6 +1235,7 @@ Sommer](https://www.iq.harvard.edu/people/alice-sommer)*
 ``` r
 plot(props_season, 
      sameLayout = TRUE, 
+     repulsion = 0.95,
      layoutGroup = "union",
      rmSingles = "inboth", 
      nodeSize = "mclr", 
@@ -1137,8 +1261,14 @@ performed, we set the `permTest` parameter to `FALSE`. See the
 `tutorial_createAssoPerm` file for a network comparison including
 permutation tests.
 
+Since permutation tests are still conducted for the Adjusted Rand Index,
+a seed should be set for reproducibility.
+
 ``` r
-comp_season <- netCompare(props_season, permTest = FALSE, verbose = FALSE)
+comp_season <- netCompare(props_season, 
+                          permTest = FALSE, 
+                          verbose = FALSE,
+                          seed = 123456)
 
 summary(comp_season, 
         groupNames = c("No allergies", "Allergies"),
@@ -1150,7 +1280,8 @@ summary(comp_season,
     ## Comparison of Network Properties
     ## ----------------------------------
     ## CALL: 
-    ## netCompare(x = props_season, permTest = FALSE, verbose = FALSE)
+    ## netCompare(x = props_season, permTest = FALSE, verbose = FALSE, 
+    ##     seed = 123456)
     ## 
     ## ______________________________
     ## Global network properties
@@ -1188,7 +1319,7 @@ summary(comp_season,
     ## betweenness centr. 0.231    0.322424      0.861268    
     ## closeness centr.   0.308    0.552039      0.677576    
     ## eigenvec. centr.   0.615    0.991177      0.034655 *  
-    ## hub taxa           0.000    1.000000      1.000000    
+    ## hub taxa           0.000    0.197531      1.000000    
     ## -----
     ## Jaccard index in [0,1] (1 indicates perfect agreement)
     ## 
@@ -1197,7 +1328,7 @@ summary(comp_season,
     ## ``````````````````````````````````````````````````
     ##         wholeNet       LCC
     ## ARI        0.327     0.190
-    ## p-value    0.000     0.001
+    ## p-value    0.000     0.002
     ## -----
     ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
     ##                    ARI=0: expected for two random clusterings
@@ -1354,8 +1485,11 @@ OTUs.
 props_season_pears <- netAnalyze(net_season_pears, 
                                  clustMethod = "cluster_fast_greedy",
                                  weightDeg = TRUE,
-                                 normDeg = FALSE)
+                                 normDeg = FALSE,
+                                 gcmHeatLCC = NA)
+```
 
+``` r
 # Identify the differentially associated OTUs
 diffmat_sums <- rowSums(diff_season$diffAdjustMat)
 diff_asso_names <- names(diffmat_sums[diffmat_sums > 0])
@@ -1382,7 +1516,7 @@ legend(-0.15,-0.7, title = "estimated correlation:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-![](man/figures/readme/diffnet_2-1.png)<!-- -->
+![](man/figures/readme/diffnet_3-1.png)<!-- -->
 
 We can see that the correlation between the aforementioned OTUs ‘191541’
 and ‘188236’ is strongly positive in the left group and negative in the
@@ -1405,7 +1539,7 @@ in the data need to be replaced.
 The network is sparsified using the k-nearest neighbor (knn) algorithm.
 
 ``` r
-net_aitchison <- netConstruct(amgut1.filt,
+net_diss <- netConstruct(amgut1.filt,
                               measure = "aitchison",
                               zeroMethod = "multRepl",
                               sparsMethod = "knn", 
@@ -1444,17 +1578,23 @@ linkage. Internally, `k=3` is passed to
 from `stats` package so that the tree is cut into 3 clusters.
 
 ``` r
-props_aitchison <- netAnalyze(net_aitchison,
+props_diss <- netAnalyze(net_diss,
                               clustMethod = "hierarchical",
                               clustPar = list(method = "average", k = 3),
                               hubPar = "eigenvector")
+```
 
-plot(props_aitchison, 
+![](man/figures/readme/example14-1.png)<!-- -->
+
+``` r
+plot(props_diss, 
      nodeColor = "cluster", 
      nodeSize = "eigenvector",
      hubTransp = 40,
      edgeTranspLow = 60,
      charToRm = "00000",
+     shortenLabels = "simple",
+     labelLength = 6,
      mar = c(1, 3, 3, 5))
 
 # get green color with 50% transparency
@@ -1470,7 +1610,7 @@ legend(0.4, 1.1,
        bty = "n")
 ```
 
-![](man/figures/readme/example14-1.png)<!-- -->
+![](man/figures/readme/example15-1.png)<!-- -->
 
 In this dissimilarity-based network, hubs are interpreted as samples
 with a microbial composition similar to that of many other samples in
