@@ -298,11 +298,14 @@
   }
   
   # Whole network
-  sPath <- igraph::distances(dissnet, algorithm = sPathAlgo)
+  sPath <- .suppress_warnings(igraph::distances(dissnet, algorithm = sPathAlgo), 
+                              startsWith, "Unweighted algorithm chosen")
   
   # LCC
-  sPath_lcc <- igraph::distances(dissnet_lcc, algorithm = sPathAlgo)
-  
+  sPath_lcc <- .suppress_warnings(igraph::distances(dissnet_lcc, 
+                                                    algorithm = sPathAlgo), 
+                                  startsWith, "Unweighted algorithm chosen")
+
   if (verbose == 2) {
     message("Done.")
   }

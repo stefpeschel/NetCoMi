@@ -180,6 +180,39 @@
   
   return(maxcomb)
 }
+
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+#' @importFrom rlang as_function
+# Based on a function provided by Antoine Fabri (alias moodymudskipper):
+# https://stackoverflow.com/a/55182432/697473
+# Example:
+# sqrt(-1)
+# .suppress_warnings(sqrt(-1), startsWith, "N")
+# .suppress_warnings(sqrt(-1), startsWith, prefix = "N")
+
+.suppress_warnings <- function(.expr, .f, ...) {
+  eval.parent(
+    substitute(
+      withCallingHandlers( .expr, warning = function (w) {
+        cm   <- conditionMessage(w)
+        
+        cond <- if(is.character(.f)) {
+          grepl(.f, cm)
+        } else {
+          rlang::as_function(.f)(cm, ...)
+        }
+        
+        if (cond) invokeRestart("muffleWarning")   
+      })
+    )
+  )
+}
+
+
+
+
 #-------------------------------------------------------------------------------
 #' @keywords internal
 #' @importFrom graphics rect
