@@ -196,6 +196,30 @@
               msg = "\"graphlet\" must be logical.", 
               errs = errs)
   
+  if (args$graphlet) {
+    #-------------------
+    # orbits
+    errs <- 
+      .checkArg(cond = is.numeric(args$orbits), 
+                msg = "\"orbits\" vector must be numeric.", 
+                errs = errs)
+    
+    errs <- 
+      .checkArg(length(args$orbits) >= 2 & 
+                  length(args$orbits) <= 15 &
+                  all(args$orbits %in% 0:14), 
+                msg = "Only orbits 0 to 14 (from 4-node graphlets) are allowed.", 
+                errs = errs)
+    
+    #-------------------
+    # gcmHeatLCC
+    errs <- 
+      .checkArg(cond = is.logical(args$gcmHeatLCC) | is.na(args$gcmHeatLCC), 
+                msg = "\"gcmHeatLCC\" must be logical or NA.", 
+                errs = errs)
+  }
+
+
   #-------------------
   # verbose
   errs <- .checkArg(cond = is.logical(args$verbose) | 

@@ -631,6 +631,9 @@ net3 <- netConstruct(data = amgut1,
                      normMethod = "clr",
                      sparsMethod = "t-test")
                            
+# Network analysis
+# Note: Please zoom into the GCM plot or open a new window using:
+# x11(width = 10, height = 10)
 props3 <- netAnalyze(net3, clustMethod = "cluster_fast_greedy")
 
 plot(props3)

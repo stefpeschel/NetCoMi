@@ -25,6 +25,8 @@ netAnalyze(
   normEigen = TRUE,
   connectivity = TRUE,
   graphlet = TRUE,
+  orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
+  gcmHeatLCC = TRUE,
   verbose = 1
 )
 }
@@ -101,8 +103,17 @@ centrality values is returned.}
 connectivity are calculated. Might be disabled to reduce execution time.}
 
 \item{graphlet}{logical. If \code{TRUE} (default), graphlet-based network 
-properties are computed: orbit counts of graphlets with 2-4 nodes 
-(\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).}
+properties are computed: orbit counts as defined by \code{orbits} 
+and the corresponding Graphlet Correlation Matrix (\code{gcm}).}
+
+\item{orbits}{numeric vector with integers from 0 to 14 defining the orbits 
+used for calculating the GCM. Minimum length is 2. 
+Defaults to c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11), 
+thus excluding redundant orbits such as the orbit o3.}
+
+\item{gcmHeatLCC}{logical or \code{NA}. 
+A heatmap of the GCM(s) is plotted for the LCC if \code{TRUE} and for 
+the whole network if \code{FALSE}. If \code{NA}, no heatmap is plotted.}
 
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,
@@ -246,6 +257,10 @@ Determine network properties for objects of class
   correlations between the network's (non-redundant) node orbits 
   (Yaveroglu et al., 2014).}
   }
+  By default, only the 11 non-redundant orbits are used. These are grouped 
+  according to their role: orbit 0 represents the degree, orbits {2, 5, 7} 
+  represent nodes within a chain, orbits {8, 10, 11} represent nodes in a 
+  cycle, and orbits {6, 9, 4, 1} represent a terminal node.
 }
 \examples{
 # Load data sets from American Gut Project (from SpiecEasi package)
@@ -283,7 +298,26 @@ plot(amgut_props1)
 plot(amgut_props2)
 plot(amgut_props3)
 
-# Dissimilarity-based network (where nodes are subjects):
+#----------------------------------------------------------------------------
+# Plot the GCM heatmap
+plotHeat(mat = amgut_props1$graphletLCC$gcm1,
+         pmat = amgut_props1$graphletLCC$pAdjust1,
+         type = "mixed",
+         title = "GCM", 
+         colorLim = c(-1, 1),
+         mar = c(2, 0, 2, 0))
+# Add rectangles
+graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
+               ybottom = c(11.5,  7.5, 4.5,  0.5),
+               xright  = c( 1.5,  4.5, 7.5, 11.5),
+               ytop    = c(10.5, 10.5, 7.5,  4.5),
+               lwd = 2, xpd = NA)
+
+text(6, -0.2, xpd = NA, 
+     "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05")
+
+#----------------------------------------------------------------------------
+# Dissimilarity-based network (where nodes are subjects)
 amgut_net4 <- netConstruct(amgut1.filt, measure = "aitchison",
                            filtSamp = "highestFreq",
                            filtSampPar = list(highestFreq = 30),

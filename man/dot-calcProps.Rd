@@ -22,6 +22,7 @@
   lnormFit,
   connectivity,
   graphlet,
+  orbits,
   weightDeg,
   normDeg,
   normBetw,
@@ -99,6 +100,9 @@ connectivity are calculated. Might be disabled to reduce execution time.}
 \item{graphlet}{logical. If \code{TRUE} (default), graphlet-based network 
 properties are computed: orbit counts of graphlets with 2-4 nodes 
 (\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).}
+
+\item{orbits}{numeric vector with integers from 0 to 14 defining the graphlet 
+orbits.}
 
 \item{weightDeg}{logical. If \code{TRUE}, the weighted degree is used (see
 \code{\link[igraph]{strength}}). Default is \code{FALSE}. 

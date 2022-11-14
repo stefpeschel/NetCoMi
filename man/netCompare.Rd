@@ -12,7 +12,7 @@ netCompare(
   testRand = TRUE,
   nPermRand = 1000L,
   gcd = TRUE,
-  gcdOrb = c(0:2, 4:11),
+  gcdOrb = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
   verbose = TRUE,
   nPerm = 1000L,
   adjust = "adaptBH",
@@ -265,7 +265,9 @@ amgut_net <- netConstruct(amgut1.filt, group = group,
                           filtTaxPar = list(highestVar = 30),
                           zeroMethod = "pseudoZO", normMethod = "clr")
 
-# Network analysis:
+# Network analysis
+# Note: Please zoom into the GCM plot or open a new window using:
+# x11(width = 10, height = 10)
 amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy")
 
 # Network plot:

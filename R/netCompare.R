@@ -221,6 +221,8 @@
 #'                           zeroMethod = "pseudoZO", normMethod = "clr")
 #'
 #' # Network analysis
+#' # Note: Please zoom into the GCM plot or open a new window using:
+#' # x11(width = 10, height = 10)
 #' amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy")
 #'
 #' # Network plot
@@ -312,7 +314,7 @@ netCompare <- function(x,
                        testRand = TRUE,
                        nPermRand = 1000L,
                        gcd = TRUE,
-                       gcdOrb = c(0:2, 4:11),
+                       gcdOrb = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
                        verbose = TRUE,
                        nPerm = 1000L,
                        adjust = "adaptBH",
@@ -600,19 +602,22 @@ netCompare <- function(x,
       .packages = c("filematrix"),
       .export = c(
         ".calcAssociation",
-        "cclasso",
-        "gcoda",
-        "sparsify",
-        "multAdjust",
+        ".calcDiffProps",
+        ".calcJaccard",
+        ".calcProps",
+        ".getOrbcounts",
+        ".normCounts",
+        ".scaleDiss",
+        ".sparsify",
         ".transToDiss",
         ".transToSim",
         ".transToAdja",
-        ".scaleDiss",
-        ".normCounts",
         ".zeroTreat",
-        ".calcProps",
-        ".calcDiffProps",
-        ".calcJaccard"
+        "calcGCD",
+        "calcGCM",
+        "cclasso",
+        "gcoda",
+        "multAdjust"
       ),
       .options.snow = opts
       
@@ -871,35 +876,36 @@ netCompare <- function(x,
       #----------------------------------------------------
       # Compute network properties
       prop.tmp <- .calcDiffProps(adja1 = adja1.tmp,
-                                  adja2 = adja2.tmp,
-                                  dissMat1 = dissMat1.tmp,
-                                  dissMat2 = dissMat2.tmp,
-                                  assoMat1 = assoMat1.tmp,
-                                  assoMat2 = assoMat2.tmp,
-                                  avDissIgnoreInf = parNA$avDissIgnoreInf,
-                                  sPathNorm = parNA$sPathNorm,
-                                  sPathAlgo = parNA$sPathAlgo,
-                                  connectivity = parNA$connectivity,
-                                  normNatConnect = parNA$normNatConnect,
-                                  weighted = parNC$weighted,
-                                  clustMethod = parNA$clustMethod,
-                                  clustPar = parNA$clustPar,
-                                  clustPar2 = parNA$clustPar2,
-                                  weightClustCoef = parNA$weightClustCoef,
-                                  hubPar = parNA$hubPar,
-                                  hubQuant = parNA$hubQuant,
-                                  jaccQuant = jaccQuant,
-                                  lnormFit = lnormFit,
-                                  weightDeg = parNA$weightDeg,
-                                  normDeg = parNA$normDeg,
-                                  normBetw = parNA$normBetw,
-                                  normClose = parNA$normClose,
-                                  normEigen = parNA$normEigen,
-                                  centrLCC = parNA$centrLCC,
-                                  nPermRand = nPermRand,
-                                  testJacc = FALSE,
-                                  testRand = FALSE,
-                                  gcd = FALSE)
+                                 adja2 = adja2.tmp,
+                                 dissMat1 = dissMat1.tmp,
+                                 dissMat2 = dissMat2.tmp,
+                                 assoMat1 = assoMat1.tmp,
+                                 assoMat2 = assoMat2.tmp,
+                                 avDissIgnoreInf = parNA$avDissIgnoreInf,
+                                 sPathNorm = parNA$sPathNorm,
+                                 sPathAlgo = parNA$sPathAlgo,
+                                 connectivity = parNA$connectivity,
+                                 normNatConnect = parNA$normNatConnect,
+                                 weighted = parNC$weighted,
+                                 clustMethod = parNA$clustMethod,
+                                 clustPar = parNA$clustPar,
+                                 clustPar2 = parNA$clustPar2,
+                                 weightClustCoef = parNA$weightClustCoef,
+                                 hubPar = parNA$hubPar,
+                                 hubQuant = parNA$hubQuant,
+                                 jaccQuant = jaccQuant,
+                                 lnormFit = lnormFit,
+                                 weightDeg = parNA$weightDeg,
+                                 normDeg = parNA$normDeg,
+                                 normBetw = parNA$normBetw,
+                                 normClose = parNA$normClose,
+                                 normEigen = parNA$normEigen,
+                                 centrLCC = parNA$centrLCC,
+                                 nPermRand = nPermRand,
+                                 testJacc = FALSE,
+                                 testRand = FALSE,
+                                 gcd = gcd,
+                                 gcdOrb = gcdOrb)
       
       out <- list(diffsGlobal = NULL,
                   diffsGlobalLCC = NULL,
@@ -933,6 +939,9 @@ netCompare <- function(x,
       out$props <- prop.tmp$props
       out$propsLCC <- prop.tmp$propsLCC
       
+      out$gcd <- prop.tmp$gcd$gcd
+      out$gcdLCC <- prop.tmp$gcdLCC$gcd
+      
       out
     }
     
@@ -959,30 +968,43 @@ netCompare <- function(x,
     #---------------------------------------------------------------------------
     # Create matrices with differences
     
-    permDiffsGlobal <- matrix(0, nrow = nPerm, ncol = 10)
-    permDiffsGlobal_lcc <- matrix(0, nrow = nPerm, ncol = 11)
+    # Matrices for differences in global properties
     
-    names <- c("avDiss", "avPath", "Density", "VertConnect", "EdgeConnect", 
-               "NatConnect", "PEP", "ClustCoef", "Modul")
-    names_diff <- paste0("diff", names)
+    globNames <- c("avDiss", "avPath", "Density", "VertConnect", "EdgeConnect",
+                   "NatConnect", "PEP", "ClustCoef", "Modul")
+    globNamesDiff <- paste0("diff", globNames)
     
-    colnames(permDiffsGlobal) <- c("diffnComp", names_diff)
+    namesWhole <- c("diffnComp", globNamesDiff)
+    namesLCC <- c("difflccSize", "difflccSizeRel",
+                  globNamesDiff)
     
-    colnames(permDiffsGlobal_lcc) <- c("difflccSize", "difflccSizeRel", 
-                                       names_diff)
+    permDiffsGlobal <- matrix(0, nrow = nPerm, ncol = length(namesWhole))
+    permDiffsGlobal_lcc <- matrix(0, nrow = nPerm, ncol = length(namesLCC))
     
-    for (i in 1:9) {
-      for (b in 1:nPerm) {
-        permDiffsGlobal[b,names_diff[i]] <- 
-          as.numeric(propsPerm[[b]]$diffsGlobal[names_diff[i]])
-        
-        permDiffsGlobal_lcc[b,names_diff[i]] <- 
-          as.numeric(propsPerm[[b]]$diffsGlobalLC[names_diff[i]])
-      }
-    }
+    colnames(permDiffsGlobal) <- namesWhole
+    colnames(permDiffsGlobal_lcc) <- namesLCC
     
+    #----------------------------------------------
+    # Matrices for differences in centralities
+    
+    absDiffsPermDeg <- absDiffsPermBetw <-
+      absDiffsPermClose <- absDiffsPermEigen <-
+      permDeg1 <- permDeg2 <- permBetw1 <- permBetw2 <-
+      permClose1 <- permClose2 <- permEigen1 <- permEigen2 <-
+      matrix(0, nrow = nPerm, ncol = ncol(adja1))
+    
+    #----------------------------------------------
     for (b in 1:nPerm) {
-      permDiffsGlobal[b, "diffnComp"] <- 
+      # Store differences in global properties
+      for (i in 1:9) {
+        permDiffsGlobal[b,globNamesDiff[i]] <-
+          as.numeric(propsPerm[[b]]$diffsGlobal[globNamesDiff[i]])
+        
+        permDiffsGlobal_lcc[b,globNamesDiff[i]] <-
+          as.numeric(propsPerm[[b]]$diffsGlobalLC[globNamesDiff[i]])
+      }
+      
+      permDiffsGlobal[b, "diffnComp"] <-
         as.numeric(propsPerm[[b]]$diffsGlobal["diffnComp"])
       
       permDiffsGlobal_lcc[b, "difflccSize"] <- 
@@ -990,18 +1012,8 @@ netCompare <- function(x,
       
       permDiffsGlobal_lcc[b, "difflccSizeRel"] <- 
         as.numeric(propsPerm[[b]]$diffsGlobalLCC["difflccSizeRel"])
-    }
-    
-    #---------------------------------------------------------------------------
-    # create matrices for differences of centralities
-    
-    absDiffsPermDeg <- absDiffsPermBetw <- 
-      absDiffsPermClose <- absDiffsPermEigen <- 
-      permDeg1 <- permDeg2 <- permBetw1 <- permBetw2 <- 
-      permClose1 <- permClose2 <- permEigen1 <- permEigen2 <-
-      matrix(0, nrow = nPerm, ncol = ncol(adja1))
-    
-    for (b in 1:nPerm) {
+      
+      # Store differences in centralities
       absDiffsPermDeg[b,]   <- propsPerm[[b]]$absDiffsCentr$absDiffDeg
       absDiffsPermBetw[b,]  <- propsPerm[[b]]$absDiffsCentr$absDiffBetw
       absDiffsPermClose[b,] <- propsPerm[[b]]$absDiffsCentr$absDiffClose
@@ -1017,6 +1029,7 @@ netCompare <- function(x,
       permEigen2[b, ] <- propsPerm[[b]]$props$eigen2
     }
     
+    # Save as list
     permDiffsCentr <- list(degree = absDiffsPermDeg,
                            between = absDiffsPermBetw,
                            close = absDiffsPermClose,
@@ -1091,6 +1104,17 @@ netCompare <- function(x,
         as.numeric(propsPerm[[b]]$propsLCC["lccSizeRel2"])
     }
     
+    #---------------------------------------------------------------------------
+    # Store GCD values
+    
+    if (gcd) {
+      gcdPerm <- gcdPermLCC <- numeric(nPerm)
+      
+      for (b in 1:nPerm) {
+        gcdPerm[b] <- propsPerm[[b]]$gcd
+        gcdPermLCC[b] <- propsPerm[[b]]$gcdLCC
+      }
+    }
     
     #---------------------------------------------------------------------------
     # Compute p-values
@@ -1110,7 +1134,10 @@ netCompare <- function(x,
       }
     }
     
-    pvalnames <- paste0("pval", names)
+    #------------------------------
+    # P-values for the global properties
+    
+    pvalnames <- paste0("pval", globNames)
     
     pvalDiffGlobal <-  pvalDiffGlobalLCC <- list()
     
@@ -1131,14 +1158,14 @@ netCompare <- function(x,
                     nPerm = nPerm, exact = exact)
     
     for (i in seq_along(pvalnames)) {
-      pvalDiffGlobal[[pvalnames[i]]] <-  
-        .calcPermPval(tstat = props$diffsGlobal[[names_diff[i]]],
-                      tstatPerm = permDiffsGlobal[, names_diff[i]],
+      pvalDiffGlobal[[pvalnames[i]]] <-
+        .calcPermPval(tstat = props$diffsGlobal[[globNamesDiff[i]]],
+                      tstatPerm = permDiffsGlobal[, globNamesDiff[i]],
                       nPerm = nPerm, exact = exact)
       
-      pvalDiffGlobalLCC[[pvalnames[i]]] <- 
-        .calcPermPval(tstat = props$diffsGlobalLCC[[names_diff[i]]],
-                      tstatPerm = permDiffsGlobal_lcc[, names_diff[i]],
+      pvalDiffGlobalLCC[[pvalnames[i]]] <-
+        .calcPermPval(tstat = props$diffsGlobalLCC[[globNamesDiff[i]]],
+                      tstatPerm = permDiffsGlobal_lcc[, globNamesDiff[i]],
                       nPerm = nPerm, exact = exact)
     }
     
@@ -1167,6 +1194,17 @@ netCompare <- function(x,
     
     names(pvalDiffDeg) <- names(pvalDiffBetw) <- 
       names(pvalDiffClose) <- names(pvalDiffEigen) <- colnames(adja1)
+    
+    #------------------------------
+    # P-value for the GCD
+    if (gcd) {
+      pvalGCD <- .calcPermPval(props$gcd$gcd, gcdPerm,
+                               nPerm = nPerm, exact = exact)
+      
+      pvalGCDLCC <- .calcPermPval(props$gcdLCC$gcd, gcdPermLCC,
+                                  nPerm = nPerm, exact = exact)
+    }
+    #------------------------------
     
     if (verbose) message("Done.")
     
@@ -1239,7 +1277,22 @@ netCompare <- function(x,
       output$permPropsCentr2 <- permPropsCentr2
       output$permDiffCentr <- permDiffsCentr
     }
-  } 
+    
+    if (gcd) {
+      output$gcd$pval <- pvalGCD
+      output$gcd$gcdPerm <- gcdPerm
+      
+      output$gcdLCC$pval <- pvalGCDLCC
+      output$gcdLCC$gcdPerm <- gcdPermLCC
+      
+      # Reorder
+      output$gcd <- output$gcd[c("gcd", "pval", "gcdPerm", "ocount1",
+                                 "ocount2", "gcm1", "gcm2")]
+      
+      output$gcdLCC <- output$gcdLCC[c("gcd", "pval", "gcdPerm", "ocount1",
+                                       "ocount2", "gcm1", "gcm2")]
+    }
+  }
   
   class(output) <- "microNetComp"
   return(output)
