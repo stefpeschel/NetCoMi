@@ -136,23 +136,29 @@ summary.microNetComp <- function(object,
   # Rand index
   
   if (showRand) {
-    rand <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
-                                 dimnames = list("", c("ARI", "      p-value"))))
+    rand <- matrix(0, nrow = 1, ncol = 2,
+                   dimnames = list("", c("ARI", "      p-value")))
+    rand <- as.data.frame(rand)
+    
     rand[1,1] <- round(object$randInd[1], digits)
     rand[1,2] <- round(object$randInd[2], digitsPval)
     
     if (is.na(object$randInd[2])) {
       # no p-value computed
-      rand <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
-                                   dimnames = list("ARI", 
-                                                   c("wholeNet", "      LCC"))))
+      rand <- matrix(0, nrow = 1, ncol = 2,
+                     dimnames = list("ARI", 
+                                     c("wholeNet", "      LCC")))
+      rand <- as.data.frame(rand)
+      
       rand[1, 1] <- round(object$randInd[1], digits)
       rand[1, 2] <- round(object$randIndLCC[1], digits)
       
     } else {
-      rand <- as.data.frame(matrix(0, nrow = 2, ncol = 2,
-                                   dimnames = list(c("ARI", "p-value"),
-                                                   c("wholeNet", "      LCC"))))
+      rand <- matrix(0, nrow = 2, ncol = 2,
+                     dimnames = list(c("ARI", "p-value"),
+                                     c("wholeNet", "      LCC")))
+      rand <- as.data.frame(rand)
+      
       rand[1, 1] <- round(object$randInd[1], digits)
       rand[1, 2] <- round(object$randIndLCC[1], digits)
       rand[2, 1] <- round(object$randInd[2], digitsPval)
@@ -164,13 +170,39 @@ summary.microNetComp <- function(object,
   
   #=============================================================================
   # Graphlet Correlation Distance
-  
+
   if (showGCD & !is.null(object$gcd)) {
-    gcd <- as.data.frame(matrix(0, nrow = 1, ncol = 2,
-                                dimnames = list("GCD", 
-                                                c("wholeNet", "      LCC"))))
-    gcd[1, 1] <- round(object$gcd$gcd, digits)
-    gcd[1, 2] <- round(object$gcdLCC$gcd, digits)
+    if (is.null(object$gcd$pval)) {
+      gcd <- matrix(0, nrow = 1, ncol = 2,
+                    dimnames = list("GCD", 
+                                    c("wholeNet", "      LCC")))
+      gcd <- as.data.frame(gcd)
+      
+      gcd[1, 1] <- round(object$gcd$gcd, digits)
+      gcd[1, 2] <- round(object$gcdLCC$gcd, digits)
+      
+    } else {
+      gcd <- matrix(0, nrow = 2, ncol = 4,
+                    dimnames = list(c("GCD", "p-value"), 
+                                    c("wholeNet", " ", 
+                                      "      LCC", " ")))
+      gcd <- as.data.frame(gcd)
+      
+      gcd[1, 1] <- round(object$gcd$gcd, digits)
+      gcd[1, 2] <- " "
+      gcd[1, 3] <- round(object$gcdLCC$gcd, digits)
+      gcd[1, 4] <- " "
+      
+      
+      gcd[2, 1] <- round(object$gcd$pval, digitsPval)
+      gcd[2, 2] <- .getSigCode(object$gcd$pval)
+      gcd[2, 3] <- round(object$gcdLCC$pval, digitsPval)
+      gcd[2, 4] <- .getSigCode(object$gcdLCC$pval)
+      
+    }
+
+
+
     
   } else {
     gcd <- NULL
@@ -229,25 +261,27 @@ summary.microNetComp <- function(object,
     } 
 
     if (showGlobPvals) {
-      propdiffs <- 
-        as.data.frame(matrix(0, nrow = length(glob_rnames), ncol = 5,
-                             dimnames = list(glob_rnames,
-                                             c(group1, paste0("  ",
-                                                              group2),
-                                               "   abs.diff.",
-                                               "    p-value", " "))))
+      propdiffs <- matrix(0, nrow = length(glob_rnames), ncol = 5,
+                          dimnames = list(glob_rnames,
+                                          c(group1, paste0("  ",
+                                                           group2),
+                                            "   abs.diff.",
+                                            "    p-value", " ")))
+      propdiffs <- as.data.frame(propdiffs)
+      
     } else {
-      propdiffs <- 
-        as.data.frame(matrix(0, nrow = length(glob_rnames), ncol = 3,
-                             dimnames = list(glob_rnames,
-                                             c(group1, paste0("  ",
-                                                              group2),
-                                               "   difference"))))
+      propdiffs <- matrix(0, nrow = length(glob_rnames), ncol = 3,
+                          dimnames = list(glob_rnames,
+                                          c(group1, paste0("  ",
+                                                           group2),
+                                            "   difference")))
+      propdiffs <- as.data.frame(propdiffs)
     }
     
     for (i in 1:length(glob_names)) {
       propdiffs[i,1] <- 
-        round(as.numeric(object$properties[paste0(glob_names[i], 1)]), digits)
+        round(as.numeric(object$properties[paste0(glob_names[i], 1)]), 
+              digits)
       
       propdiffs[i,2] <- 
         round(as.numeric(object$properties[paste0(glob_names[i],2)]), digits)
@@ -328,22 +362,23 @@ summary.microNetComp <- function(object,
     }
 
     if (showGlobPvals) {
-      propdiffs_lcc <- 
-        as.data.frame(matrix(0, nrow = length(glob_rnames_lcc), 
-                             ncol = 5,
-                             dimnames = list(glob_rnames_lcc,
-                                             c(group1, paste0("  ",
-                                                              group2),
-                                               "   abs.diff.",
-                                               "    p-value", " "))))
+      propdiffs_lcc <- matrix(0, nrow = length(glob_rnames_lcc), 
+                              ncol = 5,
+                              dimnames = list(glob_rnames_lcc,
+                                              c(group1, paste0("  ",
+                                                               group2),
+                                                "   abs.diff.",
+                                                "    p-value", " ")))
+      propdiffs_lcc <- as.data.frame(propdiffs_lcc)
+      
     } else {
-      propdiffs_lcc <- 
-        as.data.frame(matrix(0, nrow = length(glob_rnames_lcc), 
-                             ncol = 3,
-                             dimnames = list(glob_rnames_lcc,
-                                             c(group1, paste0("  ",
-                                                              group2),
-                                               "   difference"))))
+      propdiffs_lcc <- matrix(0, nrow = length(glob_rnames_lcc), 
+                              ncol = 3,
+                              dimnames = list(glob_rnames_lcc,
+                                              c(group1, paste0("  ",
+                                                               group2),
+                                                "   difference")))
+      propdiffs_lcc <- as.data.frame(propdiffs_lcc)
     }
     
     for (i in 1:length(glob_names_lcc)) {
@@ -408,8 +443,9 @@ summary.microNetComp <- function(object,
     
     # degree
     if (any(c("all", "degree") %in% showCentr)) {
-      topDeg <- as.data.frame(matrix(0, nrow = numbNodes, ncol = cols,
-                                     dimnames = list(topDegNames, cnames)))
+      topDeg <- matrix(0, nrow = numbNodes, ncol = cols,
+                       dimnames = list(topDegNames, cnames))
+      topDeg <- as.data.frame(topDeg)
       
       topDeg[, 1] <-
         round(object$properties$deg1[topDegNames], digits)
@@ -442,10 +478,12 @@ summary.microNetComp <- function(object,
     
     # betweenness centrality
     if (any(c("all", "betweenness") %in% showCentr)) {
-      topBetw <- as.data.frame(matrix(0,
-                                      nrow = numbNodes,
-                                      ncol = cols,
-                                      dimnames = list(topBetwNames, cnames)))
+      topBetw <- matrix(0,
+                        nrow = numbNodes,
+                        ncol = cols,
+                        dimnames = list(topBetwNames, cnames))
+      topBetw <- as.data.frame(topBetw)
+      
       topBetw[, 1] <-
         round(object$properties$betw1[topBetwNames], digits)
       
@@ -477,8 +515,10 @@ summary.microNetComp <- function(object,
     
     # closeness centrality
     if (any(c("all", "closeness") %in% showCentr)) {
-      topClose <- as.data.frame(matrix(0, nrow = numbNodes, ncol = cols,
-                                       dimnames = list(topCloseNames, cnames)))
+      topClose <- matrix(0, nrow = numbNodes, ncol = cols,
+                         dimnames = list(topCloseNames, cnames))
+      topClose <- as.data.frame(topClose)
+      
       topClose[, 1] <-
         round(object$properties$close1[topCloseNames], digits)
       
@@ -507,8 +547,9 @@ summary.microNetComp <- function(object,
     
     # eigenvector centrality
     if (any(c("all", "eigenvector") %in% showCentr)) {
-      topEigen <- as.data.frame(matrix(0, nrow = numbNodes, ncol = cols,
-                                       dimnames = list(topEigenNames, cnames)))
+      topEigen <- matrix(0, nrow = numbNodes, ncol = cols,
+                         dimnames = list(topEigenNames, cnames))
+      topEigen <- as.data.frame(topEigen)
       
       topEigen[, 1] <-
         round(object$properties$eigen1[topEigenNames], digits)
@@ -641,7 +682,6 @@ print.summary.microNetComp <- function(x, ...) {
           ") with null hypothesis ARI=0\n", sep = "")
     }
   }
-
   
   if (!is.null(x$gcd)) {
     cat("\n______________________________")
@@ -650,6 +690,9 @@ print.summary.microNetComp <- function(x, ...) {
     print(x$gcd)
     cat("-----\n")
     cat("GCD >= 0 (GCD=0 indicates perfect agreement between GCMs)\n")
+    if (nrow(x$gcd) == 2) {
+      cat("p-value: permutation test with null hypothesis GCD=0\n")
+    }
   } 
   
   if (!is.null(x$topProps)) {
