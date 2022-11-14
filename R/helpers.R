@@ -108,18 +108,33 @@
 #' @keywords internal
 # Function for creating significance codes
 # Used in summary.microNetComp
-.getSigCode <- function(x) {
-  if (x <= 0.001) {
-    return("***")
-  } else if (x <= 0.01) {
-    return("** ")
-  } else if (x <= 0.05) {
-    return("*  ")
-  } else if (x <= 0.1) {
-    return(".  ")
+.getSigCode <- function(x, code = c("***", "**", "*", ".", " "), 
+                        addSpace = TRUE) {
+  
+  nc <- max(nchar(code))
+  
+  if (x > 0.1) {
+    out <- code[5]
+    
   } else {
-    return(" ")
+    if (x <= 0.001) {
+      out <- code[1]
+    } else if (x <= 0.01) {
+      out <- code[2]
+    } else if (x <= 0.05) {
+      out <- code[3]
+    } else if (x <= 0.1) {
+      out <- code[4]
+    } 
+    
+    if (addSpace) {
+      while(nchar(out) < nc) {
+        out <- paste0(out, " ")
+      }
+    }
   }
+  
+  return(out)
 }
 
 #-------------------------------------------------------------------------------
@@ -164,4 +179,16 @@
   maxcomb <- possib^n_sets
   
   return(maxcomb)
+}
+#-------------------------------------------------------------------------------
+#' @keywords internal
+#' @importFrom graphics rect
+# Add rectangles to a GCM heatmap with all orbs
+# Used in netAnalyze()
+.addOrbRect <- function() {
+  graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
+                 ybottom = c(11.5,  7.5, 4.5,  0.5),
+                 xright  = c( 1.5,  4.5, 7.5, 11.5),
+                 ytop    = c(10.5, 10.5, 7.5,  4.5),
+                 lwd = 2, xpd = NA)
 }

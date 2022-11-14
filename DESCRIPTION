@@ -12,6 +12,7 @@ License: GPL-3 + file LICENSE
 Depends: SpiecEasi (>= 1.0.6)
 Imports: 
     Biobase,
+    corrplot,
     doSNOW,
     fdrtool,
     filematrix,
@@ -28,6 +29,7 @@ Imports:
     phyloseq,
     pulsar,
     qgraph,
+    RColorBrewer,
     Rdpack,
     snow,
     SPRING,
