@@ -14,6 +14,9 @@
 #'   \code{"convest"}(default), \code{"lfdr"}, \code{"mean"}, and \code{"hist"}.
 #'   Can alternatively be \code{"farco"} for
 #'   the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.
+#' @param pTrueNull proportion of true null hypothesis used for the adaptBH 
+#'   method. If \code{NULL}, the proportion is computed using the method 
+#'   defined via \code{trueNullMethod}.
 #' @param verbose if \code{TRUE}, progress messages are returned.
 #'
 #' @references
@@ -23,7 +26,11 @@
 #' @importFrom stats p.adjust
 #' @export
 
-multAdjust <- function(pvals, adjust, trueNullMethod, verbose) {
+multAdjust <- function(pvals, 
+                       adjust = "adaptBH", 
+                       trueNullMethod = "convest", 
+                       pTrueNull = NULL, 
+                       verbose = FALSE) {
   
   # Check input arguments
   
@@ -60,30 +67,33 @@ multAdjust <- function(pvals, adjust, trueNullMethod, verbose) {
     o <- order(pvals, decreasing = TRUE)
     ro <- order(o)
     
-    if (trueNullMethod == "farco") {
-      R <- 0
-      iter <- TRUE
-      
-      while(iter) {
-        pTrueNull <- 1- (R/m)  # proportion of true null hypotheses
-        pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
-        R_new <- length(which(pAdjust < 0.05))
-        iter <- R_new != R  # stop iteration if R_new==R
-        R <- R_new
+    if (is.null(pTrueNull)) {
+      if (trueNullMethod == "farco") {
+        R <- 0
+        iter <- TRUE
+        
+        while(iter) {
+          pTrueNull <- 1- (R/m)  # proportion of true null hypotheses
+          pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
+          R_new <- length(which(pAdjust < 0.05))
+          iter <- R_new != R  # stop iteration if R_new==R
+          R <- R_new
+        }
+        
+        if (verbose) {
+          message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
+        }
+        
+      } else {
+        # trueNullMethod must be one of "lfdr", "mean", "hist", or "convest"
+        pTrueNull <- limma::propTrueNull(pvals, method = trueNullMethod)
+        if (verbose) {
+          message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
+        }
       }
-      if (verbose) {
-        message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
-      }
-      
-      
-    } else {
-      # trueNullMethod must be one of "lfdr", "mean", "hist", or "convest"
-      pTrueNull <- limma::propTrueNull(pvals, method = trueNullMethod)
-      if (verbose) {
-        message("\n Proportion of true null hypotheses: ", round(pTrueNull, 2))
-      }
-      pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
     }
+
+    pAdjust <- pmin(1, cummin(m * pTrueNull / ind * pvals[o]))[ro]
     
     names(pAdjust) <- names(pvals)
     
