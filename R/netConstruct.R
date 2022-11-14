@@ -255,8 +255,11 @@
 #'   (selected edges that are connected in the network). Available methods are:
 #'   \describe{
 #'   \item{\code{"none"}}{Leads to a fully connected network}
-#'   \item{\code{"t-test"}}{Student's t-test. Significance level and multiple
-#'   testing adjustment is specified via \code{alpha} and \code{adjust}.}
+#'   \item{\code{"t-test"}}{Default. Associations being significantly different 
+#'   from zero are selected using Student's t-test. Significance level and 
+#'   multiple testing adjustment is specified via \code{alpha} and 
+#'   \code{adjust}. \code{sampleSize} must be set if \code{dataType} is not 
+#'   "counts".}
 #'   \item{\code{"bootstrap"}}{Bootstrap procedure as described in
 #'   \cite{Friedman and Alm (2012)}. Corresponding arguments are
 #'   \code{nboot}, \code{cores}, and \code{logFile}.}

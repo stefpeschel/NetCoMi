@@ -43,7 +43,7 @@
     if (sparsMethod == "t-test") {
       
       if (is.null(countMat)) {
-        df <- sampleSize
+        df <- sampleSize - 2
       } else {
         df <- nrow(countMat) - 2
       }
@@ -109,31 +109,39 @@
       
       diag(assoMat) <- 0
       
+      verboseTmp <- ifelse(verbose == 3, 5, 2)
+      
+      params <- list(simMat,
+                     dataIsExpr = FALSE,
+                     networkType = softThreshType,
+                     RsquaredCut = softThreshCut,
+                     verbose = verboseTmp,
+                     corOptions = list(use = 'p',
+                                       nThreads = 1))
+      
       if (verbose == 3) {
-        message("\nExecute pickSoftThreshold() ...")
-        softthresh1 <- WGCNA::pickSoftThreshold(simMat, dataIsExpr = FALSE,
-                                                networkType = softThreshType,
-                                                RsquaredCut = softThreshCut,
-                                                verbose = 5)
+        softthresh1 <- .suppress_warnings(do.call(WGCNA::pickSoftThreshold, 
+                                                  params), 
+                           startsWith, "executing")
+        
       } else {
-        invisible(capture.output(softthresh1 <- 
-                                   WGCNA::pickSoftThreshold(simMat,
-                                                            dataIsExpr = FALSE,
-                                                            networkType = softThreshType,
-                                                            RsquaredCut = softThreshCut,
-                                                            verbose = 2)))
+        invisible(capture.output(
+          softthresh1 <- .suppress_warnings(do.call(WGCNA::pickSoftThreshold, 
+                                                    params), 
+                                            startsWith, "executing")
+        ))
       }
       
       power <-  softthresh1$powerEstimate
       
       if (is.na(power)) {
-        warning(paste0("No power with R^2 above ", softThreshCut,
-                       ". Power set to 1."))
+        message(paste0("\n No soft-thresholding power with R^2 above ", 
+                       softThreshCut, ". Power set to 1."))
         power <- 1
       }
       
       if (verbose >= 2) {
-        message("\n Estimated power: ", power)
+        message("\n Estimated soft-thresholding power: ", power)
       }
       
       

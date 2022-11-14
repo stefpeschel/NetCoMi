@@ -210,7 +210,8 @@
   if (dataType != "counts") {
     if (sparsMethod == "t-test") {
       if (is.null(sampleSize)) {
-        stop("Sample size necessary for Student's t-test.")
+        stop("Sample size needed (argument \"sampleSize\") for sparsification ",
+             "via Student's t-test if dataType is not \"counts\".")
       }
       
       stopifnot(is.vector(sampleSize))
