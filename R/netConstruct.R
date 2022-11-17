@@ -1030,7 +1030,19 @@ netConstruct <- function(data,
         
         # join data sets if 'jountPrepro' is TRUE
         if (jointPrepro) {
+          
+          # Remove duplicates in sample names
+          if (any(rownames(countMat2) %in% rownames(countMat1))) {
+            if (verbose %in% 1:3) {
+              message("\"*\" Added to duplicated sample names in group 2.")
+            }
+            dupidx <- which(rownames(countMat2) %in% rownames(countMat1))
+            rownames(countMat2)[dupidx] <- 
+              paste0(rownames(countMat2)[dupidx], "*")
+          }
+          
           countMatJoint <- rbind(countMat1, countMat2)
+          
           n1 <- nrow(countMat1)
           n2 <- nrow(countMat2)
         }
@@ -1279,8 +1291,8 @@ netConstruct <- function(data,
         attributes(countsJointOrig)$scale <- "counts"
         
         if (!is.null(data2)) {
-          n1 <- sum(rownames(countMatJoint) %in% rownames(data))
-          n2 <- sum(rownames(countMatJoint) %in% rownames(data2))
+          n1 <- sum(rownames(countMatJoint) %in% rownames(countMat1))
+          n2 <- sum(rownames(countMatJoint) %in% rownames(countMat2))
         }
         
         countsOrig1 <- countsOrig2 <- NULL
@@ -1292,7 +1304,7 @@ netConstruct <- function(data,
       }
       
     } else {
-      countsOrig1 <- countMat1
+      countsOrig1 <- countMatJoint
       attributes(countsOrig1)$scale <- "counts"
       countsOrig2 <- NULL
     }
