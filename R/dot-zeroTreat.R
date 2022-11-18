@@ -92,6 +92,10 @@
         zeroParam$dl <- rep(zeroParam$dl, ncol(countMat))
       }
       
+      if (is.null(zeroParam$z.warning)) {
+        zeroParam$z.warning <- 1
+      }
+      
       if (verbose %in% 2:3) message("Execute multRepl() ... ", appendLF = FALSE)
       
       countMat_repl <- as.matrix(do.call(zCompositions::multRepl, zeroParam))
