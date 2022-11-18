@@ -37,6 +37,25 @@ GCD with `netCompare()` (for the whole network and the largest connected
 component, respectively). Also the orbit counts are returned. The GCD is added 
 to the summary for class `microNetComp` objects returned by `netCompare()`.
 
+* **Significance test for the GCD**: If permutation tests are conducted with  
+`netCompare()`, the GCD is tested for being significantly different from zero.
+
+* New function **`testGCM()`** to **test graphlet-based measures** for 
+significance. For a single GCM, the correlations are tested for being 
+significantly different from zero. 
+If two GCMs are given, it is tested if the correlations are 
+significantly different between the two groups, that is, the absolute 
+differences between correlations ($|gc1_{ij}-gc2_{ij}|$) are tested for being 
+different from zero.
+
+* New function **`plotHeat()`** for plotting a mixed heatmap where, for 
+instance, values are shown in the upper triangle and corresponding p-values or 
+significance codes in the lower triangle. The function is used for plotting 
+heatmaps of the GCMs, but could also be used for association matrices. 
+
+* `netAnalyze()` now by default returns a heatmap of the GCM(s) with graphlet 
+correlations in the upper triangle and significance codes in the lower triangle.
+
 * Argument **"doPlot"** added to `plot.microNetProps()` to suppress the plot if 
 only the return value is of interest. 
 
@@ -45,7 +64,7 @@ only the return value is of interest.
 properties should be printed in the summary. See the help pages of
 `summary.microNetProps` and `summary.microNetComp()` for details.
 
-* New zero replacement method **"pseudoZO"** available in `netConstruct()`. 
+* New **zero replacement** method **"pseudoZO"** available in `netConstruct()`. 
 Instead of adding the desired pseudo count to the whole count matrix, it is 
 added to zero counts only if `pseudoZO` is chosen. The behavior of "pseudo" 
 (a further available method where a pseudo count is added to all counts) has not 
@@ -55,13 +74,45 @@ non-zero counts, which is desirable.
 * `createAssoPerm()` now accepts objects of class `microNet` as input (in 
 addition to objects of class `microNetProps`).
 
-* `SPRING`'s fast version of latent correlation computation (implemented in 
+* **`SPRING`**'s fast version of latent correlation computation (implemented in 
 [mixedCCA](https://github.com/irinagain/mixedCCA)) is available again.
 It can be used by setting the `netConstruct()` parameter `measurePar$Rmethod`
 to "approx", which is now the default again.
 
+* The function **`multAdjust()`** now has an argument `pTrueNull` to pre-define 
+the proportion of true null hypotheses for the adaptive BH method.
 
-### Fixes
+
+### Bug fixes
+
+* In `netConstruct()`: 
+  + Using **"bootstrap"** as sparsification method in 
+combination with on of the association methods "bicor", "cclasso", "ccrepe", or 
+"gcoda" led to the error: `argument "verbose" is missing, with no default`, 
+which has been fixed.
+  + The **"signedPos"** transformation did not work properly. 
+Dissimilarities corresponding to negative correlations were set to zero instead 
+of infinity.
+
+* In `editLabels()`: The function (and thus also `plot.microNetProps`) 
+threw an error if taxa have been renamed with 
+`renameTaxa` and the data contain more than 9 taxa with equal names, so that 
+double-digit numbers were added to avoid duplicates. 
+
+* Issues in network analysis and plotting if association matrices are used 
+for network construction, but **row and/or column names are missing**.
+(issue [#65](https://github.com/stefpeschel/NetCoMi/issues/65))
+
+* `diffnet()` threw an error if association matrices are used for network 
+construction instead of count matrices.
+(issue [#66](https://github.com/stefpeschel/NetCoMi/issues/66))
+
+* In `plot.microNetProps()`:
+  + The function now directly returns an error if `x` has not the 
+expected class.
+  + The `cut` parameter could not be changed.
+
+### Further changes
 
 * In **permutation tests**: The permuted group labels must now be different from 
 the original group vector. In other words, the original group vector is strictly 
@@ -74,27 +125,18 @@ matrix. The calculation of p-values has been adapted to the new behavior:
 the observed one, and *N* is the number of permutations. So far, *p=(B+1)/(N+1)* 
 has been used in all cases.
 
-* In `netConstruct()`: Using **"bootstrap"** as sparsification method in 
-combination with on of the association methods "bicor", "cclasso", "ccrepe", or 
-"gcoda" led to the error: `argument "verbose" is missing, with no default`, 
-which has been fixed.
-
-* In `editLabels()`: The function (and thus also `plot.microNetProps`) 
-threw an error if taxa have been renamed with 
-`renameTaxa` and the data contain more than 9 taxa with equal names, so that 
-double-digit numbers were added to avoid duplicates. 
-
-* Issues in network analysis and plotting if association matrices are used 
-for network construction, but have no row and column names.
-(issue [#65](https://github.com/stefpeschel/NetCoMi/issues/65))
-
-* `diffnet()` threw an error if association matrices are used for network 
-construction instead of count matrices.
-(issue [#66](https://github.com/stefpeschel/NetCoMi/issues/66))
-
-* `plot.microNetProps()` now directly returns an error if `x` has not the 
-expected class.
-
+* In `plot.microNetProps()`: 
+  + The default of `shortenLabels` is now "none", i.e. the **labels are not 
+  shortened by default**, to avoid confusion about the node labels.
+  + If two networks are constructed and the **`cut`** parameter is not 
+  user-defined, the mean of the two determined cut parameters is now used for 
+  both networks so that edge thicknesses are comparable.
+  
+* More expressive messages and errors in `diffnet` and `plot.diffnet` if no 
+differential associations are detected.
+  
+* New function **`.suppress_warnings()`** to suppress certain warnings returned 
+by external functions. 
 
 ### Style
 
