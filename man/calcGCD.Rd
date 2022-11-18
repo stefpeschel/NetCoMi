@@ -4,24 +4,23 @@
 \alias{calcGCD}
 \title{Graphlet Correlation Distance (GCD)}
 \usage{
-calcGCD(adja1, adja2, orbits = c(0:2, 4:11))
+calcGCD(adja1, adja2, orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1))
 }
 \arguments{
 \item{adja1, adja2}{adjacency matrices (numeric) defining the two networks 
 between which the GCD shall be calculated.}
 
-\item{orbits}{numeric vector with integers from 0 to 14 defining the orbits 
-of interest. Minimum length is 2. Defaults to 
-c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11), thus excluding redundant orbits such
-as the orbit o3.}
+\item{orbits}{numeric vector with integers from 0 to 14 defining the graphlet 
+orbits to use for GCD calculation. Minimum length is 2. Defaults to 
+c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1), thus excluding redundant orbits such
+as the orbit o3. See details.}
 }
 \value{
 An object of class \code{gcd} containing the following elements:
   \tabular{ll}{
   \code{gcd}\tab Graphlet Correlation Distance between the two networks\cr
   \code{ocount1, ocount2}\tab Orbit counts \cr
-  \code{gcm1, gcm2}\tab Graphlet 
-  Correlation Matrices
+  \code{gcm1, gcm2}\tab Graphlet Correlation Matrices
   }
 }
 \description{
@@ -46,17 +45,34 @@ Computes the Graphlet Correlation Distance (GCD) - a
   The function is based on R code provided by Theresa Ullmann 
   (\url{https://orcid.org/0000-0003-1215-8561}).
 }
+\details{
+By default, only the 11 non-redundant orbits are used. These are grouped 
+  according to their role: orbit 0 represents the degree, orbits {2, 5, 7} 
+  represent nodes within a chain, orbits {8, 10, 11} represent nodes in a 
+  cycle, and orbits {6, 9, 4, 1} represent a terminal node.
+}
 \examples{
-# Load data set from American Gut Project (from SpiecEasi package)
-data("amgut1.filt")
+library(phyloseq)
 
-# Generate a random group vector
-set.seed(123456)
-group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
+# Load data sets from American Gut Project (from SpiecEasi package)
+data("amgut2.filt.phy")
+
+# Split data into two groups: with and without seasonal allergies
+amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy, 
+                                                "SEASONAL_ALLERGIES")
+
+amgut_yes <- amgut_split$yes
+amgut_no <- amgut_split$no
+
+# Make sample sizes equal to ensure comparability
+n_yes <- phyloseq::nsamples(amgut_yes)
+ids_yes <- phyloseq::get_variable(amgut_no, "X.SampleID")[1:n_yes]
+
+amgut_no <- phyloseq::subset_samples(amgut_no, X.SampleID \%in\% ids_yes)
 
 # Network construction
-net <- netConstruct(amgut1.filt, 
-                    group = group,
+net <- netConstruct(amgut_yes,
+                    amgut_no, 
                     filtTax = "highestFreq",
                     filtTaxPar = list(highestFreq = 50),
                     measure = "pearson",
@@ -73,21 +89,44 @@ adja2 <- net$adjaMat2
 props <- netAnalyze(net)
 plot(props, rmSingles = TRUE, cexLabels = 1.7)
 
-# Calculate GCD
-gcdlist <- calcGCD(adja1, adja2)
+# Calculate the GCD
+gcd <- calcGCD(adja1, adja2)
 
-gcdlist
+gcd
 
 # Orbit counts
-gcdlist$ocount1
-gcdlist$ocount2
+head(gcd$ocount1)
+head(gcd$ocount2)
 
 # GCMs
-gcdlist$gcm1
-gcdlist$gcm2
+gcd$gcm1
+gcd$gcm2
+
+# Test Graphlet Correlations for significant differences
+gcmtest <- testGCM(gcd)
+
+### Plot heatmaps
+# GCM 1 (with significance code in the lower triangle)
+plotHeat(gcmtest$gcm1, 
+         pmat = gcmtest$pAdjust1,
+         type = "mixed")
+
+# GCM 2 (with significance code in the lower triangle)
+plotHeat(gcmtest$gcm2, 
+         pmat = gcmtest$pAdjust2,
+         type = "mixed")
+
+# Difference GCM1-GCM2 (with p-values in the lower triangle)
+plotHeat(gcmtest$diff, 
+         pmat = gcmtest$pAdjustDiff,
+         type = "mixed",
+         textLow = "pmat")
   
 }
 \references{
 \insertRef{hocevar2016computation}{NetCoMi}\cr\cr
   \insertRef{yaveroglu2014revealing}{NetCoMi}
+}
+\seealso{
+\code{\link{calcGCM}}, \code{\link{testGCM}}
 }

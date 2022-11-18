@@ -265,13 +265,19 @@
   
   #--------------------------------------------------------------------------
   # Graphlet Correlation Distance (GCD)
-  
   if (gcd) {
-    gcd <- calcGCD(adja1 = adja1, adja2 = adja2, orbits = gcdOrb)
-    adja1_lcc <- props1$adjaMat_lcc
-    adja2_lcc <- props2$adjaMat_lcc
-    gcd_lcc <- calcGCD(adja1 = adja1_lcc, adja2 = adja2_lcc, orbits = gcdOrb)
     
+    gcd <- calcGCD(adja1 = adja1, adja2 = adja2, orbits = gcdOrb)
+    
+    if (isempty1 || isempty2) {
+      gcd_lcc <- gcd
+      
+    } else {
+      adja1_lcc <- props1$adjaMat_lcc
+      adja2_lcc <- props2$adjaMat_lcc
+      gcd_lcc <- calcGCD(adja1 = adja1_lcc, adja2 = adja2_lcc, orbits = gcdOrb)
+    }
+
     class(gcd) <- class(gcd_lcc) <- "list"
     
   } else {

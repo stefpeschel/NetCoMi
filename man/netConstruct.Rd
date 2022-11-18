@@ -176,12 +176,16 @@ make counts of different samples comparable). Possible options are:
 (selected edges that are connected in the network). Available methods are:
 \describe{
 \item{\code{"none"}}{Leads to a fully connected network}
-\item{\code{"t-test"}}{Student's t-test. Significance level and multiple
-testing adjustment is specified via \code{alpha} and \code{adjust}.}
+\item{\code{"t-test"}}{Default. Associations being significantly different 
+from zero are selected using Student's t-test. Significance level and 
+multiple testing adjustment is specified via \code{alpha} and 
+\code{adjust}. \code{sampleSize} must be set if \code{dataType} is not 
+"counts".}
 \item{\code{"bootstrap"}}{Bootstrap procedure as described in
 \cite{Friedman and Alm (2012)}. Corresponding arguments are
-\code{nboot}, \code{cores}, and \code{logFile}.}
-\item{\code{"threshold"}}{Default. Selected are taxa
+\code{nboot}, \code{cores}, and \code{logFile}. Data type must be 
+"counts".}
+\item{\code{"threshold"}}{Selected are taxa
 pairs with an absolute association/dissimilarity greater than or equal to
 the threshold defined via \code{thresh}.}
 \item{\code{"softThreshold"}}{Soft thresholding method according to
@@ -191,7 +195,8 @@ arguments are \code{softThreshType}, \code{softThreshPower}, and
 \code{softThreshCut}.}
 \item{\code{"knn"}}{Construct a k-nearest neighbor or mutual k-nearest
 neighbor graph using \code{\link[cccd]{nng}}. Corresponding
-arguments are \code{kNeighbor}, and \code{knnMutual}.}}}
+arguments are \code{kNeighbor}, and \code{knnMutual}. Available for 
+dissimilarity networks only.}}}
 
 \item{thresh}{numeric vector with one or two elements defining the threshold 
 used for sparsification if \code{sparsMethod} is set to \code{"threshold"}. 
@@ -588,6 +593,7 @@ net2 <- netConstruct(amgut2.filt.phy,
                      thresh = 0.3,
                      verbose = 3)
 
+# Network analysis
 props2 <- netAnalyze(net2, clustMethod = "cluster_fast_greedy")
 
 plot(props2)
@@ -631,9 +637,13 @@ net3 <- netConstruct(data = amgut1,
                      normMethod = "clr",
                      sparsMethod = "t-test")
                            
+# Network analysis
+# Note: Please zoom into the GCM plot or open a new window using:
+# x11(width = 10, height = 10)
 props3 <- netAnalyze(net3, clustMethod = "cluster_fast_greedy")
 
-plot(props3)
+# Network plot (same layout is used in both groups)
+plot(props3, sameLayout = TRUE)
 
 # NetCoMi's function netCompare() enables the comparison of the two networks.
 

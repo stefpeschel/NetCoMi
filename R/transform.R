@@ -14,7 +14,7 @@
       dissvec <- sqrt(1-xvec^2)
     } else {
       dissvec <- sqrt(0.5 * (1-xvec))
-      dissvec[xvec < 0] <- 0
+      dissvec[xvec < 0] <- Inf
     }
     
     dissMat <- x

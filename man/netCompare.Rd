@@ -12,7 +12,7 @@ netCompare(
   testRand = TRUE,
   nPermRand = 1000L,
   gcd = TRUE,
-  gcdOrb = c(0:2, 4:11),
+  gcdOrb = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
   verbose = TRUE,
   nPerm = 1000L,
   adjust = "adaptBH",
@@ -251,48 +251,73 @@ Calculate and compare network properties for microbial networks
   See \code{\link{calcGCD}} for details.
 }
 \examples{
+
 # Load data sets from American Gut Project (from SpiecEasi package)
-data("amgut1.filt")
+data("amgut2.filt.phy")
 
-# Generate a random group vector
-set.seed(123456)
-group <- sample(1:2, nrow(amgut1.filt), replace = TRUE)
+# Split data into two groups: with and without seasonal allergies
+amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy,
+                                                "SEASONAL_ALLERGIES")
 
-# Network construction:
-amgut_net <- netConstruct(amgut1.filt, group = group,
+amgut_yes <- amgut_split$yes
+amgut_no <- amgut_split$no
+
+# Sample sizes
+phyloseq::nsamples(amgut_yes)
+phyloseq::nsamples(amgut_no)
+
+# Make sample sizes equal to ensure comparability
+n_yes <- phyloseq::nsamples(amgut_yes)
+
+amgut_no <- 
+  phyloseq::subset_samples(amgut_no, X.SampleID \%in\%
+                             get_variable(amgut_no, "X.SampleID")[1:n_yes])
+
+# Network construction
+amgut_net <- netConstruct(data = amgut_yes,
+                          data2 = amgut_no,
                           measure = "pearson",
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 30),
                           zeroMethod = "pseudoZO", normMethod = "clr")
 
-# Network analysis:
+# Network analysis
+# Note: Please zoom into the GCM plot or open a new window using:
+# x11(width = 10, height = 10)
 amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy")
 
-# Network plot:
-plot(amgut_props, sameLayout = TRUE)
+# Network plot
+plot(amgut_props,
+     sameLayout = TRUE,
+     title1 = "Seasonal allergies",
+     title2 = "No seasonal allergies")
 
 #--------------------------
-# Network comparison:
+# Network comparison
 
-# Without permutation tests:
+# Without permutation tests
 amgut_comp1 <- netCompare(amgut_props, permTest = FALSE)
 summary(amgut_comp1)
 
 \donttest{
-# With permutation tests (with only 100 permutations to decrease runtime):
-amgut_comp2 <- netCompare(amgut_props, 
-                          permTest = TRUE, nPerm = 100L, cores = 1L, 
-                          storeCountsPerm = TRUE, 
-                          fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
-                          storeAssoPerm = TRUE, 
-                          fileStoreAssoPerm = "assoPerm",
-                          seed = 123456)
+  # With permutation tests (with only 100 permutations to decrease runtime)
+  amgut_comp2 <- netCompare(amgut_props,
+                            permTest = TRUE,
+                            nPerm = 100L,
+                            cores = 1L,
+                            storeCountsPerm = TRUE,
+                            fileStoreCountsPerm = c("countsPerm1",
+                                                    "countsPerm2"),
+                            storeAssoPerm = TRUE,
+                            fileStoreAssoPerm = "assoPerm",
+                            seed = 123456)
 
 # Rerun with a different adjustment method ...
 # ... using the stored permutation count matrices
 amgut_comp3 <- netCompare(amgut_props, adjust = "BH",
-                          permTest = TRUE, nPerm = 100L, 
-                          fileLoadCountsPerm = c("countsPerm1", "countsPerm2"),
+                          permTest = TRUE, nPerm = 100L,
+                          fileLoadCountsPerm = c("countsPerm1",
+                                                 "countsPerm2"),
                           seed = 123456)
 
 # ... using the stored permutation association matrices

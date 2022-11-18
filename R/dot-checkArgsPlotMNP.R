@@ -43,8 +43,10 @@
           warning("Rownames of layout matrix do not match node names.")
         }
         
-        if (!any(rownames(layout[[2]]) %in% rownames(args$x$input$adjaMat2))) {
-          warning("Rownames of layout matrix do not match node names.")
+        if (!is.null(layout[[2]])) {
+          if (!any(rownames(layout[[2]]) %in% rownames(args$x$input$adjaMat2))) {
+            warning("Rownames of layout matrix do not match node names.")
+          }
         }
         
       } else {
@@ -521,8 +523,8 @@
   #-------------------
   # cut
   if (!is.null(args$cut)) {
-    errs <- .checkArg(cond = is.numeric(cut) & 
-                        length(cut) %in% 1:2, 
+    errs <- .checkArg(cond = is.numeric(args$cut) & 
+                        length(args$cut) %in% 1:2, 
                       msg = paste0("\"cut\" must be numeric with one or two ", 
                                    "elements."), 
                       errs = errs)

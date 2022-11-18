@@ -49,6 +49,8 @@
 #'   quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
 #'   or of the empirical distribution of centrality values 
 #'   (\code{lnormFit = FALSE}; default).
+#' @param orbits numeric vector with integers from 0 to 14 defining the graphlet 
+#'   orbits.
 #' @param weightDeg logical. If \code{TRUE}, the weighted degree is used (see
 #'   \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
 #'   Is automatically set to \code{TRUE} for a fully connected (dense) network.
@@ -88,6 +90,7 @@
                        lnormFit,
                        connectivity,
                        graphlet,
+                       orbits,
                        weightDeg,
                        normDeg,
                        normBetw,
@@ -295,11 +298,14 @@
   }
   
   # Whole network
-  sPath <- igraph::distances(dissnet, algorithm = sPathAlgo)
+  sPath <- .suppress_warnings(igraph::distances(dissnet, algorithm = sPathAlgo), 
+                              startsWith, "Unweighted algorithm chosen")
   
   # LCC
-  sPath_lcc <- igraph::distances(dissnet_lcc, algorithm = sPathAlgo)
-  
+  sPath_lcc <- .suppress_warnings(igraph::distances(dissnet_lcc, 
+                                                    algorithm = sPathAlgo), 
+                                  startsWith, "Unweighted algorithm chosen")
+
   if (verbose == 2) {
     message("Done.")
   }
@@ -795,26 +801,33 @@
     message("Done.")
   }
   
-  #== Graphlet Correlation Matrix ==============================================
+  #== Graphlet-based measures ==================================================
   
   if (graphlet) {
     if (verbose == 2) {
       message("Compute GCM ... ", appendLF = FALSE)
     }
     
-    ocount <- .getOrbcounts(adjaMat)
-    ocount_lcc <- .getOrbcounts(adjaMat_lcc)
+    graphlet <- calcGCM(adjaMat, orbits = orbits)
+    gcmtest <- testGCM(graphlet, verbose = FALSE)
+    graphlet$pvals <- gcmtest$pvals1
+    graphlet$pAdjust <- gcmtest$pAdjust1
+    graphlet <- graphlet[c(2, 1, 3, 4)]
+    class(graphlet) <- "GCM"
     
-    gcm <- calcGCM(adjaMat, orbits = 0:14)$gcm
-    gcm_lcc <- calcGCM(adjaMat_lcc, orbits = 0:14)$gcm
+    graphlet_lcc <- calcGCM(adjaMat_lcc, orbits = orbits)
+    gcmtest <- testGCM(graphlet_lcc, verbose = FALSE)
+    graphlet_lcc$pvals <- gcmtest$pvals1
+    graphlet_lcc$pAdjust <- gcmtest$pAdjust1
+    graphlet_lcc <- graphlet_lcc[c(2, 1, 3, 4)]
+    class(graphlet_lcc) <- "GCM"
     
     if (verbose == 2) {
       message("Done.")
     }
     
   } else {
-    ocount <- ocount_lcc <- NA
-    gcm <- gcm_lcc <- NA
+    graphlet <- graphlet_lcc <- NA
   }
   
   #========================================================================
@@ -859,10 +872,8 @@
                 topbetw = topbetw,
                 topclose = topclose,
                 topeigen = topeigen,
-                ocount = ocount,
-                ocount_lcc = ocount_lcc,
-                gcm = gcm,
-                gcm_lcc = gcm_lcc,
+                graphlet = graphlet,
+                graphlet_lcc = graphlet_lcc,
                 adjaMat_lcc = adjaMat_lcc)
   
   return(output)

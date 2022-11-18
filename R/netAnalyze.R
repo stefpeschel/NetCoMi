@@ -111,6 +111,10 @@
 #'   correlations between the network's (non-redundant) node orbits 
 #'   (Yaveroglu et al., 2014).}
 #'   }
+#'   By default, only the 11 non-redundant orbits are used. These are grouped 
+#'   according to their role: orbit 0 represents the degree, orbits {2, 5, 7} 
+#'   represent nodes within a chain, orbits {8, 10, 11} represent nodes in a 
+#'   cycle, and orbits {6, 9, 4, 1} represent a terminal node.
 #'
 #' @param net object of class \code{microNet} (returned by 
 #'   \code{\link{netConstruct}}).
@@ -142,9 +146,10 @@
 #'   to \code{"hierarchical"} for sample similarity networks.
 #' @param clustPar list with parameters passed to the clustering functions.
 #'   If hierarchical clustering is used, the parameters are passed to
-#'   \code{\link[stats]{hclust}} as well as \code{\link[stats]{cutree}}.
-#' @param clustPar2 optional list with clustering parameters for the second
-#'   network. If \code{NULL} and \code{net} contains two networks,
+#'   \code{\link[stats]{hclust}} and \code{\link[stats]{cutree}} (default is 
+#'   \code{list(method = "average", k = 3)}.
+#' @param clustPar2 same as \code{clustPar} but for the second network. 
+#'   If \code{NULL} and \code{net} contains two networks,
 #'   \code{clustPar} is used for the second network as well.
 #' @param weightClustCoef logical indicating whether (global) clustering 
 #'   coefficient should be weighted (\code{TRUE}, default) or unweighted 
@@ -168,8 +173,15 @@
 #' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
 #'   connectivity are calculated. Might be disabled to reduce execution time.
 #' @param graphlet logical. If \code{TRUE} (default), graphlet-based network 
-#'   properties are computed: orbit counts of graphlets with 2-4 nodes 
-#'   (\code{ocount}) and Graphlet Correlation Matrix (\code{gcm}).
+#'   properties are computed: orbit counts as defined by \code{orbits} 
+#'   and the corresponding Graphlet Correlation Matrix (\code{gcm}).
+#' @param orbits numeric vector with integers from 0 to 14 defining the orbits 
+#'   used for calculating the GCM. Minimum length is 2. 
+#'   Defaults to c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11), 
+#'   thus excluding redundant orbits such as the orbit o3.
+#' @param gcmHeatLCC logical or \code{NA}. 
+#'   A heatmap of the GCM(s) is plotted for the LCC if \code{TRUE} and for 
+#'   the whole network if \code{FALSE}. If \code{NA}, no heatmap is plotted.
 #' @param verbose integer indicating the level of verbosity. Possible values:
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages are shown. Can also be logical.
@@ -203,39 +215,60 @@
 #' # Load data sets from American Gut Project (from SpiecEasi package)
 #' data("amgut1.filt")
 #'
-#' # Network construction:
+#' # Network construction
 #' amgut_net1 <- netConstruct(amgut1.filt, measure = "pearson",
 #'                            filtTax = "highestVar",
 #'                            filtTaxPar = list(highestVar = 50),
 #'                            zeroMethod = "pseudoZO", normMethod = "clr",
 #'                            sparsMethod = "threshold", thresh = 0.4)
 #'
-#' ### Network analysis
-#' # Using eigenvector centrality as hub score:
+#' # Network analysis
+#' 
+#' # Using eigenvector centrality as hub score
 #' amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
 #'                            hubPar = "eigenvector")
 #'                            
 #' summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
 #' 
-#' # Using degree, betweenness and closeness centrality as hub scores:
+#' # Using degree, betweenness and closeness centrality as hub scores
 #' amgut_props2 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
 #'                            hubPar = c("degree", "betweenness", "closeness"))
 #'
 #' summary(amgut_props2, showCentr = "all",  numbNodes = 5L, digits = 5L)
 #' 
-#' # Calculate centralities only for the largest connected component:
+#' # Calculate centralities only for the largest connected component
 #' amgut_props3 <- netAnalyze(amgut_net1, centrLCC = TRUE, 
 #'                            clustMethod = "cluster_fast_greedy",
 #'                            hubPar = "eigenvector")
 #'
 #' summary(amgut_props3, showCentr = "none", clusterLCC = TRUE)
 #' 
-#' # Network plot:
+#' # Network plot
 #' plot(amgut_props1)
 #' plot(amgut_props2)
 #' plot(amgut_props3)
-#'
-#' # Dissimilarity-based network (where nodes are subjects):
+#' 
+#' #----------------------------------------------------------------------------
+#' # Plot the GCM heatmap
+#' plotHeat(mat = amgut_props1$graphletLCC$gcm1,
+#'          pmat = amgut_props1$graphletLCC$pAdjust1,
+#'          type = "mixed",
+#'          title = "GCM", 
+#'          colorLim = c(-1, 1),
+#'          mar = c(2, 0, 2, 0))
+
+#' # Add rectangles
+#' graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
+#'                ybottom = c(11.5,  7.5, 4.5,  0.5),
+#'                xright  = c( 1.5,  4.5, 7.5, 11.5),
+#'                ytop    = c(10.5, 10.5, 7.5,  4.5),
+#'                lwd = 2, xpd = NA)
+#' 
+#' text(6, -0.2, xpd = NA, 
+#'      "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05")
+#' 
+#' #----------------------------------------------------------------------------
+#' # Dissimilarity-based network (where nodes are subjects)
 #' amgut_net4 <- netConstruct(amgut1.filt, measure = "aitchison",
 #'                            filtSamp = "highestFreq",
 #'                            filtSampPar = list(highestFreq = 30),
@@ -258,6 +291,7 @@
 #'   
 #' @import igraph
 #' @importFrom MASS fitdistr
+#' @importFrom graphics layout text rect
 #' @export
 
 netAnalyze <- function(net,
@@ -280,6 +314,8 @@ netAnalyze <- function(net,
                        normEigen = TRUE,
                        connectivity = TRUE,
                        graphlet = TRUE,
+                       orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
+                       gcmHeatLCC = TRUE,
                        verbose = 1) {
   
   # Check input arguments
@@ -363,6 +399,7 @@ netAnalyze <- function(net,
                        lnormFit = lnormFit,
                        connectivity = connectivity,
                        graphlet = graphlet,
+                       orbits = orbits,
                        weightDeg = weightDeg,
                        normDeg = normDeg,
                        normBetw = normBetw,
@@ -396,12 +433,75 @@ netAnalyze <- function(net,
                          lnormFit = lnormFit,
                          connectivity = connectivity,
                          graphlet = graphlet,
+                         orbits = orbits,
                          weightDeg = weightDeg,
                          normDeg = normDeg,
                          normBetw = normBetw,
                          normClose = normClose,
                          normEigen = normEigen,
                          verbose = verbose)
+  }
+  
+  #=============================================================================
+  # Plot GCM(s)
+  
+  if (graphlet && !is.na(gcmHeatLCC)) {
+    opar <- par() 
+    
+    if (twoNets) {
+      mat <- matrix(c(1, 2, 3, 3), nrow = 2, ncol = 2, byrow = TRUE)
+
+      graphics::layout(mat = mat)
+      
+      gobj1 <- if (gcmHeatLCC) props1$graphlet_lcc else props1$graphlet
+      gobj2 <- if (gcmHeatLCC) props2$graphlet_lcc else props2$graphlet
+      
+      plotHeat(mat = gobj1$gcm,
+               pmat = gobj1$pAdjust,
+               type = "mixed",
+               title = "GCM1", 
+               colorLim = c(-1, 1),
+               mar = c(0, 0, 2, 0))
+      .addOrbRect()
+      
+      plotHeat(mat = gobj2$gcm,
+               pmat = gobj2$pAdjust,
+               type = "mixed",
+               title = "GCM2", 
+               colorLim = c(-1, 1),
+               mar = c(0, 0, 2, 0))
+      .addOrbRect()
+      
+      gcmtest <- testGCM(gobj1, gobj2, verbose = FALSE)
+      
+      plotHeat(mat = gcmtest$diff, 
+               pmat = gcmtest$pAdjustDiff,
+               type = "mixed", 
+               title = "Differences between GCs (GCM1-GCM2)",
+               mar = c(0, 0, 2, 0))
+      
+      .addOrbRect()
+
+      graphics::text(14, 1, "Significance codes:\n***: 0.001;  **: 0.01;  *: 0.05", 
+           xpd = NA, pos = 4)
+
+      par(mfrow = opar$mfrow)
+      
+    } else {
+      gobj1 <- if (gcmHeatLCC) props1$graphlet_lcc else props1$graphlet
+      
+      plotHeat(mat = gobj1$gcm,
+               pmat = gobj1$pAdjust,
+               type = "mixed",
+               title = "GCM", 
+               colorLim = c(-1, 1),
+               mar = c(2, 0, 2, 0))
+      
+      .addOrbRect()
+      
+      graphics::text(6, -0.2, 
+           "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05", xpd = NA)
+    }
   }
   
   #=============================================================================
@@ -482,15 +582,23 @@ netAnalyze <- function(net,
                                 pep2 = props2$pep_lcc)
   
   if (graphlet) {
-    output$graphlet <- list(ocount1 = props1$ocount,
-                            ocount2 = props2$ocount,
-                            gcm1 = props1$gcm,
-                            gcm2 = props2$gcm)
+    output$graphlet <- list(ocount1 = props1$graphlet$ocount,
+                            ocount2 = props2$graphlet$ocount,
+                            gcm1 = props1$graphlet$gcm,
+                            gcm2 = props2$graphlet$gcm,
+                            pvals1 = props1$graphlet$pvals,
+                            pvals2 = props2$graphlet$pvals,
+                            pAdjust1 = props1$graphlet$pAdjust,
+                            pAdjust2 = props2$graphlet$pAdjust)
     
-    output$graphletLCC <- list(ocount1 = props1$ocount_lcc,
-                               ocount2 = props2$ocount_lcc,
-                               gcm1 = props1$gcm_lcc,
-                               gcm2 = props2$gcm_lcc)
+    output$graphletLCC <- list(ocount1 = props1$graphlet_lcc$ocount,
+                            ocount2 = props2$graphlet_lcc$ocount,
+                            gcm1 = props1$graphlet_lcc$gcm,
+                            gcm2 = props2$graphlet_lcc$gcm,
+                            pvals1 = props1$graphlet_lcc$pvals,
+                            pvals2 = props2$graphlet_lcc$pvals,
+                            pAdjust1 = props1$graphlet_lcc$pAdjust,
+                            pAdjust2 = props2$graphlet_lcc$pAdjust)
   }
   
   output$paramsProperties <- list(centrLCC = centrLCC,
@@ -547,6 +655,5 @@ netAnalyze <- function(net,
   class(output) <- "microNetProps"
   return(output)
 }
-
 
 

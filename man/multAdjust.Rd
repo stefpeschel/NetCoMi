@@ -4,7 +4,13 @@
 \alias{multAdjust}
 \title{Multiple testing adjustment}
 \usage{
-multAdjust(pvals, adjust, trueNullMethod, verbose)
+multAdjust(
+  pvals,
+  adjust = "adaptBH",
+  trueNullMethod = "convest",
+  pTrueNull = NULL,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{pvals}{numeric vector with p-values}
@@ -21,6 +27,10 @@ by \code{adjust = "adaptBH"}). Accepts the provided options of the
 \code{"convest"}(default), \code{"lfdr"}, \code{"mean"}, and \code{"hist"}.
 Can alternatively be \code{"farco"} for
 the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.}
+
+\item{pTrueNull}{proportion of true null hypothesis used for the adaptBH 
+method. If \code{NULL}, the proportion is computed using the method 
+defined via \code{trueNullMethod}.}
 
 \item{verbose}{if \code{TRUE}, progress messages are returned.}
 }

@@ -17,6 +17,7 @@
 #'   getOptBeta sparcc
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
+#' @import mixedCCA
 
 .calcAssociation <- function(countMat, measure, measurePar, verbose) {
   
