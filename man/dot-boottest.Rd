@@ -11,11 +11,11 @@
   nboot = 1000,
   measure,
   measurePar,
-  parallel = FALSE,
   cores = 4,
   logFile = NULL,
   verbose = TRUE,
-  seed = NULL
+  seed = NULL,
+  assoBoot = NULL
 )
 }
 \arguments{
@@ -24,9 +24,9 @@ the correlations are calculated (rows represent samples, columns represent
 taxa)}
 
 \item{assoMat}{matrix containing associations that have been estimated for
-\code{countMat}}
+\code{countMat}.}
 
-\item{nboot}{number of bootstrap samples}
+\item{nboot}{number of bootstrap samples.}
 
 \item{measure}{character specifying the method used for computing the
 associations between taxa.}
@@ -34,19 +34,18 @@ associations between taxa.}
 \item{measurePar}{list with parameters passed to the function for computing
 associations/dissimilarities. See details for the respective functions.}
 
-\item{parallel}{if \code{TRUE}, the bootstrap iterations are executed
-parallel}
-
-\item{cores}{number of CPU cores used for parallelization}
+\item{cores}{number of CPU cores used for parallelization.}
 
 \item{logFile}{character defining a log file, where the number of iteration
 is stored. If NULL, no log file is created. wherein the current iteration
-numbers are stored}
+numbers are stored.}
 
 \item{verbose}{logical; if \code{TRUE}, the iteration numbers are printed to
 the R console}
 
-\item{seed}{an optional seed for reproducibility of the results}
+\item{seed}{an optional seed for reproducibility of the results.}
+
+\item{assoBoot}{list with bootstrap association matrices.}
 }
 \value{
 \tabular{ll}{ \code{pvals}\tab calculated p-values\cr

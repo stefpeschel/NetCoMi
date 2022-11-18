@@ -300,7 +300,6 @@
                 errs = errs)
   }
   
-  
   if (args$sparsMethod == "bootstrap") {
     #-------------------
     # nboot
@@ -312,6 +311,16 @@
     args$nboot <- as.integer(args$nboot)
     
     #-------------------
+    # assoBoot
+    if (!is.null(args$assoBoot)) {
+      errs <- 
+        .checkArg(cond = is.logical(args$assoBoot) | is.list(args$assoBoot), 
+                  msg = paste0("\"assoBoot\" must be either a numeric list or ", 
+                               "logical value."), 
+                  errs = errs)
+    }
+
+    #-------------------
     # cores
     errs <- .checkArg(cond = (is.numeric(args$cores) & args$cores >= 0), 
                       msg = "\"cores\" must be a non-negative integer.", 
@@ -319,14 +328,7 @@
     
     args$cores <- as.integer(args$cores)  
     
-    if (args$cores > 1) {
-      args$parallel <- TRUE
-      if (parallel::detectCores() < args$cores) {
-        args$cores <- parallel::detectCores()
-      } 
-    } else {
-      args$parallel <- FALSE
-    }
+    args$cores <- min(args$cores, parallel::detectCores())
     
     #-------------------
     # logFile

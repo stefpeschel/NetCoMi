@@ -1,26 +1,26 @@
 .sparsify <- function(assoMat,
-                     countMat,
-                     sampleSize,
-                     measure,
-                     measurePar,
-                     assoType,
-                     sparsMethod,
-                     thresh,
-                     alpha,
-                     adjust,
-                     lfdrThresh,
-                     trueNullMethod,
-                     nboot,
-                     softThreshType,
-                     softThreshPower,
-                     softThreshCut,
-                     kNeighbor,
-                     knnMutual,
-                     parallel,
-                     cores,
-                     verbose,
-                     logFile = NULL,
-                     seed = NULL) {
+                      countMat,
+                      sampleSize,
+                      measure,
+                      measurePar,
+                      assoType,
+                      sparsMethod,
+                      thresh,
+                      alpha,
+                      adjust,
+                      lfdrThresh,
+                      trueNullMethod,
+                      nboot,
+                      assoBoot = NULL,
+                      softThreshType,
+                      softThreshPower,
+                      softThreshCut,
+                      kNeighbor,
+                      knnMutual,
+                      cores,
+                      verbose,
+                      logFile = NULL,
+                      seed = NULL) {
   
   if (sparsMethod == "threshold") {
     
@@ -57,13 +57,23 @@
       if (is.null(countMat)) {
         stop("Count matrix needed for sparsification via bootstrapping.")
       }
-      pvalsBoot <- .boottest(countMat = countMat, assoMat = assoMat,
-                            nboot = nboot, measure = measure,
-                            measurePar = measurePar, parallel = parallel,
-                            cores = cores, logFile = logFile, verbose = verbose,
-                            seed = seed)
       
+      bootOut <- .boottest(countMat = countMat,
+                           assoMat = assoMat,
+                           nboot = nboot,
+                           measure = measure,
+                           measurePar = measurePar,
+                           cores = cores,
+                           logFile = logFile,
+                           verbose = verbose,
+                           seed = seed,
+                           assoBoot = assoBoot)
+      
+      pvalsBoot <- bootOut$pvals
+    
       pvals <- pvalsBoot[lower.tri(pvalsBoot)]
+      
+      assoBoot <- bootOut$assoBoot
     }
     
     # adjust for multiple testing and identify links
@@ -178,6 +188,11 @@
     simMat <- NULL
   }
   
-  output <- list(assoNew = assoNew, power = power, simMat = simMat)
+  output <- list(assoNew = assoNew,
+                 power = power,
+                 simMat = simMat,
+                 assoBoot = assoBoot)
+  
+  return(output)
 }
 

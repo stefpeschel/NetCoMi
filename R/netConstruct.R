@@ -307,6 +307,10 @@
 #'   used for both groups.
 #' @param nboot integer indicating the number of bootstrap samples, if
 #'   bootstrapping is used as sparsification method.
+#' @param assoBoot logical or list. Only relevant for bootstrapping. 
+#'   Set to \code{TRUE} if a list (\code{assoBoot}) with bootstrap association 
+#'   matrices should be returned. Can also be a list with bootstrap 
+#'   association matrices, which are used for sparsification. See the example.
 #' @param cores integer indicating the number of CPU cores used for
 #'   bootstrapping. If cores > 1, bootstrapping is performed parallel.
 #'   \code{cores} is limited to the number of available CPU cores determined by
@@ -394,6 +398,9 @@
 #'   association networks)\cr
 #'   \code{dissScale1, dissScale2}\tab Scaled dissimilarities (\code{NULL} for
 #'   association networks)\cr
+#'   \code{assoBoot1, assoBoot2}\tab List with association matrices for the 
+#'   bootstrap samples. Returned if bootstrapping is used for 
+#'   sparsification and \code{assoBoot} is \code{TRUE}.\cr
 #'   \code{countMat1, countMat2}\tab Count matrices after filtering but before
 #'   zero replacement and normalization. Only returned if \code{jointPrepro}
 #'   is \code{FALSE} or for a single network.\cr
@@ -553,7 +560,64 @@
 #' # Network plot (same layout is used in both groups)
 #' plot(props3, sameLayout = TRUE)
 #' 
-#' # NetCoMi's function netCompare() enables the comparison of the two networks.
+#' # The two networks can be compared with NetCoMi's function netCompare().
+#' 
+#' #----------------------------------------------------------------------------
+#' # Example of using the argument "assoBoot"
+#' 
+#' # This functionality is useful for splitting up a large number of bootstrap 
+#' # replicates and run the bootstrapping procedure iteratively.
+#' 
+#' niter <- 5
+#' nboot <- 1000
+#' # Overall number of bootstrap replicates: 5000
+#' 
+#' # Use a different seed for each iteration
+#' seeds <- sample.int(1e8, size = niter)
+#' 
+#' # List where all bootstrap association matrices are stored
+#' assoList <- list()
+#' 
+#' for (i in 1:niter) {
+#'   # assoBoot is set to TRUE to return the bootstrap association matrices
+#'   net <- netConstruct(amgut1.filt,
+#'                       filtTax = "highestFreq",
+#'                       filtTaxPar = list(highestFreq = 50),
+#'                       filtSamp = "totalReads",
+#'                       filtSampPar = list(totalReads = 0),
+#'                       measure = "pearson",
+#'                       normMethod = "clr",    
+#'                       zeroMethod = "pseudoZO",
+#'                       sparsMethod = "bootstrap",
+#'                       cores = 1,
+#'                       nboot = nboot,
+#'                       assoBoot = TRUE,
+#'                       verbose = 3,
+#'                       seed = seeds[i])
+#'   
+#'   assoList[(1:nboot) + (i - 1) * nboot] <- net$assoBoot1
+#' }
+#' 
+#' # Construct the actual network with all 5000 bootstrap association matrices
+#' net_final <- netConstruct(amgut1.filt,
+#'                           filtTax = "highestFreq",
+#'                           filtTaxPar = list(highestFreq = 50),
+#'                           filtSamp = "totalReads",
+#'                           filtSampPar = list(totalReads = 0),
+#'                           measure = "pearson",
+#'                           normMethod = "clr",    
+#'                           zeroMethod = "pseudoZO",
+#'                           sparsMethod = "bootstrap",
+#'                           cores = 1,
+#'                           nboot = nboot * niter,
+#'                           assoBoot = assoList,
+#'                           verbose = 3)
+#' 
+#' # Network analysis
+#' props <- netAnalyze(net_final, clustMethod = "cluster_fast_greedy")
+#' 
+#' # Network plot
+#' plot(props)
 #'
 #' @seealso \code{\link{netAnalyze}} for analyzing the constructed
 #'   network(s), \code{\link{netCompare}} for network comparison,
@@ -599,6 +663,7 @@ netConstruct <- function(data,
                          trueNullMethod = "convest",
                          lfdrThresh = 0.2,
                          nboot = 1000L,
+                         assoBoot = NULL,
                          cores = 1L,
                          logFile = "log.txt",
                          softThreshType = "signed",
@@ -620,7 +685,7 @@ netConstruct <- function(data,
   argsIn <- as.list(environment())
   
   # Initialize variables (to pass devtools check)
-  assoType <- distNet <- needfrac <- needint <- parallel <- NULL
+  assoType <- distNet <- needfrac <- needint <- NULL
   
   if (verbose %in% 2:3) {
     message("Checking input arguments ... ", 
@@ -1507,28 +1572,28 @@ netConstruct <- function(data,
     }
     
     sparsReslt <- .sparsify(assoMat = assoMat1,
-                           countMat = counts1,
-                           sampleSize = sampleSize[1],
-                           measure = measure,
-                           measurePar = measurePar,
-                           assoType = assoType,
-                           sparsMethod = sparsMethod,
-                           thresh = thresh[1],
-                           alpha = alpha[1],
-                           adjust = adjust,
-                           lfdrThresh = lfdrThresh[1],
-                           trueNullMethod = trueNullMethod,
-                           nboot = nboot,
-                           softThreshType = softThreshType,
-                           softThreshPower = softThreshPower[1],
-                           softThreshCut = softThreshCut[1],
-                           parallel = parallel,
-                           cores = cores,
-                           logFile = logFile,
-                           kNeighbor = kNeighbor,
-                           knnMutual = knnMutual,
-                           verbose = verbose,
-                           seed = seed)
+                            countMat = counts1,
+                            sampleSize = sampleSize[1],
+                            measure = measure,
+                            measurePar = measurePar,
+                            assoType = assoType,
+                            sparsMethod = sparsMethod,
+                            thresh = thresh[1],
+                            alpha = alpha[1],
+                            adjust = adjust,
+                            lfdrThresh = lfdrThresh[1],
+                            trueNullMethod = trueNullMethod,
+                            nboot = nboot,
+                            assoBoot = assoBoot,
+                            softThreshType = softThreshType,
+                            softThreshPower = softThreshPower[1],
+                            softThreshCut = softThreshCut[1],
+                            cores = cores,
+                            logFile = logFile,
+                            kNeighbor = kNeighbor,
+                            knnMutual = knnMutual,
+                            verbose = verbose,
+                            seed = seed)
     
     if (verbose %in% 2:3 & sparsMethod != "none") message("Done.")
     
@@ -1568,28 +1633,28 @@ netConstruct <- function(data,
       }
       
       sparsReslt <- .sparsify(assoMat = assoMat2,
-                             countMat = counts2,
-                             sampleSize = sampleSize[2],
-                             measure = measure,
-                             measurePar = measurePar,
-                             assoType = assoType,
-                             sparsMethod = sparsMethod,
-                             thresh = thresh[2],
-                             alpha = alpha[2],
-                             adjust = adjust,
-                             lfdrThresh = lfdrThresh[2],
-                             trueNullMethod = trueNullMethod,
-                             nboot = nboot,
-                             softThreshType = softThreshType,
-                             softThreshPower = softThreshPower[2],
-                             softThreshCut = softThreshCut[2],
-                             parallel = parallel,
-                             cores = cores,
-                             logFile = logFile,
-                             kNeighbor = kNeighbor,
-                             knnMutual = knnMutual,
-                             verbose = verbose,
-                             seed = seed)
+                              countMat = counts2,
+                              sampleSize = sampleSize[2],
+                              measure = measure,
+                              measurePar = measurePar,
+                              assoType = assoType,
+                              sparsMethod = sparsMethod,
+                              thresh = thresh[2],
+                              alpha = alpha[2],
+                              adjust = adjust,
+                              lfdrThresh = lfdrThresh[2],
+                              trueNullMethod = trueNullMethod,
+                              nboot = nboot,
+                              assoBoot = assoBoot,
+                              softThreshType = softThreshType,
+                              softThreshPower = softThreshPower[2],
+                              softThreshCut = softThreshCut[2],
+                              cores = cores,
+                              logFile = logFile,
+                              kNeighbor = kNeighbor,
+                              knnMutual = knnMutual,
+                              verbose = verbose,
+                              seed = seed)
       
       if (verbose %in% 2:3 & sparsMethod != "none") message("Done.")
       
@@ -1606,6 +1671,7 @@ netConstruct <- function(data,
         power2 <- simMat2 <- adjaMat2 <- NULL
     }
     
+    assoBoot1 <- assoBoot2 <- NULL
     
   } else { # association network
     if (verbose %in% 2:3) {
@@ -1616,28 +1682,28 @@ netConstruct <- function(data,
     }
     
     sparsReslt <- .sparsify(assoMat = assoMat1,
-                           countMat = counts1,
-                           sampleSize = sampleSize[1],
-                           measure = measure,
-                           measurePar = measurePar,
-                           assoType = assoType,
-                           sparsMethod = sparsMethod,
-                           thresh = thresh[1],
-                           alpha = alpha[1],
-                           adjust = adjust,
-                           lfdrThresh = lfdrThresh[1],
-                           trueNullMethod = trueNullMethod,
-                           nboot = nboot,
-                           softThreshType = softThreshType,
-                           softThreshPower = softThreshPower[1],
-                           softThreshCut = softThreshCut[1],
-                           parallel = parallel,
-                           cores = cores,
-                           logFile = logFile,
-                           kNeighbor = kNeighbor,
-                           knnMutual = knnMutual,
-                           verbose = verbose,
-                           seed = seed)
+                            countMat = counts1,
+                            sampleSize = sampleSize[1],
+                            measure = measure,
+                            measurePar = measurePar,
+                            assoType = assoType,
+                            sparsMethod = sparsMethod,
+                            thresh = thresh[1],
+                            alpha = alpha[1],
+                            adjust = adjust,
+                            lfdrThresh = lfdrThresh[1],
+                            trueNullMethod = trueNullMethod,
+                            nboot = nboot,
+                            assoBoot = assoBoot,
+                            softThreshType = softThreshType,
+                            softThreshPower = softThreshPower[1],
+                            softThreshCut = softThreshCut[1],
+                            cores = cores,
+                            logFile = logFile,
+                            kNeighbor = kNeighbor,
+                            knnMutual = knnMutual,
+                            verbose = verbose,
+                            seed = seed)
     
     if (verbose %in% 2:3 & sparsMethod != "none") message("Done.")
     assoEst1 <- assoMat1
@@ -1651,11 +1717,20 @@ netConstruct <- function(data,
     if (sparsMethod == "softThreshold") {
       simMat1 <- sparsReslt$simMat
       adjaMat1 <- assoMat1
+      assoBoot1 <- NULL
+      
     } else {
       simMat1 <- .transToSim(x = dissMat1, simFunc = simFunc,
                               simFuncPar = simFuncPar)
       
       adjaMat1 <- .transToAdja(x = simMat1, weighted = weighted)
+      
+      if (sparsMethod == "bootstrap" && !is.null(assoBoot) && 
+          !is.list(assoBoot) && assoBoot == TRUE) {
+        assoBoot1 <- sparsReslt$assoBoot
+      } else {
+        assoBoot1 <- NULL
+      }
     }
     
     if (twoNets) {
@@ -1667,28 +1742,28 @@ netConstruct <- function(data,
       }
       
       sparsReslt <- .sparsify(assoMat = assoMat2,
-                             countMat = counts2,
-                             sampleSize = sampleSize[2],
-                             measure = measure,
-                             measurePar = measurePar,
-                             assoType = assoType,
-                             sparsMethod = sparsMethod,
-                             thresh = thresh[2],
-                             alpha = alpha[2],
-                             adjust = adjust,
-                             lfdrThresh = lfdrThresh[2],
-                             trueNullMethod = trueNullMethod,
-                             nboot = nboot,
-                             softThreshType = softThreshType,
-                             softThreshPower = softThreshPower[2],
-                             softThreshCut = softThreshCut[2],
-                             parallel = parallel,
-                             cores = cores,
-                             logFile = logFile,
-                             kNeighbor = kNeighbor,
-                             knnMutual = knnMutual,
-                             verbose = verbose,
-                             seed = seed)
+                              countMat = counts2,
+                              sampleSize = sampleSize[2],
+                              measure = measure,
+                              measurePar = measurePar,
+                              assoType = assoType,
+                              sparsMethod = sparsMethod,
+                              thresh = thresh[2],
+                              alpha = alpha[2],
+                              adjust = adjust,
+                              lfdrThresh = lfdrThresh[2],
+                              trueNullMethod = trueNullMethod,
+                              nboot = nboot,
+                              assoBoot = assoBoot,
+                              softThreshType = softThreshType,
+                              softThreshPower = softThreshPower[2],
+                              softThreshCut = softThreshCut[2],
+                              cores = cores,
+                              logFile = logFile,
+                              kNeighbor = kNeighbor,
+                              knnMutual = knnMutual,
+                              verbose = verbose,
+                              seed = seed)
       
       if (verbose %in% 2:3 & sparsMethod != "none") message("Done.")
       assoEst2 <- assoMat2
@@ -1702,16 +1777,25 @@ netConstruct <- function(data,
       if (sparsMethod == "softThreshold") {
         simMat2 <- sparsReslt$simMat
         adjaMat2 <- assoMat2
+        assoBoot2 <- NULL
+        
       } else {
         simMat2 <- .transToSim(x = dissMat2, simFunc = simFunc,
                                 simFuncPar = simFuncPar)
         
         adjaMat2 <- .transToAdja(x = simMat2, weighted = weighted)
+        
+        if (sparsMethod == "bootstrap" && !is.null(assoBoot) && 
+            !is.list(assoBoot) && assoBoot == TRUE) {
+          assoBoot2 <- sparsReslt$assoBoot
+        } else {
+          assoBoot2 <- NULL
+        }
       }
       
     } else {
       dissEst2 <- dissScale2 <- assoMat2 <- assoEst2 <- dissMat2 <-
-        power2 <- simMat2 <- adjaMat2 <- NULL
+        power2 <- simMat2 <- adjaMat2 <- assoBoot2 <- NULL
     }
     
   }
@@ -1821,6 +1905,9 @@ netConstruct <- function(data,
   output$dissEst2 <- dissEst2
   output$dissScale1 <- dissScale1
   output$dissScale2 <- dissScale2
+  
+  output$assoBoot1 <- assoBoot1
+  output$assoBoot2 <- assoBoot2
   
   output$countMat1 <- countsOrig1
   output$countMat2 <- countsOrig2

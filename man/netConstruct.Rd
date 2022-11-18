@@ -29,6 +29,7 @@ netConstruct(
   trueNullMethod = "convest",
   lfdrThresh = 0.2,
   nboot = 1000L,
+  assoBoot = NULL,
   cores = 1L,
   logFile = "log.txt",
   softThreshType = "signed",
@@ -235,6 +236,11 @@ used for both groups.}
 \item{nboot}{integer indicating the number of bootstrap samples, if
 bootstrapping is used as sparsification method.}
 
+\item{assoBoot}{logical or list. Only relevant for bootstrapping. 
+Set to \code{TRUE} if a list (\code{assoBoot}) with bootstrap association 
+matrices should be returned. Can also be a list with bootstrap 
+association matrices, which are used for sparsification. See the example.}
+
 \item{cores}{integer indicating the number of CPU cores used for
 bootstrapping. If cores > 1, bootstrapping is performed parallel.
 \code{cores} is limited to the number of available CPU cores determined by
@@ -339,6 +345,9 @@ An object of class \code{microNet} containing the following elements:
   association networks)\cr
   \code{dissScale1, dissScale2}\tab Scaled dissimilarities (\code{NULL} for
   association networks)\cr
+  \code{assoBoot1, assoBoot2}\tab List with association matrices for the 
+  bootstrap samples. Returned if bootstrapping is used for 
+  sparsification and \code{assoBoot} is \code{TRUE}.\cr
   \code{countMat1, countMat2}\tab Count matrices after filtering but before
   zero replacement and normalization. Only returned if \code{jointPrepro}
   is \code{FALSE} or for a single network.\cr
@@ -645,7 +654,64 @@ props3 <- netAnalyze(net3, clustMethod = "cluster_fast_greedy")
 # Network plot (same layout is used in both groups)
 plot(props3, sameLayout = TRUE)
 
-# NetCoMi's function netCompare() enables the comparison of the two networks.
+# The two networks can be compared with NetCoMi's function netCompare().
+
+#----------------------------------------------------------------------------
+# Example of using the argument "assoBoot"
+
+# This functionality is useful for splitting up a large number of bootstrap 
+# replicates and run the bootstrapping procedure iteratively.
+
+niter <- 5
+nboot <- 1000
+# Overall number of bootstrap replicates: 5000
+
+# Use a different seed for each iteration
+seeds <- sample.int(1e8, size = niter)
+
+# List where all bootstrap association matrices are stored
+assoList <- list()
+
+for (i in 1:niter) {
+  # assoBoot is set to TRUE to return the bootstrap association matrices
+  net <- netConstruct(amgut1.filt,
+                      filtTax = "highestFreq",
+                      filtTaxPar = list(highestFreq = 50),
+                      filtSamp = "totalReads",
+                      filtSampPar = list(totalReads = 0),
+                      measure = "pearson",
+                      normMethod = "clr",    
+                      zeroMethod = "pseudoZO",
+                      sparsMethod = "bootstrap",
+                      cores = 1,
+                      nboot = nboot,
+                      assoBoot = TRUE,
+                      verbose = 3,
+                      seed = seeds[i])
+  
+  assoList[(1:nboot) + (i - 1) * nboot] <- net$assoBoot1
+}
+
+# Construct the actual network with all 5000 bootstrap association matrices
+net_final <- netConstruct(amgut1.filt,
+                          filtTax = "highestFreq",
+                          filtTaxPar = list(highestFreq = 50),
+                          filtSamp = "totalReads",
+                          filtSampPar = list(totalReads = 0),
+                          measure = "pearson",
+                          normMethod = "clr",    
+                          zeroMethod = "pseudoZO",
+                          sparsMethod = "bootstrap",
+                          cores = 1,
+                          nboot = nboot * niter,
+                          assoBoot = assoList,
+                          verbose = 3)
+
+# Network analysis
+props <- netAnalyze(net_final, clustMethod = "cluster_fast_greedy")
+
+# Network plot
+plot(props)
 
 }
 \references{
