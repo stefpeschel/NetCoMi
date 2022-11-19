@@ -4,31 +4,36 @@
 \alias{netAnalyze}
 \title{Microbiome Network Analysis}
 \usage{
-netAnalyze(
-  net,
-  centrLCC = TRUE,
-  avDissIgnoreInf = FALSE,
-  sPathAlgo = "dijkstra",
-  sPathNorm = TRUE,
-  normNatConnect = TRUE,
-  clustMethod = NULL,
-  clustPar = NULL,
-  clustPar2 = NULL,
-  weightClustCoef = TRUE,
-  hubPar = "eigenvector",
-  hubQuant = 0.95,
-  lnormFit = FALSE,
-  weightDeg = FALSE,
-  normDeg = TRUE,
-  normBetw = TRUE,
-  normClose = TRUE,
-  normEigen = TRUE,
-  connectivity = TRUE,
-  graphlet = TRUE,
-  orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
-  gcmHeatLCC = TRUE,
-  verbose = 1
-)
+netAnalyze(net,
+           # Centrality related:
+           centrLCC = TRUE,
+           weightDeg = FALSE,
+           normDeg = TRUE,
+           normBetw = TRUE,
+           normClose = TRUE,
+           normEigen = TRUE,
+           # Cluster related:
+           clustMethod = NULL,
+           clustPar = NULL,
+           clustPar2 = NULL,
+           weightClustCoef = TRUE,
+           # Hub related:
+           hubPar = "eigenvector",
+           hubQuant = 0.95,
+           lnormFit = FALSE,
+           # Graphlet related:
+           graphlet = TRUE,
+           orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
+           gcmHeat = TRUE,
+           gcmHeatLCC = TRUE,
+           # Further arguments:
+           avDissIgnoreInf = FALSE,
+           sPathAlgo = "dijkstra",
+           sPathNorm = TRUE,
+           normNatConnect = TRUE,
+           connectivity = TRUE,
+           verbose = 1
+           )
 }
 \arguments{
 \item{net}{object of class \code{microNet} (returned by 
@@ -38,26 +43,13 @@ netAnalyze(
 for the largest connected component (LCC). If \code{TRUE} 
 (default), centrality values of disconnected components are zero.}
 
-\item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
-calculating the average dissimilarity. If \code{FALSE} (default), infinity 
-values are set to 1.}
+\item{weightDeg}{logical. If \code{TRUE}, the weighted degree is used (see
+\code{\link[igraph]{strength}}). Default is \code{FALSE}. 
+Is automatically set to \code{TRUE} for a fully connected (dense) network.}
 
-\item{sPathAlgo}{character indicating the algorithm used for computing
-the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
-(igraph) is used for shortest path calculation. 
-Possible values are: "unweighted", "dijkstra" (default), "bellman-ford", 
-"johnson", or "automatic" (the fastest suitable algorithm is used). The 
-shortest paths are needed for the average (shortest) path length and 
-closeness centrality.}
-
-\item{sPathNorm}{logical. If \code{TRUE} (default), shortest paths are 
-normalized by average dissimilarity (only connected nodes are considered),  
-i.e., a path is interpreted as steps with average dissimilarity. 
-If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
-between two nodes.}
-
-\item{normNatConnect}{logical. If \code{TRUE} (default), the normalized 
-natural connectivity is returned.}
+\item{normDeg, normBetw, normClose, normEigen}{logical. If \code{TRUE} 
+(default for all measures), a normalized version of the respective 
+centrality values is returned.}
 
 \item{clustMethod}{character indicating the clustering algorithm. Possible
 values are \code{"hierarchical"} for a hierarchical algorithm based on
@@ -92,17 +84,6 @@ quantile of the fitted log-normal distribution (if \code{lnormFit = TRUE})
 or of the empirical distribution of centrality values 
 (\code{lnormFit = FALSE}; default).}
 
-\item{weightDeg}{logical. If \code{TRUE}, the weighted degree is used (see
-\code{\link[igraph]{strength}}). Default is \code{FALSE}. 
-Is automatically set to \code{TRUE} for a fully connected (dense) network.}
-
-\item{normDeg, normBetw, normClose, normEigen}{logical. If \code{TRUE} 
-(default for all measures), a normalized version of the respective 
-centrality values is returned.}
-
-\item{connectivity}{logical. If \code{TRUE} (default), edge and vertex 
-connectivity are calculated. Might be disabled to reduce execution time.}
-
 \item{graphlet}{logical. If \code{TRUE} (default), graphlet-based network 
 properties are computed: orbit counts as defined by \code{orbits} 
 and the corresponding Graphlet Correlation Matrix (\code{gcm}).}
@@ -112,9 +93,35 @@ used for calculating the GCM. Minimum length is 2.
 Defaults to c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11), 
 thus excluding redundant orbits such as the orbit o3.}
 
-\item{gcmHeatLCC}{logical or \code{NA}. 
-A heatmap of the GCM(s) is plotted for the LCC if \code{TRUE} and for 
-the whole network if \code{FALSE}. If \code{NA}, no heatmap is plotted.}
+\item{gcmHeat}{logical indicating if a heatmap of the GCM(s) should be 
+plotted. Default is \code{TRUE}.}
+
+\item{gcmHeatLCC}{logical. The GCM heatmap is plotted for the LCC if 
+\code{TRUE} (default) and for the whole network if \code{FALSE}.}
+
+\item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
+calculating the average dissimilarity. If \code{FALSE} (default), infinity 
+values are set to 1.}
+
+\item{sPathAlgo}{character indicating the algorithm used for computing
+the shortest paths between all node pairs. \code{\link[igraph]{distances}} 
+(igraph) is used for shortest path calculation. 
+Possible values are: "unweighted", "dijkstra" (default), "bellman-ford", 
+"johnson", or "automatic" (the fastest suitable algorithm is used). The 
+shortest paths are needed for the average (shortest) path length and 
+closeness centrality.}
+
+\item{sPathNorm}{logical. If \code{TRUE} (default), shortest paths are 
+normalized by average dissimilarity (only connected nodes are considered),  
+i.e., a path is interpreted as steps with average dissimilarity. 
+If \code{FALSE}, the shortest path is the minimum sum of dissimilarities 
+between two nodes.}
+
+\item{normNatConnect}{logical. If \code{TRUE} (default), the normalized 
+natural connectivity is returned.}
+
+\item{connectivity}{logical. If \code{TRUE} (default), edge and vertex 
+connectivity are calculated. Might be disabled to reduce execution time.}
 
 \item{verbose}{integer indicating the level of verbosity. Possible values:
 \code{"0"}: no messages, \code{"1"}: only important messages,

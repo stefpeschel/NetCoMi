@@ -212,10 +212,17 @@
                 errs = errs)
     
     #-------------------
+    # gcmHeat
+    errs <- 
+      .checkArg(cond = is.logical(args$gcmHeat), 
+                msg = "\"gcmHeat\" must be logical.", 
+                errs = errs)
+    
+    #-------------------
     # gcmHeatLCC
     errs <- 
-      .checkArg(cond = is.logical(args$gcmHeatLCC) | is.na(args$gcmHeatLCC), 
-                msg = "\"gcmHeatLCC\" must be logical or NA.", 
+      .checkArg(cond = is.logical(args$gcmHeatLCC), 
+                msg = "\"gcmHeatLCC\" must be logical.", 
                 errs = errs)
   }
 

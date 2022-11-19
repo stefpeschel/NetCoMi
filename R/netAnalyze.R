@@ -3,6 +3,37 @@
 #' @description Determine network properties for objects of class
 #'   \code{microNet}.
 #'   
+#' @usage netAnalyze(net,
+#'            # Centrality related:
+#'            centrLCC = TRUE,
+#'            weightDeg = FALSE,
+#'            normDeg = TRUE,
+#'            normBetw = TRUE,
+#'            normClose = TRUE,
+#'            normEigen = TRUE,
+#'            # Cluster related:
+#'            clustMethod = NULL,
+#'            clustPar = NULL,
+#'            clustPar2 = NULL,
+#'            weightClustCoef = TRUE,
+#'            # Hub related:
+#'            hubPar = "eigenvector",
+#'            hubQuant = 0.95,
+#'            lnormFit = FALSE,
+#'            # Graphlet related:
+#'            graphlet = TRUE,
+#'            orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
+#'            gcmHeat = TRUE,
+#'            gcmHeatLCC = TRUE,
+#'            # Further arguments:
+#'            avDissIgnoreInf = FALSE,
+#'            sPathAlgo = "dijkstra",
+#'            sPathNorm = TRUE,
+#'            normNatConnect = TRUE,
+#'            connectivity = TRUE,
+#'            verbose = 1
+#'            )
+#'   
 #' @details 
 #' \strong{Definitions:}\cr
 #'   \describe{
@@ -179,9 +210,10 @@
 #'   used for calculating the GCM. Minimum length is 2. 
 #'   Defaults to c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11), 
 #'   thus excluding redundant orbits such as the orbit o3.
-#' @param gcmHeatLCC logical or \code{NA}. 
-#'   A heatmap of the GCM(s) is plotted for the LCC if \code{TRUE} and for 
-#'   the whole network if \code{FALSE}. If \code{NA}, no heatmap is plotted.
+#' @param gcmHeat logical indicating if a heatmap of the GCM(s) should be 
+#'   plotted. Default is \code{TRUE}.
+#' @param gcmHeatLCC logical. The GCM heatmap is plotted for the LCC if 
+#'   \code{TRUE} (default) and for the whole network if \code{FALSE}. 
 #' @param verbose integer indicating the level of verbosity. Possible values:
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages are shown. Can also be logical.
@@ -296,10 +328,11 @@
 
 netAnalyze <- function(net,
                        centrLCC = TRUE,
-                       avDissIgnoreInf = FALSE,
-                       sPathAlgo = "dijkstra",
-                       sPathNorm = TRUE,
-                       normNatConnect = TRUE,
+                       weightDeg = FALSE,
+                       normDeg = TRUE,
+                       normBetw = TRUE,
+                       normClose = TRUE,
+                       normEigen = TRUE,
                        clustMethod = NULL,
                        clustPar = NULL,
                        clustPar2 = NULL,
@@ -307,15 +340,15 @@ netAnalyze <- function(net,
                        hubPar = "eigenvector",
                        hubQuant = 0.95,
                        lnormFit = FALSE,
-                       weightDeg = FALSE,
-                       normDeg = TRUE,
-                       normBetw = TRUE,
-                       normClose = TRUE,
-                       normEigen = TRUE,
-                       connectivity = TRUE,
                        graphlet = TRUE,
                        orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
+                       gcmHeat = TRUE,
                        gcmHeatLCC = TRUE,
+                       avDissIgnoreInf = FALSE,
+                       sPathAlgo = "dijkstra",
+                       sPathNorm = TRUE,
+                       normNatConnect = TRUE,
+                       connectivity = TRUE,
                        verbose = 1) {
   
   # Check input arguments
@@ -445,7 +478,7 @@ netAnalyze <- function(net,
   #=============================================================================
   # Plot GCM(s)
   
-  if (graphlet && !is.na(gcmHeatLCC)) {
+  if (graphlet && gcmHeat) {
     opar <- par() 
     
     if (twoNets) {
