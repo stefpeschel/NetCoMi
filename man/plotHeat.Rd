@@ -178,26 +178,25 @@ A function to draw heatmaps with the option to use p-values
 data("amgut2.filt.phy")
 
 # Split data into two groups: with and without seasonal allergies
-amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy, 
-                                                "SEASONAL_ALLERGIES")
-
-amgut_yes <- amgut_split$yes
-amgut_no <- amgut_split$no
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                      SEASONAL_ALLERGIES == "yes")
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                     SEASONAL_ALLERGIES == "no")
 
 # Sample sizes
-phyloseq::nsamples(amgut_yes)
-phyloseq::nsamples(amgut_no)
+phyloseq::nsamples(amgut_season_yes)
+phyloseq::nsamples(amgut_season_no)
 
 # Make sample sizes equal to ensure comparability
-n_yes <- phyloseq::nsamples(amgut_yes)
+n_yes <- phyloseq::nsamples(amgut_season_yes)
 
-amgut_no <- phyloseq::subset_samples(amgut_no, X.SampleID \%in\% 
-                                     get_variable(amgut_no, 
+amgut_season_no <- phyloseq::subset_samples(amgut_season_no, X.SampleID \%in\% 
+                                     get_variable(amgut_season_no, 
                                      "X.SampleID")[1:n_yes])
 
 # Network construction
-amgut_net <- netConstruct(data = amgut_yes,
-                          data2 = amgut_no,
+amgut_net <- netConstruct(data = amgut_season_yes,
+                          data2 = amgut_season_no,
                           measure = "pearson",
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 50),

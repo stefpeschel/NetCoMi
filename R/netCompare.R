@@ -195,27 +195,24 @@
 #' data("amgut2.filt.phy")
 #'
 #' # Split data into two groups: with and without seasonal allergies
-#' amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy,
-#'                                                 "SEASONAL_ALLERGIES")
+#' amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+#'                                       SEASONAL_ALLERGIES == "yes")
+#' amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+#'                                      SEASONAL_ALLERGIES == "no")
 #'
-#' amgut_yes <- amgut_split$yes
-#' amgut_no <- amgut_split$no
-#'
-#' # Sample sizes
-#' phyloseq::nsamples(amgut_yes)
-#' phyloseq::nsamples(amgut_no)
-#'
-#' # Make sample sizes equal to ensure comparability
-#' n_yes <- phyloseq::nsamples(amgut_yes)
-#'
-#' amgut_no <- 
-#'   phyloseq::subset_samples(amgut_no, X.SampleID %in%
-#'                              get_variable(amgut_no, "X.SampleID")[1:n_yes])
+#' amgut_season_yes
+#' amgut_season_no
+#' 
+#' # Filter the 121 samples (sample size of the smaller group) with highest 
+#' # frequency to make the sample sizes equal and thus ensure comparability.
+#' n_yes <- phyloseq::nsamples(amgut_season_yes)
 #'
 #' # Network construction
-#' amgut_net <- netConstruct(data = amgut_yes,
-#'                           data2 = amgut_no,
+#' amgut_net <- netConstruct(data = amgut_season_yes,
+#'                           data2 = amgut_season_no,
 #'                           measure = "pearson",
+#'                           filtSamp = "highestFreq",
+#'                           filtSampPar = list(highestFreq = n_yes),
 #'                           filtTax = "highestVar",
 #'                           filtTaxPar = list(highestVar = 30),
 #'                           zeroMethod = "pseudoZO", normMethod = "clr")

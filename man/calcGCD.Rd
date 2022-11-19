@@ -58,21 +58,20 @@ library(phyloseq)
 data("amgut2.filt.phy")
 
 # Split data into two groups: with and without seasonal allergies
-amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy, 
-                                                "SEASONAL_ALLERGIES")
-
-amgut_yes <- amgut_split$yes
-amgut_no <- amgut_split$no
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                      SEASONAL_ALLERGIES == "yes")
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                     SEASONAL_ALLERGIES == "no")
 
 # Make sample sizes equal to ensure comparability
-n_yes <- phyloseq::nsamples(amgut_yes)
-ids_yes <- phyloseq::get_variable(amgut_no, "X.SampleID")[1:n_yes]
+n_yes <- phyloseq::nsamples(amgut_season_yes)
+ids_yes <- phyloseq::get_variable(amgut_season_no, "X.SampleID")[1:n_yes]
 
-amgut_no <- phyloseq::subset_samples(amgut_no, X.SampleID \%in\% ids_yes)
+amgut_season_no <- phyloseq::subset_samples(amgut_season_no, X.SampleID \%in\% ids_yes)
 
 # Network construction
-net <- netConstruct(amgut_yes,
-                    amgut_no, 
+net <- netConstruct(amgut_season_yes,
+                    amgut_season_no, 
                     filtTax = "highestFreq",
                     filtTaxPar = list(highestFreq = 50),
                     measure = "pearson",
