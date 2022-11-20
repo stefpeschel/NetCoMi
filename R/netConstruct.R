@@ -2,6 +2,59 @@
 #'
 #' @description Constructing microbial association networks and dissimilarity
 #'   based networks (where nodes are subjects) from compositional count data.
+#'   
+#' @usage netConstruct(data,
+#'              data2 = NULL,
+#'              dataType = "counts",
+#'              group = NULL,
+#'              matchDesign = NULL,
+#'              taxRank = NULL,
+#'              
+#'              # Association/dissimilarity measure:
+#'              measure = "spieceasi",
+#'              measurePar = NULL,
+#'              
+#'              # Preprocessing:
+#'              jointPrepro = NULL,
+#'              filtTax = "none",
+#'              filtTaxPar = NULL,
+#'              filtSamp = "none",
+#'              filtSampPar = NULL,
+#'              zeroMethod = "none",
+#'              zeroPar = NULL,
+#'              normMethod = "none",
+#'              normPar = NULL,
+#'              
+#'              # Sparsification:
+#'              sparsMethod = "t-test",
+#'              thresh = 0.3,
+#'              alpha = 0.05,
+#'              adjust = "adaptBH",
+#'              trueNullMethod = "convest",
+#'              lfdrThresh = 0.2,
+#'              nboot = 1000L,
+#'              assoBoot = NULL,
+#'              cores = 1L,
+#'              logFile = "log.txt",
+#'              softThreshType = "signed",
+#'              softThreshPower = NULL,
+#'              softThreshCut = 0.8,
+#'              kNeighbor = 3L,
+#'              knnMutual = FALSE,
+#'              
+#'              # Transformation:
+#'              dissFunc = "signed",
+#'              dissFuncPar = NULL,
+#'              simFunc = NULL,
+#'              simFuncPar = NULL,
+#'              scaleDiss = TRUE,
+#'              weighted = TRUE,
+#'              
+#'              # Further arguments:
+#'              sampleSize = NULL,
+#'              verbose = 2,
+#'              seed = NULL
+#'              )
 #'
 #' @details The object returned by \code{netConstruct} can either be passed to
 #'   \code{\link{netAnalyze}} for network analysis, or to
@@ -644,6 +697,7 @@ netConstruct <- function(data,
                          dataType = "counts",
                          group = NULL,
                          matchDesign = NULL,
+                         taxRank = NULL,
                          measure = "spieceasi",
                          measurePar = NULL,
                          jointPrepro = NULL,
@@ -651,7 +705,6 @@ netConstruct <- function(data,
                          filtTaxPar = NULL,
                          filtSamp = "none",
                          filtSampPar = NULL,
-                         taxRank = NULL,
                          zeroMethod = "none",
                          zeroPar = NULL,
                          normMethod = "none",

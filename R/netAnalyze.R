@@ -11,20 +11,24 @@
 #'            normBetw = TRUE,
 #'            normClose = TRUE,
 #'            normEigen = TRUE,
+#'            
 #'            # Cluster related:
 #'            clustMethod = NULL,
 #'            clustPar = NULL,
 #'            clustPar2 = NULL,
 #'            weightClustCoef = TRUE,
+#'            
 #'            # Hub related:
 #'            hubPar = "eigenvector",
 #'            hubQuant = 0.95,
 #'            lnormFit = FALSE,
+#'            
 #'            # Graphlet related:
 #'            graphlet = TRUE,
 #'            orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
 #'            gcmHeat = TRUE,
 #'            gcmHeatLCC = TRUE,
+#'            
 #'            # Further arguments:
 #'            avDissIgnoreInf = FALSE,
 #'            sPathAlgo = "dijkstra",

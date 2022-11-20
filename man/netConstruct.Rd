@@ -4,49 +4,58 @@
 \alias{netConstruct}
 \title{Constructing Networks for Microbiome Data}
 \usage{
-netConstruct(
-  data,
-  data2 = NULL,
-  dataType = "counts",
-  group = NULL,
-  matchDesign = NULL,
-  measure = "spieceasi",
-  measurePar = NULL,
-  jointPrepro = NULL,
-  filtTax = "none",
-  filtTaxPar = NULL,
-  filtSamp = "none",
-  filtSampPar = NULL,
-  taxRank = NULL,
-  zeroMethod = "none",
-  zeroPar = NULL,
-  normMethod = "none",
-  normPar = NULL,
-  sparsMethod = "t-test",
-  thresh = 0.3,
-  alpha = 0.05,
-  adjust = "adaptBH",
-  trueNullMethod = "convest",
-  lfdrThresh = 0.2,
-  nboot = 1000L,
-  assoBoot = NULL,
-  cores = 1L,
-  logFile = "log.txt",
-  softThreshType = "signed",
-  softThreshPower = NULL,
-  softThreshCut = 0.8,
-  kNeighbor = 3L,
-  knnMutual = FALSE,
-  dissFunc = "signed",
-  dissFuncPar = NULL,
-  simFunc = NULL,
-  simFuncPar = NULL,
-  scaleDiss = TRUE,
-  weighted = TRUE,
-  sampleSize = NULL,
-  verbose = 2,
-  seed = NULL
-)
+netConstruct(data,
+             data2 = NULL,
+             dataType = "counts",
+             group = NULL,
+             matchDesign = NULL,
+             taxRank = NULL,
+             
+             # Association/dissimilarity measure:
+             measure = "spieceasi",
+             measurePar = NULL,
+             
+             # Preprocessing:
+             jointPrepro = NULL,
+             filtTax = "none",
+             filtTaxPar = NULL,
+             filtSamp = "none",
+             filtSampPar = NULL,
+             zeroMethod = "none",
+             zeroPar = NULL,
+             normMethod = "none",
+             normPar = NULL,
+             
+             # Sparsification:
+             sparsMethod = "t-test",
+             thresh = 0.3,
+             alpha = 0.05,
+             adjust = "adaptBH",
+             trueNullMethod = "convest",
+             lfdrThresh = 0.2,
+             nboot = 1000L,
+             assoBoot = NULL,
+             cores = 1L,
+             logFile = "log.txt",
+             softThreshType = "signed",
+             softThreshPower = NULL,
+             softThreshCut = 0.8,
+             kNeighbor = 3L,
+             knnMutual = FALSE,
+             
+             # Transformation:
+             dissFunc = "signed",
+             dissFuncPar = NULL,
+             simFunc = NULL,
+             simFuncPar = NULL,
+             scaleDiss = TRUE,
+             weighted = TRUE,
+             
+             # Further arguments:
+             sampleSize = NULL,
+             verbose = 2,
+             seed = NULL
+             )
 }
 \arguments{
 \item{data}{numeric matrix. Can be a count matrix (rows are samples, columns
@@ -78,6 +87,15 @@ matched to the first two samples of group 2 and so on.
 The appropriate order of samples must be ensured. If 
 \code{NULL}, the group memberships are shuffled randomly while group sizes
 identical to the original data set are ensured.}
+
+\item{taxRank}{character indicating the taxonomic rank at which the network 
+should be constructed. Only used if data (and data 2) is a phyloseq object. 
+The given rank must match one of the column names of the taxonomic table 
+(the \code{@tax_table} slot of the phyloseq object). Taxa names of the 
+chosen taxonomic rank must be unique (consider using the function 
+\code{\link{renameTaxa}} to make them unique). If a phyloseq object is 
+given and \code{taxRank = NULL}, the row names of the OTU table are used 
+as node labels.}
 
 \item{measure}{character specifying the method used for either computing the
 associations between taxa or dissimilarities between subjects.
@@ -137,15 +155,6 @@ combined. The values x are set via \code{filtSampPar}.}
 \item{filtSampPar}{list with parameters for the filter methods given by
 \code{filtSamp}. Possible list entries are: \code{"totalReads"} (int),
 \code{"numbTaxa"} (int), \code{"highestFreq"} (int).}
-
-\item{taxRank}{character indicating the taxonomic rank at which the network 
-should be constructed. Only used if data (and data 2) is a phyloseq object. 
-The given rank must match one of the column names of the taxonomic table 
-(the \code{@tax_table} slot of the phyloseq object). Taxa names of the 
-chosen taxonomic rank must be unique (consider using the function 
-\code{\link{renameTaxa}} to make them unique). If a phyloseq object is 
-given and \code{taxRank = NULL}, the row names of the OTU table are used 
-as node labels.}
 
 \item{zeroMethod}{character indicating the method used for zero replacement.
 Possible values are: \code{"none"} (default), \code{"pseudo"}, 
