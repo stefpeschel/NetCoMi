@@ -1,10 +1,7 @@
 ---
 output: github_document
 ---
-## NetCoMi 1.0.3.9000 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
-
-The features and bug fixes implemented in version 1.0.3.9000 are available on 
-**develop branch** only.
+## NetCoMi 1.1.0 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
 
 ### New features
 
