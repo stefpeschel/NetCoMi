@@ -57,6 +57,7 @@ differentially associated taxa are connected.
       measure](#network-with-spring-as-association-measure)
     - [Network with Pearson
       correlations](#network-with-pearson-correlation-as-association-measure)
+    - [“Unsigned” transformation](#using-the-unsigned-transformation)
     - [Network on genus level](#network-on-genus-level)
     - [Association matrix as
       input](#using-an-association-matrix-as-input)
@@ -498,6 +499,8 @@ p$q1$Arguments$cut
     ##      75% 
     ## 0.337099
 
+------------------------------------------------------------------------
+
 ### Network with Pearson correlation as association measure
 
 Let’s construct another network using Pearson’s correlation coefficient
@@ -512,12 +515,12 @@ with an absolute correlation greater than or equal to 0.3 are connected.
 
 ``` r
 net_pears <- netConstruct(amgut2.filt.phy,  
-                            measure = "pearson",
-                            normMethod = "clr", 
-                            zeroMethod = "multRepl",
-                            sparsMethod = "threshold", 
-                            thresh = 0.3,
-                            verbose = 3)
+                          measure = "pearson",
+                          normMethod = "clr",
+                          zeroMethod = "multRepl",
+                          sparsMethod = "threshold",
+                          thresh = 0.3,
+                          verbose = 3)
 ```
 
     ## Checking input arguments ... Done.
@@ -525,12 +528,7 @@ net_pears <- netConstruct(amgut2.filt.phy,
     ## 138 taxa and 294 samples remaining.
     ## 
     ## Zero treatment:
-    ## Execute multRepl() ...
-
-    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
-    ##                   (You can use the z.warning argument to modify the warning threshold).
-
-    ## Done.
+    ## Execute multRepl() ... Done.
     ## 
     ## Normalization:
     ## Execute clr(){SpiecEasi} ... Done.
@@ -542,7 +540,8 @@ net_pears <- netConstruct(amgut2.filt.phy,
 Network analysis and plotting:
 
 ``` r
-props_pears <- netAnalyze(net_pears, clustMethod = "cluster_fast_greedy")
+props_pears <- netAnalyze(net_pears, 
+                          clustMethod = "cluster_fast_greedy")
 ```
 
 ![](man/figures/readme/single_pears_2-1.png)<!-- -->
@@ -564,13 +563,15 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 Let’s improve the visualization by changing the following arguments:
 
-- `repulsion = 0.8`: Place the nodes further apart
-- `rmSingles = TRUE`: Single nodes are removed
+- `repulsion = 0.8`: Place the nodes further apart.
+- `rmSingles = TRUE`: Single nodes are removed.
 - `labelScale = FALSE` and `cexLabels = 1.6`: All labels have equal size
-  and are enlarged to improve readability of small node’s labels
+  and are enlarged to improve readability of small node’s labels.
 - `nodeSizeSpread = 3` (default is 4): Node sizes are more similar if
   the value is decreased. This argument (in combination with `cexNodes`)
   is useful to enlarge small nodes while keeping the size of big nodes.
+- `hubBorderCol = "darkgray"`: Change border color for a better
+  readability of the node labels.
 
 ``` r
 plot(props_pears, 
@@ -582,6 +583,7 @@ plot(props_pears,
      cexLabels = 1.6,
      nodeSizeSpread = 3,
      cexNodes = 2,
+     hubBorderCol = "darkgray",
      title1 = "Network on OTU level with Pearson correlations", 
      showTitle = TRUE,
      cexTitle = 2.3)
@@ -592,6 +594,142 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 ```
 
 ![](man/figures/readme/single_pears_4-1.png)<!-- -->
+
+**Edge filtering**
+
+The network can be sparsified further using the arguments `edgeFilter`
+(edges are filtered before the layout is computed) and `edgeInvisFilter`
+(edges are removed after the layout is computed and thus just made
+“invisible”).
+
+``` r
+plot(props_pears,
+     edgeInvisFilter = "threshold",
+     edgeInvisPar = 0.4,
+     nodeColor = "cluster", 
+     nodeSize = "eigenvector",
+     repulsion = 0.8,
+     rmSingles = TRUE,
+     labelScale = FALSE,
+     cexLabels = 1.6,
+     nodeSizeSpread = 3,
+     cexNodes = 2,
+     hubBorderCol = "darkgray",
+     title1 = "Network on OTU level with Pearson correlations", 
+     showTitle = TRUE,
+     cexTitle = 2.3)
+
+legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
+       legend = c("+","-"), lty = 1, lwd = 3, col = c("#009900","red"),
+       bty = "n", horiz = TRUE)
+```
+
+![](man/figures/readme/single_pears_5-1.png)<!-- -->
+
+------------------------------------------------------------------------
+
+### Using the “unsigned” transformation
+
+In the above network, the “signed” transformation was used to transform
+the estimated associations into dissimilarities. This leads to a network
+where strongly positive correlated taxa have a high edge weight (1 if
+the correlation equals 1) and strongly negative correlated taxa have a
+low edge weight (0 if the correlation equals -1).
+
+We now use the “unsigned” transformation so that the edge weight between
+strongly correlated taxa is high, no matter of the sign. Hence, a
+correlation of -1 and 1 would lead to an edge weight of 1.
+
+**Network construction**
+
+We can pass the network object from before to `netConstruct()` to save
+runtime.
+
+``` r
+net_pears_unsigned <- netConstruct(data = net_pears$assoEst1,
+                                   dataType = "correlation", 
+                                   sparsMethod = "threshold",
+                                   thresh = 0.3,
+                                   dissFunc = "unsigned",
+                                   verbose = 3)
+```
+
+    ## Checking input arguments ... Done.
+    ## 
+    ## Sparsify associations via 'threshold' ... Done.
+
+**Estimated correlations and adjacency values**
+
+The following histograms demonstrate how the estimated correlations are
+transformed into adjacencies (= sparsified similarities for weighted
+networks).
+
+Sparsified estimated correlations:
+
+``` r
+hist(net_pears$assoMat1, 100, xlim = c(-1, 1), ylim = c(0, 400),
+     xlab = "Estimated correlation", 
+     main = "Estimated correlations after sparsification")
+```
+
+![](man/figures/readme/single_pears_hist_1-1.png)<!-- -->
+
+Adjacency values computed using the “signed” transformation (values
+different from 0 and 1 will be edges in the network):
+
+``` r
+hist(net_pears$adjaMat1, 100, ylim = c(0, 400),
+     xlab = "Adjacency values", 
+     main = "Transformed adjacencies (using the \"signed\" method)")
+```
+
+![](man/figures/readme/single_pears_hist_2-1.png)<!-- -->
+
+Adjacency values computed using the “unsigned” transformation:
+
+``` r
+hist(net_pears_unsigned$adjaMat1, 100, ylim = c(0, 400),
+     xlab = "Adjacency values", 
+     main = "Transformed adjacencies (using the \"unsigned\" method)")
+```
+
+![](man/figures/readme/single_pears_hist_3-1.png)<!-- -->
+
+**Network analysis and plotting**
+
+``` r
+props_pears_unsigned <- netAnalyze(net_pears_unsigned, 
+                                   clustMethod = "cluster_fast_greedy",
+                                   gcmHeat = FALSE)
+```
+
+``` r
+plot(props_pears_unsigned, 
+     nodeColor = "cluster", 
+     nodeSize = "eigenvector",
+     repulsion = 0.9,
+     rmSingles = TRUE,
+     labelScale = FALSE,
+     cexLabels = 1.6,
+     nodeSizeSpread = 3,
+     cexNodes = 2,
+     hubBorderCol = "darkgray",
+     title1 = "Network with Pearson correlations and \"unsigned\" transformation", 
+     showTitle = TRUE,
+     cexTitle = 2.3)
+
+legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
+       legend = c("+","-"), lty = 1, lwd = 3, col = c("#009900","red"),
+       bty = "n", horiz = TRUE)
+```
+
+![](man/figures/readme/single_pears_unsigned_4-1.png)<!-- -->
+
+While with the “signed” transformation, positive correlated taxa are
+likely to belong to the same cluster, with the “unsigned” transformation
+clusters contain strongly positive and negative correlated taxa.
+
+------------------------------------------------------------------------
 
 ### Network on genus level
 
@@ -640,12 +778,7 @@ net_genus <- netConstruct(amgut_genus_renamed,
     ## 
     ## Zero treatment:
 
-    ## Execute multRepl() ...
-
-    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
-    ##                   (You can use the z.warning argument to modify the warning threshold).
-
-    ## Done.
+    ## Execute multRepl() ... Done.
     ## 
     ## Normalization:
     ## Execute clr(){SpiecEasi} ... Done.
@@ -820,6 +953,8 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 ![](man/figures/readme/single_genus_5-1.png)<!-- -->
 
+------------------------------------------------------------------------
+
 ### Using an association matrix as input
 
 The QMP data set provided by the `SPRING` package is used to demonstrate
@@ -898,34 +1033,59 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated association:",
 
 ![](man/figures/readme/association_input_3-1.png)<!-- -->
 
+------------------------------------------------------------------------
+
 ### Network comparison
 
 Now let’s look how NetCoMi is used to compare two networks.
 
 **Network construction**
 
-The covariate `"SEASONAL_ALLERGIES`” is used for splitting the data set
-into two groups. The [`metagMisc`](https://github.com/vmikk/metagMisc)
-package offers a function for splitting phyloseq objects according to a
-variable. The two resulting phyloseq objects (we ignore the group
-‘None’) can directly be passed to NetCoMi.
-
-We select the 50 nodes with highest variance to get smaller networks.
+The data set is split by `"SEASONAL_ALLERGIES"` leading to two subsets
+of samples (with and without seasonal allergies). We ignore the “None”
+group.
 
 ``` r
-# devtools::install_github("vmikk/metagMisc")
-
 # Split the phyloseq object into two groups
-amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy, 
-                                                "SEASONAL_ALLERGIES")
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                             SEASONAL_ALLERGIES == "yes")
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                            SEASONAL_ALLERGIES == "no")
+
+amgut_season_yes
 ```
 
+    ## phyloseq-class experiment-level object
+    ## otu_table()   OTU Table:         [ 138 taxa and 121 samples ]
+    ## sample_data() Sample Data:       [ 121 samples by 166 sample variables ]
+    ## tax_table()   Taxonomy Table:    [ 138 taxa by 7 taxonomic ranks ]
+
 ``` r
+amgut_season_no
+```
+
+    ## phyloseq-class experiment-level object
+    ## otu_table()   OTU Table:         [ 138 taxa and 163 samples ]
+    ## sample_data() Sample Data:       [ 163 samples by 166 sample variables ]
+    ## tax_table()   Taxonomy Table:    [ 138 taxa by 7 taxonomic ranks ]
+
+The 50 nodes with highest variance are selected for network construction
+to get smaller networks.
+
+We filter the 121 samples (sample size of the smaller group) with
+highest frequency to make the sample sizes equal and thus ensure
+comparability.
+
+``` r
+n_yes <- phyloseq::nsamples(amgut_season_yes)
+
 # Network construction
-net_season <- netConstruct(data = amgut_split$no, 
-                           data2 = amgut_split$yes,  
+net_season <- netConstruct(data = amgut_season_no, 
+                           data2 = amgut_season_yes,  
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = n_yes),
                            measure = "spring",
                            measurePar = list(nlambda=10, 
                                              rep.num=10),
@@ -939,11 +1099,12 @@ net_season <- netConstruct(data = amgut_split$no,
 
     ## Checking input arguments ... Done.
     ## Data filtering ...
-    ## 95 taxa removed in each data set.
-    ## 1 rows with zero sum removed in group 1.
+    ## 42 samples removed in data set 1.
+    ## 0 samples removed in data set 2.
+    ## 96 taxa removed in each data set.
     ## 1 rows with zero sum removed in group 2.
-    ## 43 taxa and 162 samples remaining in group 1.
-    ## 43 taxa and 120 samples remaining in group 2.
+    ## 42 taxa and 121 samples remaining in group 1.
+    ## 42 taxa and 120 samples remaining in group 2.
     ## 
     ## Calculate 'spring' associations ... Done.
     ## 
@@ -970,6 +1131,8 @@ net_season <- netConstruct(countMat,
                            group = group_vec, 
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = n_yes),
                            measure = "spring",
                            measurePar = list(nlambda=10, 
                                              rep.num=10),
@@ -1034,36 +1197,36 @@ summary(props_season)
     ## 
     ## Component sizes
     ## ```````````````
-    ## group '1':            
-    ## size: 31 8 1
-    ##    #:  1 1 4
+    ## group '1':           
+    ## size: 28  1
+    ##    #:  1 14
     ## group '2':            
-    ## size: 33 8 1
-    ##    #:  1 1 2
+    ## size: 31 8 1
+    ##    #:  1 1 3
     ## ______________________________
     ## Global network properties
     ## `````````````````````````
     ## Largest connected component (LCC):
     ##                          group '1' group '2'
-    ## Relative LCC size          0.72093   0.76744
-    ## Clustering coefficient     0.27184   0.30165
-    ## Modularity                 0.51794   0.46625
-    ## Positive edge percentage 100.00000 100.00000
-    ## Edge density               0.11183   0.12500
-    ## Natural connectivity       0.04295   0.04127
+    ## Relative LCC size          0.66667   0.73810
+    ## Clustering coefficient     0.15161   0.27111
+    ## Modularity                 0.62611   0.45823
+    ## Positive edge percentage  86.66667 100.00000
+    ## Edge density               0.07937   0.12473
+    ## Natural connectivity       0.04539   0.04362
     ## Vertex connectivity        1.00000   1.00000
     ## Edge connectivity          1.00000   1.00000
-    ## Average dissimilarity*     0.68109   0.68438
-    ## Average path length**      2.23469   1.90957
+    ## Average dissimilarity*     0.67251   0.68178
+    ## Average path length**      3.40008   1.86767
     ## 
     ## Whole network:
     ##                          group '1' group '2'
-    ## Number of components       6.00000   4.00000
-    ## Clustering coefficient     0.29318   0.29908
-    ## Modularity                 0.62240   0.55591
-    ## Positive edge percentage 100.00000 100.00000
-    ## Edge density               0.06866   0.08527
-    ## Natural connectivity       0.02970   0.03067
+    ## Number of components      15.00000   5.00000
+    ## Clustering coefficient     0.15161   0.29755
+    ## Modularity                 0.62611   0.55684
+    ## Positive edge percentage  86.66667 100.00000
+    ## Edge density               0.03484   0.08130
+    ## Natural connectivity       0.02826   0.03111
     ## -----
     ## *: Dissimilarity = 1 - edge weight
     ## **: Path length = Sum of dissimilarities along the path
@@ -1073,13 +1236,13 @@ summary(props_season)
     ## - In the whole network
     ## - Algorithm: cluster_fast_greedy
     ## ```````````````````````````````` 
-    ## group '1':                 
-    ## name: 0  1  2 3 4
-    ##    #: 4 13 10 8 8
+    ## group '1':                  
+    ## name:  0 1 2 3 4 5
+    ##    #: 14 7 6 5 4 6
     ## 
     ## group '2':                  
     ## name: 0 1  2 3 4 5
-    ##    #: 2 6 11 8 8 8
+    ##    #: 3 5 14 4 8 8
     ## 
     ## ______________________________
     ## Hubs
@@ -1087,8 +1250,8 @@ summary(props_season)
     ## - Based on log-normal quantiles of centralities
     ## ```````````````````````````````````````````````
     ##  group '1' group '2'
-    ##     184983    322235
-    ##     364563    363302
+    ##     307981    322235
+    ##               363302
     ## 
     ## ______________________________
     ## Centrality measures
@@ -1097,59 +1260,59 @@ summary(props_season)
     ## ````````````````````````````````````
     ## Degree (unnormalized):
     ##         group '1' group '2'
-    ##  322235         7         9
-    ##  364563         7         5
-    ##  259569         7         5
-    ##  184983         6         5
-    ##  331820         4         3
+    ##  307981         5         2
+    ##    9715         5         5
+    ##  364563         4         4
+    ##  259569         4         5
+    ##  322235         3         9
     ##            ______    ______
-    ##  322235         7         9
-    ##  363302         4         9
-    ##  158660         3         6
-    ##   90487         3         5
-    ##  188236         4         5
+    ##  322235         3         9
+    ##  363302         3         9
+    ##  158660         2         6
+    ##  188236         3         5
+    ##  259569         4         5
     ## 
     ## Betweenness centrality (unnormalized):
     ##         group '1' group '2'
-    ##  364563       148        42
-    ##  188236       144        79
-    ##  259569       122        39
-    ##  331820       115         8
-    ##  322235       106       130
+    ##  307981       231         0
+    ##  331820       170         9
+    ##  158660       162        80
+    ##  188236       161        85
+    ##  322235       159       126
     ##            ______    ______
-    ##  322235       106       130
-    ##  363302         6        94
-    ##  188236       144        79
-    ##  158660         0        77
-    ##  326792         0        73
+    ##  322235       159       126
+    ##  363302        74        93
+    ##  188236       161        85
+    ##  158660       162        80
+    ##  326792        17        58
     ## 
     ## Closeness centrality (unnormalized):
     ##         group '1' group '2'
-    ##  364563  22.66873  23.54233
-    ##  259569  22.18963  22.06266
-    ##  322235  22.15731   27.2048
-    ##  188236  21.10268  24.10371
-    ##  184983  20.05519  20.73662
+    ##  307981  18.17276   7.80251
+    ##    9715   15.8134   9.27254
+    ##  188236   15.7949  23.24055
+    ##  301645  15.30177   9.01509
+    ##  364563  14.73566  21.21352
     ##            ______    ______
-    ##  322235  22.15731   27.2048
-    ##  363302  17.26815  25.40731
-    ##  188236  21.10268  24.10371
-    ##  158660  17.63934  23.98657
-    ##  326792  17.94914  23.72108
+    ##  322235  13.50232  26.36749
+    ##  363302  12.30297  24.19703
+    ##  158660  13.07106  23.31577
+    ##  188236   15.7949  23.24055
+    ##  326792  14.61391  22.52157
     ## 
     ## Eigenvector centrality (unnormalized):
     ##         group '1' group '2'
-    ##  364563   0.30443   0.17201
-    ##  184983   0.29058   0.21749
-    ##  188236    0.2392   0.18812
-    ##  516022   0.23493   0.11371
-    ##  190464   0.22309   0.17235
+    ##  307981   0.53313   0.06912
+    ##    9715   0.44398   0.10788
+    ##  301645   0.41878   0.08572
+    ##  326792   0.27033   0.15727
+    ##  188236   0.25824   0.21162
     ##            ______    ______
-    ##  363302   0.21628   0.30803
-    ##  322235   0.14515   0.23792
-    ##  194648   0.17443   0.22625
-    ##  184983   0.29058   0.21749
-    ##  188236    0.2392   0.18812
+    ##  322235   0.01749   0.29705
+    ##  363302   0.03526   0.28512
+    ##  188236   0.25824   0.21162
+    ##  194648   0.00366   0.19448
+    ##  184983    0.0917    0.1854
 
 **Visual network comparison**
 
@@ -1288,25 +1451,25 @@ summary(comp_season,
     ## `````````````````````````
     ## Largest connected component (LCC):
     ##                          No allergies   Allergies    difference
-    ## Relative LCC size               0.721       0.767         0.047
-    ## Clustering coefficient          0.272       0.302         0.030
-    ## Modularity                      0.518       0.466         0.052
-    ## Positive edge percentage      100.000     100.000         0.000
-    ## Edge density                    0.112       0.125         0.013
-    ## Natural connectivity            0.043       0.041         0.002
+    ## Relative LCC size               0.667       0.738         0.071
+    ## Clustering coefficient          0.152       0.271         0.120
+    ## Modularity                      0.626       0.458         0.168
+    ## Positive edge percentage       86.667     100.000        13.333
+    ## Edge density                    0.079       0.125         0.045
+    ## Natural connectivity            0.045       0.044         0.002
     ## Vertex connectivity             1.000       1.000         0.000
     ## Edge connectivity               1.000       1.000         0.000
-    ## Average dissimilarity*          0.681       0.684         0.003
-    ## Average path length**           2.235       1.910         0.325
+    ## Average dissimilarity*          0.673       0.682         0.009
+    ## Average path length**           3.400       1.868         1.532
     ## 
     ## Whole network:
     ##                          No allergies   Allergies    difference
-    ## Number of components            6.000       4.000         2.000
-    ## Clustering coefficient          0.293       0.299         0.006
-    ## Modularity                      0.622       0.556         0.066
-    ## Positive edge percentage      100.000     100.000         0.000
-    ## Edge density                    0.069       0.085         0.017
-    ## Natural connectivity            0.030       0.031         0.001
+    ## Number of components           15.000       5.000        10.000
+    ## Clustering coefficient          0.152       0.298         0.146
+    ## Modularity                      0.626       0.557         0.069
+    ## Positive edge percentage       86.667     100.000        13.333
+    ## Edge density                    0.035       0.081         0.046
+    ## Natural connectivity            0.028       0.031         0.003
     ## -----
     ##  *: Dissimilarity = 1 - edge weight
     ## **: Path length = Sum of dissimilarities along the path
@@ -1314,12 +1477,12 @@ summary(comp_season,
     ## ______________________________
     ## Jaccard index (similarity betw. sets of most central nodes)
     ## ```````````````````````````````````````````````````````````
-    ##                     Jacc   P(<=Jacc)     P(>=Jacc)    
-    ## degree             0.368    0.720663      0.456912    
-    ## betweenness centr. 0.231    0.322424      0.861268    
-    ## closeness centr.   0.308    0.552039      0.677576    
-    ## eigenvec. centr.   0.615    0.991177      0.034655 *  
-    ## hub taxa           0.000    0.197531      1.000000    
+    ##                     Jacc   P(<=Jacc)     P(>=Jacc)   
+    ## degree             0.556    0.957578      0.144846   
+    ## betweenness centr. 0.333    0.650307      0.622822   
+    ## closeness centr.   0.231    0.322424      0.861268   
+    ## eigenvec. centr.   0.100    0.017593 *    0.996692   
+    ## hub taxa           0.000    0.296296      1.000000   
     ## -----
     ## Jaccard index in [0,1] (1 indicates perfect agreement)
     ## 
@@ -1327,8 +1490,8 @@ summary(comp_season,
     ## Adjusted Rand index (similarity betw. clusterings)
     ## ``````````````````````````````````````````````````
     ##         wholeNet       LCC
-    ## ARI        0.327     0.190
-    ## p-value    0.000     0.002
+    ## ARI        0.232     0.355
+    ## p-value    0.000     0.000
     ## -----
     ## ARI in [-1,1] with ARI=1: perfect agreement betw. clusterings
     ##                    ARI=0: expected for two random clusterings
@@ -1338,7 +1501,7 @@ summary(comp_season,
     ## Graphlet Correlation Distance
     ## `````````````````````````````
     ##     wholeNet       LCC
-    ## GCD    0.808       1.3
+    ## GCD    1.577     1.863
     ## -----
     ## GCD >= 0 (GCD=0 indicates perfect agreement between GCMs)
     ## 
@@ -1349,30 +1512,32 @@ summary(comp_season,
     ## ````````````````````````````````````
     ## Degree (unnormalized):
     ##        No allergies Allergies abs.diff.
-    ## 363302            4         9         5
-    ## 549871            4         0         4
-    ## 469709            1         4         3
-    ## 158660            3         6         3
-    ## 181016            0         3         3
+    ## 322235            3         9         6
+    ## 363302            3         9         6
+    ## 469709            0         4         4
+    ## 158660            2         6         4
+    ## 223059            0         4         4
     ## 
     ## Betweenness centrality (unnormalized):
     ##        No allergies Allergies abs.diff.
-    ## 331820          115         8       107
-    ## 364563          148        42       106
-    ## 549871           97         0        97
-    ## 363302            6        94        88
-    ## 259569          122        39        83
+    ## 307981          231         0       231
+    ## 331820          170         9       161
+    ## 259569          137        34       103
+    ## 158660          162        80        82
+    ## 184983           92        12        80
     ## 
     ## Closeness centrality (unnormalized):
     ##        No allergies Allergies abs.diff.
-    ## 181016        0.000    20.130    20.130
-    ## 361496        0.000    20.007    20.007
-    ## 549871       19.781     0.000    19.781
-    ## 278234        0.000    13.671    13.671
-    ## 363302       17.268    25.407     8.139
+    ## 469709            0    21.203    21.203
+    ## 541301            0    20.942    20.942
+    ## 181016            0    19.498    19.498
+    ## 361496            0    19.349    19.349
+    ## 223059            0    19.261    19.261
     ## 
     ## _________________________________________________________
     ## Significance codes: ***: 0.001, **: 0.01, *: 0.05, .: 0.1
+
+------------------------------------------------------------------------
 
 ### Differential networks
 
@@ -1393,8 +1558,8 @@ association matrices before sparsification (the `assoEst1` and
 `assoEst2` matrices returned by `netConstruct()`).
 
 ``` r
-net_season_pears <- netConstruct(data = amgut_split$no, 
-                                 data2 = amgut_split$yes, 
+net_season_pears <- netConstruct(data = amgut_season_no, 
+                                 data2 = amgut_season_yes, 
                                  filtTax = "highestVar",
                                  filtTaxPar = list(highestVar = 50),
                                  measure = "pearson", 
@@ -1416,20 +1581,10 @@ net_season_pears <- netConstruct(data = amgut_split$no,
     ## 43 taxa and 120 samples remaining in group 2.
     ## 
     ## Zero treatment in group 1:
-    ## Execute multRepl() ...
-
-    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
-    ##                   (You can use the z.warning argument to modify the warning threshold).
-
-    ## Done.
+    ## Execute multRepl() ... Done.
     ## 
     ## Zero treatment in group 2:
-    ## Execute multRepl() ...
-
-    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
-    ##                   (You can use the z.warning argument to modify the warning threshold).
-
-    ## Done.
+    ## Execute multRepl() ... Done.
     ## 
     ## Normalization in group 1:
     ## Execute clr(){SpiecEasi} ... Done.
@@ -1486,7 +1641,7 @@ props_season_pears <- netAnalyze(net_season_pears,
                                  clustMethod = "cluster_fast_greedy",
                                  weightDeg = TRUE,
                                  normDeg = FALSE,
-                                 gcmHeatLCC = NA)
+                                 gcmHeat = FALSE)
 ```
 
 ``` r
@@ -1522,6 +1677,8 @@ We can see that the correlation between the aforementioned OTUs ‘191541’
 and ‘188236’ is strongly positive in the left group and negative in the
 right group.
 
+------------------------------------------------------------------------
+
 ### Dissimilarity-based Networks
 
 If a dissimilarity measure is used for network construction, nodes are
@@ -1540,11 +1697,11 @@ The network is sparsified using the k-nearest neighbor (knn) algorithm.
 
 ``` r
 net_diss <- netConstruct(amgut1.filt,
-                              measure = "aitchison",
-                              zeroMethod = "multRepl",
-                              sparsMethod = "knn", 
-                              kNeighbor = 3,
-                              verbose = 3)
+                         measure = "aitchison",
+                         zeroMethod = "multRepl",
+                         sparsMethod = "knn",
+                         kNeighbor = 3,
+                         verbose = 3)
 ```
 
     ## Checking input arguments ... Done.
@@ -1554,12 +1711,7 @@ net_diss <- netConstruct(amgut1.filt,
     ## 127 taxa and 289 samples remaining.
     ## 
     ## Zero treatment:
-    ## Execute multRepl() ...
-
-    ## Warning in (function (X, label = NULL, dl = NULL, frac = 0.65, imp.missing = FALSE, : Row(s) containing more than 80% zeros/unobserved values were found (check it out using zPatterns).
-    ##                   (You can use the z.warning argument to modify the warning threshold).
-
-    ## Done.
+    ## Execute multRepl() ... Done.
     ## 
     ## Normalization:
     ## Counts normalized by total sum scaling.
@@ -1579,9 +1731,9 @@ from `stats` package so that the tree is cut into 3 clusters.
 
 ``` r
 props_diss <- netAnalyze(net_diss,
-                              clustMethod = "hierarchical",
-                              clustPar = list(method = "average", k = 3),
-                              hubPar = "eigenvector")
+                         clustMethod = "hierarchical",
+                         clustPar = list(method = "average", k = 3),
+                         hubPar = "eigenvector")
 ```
 
 ![](man/figures/readme/example14-1.png)<!-- -->
@@ -1615,6 +1767,8 @@ legend(0.4, 1.1,
 In this dissimilarity-based network, hubs are interpreted as samples
 with a microbial composition similar to that of many other samples in
 the data set.
+
+------------------------------------------------------------------------
 
 ### Soil microbiome example
 

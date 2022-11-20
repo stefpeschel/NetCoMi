@@ -62,7 +62,7 @@ net_seas_p <- netConstruct(soil_warm_yes, soil_warm_no,
                            verbose = 0)
 
 netprops1 <- netAnalyze(net_seas_p, clustMethod = "cluster_fast_greedy",
-                        gcmHeatLCC = NA)
+                        gcmHeat = FALSE)
 
 nclust <- as.numeric(max(names(table(netprops1$clustering$clust1))))
 
@@ -104,6 +104,7 @@ Microbial associations are compared between the two experimantal settings
 4. [Usage](#usage)
     + [Network with SPRING as association measure](#network-with-spring-as-association-measure)
     + [Network with Pearson correlations](#network-with-pearson-correlation-as-association-measure)
+    + ["Unsigned" transformation](#using-the-unsigned-transformation)
     + [Network on genus level](#network-on-genus-level)
     + [Association matrix as input](#using-an-association-matrix-as-input)
     + [Network comparison](#network-comparison)
@@ -395,6 +396,8 @@ follows:
 p$q1$Arguments$cut
 ```
 
+----
+
 ### Network with Pearson correlation as association measure
 
 Let's construct another network using Pearson's correlation coefficient
@@ -410,18 +413,19 @@ absolute correlation greater than or equal to 0.3 are connected.
 
 ```{r single_pears_1, fig.height=18, fig.width=20}
 net_pears <- netConstruct(amgut2.filt.phy,  
-                            measure = "pearson",
-                            normMethod = "clr", 
-                            zeroMethod = "multRepl",
-                            sparsMethod = "threshold", 
-                            thresh = 0.3,
-                            verbose = 3)
+                          measure = "pearson",
+                          normMethod = "clr",
+                          zeroMethod = "multRepl",
+                          sparsMethod = "threshold",
+                          thresh = 0.3,
+                          verbose = 3)
 ```
 
 Network analysis and plotting:
 
 ```{r single_pears_2, fig.height=6, fig.width=6}
-props_pears <- netAnalyze(net_pears, clustMethod = "cluster_fast_greedy")
+props_pears <- netAnalyze(net_pears, 
+                          clustMethod = "cluster_fast_greedy")
 ```
 
 
@@ -440,13 +444,15 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 Let's improve the visualization by changing the following arguments:
 
-- `repulsion = 0.8`: Place the nodes further apart
-- `rmSingles = TRUE`: Single nodes are removed
+- `repulsion = 0.8`: Place the nodes further apart.
+- `rmSingles = TRUE`: Single nodes are removed.
 - `labelScale = FALSE` and `cexLabels = 1.6`: All labels have equal size and are
-enlarged to improve readability of small node's labels
+enlarged to improve readability of small node's labels.
 - `nodeSizeSpread = 3` (default is 4): Node sizes are more similar if the value
 is decreased. This argument (in combination with `cexNodes`) is useful to enlarge
 small nodes while keeping the size of big nodes.
+- `hubBorderCol = "darkgray"`: Change border color for a better readability of 
+the node labels.
 
 ```{r single_pears_4, fig.height=18, fig.width=20}
 plot(props_pears, 
@@ -458,6 +464,7 @@ plot(props_pears,
      cexLabels = 1.6,
      nodeSizeSpread = 3,
      cexNodes = 2,
+     hubBorderCol = "darkgray",
      title1 = "Network on OTU level with Pearson correlations", 
      showTitle = TRUE,
      cexTitle = 2.3)
@@ -466,6 +473,127 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        legend = c("+","-"), lty = 1, lwd = 3, col = c("#009900","red"),
        bty = "n", horiz = TRUE)
 ```
+
+**Edge filtering**
+
+The network can be sparsified further using the arguments `edgeFilter` (edges 
+are filtered before the layout is computed) and `edgeInvisFilter` (edges are 
+removed after the layout is computed and thus just made "invisible").
+
+```{r single_pears_5, fig.height=18, fig.width=20}
+plot(props_pears,
+     edgeInvisFilter = "threshold",
+     edgeInvisPar = 0.4,
+     nodeColor = "cluster", 
+     nodeSize = "eigenvector",
+     repulsion = 0.8,
+     rmSingles = TRUE,
+     labelScale = FALSE,
+     cexLabels = 1.6,
+     nodeSizeSpread = 3,
+     cexNodes = 2,
+     hubBorderCol = "darkgray",
+     title1 = paste0("Network on OTU level with Pearson correlations",
+                     "\n(edge filter: threshold = 0.4)"),
+     showTitle = TRUE,
+     cexTitle = 2.3)
+
+legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
+       legend = c("+","-"), lty = 1, lwd = 3, col = c("#009900","red"),
+       bty = "n", horiz = TRUE)
+```
+
+----
+
+### Using the "unsigned" transformation
+
+In the above network, the "signed" transformation was used to transform 
+the estimated associations into dissimilarities. This leads to a network where 
+strongly positive correlated taxa have a high edge weight (1 if the correlation 
+equals 1) and strongly negative correlated taxa have a low edge weight (0 if 
+the correlation equals -1).
+
+We now use the "unsigned" transformation so that the edge weight between 
+strongly correlated taxa is high, no matter of the sign. Hence, a correlation of 
+-1 and 1 would lead to an edge weight of 1. 
+
+**Network construction**
+
+We can pass the network object from before to `netConstruct()` to save runtime.
+
+```{r single_pears_unsigned_2, fig.height=18, fig.width=20}
+net_pears_unsigned <- netConstruct(data = net_pears$assoEst1,
+                                   dataType = "correlation", 
+                                   sparsMethod = "threshold",
+                                   thresh = 0.3,
+                                   dissFunc = "unsigned",
+                                   verbose = 3)
+```
+
+**Estimated correlations and adjacency values**
+
+The following histograms demonstrate how the estimated correlations are 
+transformed into adjacencies (= sparsified similarities for weighted networks).
+
+Sparsified estimated correlations:
+
+```{r single_pears_hist_1, fig.height=4, fig.width=8}
+hist(net_pears$assoMat1, 100, xlim = c(-1, 1), ylim = c(0, 400),
+     xlab = "Estimated correlation", 
+     main = "Estimated correlations after sparsification")
+```
+
+Adjacency values computed using the "signed" transformation (values different 
+from 0 and 1 will be edges in the network):
+
+```{r single_pears_hist_2, fig.height=4, fig.width=8}
+hist(net_pears$adjaMat1, 100, ylim = c(0, 400),
+     xlab = "Adjacency values", 
+     main = "Adjacencies (with \"signed\" transformation)")
+```
+
+Adjacency values computed using the "unsigned" transformation:
+
+```{r single_pears_hist_3, fig.height=4, fig.width=8}
+hist(net_pears_unsigned$adjaMat1, 100, ylim = c(0, 400),
+     xlab = "Adjacency values", 
+     main = "Adjacencies (with \"unsigned\" transformation)")
+```
+
+**Network analysis and plotting**
+
+```{r single_pears_unsigned_3, fig.height=6, fig.width=6}
+props_pears_unsigned <- netAnalyze(net_pears_unsigned, 
+                                   clustMethod = "cluster_fast_greedy",
+                                   gcmHeat = FALSE)
+```
+
+
+```{r single_pears_unsigned_4, fig.height=18, fig.width=20}
+plot(props_pears_unsigned, 
+     nodeColor = "cluster", 
+     nodeSize = "eigenvector",
+     repulsion = 0.9,
+     rmSingles = TRUE,
+     labelScale = FALSE,
+     cexLabels = 1.6,
+     nodeSizeSpread = 3,
+     cexNodes = 2,
+     hubBorderCol = "darkgray",
+     title1 = "Network with Pearson correlations and \"unsigned\" transformation", 
+     showTitle = TRUE,
+     cexTitle = 2.3)
+
+legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
+       legend = c("+","-"), lty = 1, lwd = 3, col = c("#009900","red"),
+       bty = "n", horiz = TRUE)
+```
+
+While with the "signed" transformation, positive correlated taxa are likely to 
+belong to the same cluster, with the "unsigned" transformation clusters contain 
+strongly positive and negative correlated taxa. 
+
+----
 
 ### Network on genus level
 
@@ -640,6 +768,8 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
        bty = "n", horiz = TRUE)
 ```
 
+----
+
 ### Using an association matrix as input
 
 The QMP data set provided by the `SPRING` package is used to demonstrate how 
@@ -713,6 +843,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated association:",
        bty = "n", horiz = TRUE)
 ```
 
+----
 
 ### Network comparison
 
@@ -720,28 +851,36 @@ Now let's look how NetCoMi is used to compare two networks.
 
 **Network construction**
 
-The covariate `"SEASONAL_ALLERGIES`" is used for splitting the data set into two
-groups. The [`metagMisc`](https://github.com/vmikk/metagMisc) package offers a 
-function for splitting phyloseq objects according to a variable. 
-The two resulting phyloseq objects (we ignore the group
-'None') can directly be passed to NetCoMi.
-
-We select the 50 nodes with highest variance to get smaller networks.
+The data set is split by `"SEASONAL_ALLERGIES"` leading to two subsets of 
+samples (with and without seasonal allergies). We ignore the "None" group.  
 
 ```{r netcomp_spring_0}
-# devtools::install_github("vmikk/metagMisc")
-
 # Split the phyloseq object into two groups
-amgut_split <- metagMisc::phyloseq_sep_variable(amgut2.filt.phy, 
-                                                "SEASONAL_ALLERGIES")
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                             SEASONAL_ALLERGIES == "yes")
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                            SEASONAL_ALLERGIES == "no")
+
+amgut_season_yes
+amgut_season_no
 ```
 
+The 50 nodes with highest variance are selected for network construction to get 
+smaller networks.
+
+We filter the 121 samples (sample size of the smaller group) with highest 
+frequency to make the sample sizes equal and thus ensure comparability.
+
 ```{r netcomp_spring_1}
+n_yes <- phyloseq::nsamples(amgut_season_yes)
+
 # Network construction
-net_season <- netConstruct(data = amgut_split$no, 
-                           data2 = amgut_split$yes,  
+net_season <- netConstruct(data = amgut_season_no, 
+                           data2 = amgut_season_yes,  
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = n_yes),
                            measure = "spring",
                            measurePar = list(nlambda=10, 
                                              rep.num=10),
@@ -752,7 +891,6 @@ net_season <- netConstruct(data = amgut_split$no,
                            verbose = 2,
                            seed = 123456)
 ```
-
 
 Alternatively, a group vector could be passed to `group`, according to which
 the data set is split into two groups:
@@ -775,6 +913,8 @@ net_season <- netConstruct(countMat,
                            group = group_vec, 
                            filtTax = "highestVar",
                            filtTaxPar = list(highestVar = 50),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = n_yes),
                            measure = "spring",
                            measurePar = list(nlambda=10, 
                                              rep.num=10),
@@ -952,6 +1092,7 @@ summary(comp_season,
         numbNodes = 5)
 ```
 
+----
 
 ### Differential networks
 
@@ -971,8 +1112,8 @@ matrices before sparsification (the `assoEst1` and `assoEst2` matrices returned
 by `netConstruct()`).
 
 ```{r diffnet_1, fig.height=15, fig.width=30}
-net_season_pears <- netConstruct(data = amgut_split$no, 
-                                 data2 = amgut_split$yes, 
+net_season_pears <- netConstruct(data = amgut_season_no, 
+                                 data2 = amgut_season_yes, 
                                  filtTax = "highestVar",
                                  filtTaxPar = list(highestVar = 50),
                                  measure = "pearson", 
@@ -1009,7 +1150,7 @@ props_season_pears <- netAnalyze(net_season_pears,
                                  clustMethod = "cluster_fast_greedy",
                                  weightDeg = TRUE,
                                  normDeg = FALSE,
-                                 gcmHeatLCC = NA)
+                                 gcmHeat = FALSE)
 ```
 
 
@@ -1043,6 +1184,7 @@ legend(-0.15,-0.7, title = "estimated correlation:", legend = c("+","-"),
 We can see that the correlation between the aforementioned OTUs '191541' and 
 '188236' is strongly positive in the left group and negative in the right group.
 
+----
 
 ### Dissimilarity-based Networks
 
@@ -1061,11 +1203,11 @@ The network is sparsified using the k-nearest neighbor (knn) algorithm.
 
 ```{r example13}
 net_diss <- netConstruct(amgut1.filt,
-                              measure = "aitchison",
-                              zeroMethod = "multRepl",
-                              sparsMethod = "knn", 
-                              kNeighbor = 3,
-                              verbose = 3)
+                         measure = "aitchison",
+                         zeroMethod = "multRepl",
+                         sparsMethod = "knn",
+                         kNeighbor = 3,
+                         verbose = 3)
 ```
 
 For cluster detection, we use hierarchical clustering with average linkage. 
@@ -1074,9 +1216,9 @@ from `stats` package so that the tree is cut into 3 clusters.
 
 ```{r example14, fig.height=6, fig.width=6}
 props_diss <- netAnalyze(net_diss,
-                              clustMethod = "hierarchical",
-                              clustPar = list(method = "average", k = 3),
-                              hubPar = "eigenvector")
+                         clustMethod = "hierarchical",
+                         clustPar = list(method = "average", k = 3),
+                         hubPar = "eigenvector")
 ```
 
 
@@ -1107,6 +1249,8 @@ legend(0.4, 1.1,
 
 In this dissimilarity-based network, hubs are interpreted as samples with a 
 microbial composition similar to that of many other samples in the data set. 
+
+----
 
 ### Soil microbiome example
 
