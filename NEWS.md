@@ -44,9 +44,8 @@
   significance. For a single GCM, the correlations are tested for being
   significantly different from zero. If two GCMs are given, it is tested
   if the correlations are significantly different between the two
-  groups, that is, the absolute differences between correlations
-  ($\lvert gc1_{ij}-gc2_{ij}\rvert$) are tested for being different from
-  zero.
+  groups, that is, the absolute differences between correlations (
+  $|gc1_{ij}-gc2_{ij}|$ ) are tested for being different from zero.
 
 - New function **`plotHeat()`** for plotting a mixed heatmap where, for
   instance, values are shown in the upper triangle and corresponding
