@@ -267,11 +267,19 @@
 #' @param hubBorderCol character specifying the border color of hub nodes.
 #'   Defaults to \code{"black"}. Ignored if \code{highlightHubs} is 
 #'   \code{FALSE}.
-#' @param edgeFilter character indicating whether and how edges should be
-#'   filtered. Possible values are \code{"none"} (default; all edges are shown),
-#'   \code{"threshold"} (only edges with edge weight of at least x are shown),
-#'   \code{"highestWeight"} (the first x edges with highest edge weight are
-#'   shown). x is defined by \code{edgeFilterPar}, respectively.
+#' @param edgeFilter character specifying how edges are filtered. 
+#'   Possible values are:
+#'   \describe{
+#'   \item{\code{"none"}}{Default. All edges are plotted.}
+#'   \item{\code{"threshold"}}{For association networks, only edges 
+#'   corresponding to an absolute association >= x are plotted. For 
+#'   dissimilarity networks, only edges corresponding to a dissimilarity <= x 
+#'   are plotted. The behavior is similar to that of sparsification via threshold 
+#'   in netConstruct().}
+#'   \item{\code{"highestWeight"}}{The first x edges with highest edge weight 
+#'   are plotted.} 
+#'   }
+#'   x is defined by \code{edgeFilterPar}, respectively.
 #' @param edgeFilterPar numeric specifying the "x" in \code{edgeFilter}.
 #' @param edgeInvisFilter similar to \code{edgeFilter} but the edges are removed
 #'   only after computing the layout so that edge removal does not influence the
@@ -503,7 +511,16 @@ plot.microNetProps <- function(x,
   #=============================================================================
   # Edge and node filtering
   
-  adja1 <- .filterEdges(adja = adja1_orig, edgeFilter = edgeFilter,
+  dissMat1 <- if (is.null(x$input$dissEst1)) {
+    NULL
+  } else {
+    x$input$dissMat1
+  }
+  
+  adja1 <- .filterEdges(adja = adja1_orig, 
+                        assoEst = x$input$assoMat1,
+                        dissEst = dissMat1,
+                        edgeFilter = edgeFilter,
                         edgeFilterPar = edgeFilterPar)
   
   keep1 <- .filterNodes(adja = adja1, nodeFilter = nodeFilter,
@@ -515,9 +532,19 @@ plot.microNetProps <- function(x,
                         cluster = x$clustering$clust1)
   
   if (twoNets) {
+    
     adja2_orig <- x$input$adjaMat2
     
-    adja2 <- .filterEdges(adja = adja2_orig, edgeFilter = edgeFilter,
+    dissMat2 <- if (is.null(x$input$dissEst2)) {
+      NULL
+    } else {
+      x$input$dissMat2
+    }
+    
+    adja2 <- .filterEdges(adja = adja2_orig, 
+                          assoEst = x$input$assoMat2,
+                          dissEst = dissMat2,
+                          edgeFilter = edgeFilter,
                           edgeFilterPar = edgeFilterPar)
     
     keep2 <- .filterNodes(adja = adja2_orig, nodeFilter = nodeFilter,
@@ -1230,7 +1257,10 @@ plot.microNetProps <- function(x,
   # Filter edges without influencing the layout (group 1)
   
   if (edgeInvisFilter != "none") {
-    adja1 <- .filterEdges(adja1, edgeFilter = edgeInvisFilter,
+    adja1 <- .filterEdges(adja1, 
+                          assoEst = x$input$assoMat1,
+                          dissEst = dissMat1,
+                          edgeFilter = edgeInvisFilter,
                           edgeFilterPar = edgeInvisPar)
   }
   
@@ -1354,7 +1384,10 @@ plot.microNetProps <- function(x,
     # Filter edges without influencing the layout (group 2)
     
     if (edgeInvisFilter != "none") {
-      adja2 <- .filterEdges(adja2, edgeFilter = edgeInvisFilter,
+      adja2 <- .filterEdges(adja2, 
+                            assoEst = x$input$assoMat2,
+                            dissEst = dissMat2,
+                            edgeFilter = edgeInvisFilter,
                             edgeFilterPar = edgeInvisPar)
     }
     

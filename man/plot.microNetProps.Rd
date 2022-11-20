@@ -307,11 +307,19 @@ Defaults to \code{2*borderWidth}. Ignored if \code{highlightHubs} is
 Defaults to \code{"black"}. Ignored if \code{highlightHubs} is 
 \code{FALSE}.}
 
-\item{edgeFilter}{character indicating whether and how edges should be
-filtered. Possible values are \code{"none"} (default; all edges are shown),
-\code{"threshold"} (only edges with edge weight of at least x are shown),
-\code{"highestWeight"} (the first x edges with highest edge weight are
-shown). x is defined by \code{edgeFilterPar}, respectively.}
+\item{edgeFilter}{character specifying how edges are filtered. 
+Possible values are:
+\describe{
+\item{\code{"none"}}{Default. All edges are plotted.}
+\item{\code{"threshold"}}{For association networks, only edges 
+corresponding to an absolute association >= x are plotted. For 
+dissimilarity networks, only edges corresponding to a dissimilarity <= x 
+are plotted. The behavior is similar to that of sparsification via threshold 
+in netConstruct().}
+\item{\code{"highestWeight"}}{The first x edges with highest edge weight 
+are plotted.} 
+}
+x is defined by \code{edgeFilterPar}, respectively.}
 
 \item{edgeFilterPar}{numeric specifying the "x" in \code{edgeFilter}.}
 

@@ -1,9 +1,17 @@
-.filterEdges <- function(adja, edgeFilter, edgeFilterPar) {
-  
+.filterEdges <- function(adja, assoEst, dissEst, edgeFilter, edgeFilterPar) {
   if (edgeFilter == "threshold") {
     
-    adja[abs(adja) < edgeFilterPar] <- 0
-    
+    if (is.null(dissEst)) { # if association network
+      assoEst <- assoEst[rownames(adja), colnames(adja)]
+      
+      adja[abs(assoEst) < edgeFilterPar] <- 0
+      
+    } else { # if dissimilarity network
+      dissEst <- dissEst[rownames(adja), colnames(adja)]
+      
+      adja[dissEst > edgeFilterPar] <- 0
+    }
+
   } else if (edgeFilter == "highestWeight") {
     
     adjaSort <- sort(adja[lower.tri(adja)], decreasing = TRUE)
