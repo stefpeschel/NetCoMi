@@ -8,13 +8,13 @@ available on **develop branch** only.
 
 - **renameTaxa()**: New function for renaming taxa in a taxonomic table.
   It comes with functionality for making unknown and unclassified taxa
-  unique and substituting them by the next higher known taxonomic level,
-  e.g., an unknown genus “g\_\_” can automatically be renamed to
-  “1_Streptococcaceae(F)”. User-defined patterns determine the format of
-  known and substituted names. Unknown names (e.g., NAs) and
-  unclassified taxa can be handled separately. Duplicated names within
-  one or more chosen ranks can also be made unique by numbering them
-  consecutively.
+  unique and substituting them by the next higher known taxonomic level.
+  E.g., an unknown genus “g\_\_“, where family is the next higher known
+  level, can automatically be renamed to”1_Streptococcaceae(F)“.
+  User-defined patterns determine the format of known and substituted
+  names. Unknown names (e.g., NAs) and unclassified taxa can be handled
+  separately. Duplicated names within one or more chosen ranks can also
+  be made unique by numbering them consecutively.
 
 - **editLabels()**: New function for editing node labels, i.e.,
   shortening to a certain length and removing unwanted characters. It is
@@ -32,24 +32,24 @@ available on **develop branch** only.
 - **Graphlet-based network measures** implemented. NetCoMi contains two
   new exported functions **`calcGCM()`** and **`calcGCD()`** to compute
   the Graphlet Correlation Matrix (GCM) of a network and the Graphlet
-  Correlation Distance (GCD) between two networks. Orbits for graphlets
-  with up to four nodes are considered. Furthermore, the GCM is computed
-  with `netAnalyze()` and the GCD with `netCompare()` (for the whole
-  network and the largest connected component, respectively). Also the
-  orbit counts are returned. The GCD is added to the summary for class
-  `microNetComp` objects returned by `netCompare()`.
+  Correlation Distance (GCD) between two networks. **Orbits** for
+  graphlets with up to four nodes are considered. Furthermore, the GCM
+  is computed with `netAnalyze()` and the GCD with `netCompare()` (for
+  the whole network and the largest connected component, respectively).
+  Also the orbit counts are returned. The GCD is added to the summary
+  for class `microNetComp` objects returned by `netCompare()`.
 
 - **Significance test for the GCD**: If permutation tests are conducted
-  with  
-  `netCompare()`, the GCD is tested for being significantly different
-  from zero.
+  with `netCompare()`, the GCD is tested for being significantly
+  different from zero.
 
 - New function **`testGCM()`** to **test graphlet-based measures** for
   significance. For a single GCM, the correlations are tested for being
   significantly different from zero. If two GCMs are given, it is tested
   if the correlations are significantly different between the two
   groups, that is, the absolute differences between correlations
-  ($|gc1_{ij}-gc2_{ij}|$) are tested for being different from zero.
+  ($\lvert gc1_{ij}-gc2_{ij}\rvert$) are tested for being different from
+  zero.
 
 - New function **`plotHeat()`** for plotting a mixed heatmap where, for
   instance, values are shown in the upper triangle and corresponding
@@ -57,7 +57,7 @@ available on **develop branch** only.
   used for plotting heatmaps of the GCMs, but could also be used for
   association matrices.
 
-- `netAnalyze()` now by default returns a heatmap of the GCM(s) with
+- `netAnalyze()` now by default returns a **heatmap of the GCM(s)** with
   graphlet correlations in the upper triangle and significance codes in
   the lower triangle.
 
@@ -80,7 +80,7 @@ available on **develop branch** only.
 - `createAssoPerm()` now accepts objects of class `microNet` as input
   (in addition to objects of class `microNetProps`).
 
-- **`SPRING`**’s fast version of latent correlation computation
+- **`SPRING's`** fast version of latent correlation computation
   (implemented in [mixedCCA](https://github.com/irinagain/mixedCCA)) is
   available again. It can be used by setting the `netConstruct()`
   parameter `measurePar$Rmethod` to “approx”, which is now the default
@@ -90,12 +90,19 @@ available on **develop branch** only.
   pre-define the proportion of true null hypotheses for the adaptive BH
   method.
 
+- `netConstruct()` has a new argument **`assoBoot`**, which enables the
+  computation of bootstrap association matrices outside netConstruct()
+  if **bootstrapping** is used for sparsification. An example has been
+  added to the help page `?netConstruct`. This feature might be useful
+  for very large association matrices (for which the working memory
+  might reach its limit).
+
 ### Bug fixes
 
 - In `netConstruct()`:
 
   - Using **“bootstrap”** as sparsification method in combination with
-    on of the association methods “bicor”, “cclasso”, “ccrepe”, or
+    one of the association methods “bicor”, “cclasso”, “ccrepe”, or
     “gcoda” led to the error:
     `argument "verbose" is missing, with no default`, which has been
     fixed.
@@ -123,6 +130,9 @@ available on **develop branch** only.
     expected class.
   - The `cut` parameter could not be changed.
 
+- In **`cclasso()`**: In rare cases, the function produced complex
+  numbers, which led to an error.
+
 ### Further changes
 
 - In **permutation tests**: The permuted group labels must now be
@@ -143,15 +153,31 @@ available on **develop branch** only.
   - The default of `shortenLabels` is now “none”, i.e. the **labels are
     not shortened by default**, to avoid confusion about the node
     labels.
+  - The **edge filter** (specified via `edgeFilter` and
+    `edgeInvisFilter`) now refers to the estimated
+    association/dissimilarities instead of edge weights. E.g., setting
+    the threshold to 0.3 for an association network hides edges with a
+    corresponding absolute association below 0.3 even though the edge
+    weight might be different (depending on the transformation used for
+    network construction). (issue
+    [\#26](https://github.com/stefpeschel/NetCoMi/issues/26))
   - If two networks are constructed and the **`cut`** parameter is not
     user-defined, the mean of the two determined cut parameters is now
     used for both networks so that edge thicknesses are comparable.
 
 - More expressive messages and errors in `diffnet` and `plot.diffnet` if
-  no differential associations are detected.
+  no **differential associations** are detected.
 
 - New function **`.suppress_warnings()`** to suppress certain warnings
   returned by external functions.
+
+- In `netConstruct` if **“multRepl”** is used for zero handling: The
+  warning about the proportion of zeros is suppressed by setting the
+  `multRepl()` parameter “z.warning” to 1.
+
+- The functions **`makeCluster`** and **`stopCluster`** from `parallel`
+  package are now used for parallel computation because those from
+  `snow` package sometimes led to problems on Unix machines.
 
 ### Style
 
