@@ -393,7 +393,7 @@
 #'      colorVec = heat.colors(5))
 #' 
 #' # Use a further feature vector for node shapes
-#' shapeVec <- sample(1:3, nrow(amgut1.filt), replace = TRUE)
+#' shapeVec <- sample(1:3, ncol(amgut1.filt), replace = TRUE)
 #' names(shapeVec) <- colnames(amgut1.filt)
 #' 
 #' plot(amgut_props,
