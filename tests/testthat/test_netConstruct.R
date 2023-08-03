@@ -26,6 +26,29 @@ plot(testprops)
 mtext("phyloseq", side = 3, cex = 1.5)
 
 #===============================================================================
+context("netConstruct with TreeSummarizedExperiment object as input")
+
+library(mia)
+data("peerj13075")
+
+testnet <- netConstruct(peerj13075,
+                        filtTax = "highestVar",
+                        filtTaxPar = list(highestVar = 20),
+                        filtSamp = "totalReads",
+                        filtSampPar = list(totalReads = 1000),
+                        zeroMethod = "none", normMethod = "none",
+                        measure = "pearson",
+                        sparsMethod = "threshold", thresh = 0.3,
+                        seed = 20190101)
+
+testprops<- netAnalyze(testnet,
+                       clustMethod = "cluster_fast_greedy",
+                       hubPar = "eigenvector")
+
+plot(testprops)
+mtext("phyloseq", side = 3, cex = 1.5)
+
+#===============================================================================
 # Filtering
 
 context("netConstruct with different taxa filtering methods (single network)")

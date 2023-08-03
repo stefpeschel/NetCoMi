@@ -24,6 +24,7 @@ Imports:
     igraph,
     MASS,
     Matrix,
+    mia,
     mixedCCA (>= 1.6.2),
     orca,
     phyloseq,
@@ -34,6 +35,7 @@ Imports:
     rlang,
     SPRING,
     stats,
+    SummarizedExperiment,
     utils,
     vegan,
     WGCNA
