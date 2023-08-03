@@ -1,7 +1,7 @@
 #' @title Constructing Networks for Microbiome Data
 #'
-#' @description Constructing microbial association networks and dissimilarity
-#'   based networks (where nodes are subjects) from compositional count data.
+#' @description Construct microbial association networks and dissimilarity-based 
+#' networks (where nodes are subjects) from compositional count data.
 #'   
 #' @usage netConstruct(data,
 #'              data2 = NULL,
@@ -197,19 +197,22 @@
 #'     \tab diss[x < 0] <- 0\cr
 #'   \code{"TOMdiss"} \tab \code{\link[WGCNA:TOMsimilarity]{TOMdist}}
 #'   }
-#' @param data numeric matrix. Can be a count matrix (rows are samples, columns
-#'   are OTUs/taxa), a phyloseq object, or an association/dissimilarity matrix
-#'   (\code{dataType} must be set).
-#'   a second count matrix/phyloseq object or a second association/dissimilarity
-#'   matrix.
-#' @param data2 optional numeric matrix used for constructing a second 
-#'   network (belonging to group 2). Can be either a second count 
-#'   matrix/phyloseq object or a second association/dissimilarity matrix.
+#' @param data data set from which the network is built. Can be a numeric  
+#'   matrix (samples in rows, OTUs/ASVs in columns) or an object of the classes: 
+#'   \code{\link[phyloseq:phyloseq-class]{phyloseq}},
+#'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}},
+#'   \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-class]{TreeSummarizedExperiment}}.
+#'   Can also be an association 
+#'   or dissimilarity matrix (\code{dataType} must be set accordingly).
+#' @param data2 optional data set for constructing a second 
+#'   network (belonging to group 2). Accepted input is the same as for 
+#'   \code{data}.
 #' @param dataType character indicating the data type. Defaults to "counts",
 #'   which means that \code{data} (and data2) is a count matrix or object of
-#'   class \code{\link[phyloseq:phyloseq-class]{phyloseq}}. Further options
-#'   are "correlation", "partialCorr" (partial correlation), "condDependence"
-#'   (conditional dependence), "proportionality" and "dissimilarity".
+#'   class \code{phyloseq}, \code{SummarizedExperiment}, or 
+#'   \code{TreeSummarizedExperiment}. Further options are "association",
+#'   "correlation", "partialCorr" (partial correlation), "condDependence"
+#'   (conditional dependence), "proportionality", and "dissimilarity".
 #' @param group optional binary vector used for splitting the data into two
 #'   groups. If \code{group} is \code{NULL} (default) and \code{data2} is not 
 #'   set, a single network is constructed. See 'Details.'
@@ -276,7 +279,7 @@
 #'   \code{"numbTaxa"} (int), \code{"highestFreq"} (int).
 #' @param taxRank character indicating the taxonomic rank at which the network 
 #'   should be constructed. Only used if data (and data 2) is a phyloseq object. 
-#'   The given rank must match one of the column names of the taxonomic table 
+#'   The given rank must match one of the column names of the taxonomy table 
 #'   (the \code{@tax_table} slot of the phyloseq object). Taxa names of the 
 #'   chosen taxonomic rank must be unique (consider using the function 
 #'   \code{\link{renameTaxa}} to make them unique). If a phyloseq object is 
@@ -511,7 +514,7 @@
 #' 
 #' dim(phyloseq::otu_table(amgut.genus.phy))
 #' 
-#' # Rename taxonomic table and make Rank6 (genus) unique
+#' # Rename taxonomy table and make Rank6 (genus) unique
 #' amgut.genus.renamed <- renameTaxa(amgut.genus.phy, pat = "<name>", 
 #'                                   substPat = "<name>_<subst_name>(<subst_R>)",
 #'                                   numDupli = "Rank6")
@@ -689,7 +692,7 @@
 #' @importFrom SPRING SPRING mclr
 #' @importFrom utils capture.output install.packages installed.packages
 #' @importFrom WGCNA pickSoftThreshold TOMdist
-#' @import phyloseq
+#' @import phyloseq mia
 #' @export
 
 netConstruct <- function(data,
@@ -754,14 +757,8 @@ netConstruct <- function(data,
   if (verbose %in% 2:3) message("Done.")
   
   #-----------------------------------------------------------------------------
-
-  if (dataType == "phyloseq") {
-    dataType <- "counts"
-  }
   
   if (dataType =="counts") {
-
-    # handle phyloseq objects
     
     if (inherits(data, "phyloseq")) {
       
@@ -780,7 +777,7 @@ netConstruct <- function(data,
       if (!is.null(taxRank)) {
         
         if (!taxRank %in% colnames(taxtab)) {
-          stop('Argument "taxRank" must match column names of the taxonomic ', 
+          stop('Argument "taxRank" must match column names of the taxonomy ', 
                'table:\n', paste(colnames(taxtab), collapse = ", "))
         }
         
@@ -791,21 +788,55 @@ netConstruct <- function(data,
         colnames(data) <- taxtab[, taxRank]
       }
       
-    } else {
-      if (is.null(rownames(data))) {
-        message("Row names are numbered because sample names were missing.\n")
-        rownames(data) <- 1:nrow(data)
+    } else if (inherits(data, c("SummarizedExperiment", 
+                                "TreeSummarizedExperiment"))) {
+      
+      assay.type <- "counts"
+      
+      if (!assay.type %in% names(assays(data))) {
+        stop("assays(data) must contain an element named 'counts'.")
       }
       
-      if (is.null(colnames(data))) {
-        message("Column names are numbered because taxa names were missing.\n")
-        colnames(data) <- 1:ncol(data)
+      # Abundance table
+      counttab <- t(as.matrix(assay(data, assay.type)))
+      
+      if (!is.null(taxRank)) {
+        
+        if (is.null(rowData(data)) || ncol(rowData(data)) == 0) {
+          stop("rowData(data) must be non-empty if taxRank is given.")
+        }
+        
+        # Taxonomy table
+        taxtab <- as.matrix(rowData(data))
+        
+        if (!taxRank %in% colnames(taxtab)) {
+          stop('Argument "taxRank" must match column names of the taxonomy ', 
+               'table:\n', paste(colnames(taxtab), collapse = ", "))
+        }
+        
+        if (any(duplicated(taxtab[, taxRank]))) {
+          stop(paste0("Taxa names of chosen taxonomic rank must be unique. ",
+                      "Consider using NetCoMi's function renameTaxa()."))
+        }
+        colnames(counttab) <- taxtab[, taxRank]
       }
       
-      if (identical(colnames(data), rownames(data))) {
-        warning(paste0("Row names and column names of 'data' are equal. ",
-                       "Ensure 'data' is a count matrix."))
-      }
+      data <- counttab
+    }
+    
+    if (is.null(rownames(data))) {
+      message("Row names are numbered because sample names were missing.\n")
+      rownames(data) <- 1:nrow(data)
+    }
+    
+    if (is.null(colnames(data))) {
+      message("Column names are numbered because taxa names were missing.\n")
+      colnames(data) <- 1:ncol(data)
+    }
+    
+    if (identical(colnames(data), rownames(data))) {
+      warning(paste0("Row names and column names of 'data' are equal. ",
+                     "Ensure 'data' is a count matrix."))
     }
     
     if (!is.null(data2)) {
@@ -825,7 +856,7 @@ netConstruct <- function(data,
         
         if (!is.null(taxRank)) {
           if (!taxRank %in% colnames(taxtab)) {
-            stop('Argument "taxRank" must match column names of the taxonomic ', 
+            stop('Argument "taxRank" must match column names of the taxonomy ', 
                  'table:\n', paste(colnames(taxtab), collapse = ", "))
           }
           
@@ -835,6 +866,41 @@ netConstruct <- function(data,
           }
           colnames(data2) <- taxtab[, taxRank]
         }
+        
+      } else if (inherits(data2, c("SummarizedExperiment", 
+                                  "TreeSummarizedExperiment"))) {
+        
+        assay.type <- "counts"
+        
+        if (!assay.type %in% names(assays(data2))) {
+          stop("assays(data2) must contain an element named 'counts'.")
+        }
+        
+        # Abundance table
+        counttab <- t(as.matrix(assay(data2, assay.type)))
+        
+        if (!is.null(taxRank)) {
+          
+          if (is.null(rowData(data2)) || ncol(rowData(data2)) == 0) {
+            stop("rowData(data2) must be non-empty if taxRank is given.")
+          }
+          
+          # Taxonomy table
+          taxtab <- as.matrix(rowData(data2))
+          
+          if (!taxRank %in% colnames(taxtab)) {
+            stop('Argument "taxRank" must match column names of the taxonomy ', 
+                 'table:\n', paste(colnames(taxtab), collapse = ", "))
+          }
+          
+          if (any(duplicated(taxtab[, taxRank]))) {
+            stop(paste0("Taxa names of chosen taxonomic rank must be unique. ",
+                        "Consider using NetCoMi's function renameTaxa()."))
+          }
+          colnames(counttab) <- taxtab[, taxRank]
+        }
+        
+        data2 <- counttab
       }
       
       if (is.null(rownames(data2))) {

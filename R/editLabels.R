@@ -182,7 +182,7 @@ editLabels <- function(x,
         
       } else {
         for (k in 1:length(dupnames)) {
-          str1 <- paste(dupnames[[k]][1:cut1], collapse = "")
+          str1 <- paste(dupnames[[k]][1:min(cut1, (first_unequal-1))], collapse = "")
           str2 <- labelPattern[2]
           str3 <- paste(dupnames[[k]][first_unequal:(first_unequal+cut2-1)], 
                         collapse = "")

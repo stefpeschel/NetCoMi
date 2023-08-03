@@ -1,6 +1,6 @@
 #' @title Rename taxa
 #'
-#' @description Function for renaming taxa in a taxonomic table, which can be 
+#' @description Function for renaming taxa in a taxonomy table, which can be 
 #'   given as matrix or phyloseq object. \cr\cr
 #'   It comes with functionality for making unknown 
 #'   and unclassified taxa unique and substituting them by the next higher known
@@ -11,8 +11,11 @@
 #'   handled separately. Duplicated names within one or more chosen ranks can 
 #'   also be made unique by numbering them consecutively.
 #'
-#' @param taxtab taxonomic table (matrix containing the taxonomic names; columns 
-#'   must be taxonomic ranks) or phyloseq object.
+#' @param taxtab taxonomy table (matrix containing the taxonomic names; columns 
+#'   must be taxonomic ranks). Can also be an object of the classes: 
+#'   \code{\link[phyloseq:phyloseq-class]{phyloseq}},
+#'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}},
+#'   \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-class]{TreeSummarizedExperiment}}.
 #' @param pat character specifying the pattern of new taxonomic names if the 
 #'   current name is KNOWN.
 #'   See the examples and default value for a demo. 
@@ -77,7 +80,7 @@
 #'   automatically only if \code{ignoreCols = NULL}. 
 #'   Note: length of \code{ranks} and \code{ranksAbb} must 
 #'   match the number of non-ignored columns.
-#' @return Renamed taxonomic table (matrix or phyloseq object, depending on the 
+#' @return Renamed taxonomy table (matrix or phyloseq object, depending on the 
 #'   input).
 #'
 #' @examples
@@ -254,7 +257,18 @@ renameTaxa <- function(taxtab,
   stopifnot(is.logical(numUnclass))
   
   if (inherits(taxtab, "phyloseq")) {
+    
     tax <- as.matrix(taxtab@tax_table@.Data)
+    
+  } else if (inherits(taxtab, c("SummarizedExperiment", 
+                                "TreeSummarizedExperiment"))) {
+    
+    if (is.null(rowData(taxtab)) || ncol(rowData(taxtab)) == 0) {
+      stop("rowData(taxtab) must be non-empty.")
+    }
+    
+    tax <- as.matrix(rowData(taxtab))
+    
   } else {
     tax <- as.matrix(taxtab)
   }
@@ -273,7 +287,7 @@ renameTaxa <- function(taxtab,
   if (!is.null(numDupli)) {
     if (!all(numDupli %in% colnames(tax))) {
       stop('Ranks given with "numDupli" must match column names of ' ,
-           'taxonomic table.')
+           'taxonomy table.')
     }
     
     if (!grepl("<name>", numDupliPat)) {
@@ -324,7 +338,8 @@ renameTaxa <- function(taxtab,
   missRanks <- missRanksAbb <- FALSE
   
   if (is.null(ranks)) {
-    if (any(ranks.tmp %in% colnames(tax))) {
+    if (any(ranks.tmp %in% colnames(tax) | 
+            tolower(ranks.tmp) %in% colnames(tax))) {
       ranks <- colnames(tax)
       
     } else {
@@ -444,7 +459,7 @@ renameTaxa <- function(taxtab,
       
       if (!all(unclassname %in% unknown)) {
         unclassname <- unclassname[!unclassname %in% unknown]
-        warning(paste0('Taxonomic table contains unclassified taxa. ',
+        warning(paste0('Taxonomy table contains unclassified taxa. ',
                        'Consider adding "', unclassname, 
                        '" to argument "unknown".'))
       }
@@ -572,6 +587,12 @@ renameTaxa <- function(taxtab,
     phyloseq::tax_table(taxtab) <- phyloseq::tax_table(taxout)
     taxout <- taxtab
   } 
+  
+  if (inherits(taxtab, c("SummarizedExperiment", 
+                         "TreeSummarizedExperiment"))) {
+    rowData(taxtab) <- taxout 
+    taxout <- taxtab
+  }
   
   return(taxout)
 }

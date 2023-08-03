@@ -21,8 +21,11 @@ renameTaxa(
 )
 }
 \arguments{
-\item{taxtab}{taxonomic table (matrix containing the taxonomic names; columns 
-must be taxonomic ranks) or phyloseq object.}
+\item{taxtab}{taxonomy table (matrix containing the taxonomic names; columns 
+must be taxonomic ranks). Can also be an object of the classes: 
+\code{\link[phyloseq:phyloseq-class]{phyloseq}},
+\code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}},
+\code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-class]{TreeSummarizedExperiment}}.}
 
 \item{pat}{character specifying the pattern of new taxonomic names if the 
 current name is KNOWN.
@@ -101,11 +104,11 @@ Note: length of \code{ranks} and \code{ranksAbb} must
 match the number of non-ignored columns.}
 }
 \value{
-Renamed taxonomic table (matrix or phyloseq object, depending on the 
+Renamed taxonomy table (matrix or phyloseq object, depending on the 
   input).
 }
 \description{
-Function for renaming taxa in a taxonomic table, which can be 
+Function for renaming taxa in a taxonomy table, which can be 
   given as matrix or phyloseq object. \cr\cr
   It comes with functionality for making unknown 
   and unclassified taxa unique and substituting them by the next higher known

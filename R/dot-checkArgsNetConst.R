@@ -10,9 +10,28 @@
   #errs$msg <- NULL
   
   #-------------------
+  # class
+  classes <- c("matrix", "phyloseq", "TreeSummarizedExperiment", 
+               "SummarizedExperiment")
+  
+  errs <- 
+    .checkArg(cond = inherits(args$data, classes), 
+              msg = paste0("\"data\" must inherit from one of the classes: ",
+                           paste(classes, collapse = ", "), "."), 
+              errs = errs)
+  
+  if (!is.null(args$data2)) {
+    errs <- 
+      .checkArg(cond = inherits(args$data2, classes), 
+                msg = paste0("\"data2\" must inherit from one of the classes: ",
+                             paste(classes, collapse = ", "), "."), 
+                errs = errs)
+  }
+  
+  #-------------------
   # dataType
   
-  choices <- c("counts", "phyloseq", "correlation", "partialCorr",
+  choices <- c("counts", "association", "correlation", "partialCorr",
                "condDependence", "proportionality", "dissimilarity")
   
   args$dataType <- try(match.arg(args$dataType, choices), silent = TRUE)

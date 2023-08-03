@@ -58,21 +58,24 @@ netConstruct(data,
              )
 }
 \arguments{
-\item{data}{numeric matrix. Can be a count matrix (rows are samples, columns
-are OTUs/taxa), a phyloseq object, or an association/dissimilarity matrix
-(\code{dataType} must be set).
-a second count matrix/phyloseq object or a second association/dissimilarity
-matrix.}
+\item{data}{data set from which the network is built. Can be a numeric
+matrix (samples in rows, OTUs/ASVs in columns) or an object of the classes: 
+\code{\link[phyloseq:phyloseq-class]{phyloseq}},
+\code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}},
+\code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-class]{TreeSummarizedExperiment}}.
+Can also be an association 
+or dissimilarity matrix (\code{dataType} must be set accordingly).}
 
-\item{data2}{optional numeric matrix used for constructing a second 
-network (belonging to group 2). Can be either a second count 
-matrix/phyloseq object or a second association/dissimilarity matrix.}
+\item{data2}{optional data set for constructing a second 
+network (belonging to group 2). Accepted input is the same as for 
+\code{data}.}
 
 \item{dataType}{character indicating the data type. Defaults to "counts",
 which means that \code{data} (and data2) is a count matrix or object of
-class \code{\link[phyloseq:phyloseq-class]{phyloseq}}. Further options
-are "correlation", "partialCorr" (partial correlation), "condDependence"
-(conditional dependence), "proportionality" and "dissimilarity".}
+class \code{phyloseq}, \code{SummarizedExperiment}, or 
+\code{TreeSummarizedExperiment}. Further options are "association",
+"correlation", "partialCorr" (partial correlation), "condDependence"
+(conditional dependence), "proportionality", and "dissimilarity".}
 
 \item{group}{optional binary vector used for splitting the data into two
 groups. If \code{group} is \code{NULL} (default) and \code{data2} is not 
@@ -90,7 +93,7 @@ identical to the original data set are ensured.}
 
 \item{taxRank}{character indicating the taxonomic rank at which the network 
 should be constructed. Only used if data (and data 2) is a phyloseq object. 
-The given rank must match one of the column names of the taxonomic table 
+The given rank must match one of the column names of the taxonomy table 
 (the \code{@tax_table} slot of the phyloseq object). Taxa names of the 
 chosen taxonomic rank must be unique (consider using the function 
 \code{\link{renameTaxa}} to make them unique). If a phyloseq object is 
@@ -375,8 +378,8 @@ An object of class \code{microNet} containing the following elements:
   \code{parameters}\tab Parameters used for network construction}
 }
 \description{
-Constructing microbial association networks and dissimilarity
-  based networks (where nodes are subjects) from compositional count data.
+Construct microbial association networks and dissimilarity-based 
+networks (where nodes are subjects) from compositional count data.
 }
 \details{
 The object returned by \code{netConstruct} can either be passed to
@@ -561,7 +564,7 @@ amgut.genus.phy <- phyloseq::tax_glom(amgut2.filt.phy, taxrank = "Rank6")
 
 dim(phyloseq::otu_table(amgut.genus.phy))
 
-# Rename taxonomic table and make Rank6 (genus) unique
+# Rename taxonomy table and make Rank6 (genus) unique
 amgut.genus.renamed <- renameTaxa(amgut.genus.phy, pat = "<name>", 
                                   substPat = "<name>_<subst_name>(<subst_R>)",
                                   numDupli = "Rank6")
