@@ -317,6 +317,7 @@ netCompare <- function(x,
                        trueNullMethod = "convest",
                        cores = 1L,
                        logFile = NULL,
+                       libPathsClust = NULL,
                        seed = NULL, 
                        fileLoadAssoPerm  = NULL,
                        fileLoadCountsPerm = NULL,
@@ -572,6 +573,11 @@ netCompare <- function(x,
       cl <- parallel::makeCluster(cores, outfile = "")
       
       doSNOW::registerDoSNOW(cl)
+      
+      if (!is.null(libPathsClust)) {
+        parallel::clusterExport(cl, "libPathsClust", envir = environment())
+        parallel::clusterEvalQ(cl, .libPaths(libPathsClust))
+      }
       
       '%do_or_dopar%' <- get('%dopar%')
       
