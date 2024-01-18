@@ -31,7 +31,7 @@ including statistical tests. The package furthermore offers
 functionality for constructing differential networks, where only
 differentially associated taxa are connected.
 
-![](man/figures/readme/networkplot-1.png)<!-- -->
+<img src="man/figures/networkplot_soil.png" width="800" />
 
 > Exemplary network comparison using soil microbiome data ([‘soilrep’
 > data from phyloseq
@@ -42,12 +42,13 @@ differentially associated taxa are connected.
 
 ## Table of Contents
 
-1.  [Overview of methods](#overview-of-methods-included-in-NetCoMi)
+1.  [Methods included in NetCoMi](#methods-included-in-NetCoMi)
 2.  [Installation](#installation)
 3.  [Development version](#development-version)
 4.  [Usage](#usage)
     - [Network with SPRING as association
       measure](#network-with-spring-as-association-measure)
+    - [Export to Gephi](#export-to-gephi)
     - [Network with Pearson
       correlations](#network-with-pearson-correlation-as-association-measure)
     - [“Unsigned” transformation](#using-the-unsigned-transformation)
@@ -60,7 +61,7 @@ differentially associated taxa are connected.
     - [Soil microbiome example](#soil-microbiome-example)
 5.  [References](#references)
 
-## Overview of methods included in NetCoMi
+## Methods included in NetCoMi
 
 Here is an overview of methods available for network construction,
 together with some information on their implementation in R:
@@ -107,8 +108,8 @@ together with some information on their implementation in R:
 - Jensen-Shannon divergence (own code using
   [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
   `LaplacesDemon` package)
-- Compositional KLD (own implementation following \[Martín-Fernández et
-  al., 1999\])
+- Compositional KLD (own implementation following Martin-Fernández et
+  al. (1999))
 - Aitchison distance
   ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
   and [`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html)
@@ -142,8 +143,8 @@ together with some information on their implementation in R:
   ([`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html) from
   `SpiecEasi` package))
 
-TSS, CSS, COM, VST, and the clr transformation are described in \[Badri
-et al., 2020\].
+TSS, CSS, COM, VST, and the clr transformation are described in (Badri
+et al. 2020).
 
 ## Installation
 
@@ -189,7 +190,7 @@ installed by the respective NetCoMi function when needed.
 
 ### Bioconda
 
-Thanks to [@daydream-boost](https://github.com/daydream-boost), NetCoMi
+Thanks to [daydream-boost](https://github.com/daydream-boost), NetCoMi
 can also be installed from conda bioconda channel with
 
 ``` bash
@@ -240,7 +241,7 @@ data("amgut2.filt.phy")
 
 ### Network with SPRING as association measure
 
-**Network construction and analysis**
+#### Network construction and analysis
 
 We firstly construct a single association network using
 [SPRING](https://github.com/GraceYoon/SPRING) for estimating
@@ -256,7 +257,11 @@ The data are filtered within `netConstruct()` as follows:
 `measure` defines the association or dissimilarity measure, which is
 `"spring"` in our case. Additional arguments are passed to `SPRING()`
 via `measurePar`. `nlambda` and `rep.num` are set to 10 for a decreased
-execution time, but should be higher for real data.
+execution time, but should be higher for real data. `Rmethod` is set to
+“approx” to estimate the correlations using a hybrid multi-linear
+interpolation approach proposed by Yoon, Müller, and Gaynanova (2020).
+This method considerably reduces the runtime while controlling the
+approximation error.
 
 Normalization as well as zero handling is performed internally in
 `SPRING()`. Hence, we set `normMethod` and `zeroMethod` to `"none"`.
@@ -280,7 +285,8 @@ net_spring <- netConstruct(amgut1.filt,
                            filtSampPar = list(totalReads = 1000),
                            measure = "spring",
                            measurePar = list(nlambda=10, 
-                                             rep.num=10),
+                                             rep.num=10,
+                                             Rmethod = "approx"),
                            normMethod = "none", 
                            zeroMethod = "none",
                            sparsMethod = "none", 
@@ -302,7 +308,7 @@ net_spring <- netConstruct(amgut1.filt,
     ##   reorder.hclust vegan
     ## Done.
 
-**Analyzing the constructed network**
+#### Analyzing the constructed network
 
 NetCoMi’s `netAnalyze()` function is used for analyzing the constructed
 network(s).
@@ -428,7 +434,7 @@ summary(props_spring, numbNodes = 5L)
     ## 199487 0.85439
     ## 188236 0.72684
 
-**Plotting the GCM heatmap manually**
+#### Plotting the GCM heatmap manually
 
 ``` r
 plotHeat(mat = props_spring$graphletLCC$gcm1,
@@ -451,7 +457,7 @@ text(6, -0.2, xpd = NA,
 
 ![](man/figures/readme/single_spring_heat-1.png)<!-- -->
 
-**Visualizing the network**
+#### Visualizing the network
 
 We use the determined clusters as node colors and scale the node sizes
 according to the node’s eigenvector centrality.
@@ -491,6 +497,38 @@ p$q1$Arguments$cut
 
     ##      75% 
     ## 0.337099
+
+### Export to Gephi
+
+Some users may be interested in how to export the network to Gephi.
+Here’s an example:
+
+``` r
+# For Gephi, we have to generate an edge list with IDs.
+# The corresponding labels (and also further node features) are stored as node list.
+
+# Create edge object from the edge list exported by netConstruct()
+edges <- dplyr::select(net_spring$edgelist1, v1, v2)
+
+# Add Source and Target variables (as IDs)
+edges$Source <- as.numeric(factor(edges$v1))
+edges$Target <- as.numeric(factor(edges$v2))
+edges$Type <- "Undirected"
+edges$Weight <- net_spring$edgelist1$adja
+
+nodes <- unique(edges[,c('v1','Source')])
+colnames(nodes) <- c("Label", "Id")
+
+# Add category with clusters (can be used as node colors in Gephi)
+nodes$Category <- props_spring$clustering$clust1[nodes$Label]
+
+edges <- dplyr::select(edges, Source, Target, Type, Weight)
+
+write.csv(nodes, file = "nodes.csv", row.names = FALSE)
+write.csv(edges, file = "edges.csv", row.names = FALSE)
+```
+
+The exported .csv files can then be imported into Gephi.
 
 ------------------------------------------------------------------------
 
@@ -588,7 +626,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated correlation:",
 
 ![](man/figures/readme/single_pears_4-1.png)<!-- -->
 
-**Edge filtering**
+#### Edge filtering
 
 The network can be sparsified further using the arguments `edgeFilter`
 (edges are filtered before the layout is computed) and `edgeInvisFilter`
@@ -608,7 +646,8 @@ plot(props_pears,
      nodeSizeSpread = 3,
      cexNodes = 2,
      hubBorderCol = "darkgray",
-     title1 = "Network on OTU level with Pearson correlations", 
+     title1 = paste0("Network on OTU level with Pearson correlations",
+                     "\n(edge filter: threshold = 0.4)"),
      showTitle = TRUE,
      cexTitle = 2.3)
 
@@ -633,7 +672,7 @@ We now use the “unsigned” transformation so that the edge weight between
 strongly correlated taxa is high, no matter of the sign. Hence, a
 correlation of -1 and 1 would lead to an edge weight of 1.
 
-**Network construction**
+#### Network construction
 
 We can pass the network object from before to `netConstruct()` to save
 runtime.
@@ -651,7 +690,7 @@ net_pears_unsigned <- netConstruct(data = net_pears$assoEst1,
     ## 
     ## Sparsify associations via 'threshold' ... Done.
 
-**Estimated correlations and adjacency values**
+#### Estimated correlations and adjacency values
 
 The following histograms demonstrate how the estimated correlations are
 transformed into adjacencies (= sparsified similarities for weighted
@@ -673,7 +712,7 @@ different from 0 and 1 will be edges in the network):
 ``` r
 hist(net_pears$adjaMat1, 100, ylim = c(0, 400),
      xlab = "Adjacency values", 
-     main = "Transformed adjacencies (using the \"signed\" method)")
+     main = "Adjacencies (with \"signed\" transformation)")
 ```
 
 ![](man/figures/readme/single_pears_hist_2-1.png)<!-- -->
@@ -683,12 +722,12 @@ Adjacency values computed using the “unsigned” transformation:
 ``` r
 hist(net_pears_unsigned$adjaMat1, 100, ylim = c(0, 400),
      xlab = "Adjacency values", 
-     main = "Transformed adjacencies (using the \"unsigned\" method)")
+     main = "Adjacencies (with \"unsigned\" transformation)")
 ```
 
 ![](man/figures/readme/single_pears_hist_3-1.png)<!-- -->
 
-**Network analysis and plotting**
+#### Network analysis and plotting
 
 ``` r
 props_pears_unsigned <- netAnalyze(net_pears_unsigned, 
@@ -786,7 +825,7 @@ props_genus <- netAnalyze(net_genus, clustMethod = "cluster_fast_greedy")
 
 ![](man/figures/readme/single_genus_1-1.png)<!-- -->
 
-**Network plots**
+#### Network plots
 
 Modifications:
 
@@ -974,6 +1013,7 @@ fit_spring <- SPRING(QMP,
                      rep.num = 10,
                      seed = 123456, 
                      ncores = 1,
+                     Rmethod = "approx",
                      verbose = FALSE)
 
 # Optimal lambda
@@ -1032,7 +1072,7 @@ legend(0.7, 1.1, cex = 2.2, title = "estimated association:",
 
 Now let’s look how NetCoMi is used to compare two networks.
 
-**Network construction**
+#### Network construction
 
 The data set is split by `"SEASONAL_ALLERGIES"` leading to two subsets
 of samples (with and without seasonal allergies). We ignore the “None”
@@ -1080,8 +1120,9 @@ net_season <- netConstruct(data = amgut_season_no,
                            filtSamp = "highestFreq",
                            filtSampPar = list(highestFreq = n_yes),
                            measure = "spring",
-                           measurePar = list(nlambda=10, 
-                                             rep.num=10),
+                           measurePar = list(nlambda = 10, 
+                                             rep.num = 10,
+                                             Rmethod = "approx"),
                            normMethod = "none", 
                            zeroMethod = "none",
                            sparsMethod = "none", 
@@ -1128,7 +1169,8 @@ net_season <- netConstruct(countMat,
                            filtSampPar = list(highestFreq = n_yes),
                            measure = "spring",
                            measurePar = list(nlambda=10, 
-                                             rep.num=10),
+                                             rep.num=10,
+                                             Rmethod = "approx"),
                            normMethod = "none", 
                            zeroMethod = "none",
                            sparsMethod = "none", 
@@ -1137,7 +1179,7 @@ net_season <- netConstruct(countMat,
                            seed = 123456)
 ```
 
-**Network analysis**
+#### Network analysis
 
 The object returned by `netConstruct()` containing both networks is
 again passed to `netAnalyze()`. Network properties are computed for both
@@ -1307,7 +1349,7 @@ summary(props_season)
     ##  194648   0.00366   0.19448
     ##  184983    0.0917    0.1854
 
-**Visual network comparison**
+#### Visual network comparison
 
 First, the layout is computed separately in both groups (qgraph’s
 “spring” layout in this case).
@@ -1410,7 +1452,7 @@ legend("bottom", title = "estimated association:", legend = c("+","-"),
 
 ![](man/figures/readme/netcomp_spring_6-1.png)<!-- -->
 
-**Quantitative network comparison**
+#### Quantitative network comparison
 
 Since runtime is considerably increased if permutation tests are
 performed, we set the `permTest` parameter to `FALSE`. See the
@@ -1811,16 +1853,35 @@ plot(netprops1,
      hubTransp = 30)
 ```
 
-## References
+------------------------------------------------------------------------
 
-\[Badri et al., 2020\] Michelle Badri, Zachary D. Kurtz, Richard
-Bonneau, and Christian L. Müller (2020). [Shrinkage improves estimation
-of microbial associations under different normalization
-methods](https://doi.org/10.1093/NARGAB/LQAA100). *NAR Genomics and
-Bioinformatics*, 2(4). doi: 10.1093/NARGAB/LQAA100.
+### References
 
-\[Martín-Fernández et al., 1999\] Josep A Martín-Fernández, Mark J Bren,
-Carles Barceló-Vidal, and Vera Pawlowsky-Glahn (1999). [A measure of
-difference for compositional data based on measures of
-divergence](http://ima.udg.edu/~barcelo/index_archivos/A_mesure_of_difference.pdf).
-*Lippard, Næss, and Sinding-Larsen*, 211-216.)
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-badri2020shrinkage" class="csl-entry">
+
+Badri, Michelle, Zachary D. Kurtz, Richard Bonneau, and Christian L.
+Müller. 2020. “Shrinkage Improves Estimation of Microbial Associations
+Under Different Normalization Methods.” *NAR Genomics and
+Bioinformatics* 2 (December). <https://doi.org/10.1093/NARGAB/LQAA100>.
+
+</div>
+
+<div id="ref-martin1999measure" class="csl-entry">
+
+Martin-Fernández, Josep A, M Bren, Carles Barceló-Vidal, and Vera
+Pawlowsky-Glahn. 1999. “A Measure of Difference for Compositional Data
+Based on Measures of Divergence.” In *Proceedings of IAMG*, 99:211–16.
+
+</div>
+
+<div id="ref-yoon2020fast" class="csl-entry">
+
+Yoon, Grace, Christian L. Müller, and Irina Gaynanova. 2020. “Fast
+Computation of Latent Correlations.” *Journal of Computational and
+Graphical Statistics*, June. <http://arxiv.org/abs/2006.13875>.
+
+</div>
+
+</div>
