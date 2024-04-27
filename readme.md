@@ -507,22 +507,25 @@ Here’s an example:
 # For Gephi, we have to generate an edge list with IDs.
 # The corresponding labels (and also further node features) are stored as node list.
 
-# Create edge object from the edge list exported by netConstruct()
-edges <- dplyr::select(net_spring$edgelist1, v1, v2)
-
-# Add Source and Target variables (as IDs)
-edges$Source <- as.numeric(factor(edges$v1))
-edges$Target <- as.numeric(factor(edges$v2))
-edges$Type <- "Undirected"
-edges$Weight <- net_spring$edgelist1$adja
-
-nodes <- unique(edges[,c('v1','Source')])
-colnames(nodes) <- c("Label", "Id")
+# Create data frame with node labels and IDs
+nodenames <- rownames(net_spring$adjaMat1)
+nodes <- data.frame(Label = nodenames, ID = seq_along(nodenames))
 
 # Add category with clusters (can be used as node colors in Gephi)
 nodes$Category <- props_spring$clustering$clust1[nodes$Label]
 
-edges <- dplyr::select(edges, Source, Target, Type, Weight)
+# Create edge object from the edge list exported by netConstruct()
+edges <- net_spring$edgelist1[, c("v1", "v2")]
+
+# Add Source and Target variables (as IDs)
+edges$Source <- nodes$ID[match(edges$v1, nodes$Label)]
+edges$Target <- nodes$ID[match(edges$v2, nodes$Label)]
+
+# Add type and edge weights
+edges$Type <- "Undirected"
+edges$Weight <- net_spring$edgelist1$adja
+
+edges <- edges[, c("Source", "Target", "Type", "Weight")]
 
 write.csv(nodes, file = "nodes.csv", row.names = FALSE)
 write.csv(edges, file = "edges.csv", row.names = FALSE)
