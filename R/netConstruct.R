@@ -1854,18 +1854,34 @@ netConstruct <- function(data,
   }
   
   #=============================================================================
-  # Create edge list
-  g <- graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
-                                   mode = "undirected", diag = FALSE)
+  # Check if networks are empty
   
-  if (is.null(E(g)$weight)) {
-    isempty1 <- TRUE
+  diag_indices <- diag(nrow(adjaMat1))
+  isempty1 <- all(adjaMat1[!diag_indices] == 0)
+  
+  if (isempty1 && verbose > 0) {
+    message("\nNetwork 1 has no edges.")
+  }
+  
+  if (twoNets) {
+    isempty2 <- all(adjaMat2[!diag_indices] == 0)
+    
+    if (isempty2 && verbose > 0) {
+      message("Network 2 has no edges.")
+    }
+  }
+  
+  #=============================================================================
+  # Create edge list
+  
+  if (isempty1) {
     edgelist1 <- NULL
     
   } else {
-    isempty1 <- FALSE
+    g <- igraph::graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
+                                     mode = "undirected", diag = FALSE)
     
-    edgelist1 <- data.frame(get.edgelist(g))
+    edgelist1 <- data.frame(igraph::get.edgelist(g))
     colnames(edgelist1) <- c("v1", "v2")
     
     if (!is.null(assoMat1)) {
@@ -1889,53 +1905,34 @@ netConstruct <- function(data,
     })
   }
   
-  if (twoNets) {
-    # Create edge list
-    g <- graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
+  if (twoNets & !isempty2) {
+    g <- igraph::graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
                                      mode = "undirected", diag = FALSE)
     
-    if (is.null(E(g)$weight)) {
-      isempty2 <- TRUE
-      edgelist2 <- NULL
-      
-    } else {
-      isempty2 <- FALSE
-      
-      edgelist2 <- data.frame(get.edgelist(g))
-      colnames(edgelist2) <- c("v1", "v2")
-      
-      if (!is.null(assoMat2)) {
-        edgelist2$asso <- sapply(1:nrow(edgelist2), function(i) {
-          assoMat2[edgelist2[i, 1], edgelist2[i, 2]]
-        })
-      }
-      
-      edgelist2$diss <- sapply(1:nrow(edgelist2), function(i) {
-        dissMat2[edgelist2[i, 1], edgelist2[i, 2]]
-      })
-      
-      if (all(adjaMat2 %in% c(0, 1))) {
-        edgelist2$sim <- sapply(1:nrow(edgelist2), function(i) {
-          simMat2[edgelist2[i, 1], edgelist2[i, 2]]
-        })
-      }
-      
-      edgelist2$adja <- sapply(1:nrow(edgelist2), function(i) {
-        adjaMat2[edgelist2[i, 1], edgelist2[i, 2]]
+    edgelist2 <- data.frame(igraph::get.edgelist(g))
+    colnames(edgelist2) <- c("v1", "v2")
+    
+    if (!is.null(assoMat2)) {
+      edgelist2$asso <- sapply(1:nrow(edgelist2), function(i) {
+        assoMat2[edgelist2[i, 1], edgelist2[i, 2]]
       })
     }
     
-    if (isempty1 && verbose > 0) {
-      message("\nNetwork 1 has no edges.")
+    edgelist2$diss <- sapply(1:nrow(edgelist2), function(i) {
+      dissMat2[edgelist2[i, 1], edgelist2[i, 2]]
+    })
+    
+    if (all(adjaMat2 %in% c(0, 1))) {
+      edgelist2$sim <- sapply(1:nrow(edgelist2), function(i) {
+        simMat2[edgelist2[i, 1], edgelist2[i, 2]]
+      })
     }
-    if (isempty2 && verbose > 0) {
-      message("Network 2 has no edges.")
-    }
+    
+    edgelist2$adja <- sapply(1:nrow(edgelist2), function(i) {
+      adjaMat2[edgelist2[i, 1], edgelist2[i, 2]]
+    })
   } else {
     edgelist2 <- NULL
-    if (isempty1 && verbose > 0) {
-      message("\nNetwork has no edges.")
-    }
   }
   
   #=============================================================================
