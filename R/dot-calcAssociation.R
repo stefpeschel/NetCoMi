@@ -115,7 +115,8 @@
       
     } else if (measurePar$method == "slr") {
       icov <- Matrix::drop0(spiecres$est$icov[[getOptInd(spiecres)]])
-      assoMat <- cov2cor(prec2cov(icov))
+      secor <- cov2cor(prec2cov(icov))
+      assoMat <- as.matrix(secor * getRefit(spiecres))
       
     } else {
       stop("SpiecEasi method not supported.")
