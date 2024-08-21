@@ -1905,7 +1905,7 @@ netConstruct <- function(data,
     })
   }
   
-  if (twoNets & !isempty2) {
+  if (twoNets && !isempty2) {
     g <- igraph::graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
                                      mode = "undirected", diag = FALSE)
     
