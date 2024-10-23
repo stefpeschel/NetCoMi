@@ -82,7 +82,8 @@ context("netConstruct with different association measures")
 set.seed(123456)
 
 measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
-              "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
+              "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spiecease_slr",
+              "spring" )
 
 for (i in 1:length(measures)) {
   
@@ -102,8 +103,14 @@ for (i in 1:length(measures)) {
                        pulsar.params = list(rep.num=5,
                                             thresh = 0.2))
     measure.tmp <- "spieceasi"
+  } else if (measure.tmp == "spiecease_slr") {
+    measurePar <- list(method = "slr",
+                       nlambda=5,
+                       pulsar.params = list(rep.num=5,
+                                            thresh = 0.2))
+    measure.tmp <- "spieceasi"
   } else if (measure.tmp == "spring") {
-    measurePar <- list(nlambda = 5, rep.num = 5)
+    measurePar <- list(nlambda = 5, rep.num = 5, Rmethod = "approx")
   } else if (measure.tmp == "gcoda") {
     measurePar <- list(nlambda = 5)
   } else {
@@ -875,7 +882,7 @@ for (i in 1:length(measures)) {
                                             thresh = 0.3))
     measure.tmp <- "spieceasi"
   } else if (measure.tmp == "spring") {
-    measurePar <- list(nlambda = 5, rep.num = 5)
+    measurePar <- list(nlambda = 5, rep.num = 5, Rmethod = "approx")
   } else if (measure.tmp == "gcoda") {
     measurePar <- list(nlambda = 5)
   } else {

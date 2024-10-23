@@ -6,6 +6,12 @@
 - `netConstruct()` now returns a **message** if the constructed network
   has **no edges**.
 
+- The **sparse + low-rank decomposition (slr)** implemented in SpiecEasi
+  (latentcor branch) can now be used with NetCoMi. See section
+  “[Learning latent variable graphical
+  models](https://github.com/zdk123/SpiecEasi/tree/latentcor?tab=readme-ov-file#learning-latent-variable-graphical-models)”
+  on SpiecEasi’s github page for details.
+
 ## NetCoMi 1.1.0
 
 ### New features

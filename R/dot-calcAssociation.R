@@ -103,14 +103,23 @@
       measurePar$verbose <- FALSE
     }
     
-    spiecres <- do.call(SpiecEasi::spiec.easi, measurePar)
+    measureOut <- do.call(SpiecEasi::spiec.easi, measurePar)
     
-    if (spiecres$est$method == "glasso") {
-      secor <- stats::cov2cor(as.matrix(getOptCov(spiecres)))
-      assoMat <- secor * SpiecEasi::getRefit(spiecres)
-    } else {
-      assoMat <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiecres), 
+    if (measurePar$method == "glasso") {
+      secor <- stats::cov2cor(as.matrix(getOptCov(measureOut)))
+      assoMat <- secor * SpiecEasi::getRefit(measureOut)
+      
+    } else if (measurePar$method == "mb") {
+      assoMat <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(measureOut), 
                                     mode = symBetaMode)
+      
+    } else if (measurePar$method == "slr") {
+      icov <- measureOut$est$icov[[getOptInd(measureOut)]]
+      secor <- cov2cor(prec2cov(icov))
+      assoMat <- as.matrix(secor * getRefit(measureOut))
+      
+    } else {
+      stop("SpiecEasi method not supported.")
     }
     
     assoMat <- as.matrix(assoMat)
