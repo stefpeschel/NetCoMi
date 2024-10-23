@@ -1,19 +1,26 @@
 
-## NetCoMi 1.1.0 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+## NetCoMi 1.1.0.9000 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
 
 ### New features
 
-- **renameTaxa()**: New function for renaming taxa in a taxonomic table.
-  It comes with functionality for making unknown and unclassified taxa
-  unique and substituting them by the next higher known taxonomic level.
-  E.g., an unknown genus “g\_\_“, where family is the next higher known
-  level, can automatically be renamed to”1_Streptococcaceae(F)“.
+- `netConstruct()` now returns a **message** if the constructed network
+  has **no edges**.
+
+## NetCoMi 1.1.0
+
+### New features
+
+- **`renameTaxa()`**: New function for renaming taxa in a taxonomic
+  table. It comes with functionality for making unknown and unclassified
+  taxa unique and substituting them by the next higher known taxonomic
+  level. E.g., an unknown genus “g\_\_“, where family is the next higher
+  known level, can automatically be renamed to”1_Streptococcaceae(F)“.
   User-defined patterns determine the format of known and substituted
   names. Unknown names (e.g., NAs) and unclassified taxa can be handled
   separately. Duplicated names within one or more chosen ranks can also
   be made unique by numbering them consecutively.
 
-- **editLabels()**: New function for editing node labels, i.e.,
+- **`editLabels()`**: New function for editing node labels, i.e.,
   shortening to a certain length and removing unwanted characters. It is
   used by NetCoMi’s plot functions plot.microNetProps() and
   plot.diffnet().
@@ -193,6 +200,10 @@
   - Use camelCase for all functions.
   - Non-exported functions have prefix “.”
   - The following functions have been renamed:
+
+<!-- -->
+
+    ## Warning: package 'knitr' was built under R version 4.4.1
 
 | Old names              | New names             |
 |:-----------------------|:----------------------|
