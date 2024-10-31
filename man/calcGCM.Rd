@@ -43,9 +43,9 @@ Computes the Graphlet Correlation Matrix (GCM) of a network,
 }
 \details{
 By default, only the 11 non-redundant orbits are used. These are grouped 
-  according to their role: orbit 0 represents the degree, orbits {2, 5, 7} 
-  represent nodes within a chain, orbits {8, 10, 11} represent nodes in a 
-  cycle, and orbits {6, 9, 4, 1} represent a terminal node.
+  according to their role: orbit 0 represents the degree, orbits (2, 5, 7) 
+  represent nodes within a chain, orbits (8, 10, 11) represent nodes in a 
+  cycle, and orbits (6, 9, 4, 1) represent a terminal node.
 }
 \examples{
 # Load data set from American Gut Project (from SpiecEasi package)

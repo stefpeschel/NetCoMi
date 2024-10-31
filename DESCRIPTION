@@ -45,7 +45,7 @@ Imports:
     WGCNA
 Remotes: 
     bioc::Biobase,
-    bioc::metagenomeSeq,
+    bioc::metagenomeSeq@1.47.0,
     bioc::phyloseq, 
     github::zdk123/SpiecEasi,
     github::GraceYoon/SPRING,

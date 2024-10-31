@@ -76,7 +76,7 @@
 #'   a character with one of the layouts provided by
 #'   \code{\link[qgraph]{qgraph}}: \code{"spring"} (default), \code{"circle"},
 #'   or \code{"groups"}. Alternatively, the layouts provided by igraph (see
-#'   \code{\link[igraph:layout_]{layout\_}} are accepted (must be given as
+#'   \code{\link[igraph:layout_]{layout_}} are accepted (must be given as
 #'   character, e.g. \code{"layout_with_fr"}). Can also be a matrix with row
 #'   number equal to the number of nodes and two columns corresponding to the x
 #'   and y coordinate.
