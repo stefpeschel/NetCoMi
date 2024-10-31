@@ -5,7 +5,7 @@ Version: 1.1.0
 Authors@R: c(
     person("Stefanie", "Peschel", email = "stefpeschel@gmail.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7936-7627")),
-    person("Christian", "Müller", "L.", role = "ctb", comment = c(ORCID = "0000-0002-3821-7083")),
+    person("Christian L.", "Müller", role = "ctb", comment = c(ORCID = "0000-0002-3821-7083")),
     person("Anne-Laure", "Boulesteix", role = "ctb", comment = c(ORCID = "0000-0002-2729-0947")),
     person("Erika", "von Mutius", role = "ctb", comment = c(ORCID = "0000-0002-8893-4515")),
     person("Martin", "Depner", role = "ctb")
@@ -45,9 +45,12 @@ Imports:
     WGCNA
 Remotes: 
     bioc::Biobase,
+    bioc::metagenomeSeq,
     bioc::phyloseq, 
     github::zdk123/SpiecEasi,
-    github::GraceYoon/SPRING
+    github::GraceYoon/SPRING,
+    github::vmikk/metagMisc,
+    github::tpq/propr
 Suggests:
     BiocManager,
     cccd,
