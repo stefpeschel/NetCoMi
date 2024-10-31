@@ -15,7 +15,4 @@
 #'    (inspiration and theoretical background)
 #'    \item Anastasiia Holovchak (package testing and editing)
 #'   }
-#'
-#' @name NetCoMi-package
-#' @docType package
-NULL
+"_PACKAGE"

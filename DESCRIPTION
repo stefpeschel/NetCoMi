@@ -2,8 +2,14 @@ Package: NetCoMi
 Type: Package
 Title: Network Construction and Comparison for Microbiome Data
 Version: 1.1.0
-Author: Stefanie Peschel [aut, cre]
-Maintainer: Stefanie Peschel <stefpeschel@gmail.com>
+Authors@R: c(
+    person("Stefanie", "Peschel", email = "stefpeschel@gmail.com", 
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7936-7627")),
+    person("Christian", "Müller", "L.", role = "ctb", comment = c(ORCID = "0000-0002-3821-7083")),
+    person("Anne-Laure", "Boulesteix", role = "ctb", comment = c(ORCID = "0000-0002-2729-0947")),
+    person("Erika", "von Mutius", role = "ctb", comment = c(ORCID = "0000-0002-8893-4515")),
+    person("Martin", "Depner", role = "ctb")
+  )
 Description: NetCoMi offers functions for constructing, analyzing, and comparing 
     microbial association networks as well as dissimilarity-based networks for 
     microbial compositional data. It also includes functionality for 
@@ -57,4 +63,5 @@ Suggests:
     zCompositions
 RdMacros: Rdpack
 Encoding: UTF-8
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.2
+URL: https://stefpeschel.github.io/NetCoMi/

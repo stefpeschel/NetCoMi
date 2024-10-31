@@ -2,6 +2,7 @@
 % Please edit documentation in R/NetCoMi-package.R
 \docType{package}
 \name{NetCoMi-package}
+\alias{NetCoMi}
 \alias{NetCoMi-package}
 \title{NetCoMi: Network Comparison for Microbial Compositional Data}
 \description{
@@ -11,6 +12,13 @@ compositional data. It also includes a function for constructing
 differential association networks.\cr\cr
 The main functions are \code{\link{netConstruct}}, \code{\link{netAnalyze}},
 \code{\link{netCompare}}, and \code{\link{diffnet}}
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://stefpeschel.github.io/NetCoMi/}
+}
+
 }
 \author{
 \strong{Maintainer:} Stefanie Peschel \email{stefanie.peschel@mail.de}\cr\cr
