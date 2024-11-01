@@ -6,6 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Network Construction and Comparison for Microbiome Data • NetCoMi</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +19,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Network Construction and Comparison for Microbiome Data">
 <meta name="description" content="NetCoMi offers functions for constructing, analyzing, and comparing microbial association networks as well as dissimilarity-based networks for microbial compositional data. It also includes functionality for constructing differential association networks.">
 <meta property="og:description" content="NetCoMi offers functions for constructing, analyzing, and comparing microbial association networks as well as dissimilarity-based networks for microbial compositional data. It also includes functionality for constructing differential association networks.">
+<meta property="og:image" content="https://stefpeschel.github.io/NetCoMi/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,7 +38,20 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/NetCoMi.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/netcompare.html">Network comparison</a></li>
+    <li><a class="dropdown-item" href="articles/diffnet.html">Differential networks</a></li>
+    <li><a class="dropdown-item" href="articles/dissimilarity_networks.html">Dissimilarity-based Networks</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>More examples</h6></li>
+    <li><a class="dropdown-item" href="articles/asso_as_input.html">Association matrix as input</a></li>
+    <li><a class="dropdown-item" href="articles/soil_example.html">Soil microbiome example</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -46,7 +66,126 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9">
-NetCoMi offers functions for constructing, analyzing, and comparing microbial association networks as well as dissimilarity-based networks for microbial compositional data. It also includes functionality for constructing differential association networks.
+<div class="section level1">
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="netcomi-">NetCoMi 
+<a class="anchor" aria-label="anchor" href="#netcomi-"></a>
+</h1>
+</div>
+<p>NetCoMi (<strong>Net</strong>work <strong>Co</strong>nstruction and Comparison for <strong>Mi</strong>crobiome Data) is an R package designed to facilitate the construction, analysis, and comparison of networks tailored to microbial compositional data. It implements a comprehensive workflow introduced in <a href="https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbaa290/6017455" class="external-link">Peschel et al. (2020)</a>, which guides users through each step of network generation and analysis with a strong emphasis on reproducibility and computational efficiency.</p>
+<p>With NetCoMi, users can construct microbial association or dissimilarity networks directly from sequencing data, typically provided as a read count matrix. The package includes a broad selection of methods for handling zeros, normalizing data, computing associations between microbial taxa, and sparsifying the resulting matrices. By offering these components in a modular format, NetCoMi allows users to tailor the workflow to their specific research needs, creating highly customizable microbial networks.</p>
+<p>The package supports both the construction, analysis, and visualization of single networks and the comparison of two networks through graphical and quantitative approaches, including statistical testing. Additionally, NetCoMi offers the capability of constructing differential networks, where only differentially associated taxa are connected.</p>
+<p><img src="reference/figures/networkplot_soil.png" width="800"></p>
+<blockquote>
+<p>Exemplary network comparison using soil microbiome data (<a href="https://github.com/joey711/phyloseq/blob/master/data/soilrep.RData" class="external-link">‘soilrep’ data from phyloseq package</a>). Microbial associations are compared between the two experimantal settings ‘warming’ and ‘non-warming’ using the same layout in both groups.</p>
+</blockquote>
+<div class="section level3">
+<h3 id="methods-included-in-netcomi">Methods included in NetCoMi<a class="anchor" aria-label="anchor" href="#methods-included-in-netcomi"></a>
+</h3>
+<p>Here is an overview of methods available for network construction, together with some information on their implementation in R:</p>
+<p><strong>Association measures:</strong></p>
+<ul>
+<li>Pearson coefficient (<a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor" class="external-link"><code>cor()</code></a> from <code>stats</code> package)</li>
+<li>Spearman coefficient (<a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor" class="external-link"><code>cor()</code></a> from <code>stats</code> package)</li>
+<li>Biweight Midcorrelation <a href="https://rdrr.io/cran/WGCNA/man/bicor.html" class="external-link"><code>bicor()</code></a> from <code>WGCNA</code> package</li>
+<li>SparCC (<a href="https://rdrr.io/github/zdk123/SpiecEasi/man/sparcc.html" class="external-link"><code>sparcc()</code></a> from <code>SpiecEasi</code> package)</li>
+<li>CCLasso (<a href="https://github.com/huayingfang/CCLasso" class="external-link">R code on GitHub</a>)</li>
+<li>CCREPE (<a href="https://bioconductor.org/packages/release/bioc/html/ccrepe.html" class="external-link"><code>ccrepe</code></a> package)</li>
+<li>SpiecEasi (<a href="https://github.com/zdk123/SpiecEasi" class="external-link"><code>SpiecEasi</code></a> package)</li>
+<li>SPRING (<a href="https://github.com/GraceYoon/SPRING" class="external-link"><code>SPRING</code></a> package)</li>
+<li>gCoda (<a href="https://github.com/huayingfang/gCoda" class="external-link">R code on GitHub</a>)</li>
+<li>propr (<a href="https://cran.r-project.org/web/packages/propr/index.html" class="external-link"><code>propr</code></a> package)</li>
+</ul>
+<p><strong>Dissimilarity measures:</strong></p>
+<ul>
+<li>Euclidean distance (<a href="https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist" class="external-link"><code>vegdist()</code></a> from <code>vegan</code> package)</li>
+<li>Bray-Curtis dissimilarity (<a href="https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist" class="external-link"><code>vegdist()</code></a> from <code>vegan</code> package)</li>
+<li>Kullback-Leibler divergence (KLD) (<a href="https://rdrr.io/cran/LaplacesDemon/man/KLD.html" class="external-link"><code>KLD()</code></a> from <code>LaplacesDemon</code> package)</li>
+<li>Jeffrey divergence (own code using <a href="https://rdrr.io/cran/LaplacesDemon/man/KLD.html" class="external-link"><code>KLD()</code></a> from <code>LaplacesDemon</code> package)</li>
+<li>Jensen-Shannon divergence (own code using <a href="https://rdrr.io/cran/LaplacesDemon/man/KLD.html" class="external-link"><code>KLD()</code></a> from <code>LaplacesDemon</code> package)</li>
+<li>Compositional KLD (own implementation following Martin-Fernández et al. (1999))</li>
+<li>Aitchison distance (<a href="https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist" class="external-link"><code>vegdist()</code></a> and <a href="https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html" class="external-link"><code>clr()</code></a> from <code>SpiecEasi</code> package)</li>
+</ul>
+<p><strong>Methods for zero replacement:</strong></p>
+<ul>
+<li>Add a predefined pseudo count to the count table</li>
+<li>Replace only zeros in the count table by a predefined pseudo count (ratios between non-zero values are preserved)</li>
+<li>Multiplicative replacement (<a href="https://rdrr.io/cran/zCompositions/man/multRepl.html" class="external-link"><code>multRepl</code></a> from <code>zCompositions</code> package)</li>
+<li>Modified EM alr-algorithm (<a href="https://rdrr.io/cran/zCompositions/man/lrEM.html" class="external-link"><code>lrEM</code></a> from <code>zCompositions</code> package)</li>
+<li>Bayesian-multiplicative replacement (<a href="https://rdrr.io/cran/zCompositions/man/cmultRepl.html" class="external-link"><code>cmultRepl</code></a> from <code>zCompositions</code> package)</li>
+</ul>
+<p><strong>Normalization methods:</strong></p>
+<ul>
+<li>Total Sum Scaling (TSS) (own implementation)</li>
+<li>Cumulative Sum Scaling (CSS) (<a href=""><code>cumNormMat</code></a> from <code>metagenomeSeq</code> package)</li>
+<li>Common Sum Scaling (COM) (own implementation)</li>
+<li>Rarefying (<a href=""><code>rrarefy</code></a> from <code>vegan</code> package)</li>
+<li>Variance Stabilizing Transformation (VST) (<a href=""><code>varianceStabilizingTransformation</code></a> from <code>DESeq2</code> package)</li>
+<li>Centered log-ratio (clr) transformation (<a href="https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html" class="external-link"><code>clr()</code></a> from <code>SpiecEasi</code> package))</li>
+</ul>
+<p>TSS, CSS, COM, VST, and the clr transformation are described in (Badri et al. 2020).</p>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Required packages</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Install NetCoMi</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"stefpeschel/NetCoMi"</span>, </span>
+<span>                         dependencies <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Depends"</span>, <span class="st">"Imports"</span>, <span class="st">"LinkingTo"</span><span class="op">)</span>,</span>
+<span>                         repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://cloud.r-project.org/"</span>,</span>
+<span>                                   <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>If there are any errors during installation, please install the missing dependencies manually.</p>
+<p>In particular the automatic installation of <a href="https://github.com/GraceYoon/SPRING" class="external-link"><code>SPRING</code></a> and <a href="https://github.com/zdk123/SpiecEasi" class="external-link"><code>SpiecEasi</code></a> (only available on GitHub) does sometimes not work. These packages can be installed as follows (the order is important because SPRING depends on SpiecEasi):</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"zdk123/SpiecEasi"</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"GraceYoon/SPRING"</span><span class="op">)</span></span></code></pre></div>
+<p>Packages that are optionally required in certain settings are not installed together with NetCoMi. These can be installed automatically using:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/installNetCoMiPacks.html">installNetCoMiPacks</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Please check:</span></span>
+<span><span class="op">?</span><span class="fu"><a href="reference/installNetCoMiPacks.html">installNetCoMiPacks</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>If not installed via <code><a href="reference/installNetCoMiPacks.html">installNetCoMiPacks()</a></code>, the required package is installed by the respective NetCoMi function when needed.</p>
+<div class="section level3">
+<h3 id="bioconda">Bioconda<a class="anchor" aria-label="anchor" href="#bioconda"></a>
+</h3>
+<p>Thanks to <a href="https://github.com/daydream-boost" class="external-link">daydream-boost</a>, NetCoMi can also be installed from conda bioconda channel with</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># You can install an individual environment firstly with</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># conda create -n NetCoMi</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># conda activate NetCoMi</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="ex">conda</span> install <span class="at">-c</span> bioconda <span class="at">-c</span> conda-forge r-netcomi</span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="development-version">Development version<a class="anchor" aria-label="anchor" href="#development-version"></a>
+</h2>
+<p>Everyone who wants to use new features not included in any releases is invited to install NetCoMi’s development version:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"stefpeschel/NetCoMi"</span>, </span>
+<span>                         ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
+<span>                         dependencies <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Depends"</span>, <span class="st">"Imports"</span>, <span class="st">"LinkingTo"</span><span class="op">)</span>,</span>
+<span>                         repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://cloud.r-project.org/"</span>,</span>
+<span>                                   <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Please check the <a href="https://github.com/stefpeschel/NetCoMi/blob/develop/NEWS.md" class="external-link">NEWS</a> document for features implemented on develop branch.</p>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="ref-badri2020shrinkage" class="csl-entry">
+Badri, Michelle, Zachary D. Kurtz, Richard Bonneau, and Christian L. Müller. 2020. “Shrinkage Improves Estimation of Microbial Associations Under Different Normalization Methods.” <em>NAR Genomics and Bioinformatics</em> 2 (December). <a href="https://doi.org/10.1093/NARGAB/LQAA100" class="external-link uri">https://doi.org/10.1093/NARGAB/LQAA100</a>.
+</div>
+<div id="ref-martin1999measure" class="csl-entry">
+Martin-Fernández, Josep A, M Bren, Carles Barceló-Vidal, and Vera Pawlowsky-Glahn. 1999. “A Measure of Difference for Compositional Data Based on Measures of Divergence.” In <em>Proceedings of IAMG</em>, 99:211–16.
+</div>
+</div>
+</div>
+</div>
+</div>
+
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
@@ -72,7 +211,14 @@ NetCoMi offers functions for constructing, analyzing, and comparing microbial as
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
+<li><a href="https://zenodo.org/badge/latestdoi/259906607" class="external-link"><img src="https://zenodo.org/badge/259906607.svg" alt="DOI"></a></li>
+<li><a href="https://anaconda.org/bioconda/r-netcomi" class="external-link"><img src="https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat" alt="install with bioconda"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

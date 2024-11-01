@@ -1,8 +1,14 @@
 pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2024-10-31T22:48Z
+articles:
+  asso_as_input: asso_as_input.html
+  diffnet: diffnet.html
+  dissimilarity_networks: dissimilarity_networks.html
+  NetCoMi: NetCoMi.html
+  netcompare: netcompare.html
+  soil_example: soil_example.html
+last_built: 2024-11-01T13:37Z
 urls:
   reference: https://stefpeschel.github.io/NetCoMi/reference
   article: https://stefpeschel.github.io/NetCoMi/articles
