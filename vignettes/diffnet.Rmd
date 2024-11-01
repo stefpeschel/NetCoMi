@@ -1,0 +1,125 @@
+---
+title: "Differential networks"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{diffnet}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(NetCoMi)
+```
+
+A further possibility to compare two networks are so called 
+*differential networks*, where two nodes are connected
+if they are differentially associated between the two groups.
+
+We start by dividing the amgut data set into two groups: samples with and 
+without seasonal allergies. 
+
+```{r}
+data("amgut2.filt.phy")
+
+# Split the phyloseq object into two groups
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                             SEASONAL_ALLERGIES == "yes")
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                            SEASONAL_ALLERGIES == "no")
+
+amgut_season_yes
+amgut_season_no
+```
+
+Due to its very short execution time, we use Pearson's correlations for 
+estimating associations between OTUs.
+
+Fisher's z-test is applied for identifying differentially correlated OTUs. 
+Multiple testing adjustment is done by controlling the local false discovery rate.
+
+Note: `sparsMethod` is set to `"none"`, just to be able to include all 
+differential associations in the association network plot (see below). 
+However, the differential network is always based on the estimated association 
+matrices before sparsification (the `assoEst1` and `assoEst2` matrices returned 
+by `netConstruct()`).
+
+```{r diffnet_1, fig.height=15, fig.width=30}
+net_season_pears <- netConstruct(data = amgut_season_no, 
+                                 data2 = amgut_season_yes, 
+                                 filtTax = "highestVar",
+                                 filtTaxPar = list(highestVar = 50),
+                                 measure = "pearson", 
+                                 normMethod = "clr",
+                                 sparsMethod = "none", 
+                                 thresh = 0.2,
+                                 verbose = 3)
+
+# Differential network construction
+diff_season <- diffnet(net_season_pears,
+                       diffMethod = "fisherTest", 
+                       adjust = "lfdr")
+
+# Differential network plot
+plot(diff_season, 
+     cexNodes = 0.8, 
+     cexLegend = 3,
+     cexTitle = 4,
+     mar = c(2,2,8,5),
+     legendGroupnames = c("group 'no'", "group 'yes'"),
+     legendPos = c(0.7,1.6))
+
+```
+
+In the differential network shown above, edge colors represent the direction of 
+associations in the two groups. If, for instance, two OTUs are positively 
+associated in group 1 and negatively associated in group 2 (such as '191541' 
+and '188236'), the respective edge is colored in cyan.  
+
+We also take a look at the corresponding associations by constructing 
+association networks that include only the differentially associated OTUs.
+
+```{r diffnet_2, fig.height=6, fig.width=6}
+props_season_pears <- netAnalyze(net_season_pears, 
+                                 clustMethod = "cluster_fast_greedy",
+                                 weightDeg = TRUE,
+                                 normDeg = FALSE,
+                                 gcmHeat = FALSE)
+```
+
+
+```{r diffnet_3, fig.height=19, fig.width=40}
+# Identify the differentially associated OTUs
+diffmat_sums <- rowSums(diff_season$diffAdjustMat)
+diff_asso_names <- names(diffmat_sums[diffmat_sums > 0])
+
+plot(props_season_pears, 
+     nodeFilter = "names",
+     nodeFilterPar = diff_asso_names,
+     nodeColor = "gray",
+     highlightHubs = FALSE,
+     sameLayout = TRUE, 
+     layoutGroup = "union",
+     rmSingles = FALSE, 
+     nodeSize = "clr",
+     edgeTranspHigh = 20,
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 3,
+     cexTitle = 3.8,
+     groupNames = c("No seasonal allergies", "Seasonal allergies"),
+     hubBorderCol  = "gray40")
+
+legend(-0.15,-0.7, title = "estimated correlation:", legend = c("+","-"), 
+       col = c("#009900","red"), inset = 0.05, cex = 4, lty = 1, lwd = 4, 
+       bty = "n", horiz = TRUE)
+```
+
+We can see that the correlation between the aforementioned OTUs '191541' and 
+'188236' is strongly positive in the left group and negative in the right group.

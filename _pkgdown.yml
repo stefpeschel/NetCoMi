@@ -2,3 +2,16 @@ url: https://stefpeschel.github.io/NetCoMi/
 template:
   bootstrap: 5
 
+articles:
+- title: Main functionality
+  navbar: ~
+  contents:
+  - netcompare
+  - diffnet
+  - dissimilarity_networks
+
+- title: More examples
+  navbar: More examples
+  contents:
+  - asso_as_input
+  - soil_example

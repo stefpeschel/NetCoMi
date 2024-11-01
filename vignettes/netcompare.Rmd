@@ -1,0 +1,271 @@
+---
+title: "Network comparison"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{netcompare}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(NetCoMi)
+```
+
+One of NetCoMi's strengths is the ability to compare networks between two groups. 
+The `netCompare()` function is used for this task.
+
+### Network construction
+
+The amgut data set is split by `"SEASONAL_ALLERGIES"` leading to two subsets of 
+samples (with and without seasonal allergies). We ignore the "None" group.  
+
+```{r netcomp_spring_0}
+data("amgut2.filt.phy")
+
+# Split the phyloseq object into two groups
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                             SEASONAL_ALLERGIES == "yes")
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+                                            SEASONAL_ALLERGIES == "no")
+
+amgut_season_yes
+amgut_season_no
+```
+
+The 50 nodes with highest variance are selected for network construction to get 
+smaller networks.
+
+We filter the 121 samples (sample size of the smaller group) with highest 
+frequency to make the sample sizes equal and thus ensure comparability.
+
+```{r netcomp_spring_1}
+n_yes <- phyloseq::nsamples(amgut_season_yes)
+
+# Network construction
+net_season <- netConstruct(data = amgut_season_no, 
+                           data2 = amgut_season_yes,  
+                           filtTax = "highestVar",
+                           filtTaxPar = list(highestVar = 50),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = n_yes),
+                           measure = "spring",
+                           measurePar = list(nlambda = 10, 
+                                             rep.num = 10,
+                                             Rmethod = "approx"),
+                           normMethod = "none", 
+                           zeroMethod = "none",
+                           sparsMethod = "none", 
+                           dissFunc = "signed",
+                           verbose = 2,
+                           seed = 123456)
+```
+
+Alternatively, a group vector could be passed to `group`, according to which
+the data set is split into two groups:
+
+```{r netcomp_spring_2, eval=FALSE}
+# Get count table
+countMat <- phyloseq::otu_table(amgut2.filt.phy)
+
+# netConstruct() expects samples in rows
+countMat <- t(as(countMat, "matrix"))
+
+group_vec <- phyloseq::get_variable(amgut2.filt.phy, "SEASONAL_ALLERGIES")
+
+# Select the two groups of interest (level "none" is excluded)
+sel <- which(group_vec %in% c("no", "yes"))
+group_vec <- group_vec[sel]
+countMat <- countMat[sel, ]
+
+net_season <- netConstruct(countMat, 
+                           group = group_vec, 
+                           filtTax = "highestVar",
+                           filtTaxPar = list(highestVar = 50),
+                           filtSamp = "highestFreq",
+                           filtSampPar = list(highestFreq = n_yes),
+                           measure = "spring",
+                           measurePar = list(nlambda=10, 
+                                             rep.num=10,
+                                             Rmethod = "approx"),
+                           normMethod = "none", 
+                           zeroMethod = "none",
+                           sparsMethod = "none", 
+                           dissFunc = "signed",
+                           verbose = 3,
+                           seed = 123456)
+
+```
+
+### Network analysis
+
+The object returned by `netConstruct()` containing both networks is again 
+passed to `netAnalyze()`. Network properties are computed for both networks
+simultaneously. 
+
+To demonstrate further functionalities of `netAnalyze()`, we play around with 
+the available arguments, even if the chosen setting might not be optimal. 
+
+- `centrLCC = FALSE`: Centralities are calculated for all nodes (not only for the
+largest connected component).
+- `avDissIgnoreInf = TRUE`: Nodes with an infinite dissimilarity are ignored 
+when calculating the average dissimilarity.
+- `sPathNorm = FALSE`: Shortest paths are not normalized by average dissimilarity.
+- `hubPar = c("degree", "eigenvector")`: Hubs are nodes with highest
+degree and eigenvector centrality at the same time.
+- `lnormFit = TRUE` and `hubQuant = 0.9`: A log-normal distribution is fitted to
+the centrality values to identify nodes with "highest" centrality values. 
+Here, a node is identified as hub if for each of the three centrality measures, 
+the node's centrality value is above the 90% quantile of the fitted log-normal 
+distribution.
+- The non-normalized centralities are used for all four measures.
+
+**Note! The arguments must be set carefully, depending on the research 
+questions. NetCoMi's default values are not generally preferable in all 
+practical cases!**
+
+```{r netcomp_spring_3, fig.height=10, fig.width=10}
+props_season <- netAnalyze(net_season, 
+                           centrLCC = FALSE,
+                           avDissIgnoreInf = TRUE,
+                           sPathNorm = FALSE,
+                           clustMethod = "cluster_fast_greedy",
+                           hubPar = c("degree", "eigenvector"),
+                           hubQuant = 0.9,
+                           lnormFit = TRUE,
+                           normDeg = FALSE,
+                           normBetw = FALSE,
+                           normClose = FALSE,
+                           normEigen = FALSE)
+
+summary(props_season)
+```
+
+
+### Visual network comparison
+
+First, the layout is computed separately in both groups (qgraph's "spring" 
+layout in this case).
+
+Node sizes are scaled according to the mclr-transformed data since `SPRING` uses
+the mclr transformation as normalization method.
+
+Node colors represent clusters. Note that by default, two clusters have the same 
+color in both groups if they have at least two nodes in common 
+(`sameColThresh = 2`). Set `sameClustCol` to `FALSE` to get different cluster colors.
+
+```{r netcomp_spring_4, fig.height=19, fig.width=40}
+plot(props_season, 
+     sameLayout = FALSE, 
+     nodeColor = "cluster",
+     nodeSize = "mclr",
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 2.5,
+     cexHubLabels = 3,
+     cexTitle = 3.7,
+     groupNames = c("No seasonal allergies", "Seasonal allergies"),
+     hubBorderCol  = "gray40")
+
+legend("bottom", title = "estimated association:", legend = c("+","-"), 
+       col = c("#009900","red"), inset = 0.02, cex = 4, lty = 1, lwd = 4, 
+       bty = "n", horiz = TRUE)
+```
+
+
+Using different layouts leads to a "nice-looking" network plot for each group, 
+however, it is difficult to identify group differences at first glance.
+
+Thus, we now use the same layout in both groups. In the following, the layout is
+computed for group 1 (the left network) and taken over for group 2.
+
+`rmSingles` is set to `"inboth"` because only nodes that are unconnected in both
+groups can be removed if the same layout is used.
+
+
+```{r netcomp_spring_5, fig.height=19, fig.width=40}
+plot(props_season, 
+     sameLayout = TRUE, 
+     layoutGroup = 1,
+     rmSingles = "inboth", 
+     nodeSize = "mclr", 
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 2.5,
+     cexHubLabels = 3,
+     cexTitle = 3.8,
+     groupNames = c("No seasonal allergies", "Seasonal allergies"),
+     hubBorderCol  = "gray40")
+
+legend("bottom", title = "estimated association:", legend = c("+","-"), 
+       col = c("#009900","red"), inset = 0.02, cex = 4, lty = 1, lwd = 4, 
+       bty = "n", horiz = TRUE)
+```
+
+In the above plot, we can see clear differences between the groups. The OTU "322235", 
+for instance, is more strongly connected in the "Seasonal allergies" group than
+in the group without seasonal allergies, which is why it is a hub on the right, 
+but not on the left.
+
+However, if the layout of one group is simply taken over to the other, one of 
+the networks (here the "seasonal allergies" group) is usually not that 
+nice-looking due to the long edges. 
+Therefore, NetCoMi (>= 1.0.2) offers a further 
+option (`layoutGroup = "union"`), where a union of the two layouts is used 
+in both groups.
+In doing so, the nodes are placed as optimal as possible equally for both networks.
+
+*The idea and R code for this functionality were provided by 
+[Christian L. Müller](https://github.com/muellsen?tab=followers) and 
+[Alice Sommer](https://www.iq.harvard.edu/people/alice-sommer)*
+
+
+```{r netcomp_spring_6, fig.height=19, fig.width=40}
+plot(props_season, 
+     sameLayout = TRUE, 
+     repulsion = 0.95,
+     layoutGroup = "union",
+     rmSingles = "inboth", 
+     nodeSize = "mclr", 
+     labelScale = FALSE,
+     cexNodes = 1.5, 
+     cexLabels = 2.5,
+     cexHubLabels = 3,
+     cexTitle = 3.8,
+     groupNames = c("No seasonal allergies", "Seasonal allergies"),
+     hubBorderCol  = "gray40")
+
+legend("bottom", title = "estimated association:", legend = c("+","-"), 
+       col = c("#009900","red"), inset = 0.02, cex = 4, lty = 1, lwd = 4, 
+       bty = "n", horiz = TRUE)
+```
+
+### Quantitative network comparison
+
+Since runtime is considerably increased if permutation tests are 
+performed, we set the `permTest` parameter to `FALSE`. See the 
+`tutorial_createAssoPerm` file for a network comparison including permutation 
+tests.
+
+Since permutation tests are still conducted for the Adjusted Rand Index, 
+a seed should be set for reproducibility.
+
+```{r netcomp_spring_7}
+comp_season <- netCompare(props_season, 
+                          permTest = FALSE, 
+                          verbose = FALSE,
+                          seed = 123456)
+
+summary(comp_season, 
+        groupNames = c("No allergies", "Allergies"),
+        showCentr = c("degree", "between", "closeness"), 
+        numbNodes = 5)
+```
+
+

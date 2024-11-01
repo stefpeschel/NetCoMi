@@ -2,6 +2,7 @@ Package: NetCoMi
 Type: Package
 Title: Network Construction and Comparison for Microbiome Data
 Version: 1.1.0
+Date: 2022-11-20
 Authors@R: c(
     person("Stefanie", "Peschel", email = "stefpeschel@gmail.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7936-7627")),
@@ -57,14 +58,17 @@ Suggests:
     ccrepe,
     DESeq2,
     discordant,
+    knitr,
     LaplacesDemon,
     limma,
     metagenomeSeq,
     metagMisc,
     propr,
+    rmarkdown,
     testthat,
     zCompositions
 RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 URL: https://stefpeschel.github.io/NetCoMi/
+VignetteBuilder: knitr
