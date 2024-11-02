@@ -3,12 +3,14 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   asso_as_input: asso_as_input.html
+  create_asso_perm: create_asso_perm.html
+  cross_domain_networks: cross_domain_networks.html
   diffnet: diffnet.html
   dissimilarity_networks: dissimilarity_networks.html
+  net_comparison: net_comparison.html
   NetCoMi: NetCoMi.html
-  netcompare: netcompare.html
   soil_example: soil_example.html
-last_built: 2024-11-01T13:37Z
+last_built: 2024-11-02T20:38Z
 urls:
-  reference: https://stefpeschel.github.io/NetCoMi/reference
-  article: https://stefpeschel.github.io/NetCoMi/articles
+  reference: https://netcomi.de/reference
+  article: https://netcomi.de/articles

@@ -5,24 +5,24 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>NetCoMi • NetCoMi</title>
+<title>Get started • NetCoMi</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="NetCoMi">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get started">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">NetCoMi</a>
 
@@ -40,12 +40,14 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/netcompare.html">Network comparison</a></li>
+<li><a class="dropdown-item" href="../articles/net_comparison.html">Network comparison</a></li>
     <li><a class="dropdown-item" href="../articles/diffnet.html">Differential networks</a></li>
     <li><a class="dropdown-item" href="../articles/dissimilarity_networks.html">Dissimilarity-based Networks</a></li>
+    <li><a class="dropdown-item" href="../articles/create_asso_perm.html">Generate permuted association matrices</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>More examples</h6></li>
     <li><a class="dropdown-item" href="../articles/asso_as_input.html">Association matrix as input</a></li>
+    <li><a class="dropdown-item" href="../articles/cross_domain_networks.html">Cross-domain networks</a></li>
     <li><a class="dropdown-item" href="../articles/soil_example.html">Soil microbiome example</a></li>
   </ul>
 </li>
@@ -55,6 +57,15 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/stefpeschel/NetCoMi/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -67,39 +78,41 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>NetCoMi</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Get started</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/main/vignettes/NetCoMi.Rmd" class="external-link"><code>vignettes/NetCoMi.Rmd</code></a></small>
       <div class="d-none name"><code>NetCoMi.Rmd</code></div>
     </div>
 
     
     
-<p>We use the American Gut data from <a href="https://github.com/zdk123/SpiecEasi" class="external-link"><code>SpiecEasi</code></a>
-package to look at some examples of how NetCoMi is applied. NetCoMi’s
-main functions are <code><a href="../reference/netConstruct.html">netConstruct()</a></code> for network construction,
-<code><a href="../reference/netAnalyze.html">netAnalyze()</a></code> for network analysis, and
-<code><a href="../reference/netCompare.html">netCompare()</a></code> for network comparison. As you will see in the
-following, these three functions must be executed in the aforementioned
-order. A further function is <code><a href="../reference/diffnet.html">diffnet()</a></code> for constructing a
-differential association network. <code><a href="../reference/diffnet.html">diffnet()</a></code> must be applied
-to the object returned by <code><a href="../reference/netConstruct.html">netConstruct()</a></code>.</p>
+<p>The American Gut data provided by the <a href="https://github.com/zdk123/SpiecEasi" class="external-link"><code>SpiecEasi</code></a>
+package are used for almost all NetCoMi tutorials.</p>
+<p>We begin by constructing a single network, which we analyze using
+quantitative and graphical methods. Later, we will compare the networks
+of two groups: Individuals with and without seasonal allergies.</p>
+<p>NetCoMi’s main functions are <code><a href="../reference/netConstruct.html">netConstruct()</a></code> for network
+construction, <code><a href="../reference/netAnalyze.html">netAnalyze()</a></code> for network analysis, and
+<code><a href="../reference/netCompare.html">netCompare()</a></code> for network comparison. As should become clear
+from the following examples, these three functions must be executed in
+the aforementioned order. A further function is <code><a href="../reference/diffnet.html">diffnet()</a></code>
+for constructing a differential association network.
+<code><a href="../reference/diffnet.html">diffnet()</a></code> must be applied to the object returned by
+<code><a href="../reference/netConstruct.html">netConstruct()</a></code>.</p>
 <p>First of all, we load NetCoMi and the data from American Gut Project
 (provided by <a href="https://github.com/zdk123/SpiecEasi" class="external-link"><code>SpiecEasi</code></a>,
 which is automatically loaded together with NetCoMi).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stefpeschel.github.io/NetCoMi/">NetCoMi</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://netcomi.de">NetCoMi</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut1.filt"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut2.filt.phy"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="network-with-spring-as-association-measure">Network with SPRING as association measure<a class="anchor" aria-label="anchor" href="#network-with-spring-as-association-measure"></a>
+<h3 id="network-construction">Network construction<a class="anchor" aria-label="anchor" href="#network-construction"></a>
 </h3>
-<div class="section level4">
-<h4 id="network-construction-and-analysis">Network construction and analysis<a class="anchor" aria-label="anchor" href="#network-construction-and-analysis"></a>
-</h4>
-<p>We firstly construct a single association network using <a href="https://github.com/GraceYoon/SPRING" class="external-link">SPRING</a> for estimating
-associations (conditional dependence) between OTUs.</p>
+<p>We use the <a href="https://github.com/GraceYoon/SPRING" class="external-link">SPRING</a>
+package for estimating associations (conditional dependence) between
+OTUs.</p>
 <p>The data are filtered within <code><a href="../reference/netConstruct.html">netConstruct()</a></code> as
 follows:</p>
 <ul>
@@ -159,9 +172,9 @@ functions are printed.</p>
 <span><span class="co">#&gt;   reorder.hclust vegan</span></span>
 <span><span class="co">#&gt; Done.</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="analyzing-the-constructed-network">Analyzing the constructed network<a class="anchor" aria-label="anchor" href="#analyzing-the-constructed-network"></a>
-</h4>
+<div class="section level3">
+<h3 id="network-analysis">Network analysis<a class="anchor" aria-label="anchor" href="#network-analysis"></a>
+</h3>
 <p>NetCoMi’s <code><a href="../reference/netAnalyze.html">netAnalyze()</a></code> function is used for analyzing
 the constructed network(s).</p>
 <p>Here, <code>centrLCC</code> is set to <code>TRUE</code> meaning that
@@ -185,12 +198,13 @@ details.</p>
 <span>                           centrLCC <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                           clustMethod <span class="op">=</span> <span class="st">"cluster_fast_greedy"</span>,</span>
 <span>                           hubPar <span class="op">=</span> <span class="st">"eigenvector"</span>,</span>
-<span>                           weightDeg <span class="op">=</span> <span class="cn">FALSE</span>, normDeg <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>                           weightDeg <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                           normDeg <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: The `scale` argument of `eigen_centrality()` always as if TRUE as of igraph</span></span>
 <span><span class="co">#&gt; 2.1.1.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Normalization is always performed</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">NetCoMi</span> package.</span></span>
-<span><span class="co">#&gt;   Please report the issue to the authors.</span></span>
+<span><span class="co">#&gt;   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/stefpeschel/NetCoMi/issues&gt;</span>.</span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span></code></pre></div>
@@ -286,7 +300,6 @@ details.</p>
 <span><span class="co">#&gt; 190597 0.90794</span></span>
 <span><span class="co">#&gt; 199487 0.85439</span></span>
 <span><span class="co">#&gt; 188236 0.72684</span></span></code></pre>
-</div>
 <div class="section level4">
 <h4 id="plotting-the-gcm-heatmap-manually">Plotting the GCM heatmap manually<a class="anchor" aria-label="anchor" href="#plotting-the-gcm-heatmap-manually"></a>
 </h4>
@@ -309,9 +322,10 @@ details.</p>
 <span>     <span class="st">"Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="NetCoMi_files/figure-html/single_spring_heat-1.png" width="576"></p>
 </div>
-<div class="section level4">
-<h4 id="visualizing-the-network">Visualizing the network<a class="anchor" aria-label="anchor" href="#visualizing-the-network"></a>
-</h4>
+</div>
+<div class="section level3">
+<h3 id="visualizing-the-network">Visualizing the network<a class="anchor" aria-label="anchor" href="#visualizing-the-network"></a>
+</h3>
 <p>We use the determined clusters as node colors and scale the node
 sizes according to the node’s eigenvector centrality.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -340,7 +354,6 @@ determined <code>cut</code> value can be read out as follows:</p>
 <code class="sourceCode R"><span><span class="va">p</span><span class="op">$</span><span class="va">q1</span><span class="op">$</span><span class="va">Arguments</span><span class="op">$</span><span class="va">cut</span></span>
 <span><span class="co">#&gt;      75% </span></span>
 <span><span class="co">#&gt; 0.337099</span></span></code></pre></div>
-</div>
 </div>
 <div class="section level3">
 <h3 id="export-to-gephi">Export to Gephi<a class="anchor" aria-label="anchor" href="#export-to-gephi"></a>
@@ -506,7 +519,7 @@ taxa have a low edge weight (0 if the correlation equals -1).</p>
 between strongly correlated taxa is high, no matter of the sign. Hence,
 a correlation of -1 and 1 would lead to an edge weight of 1.</p>
 <div class="section level4">
-<h4 id="network-construction">Network construction<a class="anchor" aria-label="anchor" href="#network-construction"></a>
+<h4 id="network-construction-1">Network construction<a class="anchor" aria-label="anchor" href="#network-construction-1"></a>
 </h4>
 <p>We can pass the network object from before to
 <code><a href="../reference/netConstruct.html">netConstruct()</a></code> to save runtime.</p>
@@ -787,7 +800,7 @@ readability of node labels</li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Stefanie Peschel.</p>
+  <p>Developed by <a href="https://stefpeschel.de/" class="external-link">Stefanie Peschel</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
