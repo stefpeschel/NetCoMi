@@ -16,7 +16,9 @@ The main functions are \code{\link{netConstruct}}, \code{\link{netAnalyze}},
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://stefpeschel.github.io/NetCoMi/}
+  \item \url{https://netcomi.de}
+  \item \url{https://github.com/stefpeschel/NetCoMi}
+  \item Report bugs at \url{https://github.com/stefpeschel/NetCoMi/issues}
 }
 
 }
