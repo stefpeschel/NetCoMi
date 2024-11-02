@@ -22,3 +22,4 @@ estimating associations/dissimilarities}
 Computes associations between taxa or distances between subjects
   for a given read count matrix
 }
+\keyword{internal}

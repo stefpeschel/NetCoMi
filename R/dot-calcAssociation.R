@@ -18,6 +18,7 @@
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 #' @import mixedCCA
+#' @keywords internal 
 
 .calcAssociation <- function(countMat, measure, measurePar, verbose) {
   

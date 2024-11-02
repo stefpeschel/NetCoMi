@@ -26,6 +26,7 @@
 #' @return \tabular{ll}{ \code{pvals}\tab calculated p-values\cr
 #'   \code{corrMat}\tab estimated correlation matrix}
 #' @references{\insertRef{friedman2012inferring}{NetCoMi}}
+#' @keywords internal
 
 .boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,
                       cores = 4, logFile = NULL, verbose = TRUE, seed = NULL, 

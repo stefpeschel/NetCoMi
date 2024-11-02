@@ -1,3 +1,4 @@
+#' @keywords internal
 .normCounts <- function(countMat, normMethod, normParam, zeroMethod, needfrac,
                         verbose) {
   

@@ -1,3 +1,4 @@
+#' @keywords internal
 # Check whether packages needed for the current netConstruct() run 
 # are available.
 

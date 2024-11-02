@@ -15,4 +15,5 @@
 #'    (inspiration and theoretical background)
 #'    \item Anastasiia Holovchak (package testing and editing)
 #'   }
+#' @keywords internal
 "_PACKAGE"

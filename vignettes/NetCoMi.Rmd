@@ -1,5 +1,5 @@
 ---
-title: "NetCoMi"
+title: "Get started"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{NetCoMi}
@@ -8,20 +8,20 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+# Suppress title check warning
+options(rmarkdown.html_vignette.check_title = FALSE)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
 
-We use the American Gut data from [`SpiecEasi`](https://github.com/zdk123/SpiecEasi) 
-package to look at some examples of how NetCoMi is applied. NetCoMi's main 
-functions are `netConstruct()` for network construction, `netAnalyze()` for 
-network analysis, and `netCompare()` for network comparison. 
-As you will see in the following, these three functions must 
-be executed in the aforementioned order. A further function is `diffnet()` for 
-constructing a differential association network. `diffnet()` must be applied to 
-the object returned by `netConstruct()`.
+The American Gut data provided by the [`SpiecEasi`](https://github.com/zdk123/SpiecEasi) package are used for almost all NetCoMi tutorials. 
+
+We begin by constructing a single network, which we analyze using quantitative and graphical methods. Later, we will compare the networks of two groups: Individuals with and without seasonal allergies.
+
+NetCoMi's main functions are `netConstruct()` for network construction, `netAnalyze()` for network analysis, and `netCompare()` for network comparison. As should become clear from the following examples, these three functions must be executed in the aforementioned order. A further function is `diffnet()` for constructing a differential association network. `diffnet()` must be applied to the object returned by `netConstruct()`.
 
 First of all, we load NetCoMi and the data from American Gut Project (provided 
 by [`SpiecEasi`](https://github.com/zdk123/SpiecEasi), which is automatically 
@@ -33,13 +33,9 @@ data("amgut1.filt")
 data("amgut2.filt.phy")
 ```
 
-### Network with SPRING as association measure
+### Network construction 
 
-#### Network construction and analysis
-
-We firstly construct a single association network using 
-[SPRING](https://github.com/GraceYoon/SPRING) for 
-estimating associations (conditional dependence) between OTUs. 
+We use the [SPRING](https://github.com/GraceYoon/SPRING) package for estimating associations (conditional dependence) between OTUs. 
 
 The data are filtered within `netConstruct()` as follows:
 
@@ -84,7 +80,7 @@ net_spring <- netConstruct(amgut1.filt,
                            seed = 123456)
 ```
 
-#### Analyzing the constructed network
+### Network analysis
 
 NetCoMi's `netAnalyze()` function is used for analyzing the constructed 
 network(s).
@@ -106,13 +102,13 @@ graphlet correlations in the upper triangle and significance codes resulting
 from Student's t-test in the lower triangle). 
 See `?calcGCM` and `?testGCM` for details.
 
-
 ```{r single_spring_2, fig.height=6, fig.width=6}
 props_spring <- netAnalyze(net_spring, 
                            centrLCC = TRUE,
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector",
-                           weightDeg = FALSE, normDeg = FALSE)
+                           weightDeg = FALSE, 
+                           normDeg = FALSE)
 
 #?summary.microNetProps
 summary(props_spring, numbNodes = 5L)
@@ -140,7 +136,7 @@ text(6, -0.2, xpd = NA,
 ```
 
 
-#### Visualizing the network
+### Visualizing the network
 
 We use the determined clusters as node colors and scale
 the node sizes according to the node's eigenvector centrality. 

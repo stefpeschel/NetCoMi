@@ -1,3 +1,4 @@
+#' @keywords internal
 .getNodeSize <- function(nodeSize, normPar, nodeSizeSpread, adja, countMat, 
                           normCounts, assoType, kept, cexNodes, cexHubs, hubs, 
                           highlightHubs, degree, between,  close, eigen) {

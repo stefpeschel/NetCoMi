@@ -1,3 +1,4 @@
+#' @keywords internal
 .zeroTreat <- function(countMat, zeroMethod, zeroParam, 
                        needfrac, needint, verbose) {
   

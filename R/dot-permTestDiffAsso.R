@@ -87,6 +87,7 @@
 #'   \insertRef{knijnenburg2009fewer}{NetCoMi}\cr\cr
 #'
 #' @seealso \code{\link{diffnet}}
+#' @keywords internal
 
 .permTestDiffAsso <- function(countMat1, countMat2, countsJoint,
                                normCounts1, normCounts2,

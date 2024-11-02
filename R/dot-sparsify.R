@@ -1,3 +1,4 @@
+#' @keywords internal
 .sparsify <- function(assoMat,
                       countMat,
                       sampleSize,

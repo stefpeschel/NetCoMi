@@ -1,17 +1,73 @@
 url: https://stefpeschel.github.io/NetCoMi/
 template:
   bootstrap: 5
+  light-switch: true
+  bootswatch: simplex
+  bslib:
+    primary: "#a2bf48"
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github, lightswitch]
+  bg: primary
+    
+home:
+  links:
+  - text: Orchestrating Microbiome Analysis
+    href: https://microbiome.github.io/OMA/docs/devel/pages/network_learning.html
 
 articles:
 - title: Main functionality
   navbar: ~
   contents:
-  - netcompare
+  - net_comparison
   - diffnet
   - dissimilarity_networks
+  - create_asso_perm
 
 - title: More examples
   navbar: More examples
   contents:
   - asso_as_input
+  - cross_domain_networks
   - soil_example
+  
+reference:
+- title: Main functions
+  desc:  Main functions to follow the workflow of constructing, analyzing, and comparing microbiome networks.
+- contents:
+  - netConstruct
+  - netAnalyze
+  - netCompare
+  - diffnet
+  - installNetCoMiPacks
+- title: Association estimation
+  desc: Association estimation methods implemented in NetCoMi.
+- contents:
+  - cclasso
+  - gcoda
+- title: Helpers
+  desc: A bunch of helpful functions that are mainly used by other functions.
+- contents:
+  - createAssoPerm
+  - colToTransp
+  - calcGCD
+  - calcGCM
+  - editLabels
+  - multAdjust
+  - plotHeat
+  - renameTaxa
+  - testGCM
+- title: S3 methods
+- contents:
+  - plot.diffnet
+  - plot.microNetProps
+  - print.GCD
+  - summary.microNetComp
+  - summary.microNetProps
+  
+authors:
+  Stefanie Peschel:
+    href: https://stefpeschel.de/
+  

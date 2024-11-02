@@ -1,3 +1,4 @@
+#' @keywords internal
 # Plausibility checking for arguments of netConstruct()
 
 .checkPlausNetConst <- function(dataType,

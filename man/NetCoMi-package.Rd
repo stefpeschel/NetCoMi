@@ -29,3 +29,4 @@ Useful links:
    \item Anastasiia Holovchak (package testing and editing)
   }
 }
+\keyword{internal}

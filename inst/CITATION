@@ -1,8 +1,8 @@
-citHeader("To cite NetCoMi in publications use:")
+citHeader("To cite the package 'NetCoMi' in publications use:")
 
 title <- "{NetCoMi: Network Construction and Comparison for Microbiome Data}"
 title_text <- "NetCoMi: Network Construction and Comparison for Microbiome Data"
-url <- meta$URL
+url <- "https://stefpeschel.github.io/NetCoMi"
 year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
 

@@ -1,5 +1,5 @@
 # Argument checking for function plot.diffnet()
-
+#' @keywords internal
 .checkArgsPlotDiff<- function(args) {
   
   # Variable for collecting error messages

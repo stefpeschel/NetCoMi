@@ -1,16 +1,30 @@
 ---
-output: github_document
+title: "Generate permuted association matrices"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{createAssoPerm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo = FALSE}
-knitr::opts_chunk$set(fig.path="figures/tutorial_create/")
+```{r, include = FALSE}
+# Suppress title check warning
+options(rmarkdown.html_vignette.check_title = FALSE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
-## Tutorial: How to use createAssoPerm() <img src="figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+```{r setup, message=FALSE, warning=FALSE}
+library(NetCoMi)
+```
 
-This tutorial is meant to demonstrate the options for storing and reloading 
-count tables, association matrices and network properties of the permuted data 
-if **permutation tests** are performed with `netCompare()` or `diffnet()`.
+This tutorial demonstrates how to use the `createAssoPerm` function 
+for storing and reloading count tables, association matrices and network 
+properties of the permuted data if **permutation tests** are performed with 
+`netCompare()` or `diffnet()`.
 
 NetCoMi (>=1.0.2) includes the function `createAssoPerm()` for creating either 
 only a matrix with permuted group labels or storing count tables and association 
@@ -25,7 +39,7 @@ and passed to `netCompare()` or `diffnet()`.
 
 The tutorial furthermore explains NetCoMi's ability to handle **matched data sets**.
 
-#### Network construction and analysis
+### Network construction and analysis
 
 We use data from the American Gut Project and conduct a network comparison 
 between subjects with and without lactose intolerance. 
@@ -110,7 +124,7 @@ legend("bottom", title = "estimated correlation:", legend = c("+","-"),
        bty = "n", horiz = TRUE)
 ```
 
-#### Network comparison via the "classical way"
+### Network comparison via the "classical way"
 
 We conduct a network comparison with permutation tests to examine whether group 
 differences are significant. In order to reduce the execution time, only 100 
@@ -175,7 +189,7 @@ plot(diffnet_amgut, adjusted = FALSE,
 ```
 
 
-#### Network comparison using createAssoPerm()
+### Network comparison using createAssoPerm()
 
 This time, the permutation association matrices are generated using 
 `createAssoPerm()` and then passed to `netCompare()`. 
@@ -246,7 +260,7 @@ filematrix::close(assoPerm1)
 filematrix::close(assoPerm2)
 ```
 
-#### Block-wise execution
+### Block-wise execution
 
 Due to limited resources, it might be meaningful to estimate the associations 
 in blocks, that is, for a subset of permutations instead of all permutations at 
@@ -325,7 +339,7 @@ close(assoPerm1)
 close(assoPerm3)
 ```
 
-#### Block-wise execution (executable in parallel)
+### Block-wise execution (executable in parallel)
 
 If the blocks should be computed in parallel, extending the `"assoPerm"` file 
 in each iteration would not work. To be able to run the blocks in parallel, 
@@ -428,6 +442,4 @@ dim(as.matrix(assoPerm4))
 close(assoPerm1)
 close(assoPerm4)
 ```
-
-
 

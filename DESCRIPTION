@@ -16,6 +16,8 @@ Description: NetCoMi offers functions for constructing, analyzing, and comparing
     microbial compositional data. It also includes functionality for 
     constructing differential association networks.
 License: GPL-3 + file LICENSE
+URL: https://stefpeschel.github.io/NetCoMi, https://github.com/stefpeschel/NetCoMi
+BugReports: https://github.com/stefpeschel/NetCoMi/issues
 Depends: SpiecEasi (>= 1.0.6)
 Imports: 
     Biobase,
@@ -70,5 +72,4 @@ Suggests:
 RdMacros: Rdpack
 Encoding: UTF-8
 RoxygenNote: 7.3.2
-URL: https://stefpeschel.github.io/NetCoMi/
 VignetteBuilder: knitr

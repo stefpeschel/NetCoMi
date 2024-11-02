@@ -1,27 +1,35 @@
 ---
-output: github_document
+title: "Cross-domain networks"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{cross_domain_network}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo = FALSE}
-knitr::opts_chunk$set(fig.path="figures/tutorial_cross-domain/")
+```{r, include = FALSE}
+# Suppress title check warning
+options(rmarkdown.html_vignette.check_title = FALSE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
-## Tutorial: How to compare cross-domain association networks using NetCoMi and SpiecEasi? <img src="figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+```{r setup, message=FALSE, warning=FALSE}
+library(NetCoMi)
+```
 
-In this tutorial, we use the same data as in the "Cross domain interactions" 
-section of the [SpiecEasi tutorial](https://github.com/zdk123/SpiecEasi).
 
-The samples are split into two groups and cross-domain associations
-are computed for each group using SpiecEasi. The association matrices are then 
-passed to NetCoMi's netConstruct() function to conduct a network comparison 
-between the two groups.
+This tutorial shows how to construct a cross-domain network (e.g. a network consisting of bacteria and fungi) using SpiecEasi's ability to estimate cross-domain associations.
+
+We use the same data as in the "Cross domain interactions" section of the [SpiecEasi tutorial](https://github.com/zdk123/SpiecEasi).
+
+The samples are split into two groups and cross-domain associations are computed for each group using SpiecEasi. The association matrices are then passed to NetCoMi's netConstruct() function to conduct a network comparison between the two groups.
 
 **Note:**  
-This tutorial explains how two cross-domain networks are constructed and compared. 
-For constructing a single network, skip the step where the data are split into 
-two groups and perform the framework only for a single data set (i.e. pass the 
-estimated association matrix to the "data" argument of netConstruct() and 
-continue with NetCoMi's standard pipeline).
+This tutorial explains how two cross-domain networks are constructed and **compared**. For constructing a single network, skip the step where the data are split into two groups and perform the framework only for a single data set (i.e. pass the estimated association matrix to the "data" argument of netConstruct() and continue with NetCoMi's standard pipeline).
 
 
 ```{r}
@@ -47,20 +55,28 @@ counts_hmp2prot_gr2 <- counts_hmp2prot[group_vec == 2, ]
 set.seed(123456)
 
 # Run SpiecEasi and create association matrix for group 1
-spiec_result_gr1 <- multi.spiec.easi(list(counts_hmp216S_gr1, counts_hmp2prot_gr1), 
-                                 method='mb', nlambda=40, 
-                                 lambda.min.ratio=1e-2, 
-                                 pulsar.params = list(thresh = 0.05))
+# Note: Increase nlambda and rep.num for real data sets
+spiec_result_gr1 <- multi.spiec.easi(list(counts_hmp216S_gr1, 
+                                          counts_hmp2prot_gr1), 
+                                     method='mb', 
+                                     nlambda=10, 
+                                     lambda.min.ratio=1e-2, 
+                                     pulsar.params = list(thresh = 0.05,
+                                                          rep.num = 10))
 
 assoMat1 <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiec_result_gr1), mode = "ave")
 
 assoMat1 <- as.matrix(assoMat1)
 
 # Run SpiecEasi and create association matrix for group 2
-spiec_result_gr2 <- multi.spiec.easi(list(counts_hmp216S_gr2, counts_hmp2prot_gr2), 
-                                 method='mb', nlambda=40, 
-                                 lambda.min.ratio=1e-2, 
-                                 pulsar.params = list(thresh = 0.05))
+# Note: Increase nlambda and rep.num for real data sets
+spiec_result_gr2 <- multi.spiec.easi(list(counts_hmp216S_gr2, 
+                                          counts_hmp2prot_gr2), 
+                                     method='mb', 
+                                     nlambda=10,
+                                     lambda.min.ratio=1e-2, 
+                                     pulsar.params = list(thresh = 0.05,
+                                                          rep.num = 10))
 
 
 assoMat2 <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiec_result_gr2), mode = "ave")

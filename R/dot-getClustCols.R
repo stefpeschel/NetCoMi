@@ -1,3 +1,4 @@
+#' @keywords internal
 .getClustCols <- function(clust1, clust2, adja1, adja2, kept1, kept2, isempty1,
                            isempty2, colorVec, sameClustCol, sameColThresh,
                            twoNets) {

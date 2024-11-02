@@ -1,3 +1,4 @@
+#' @keywords internal
 .calcDiffProps <- function(adja1,
                             adja2,
                             dissMat1,

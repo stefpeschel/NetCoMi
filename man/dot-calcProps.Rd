@@ -127,3 +127,4 @@ for the largest connected component (LCC). If \code{TRUE}
 \description{
 Calculates network properties for a given adjacency matrix
 }
+\keyword{internal}

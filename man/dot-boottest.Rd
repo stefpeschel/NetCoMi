@@ -59,3 +59,4 @@ Statistical significance of correlations between pairs of
 \references{
 {\insertRef{friedman2012inferring}{NetCoMi}}
 }
+\keyword{internal}

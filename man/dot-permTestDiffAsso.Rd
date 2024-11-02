@@ -155,3 +155,4 @@ The function implements procedures to test whether pairs of taxa
 \seealso{
 \code{\link{diffnet}}
 }
+\keyword{internal}

@@ -71,7 +71,7 @@
 #' @importFrom igraph graph_from_adjacency_matrix decompose.graph
 #' @importFrom stats hclust as.dist cutree qlnorm quantile
 #' @importFrom pulsar natural.connectivity
-
+#' @keywords internal
 
 .calcProps <- function(adjaMat,
                        dissMat,

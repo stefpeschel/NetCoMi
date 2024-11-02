@@ -8,6 +8,7 @@
 #'
 #' @param x symmetric matrix for which the column and row names should be
 #'   returned as a vector
+#' @keywords internal   
 
 .getVecNames <- function(x) {
   

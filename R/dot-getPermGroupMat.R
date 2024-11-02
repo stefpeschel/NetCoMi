@@ -1,3 +1,4 @@
+#' @keywords internal
 .getPermGroupMat <- function(n1, n2, n, nPerm, matchDesign) {
   
   # group vector: n1 samples in group1 and n2 samples in group 2
