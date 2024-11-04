@@ -11,6 +11,7 @@ knitr::opts_chunk$set(fig.path="man/figures/readme/")
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+[![DOI paper](https://img.shields.io/badge/doi-10.1093/bib/bbaa290-yellow.svg)](https://doi.org/10.1093/bib/bbaa290)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
 <!-- badges: end -->
 
@@ -21,62 +22,20 @@ is an R package designed to facilitate the construction, analysis, and compariso
 
 With NetCoMi, users can construct microbial association or dissimilarity networks directly from sequencing data, typically provided as a read count matrix. The package includes a broad selection of methods for handling zeros, normalizing data, computing associations between microbial taxa, and sparsifying the resulting matrices. By offering these components in a modular format, NetCoMi allows users to tailor the workflow to their specific research needs, creating highly customizable microbial networks.
 
-The package supports both the construction, analysis, and visualization of single networks and the comparison of two networks through graphical and quantitative approaches, including statistical testing. Additionally, NetCoMi offers the capability of constructing differential networks, where only differentially associated taxa are connected.
+The package supports both the construction, analysis, and visualization of a **single network** and the **comparison of two networks** through graphical and quantitative approaches, including statistical testing. Additionally, NetCoMi offers the capability of constructing **differential networks**, where only differentially associated taxa are connected.
 
-<img src="man/figures/networkplot_soil.png" width="800" />
-
-```{r networkplot, eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.height=16, fig.width=29}
-library(phyloseq)
-library(NetCoMi)
-data("soilrep")
-
-soil_warm_yes <- phyloseq::subset_samples(soilrep, warmed == "yes")
-soil_warm_no  <- phyloseq::subset_samples(soilrep, warmed == "no")
-
-net_seas_p <- netConstruct(soil_warm_yes, soil_warm_no,
-                           filtTax = "highestVar",
-                           filtTaxPar = list(highestVar = 500),
-                           zeroMethod = "pseudo",
-                           normMethod = "clr",
-                           measure = "pearson",
-                           verbose = 0)
-
-netprops1 <- netAnalyze(net_seas_p, clustMethod = "cluster_fast_greedy",
-                        gcmHeat = FALSE)
-
-nclust <- as.numeric(max(names(table(netprops1$clustering$clust1))))
-
-col <- c(topo.colors(nclust), rainbow(6))
-
-plot(netprops1, 
-     sameLayout = TRUE, 
-     layoutGroup = "union", 
-     colorVec = col,
-     borderCol = "gray40", 
-     nodeSize = "degree", 
-     cexNodes = 0.9, 
-     nodeSizeSpread = 3, 
-     edgeTranspLow = 80, 
-     edgeTranspHigh = 50,
-     groupNames = c("Warming", "Non-warming"), 
-     showTitle = TRUE, 
-     cexTitle = 2.8,
-     mar = c(1,1,3,1), 
-     repulsion = 0.9, 
-     labels = FALSE, 
-     rmSingles = "inboth",
-     nodeFilter = "clustMin", 
-     nodeFilterPar = 10, 
-     nodeTransp = 50, 
-     hubTransp = 30)
-```
+<img src="man/figures/soilrep_networks.png" width="800" />
 
 > Exemplary network comparison using soil microbiome data (['soilrep' data from 
 phyloseq package](https://github.com/joey711/phyloseq/blob/master/data/soilrep.RData)). 
 Microbial associations are compared between the two experimantal settings 
 'warming' and 'non-warming' using the same layout in both groups. 
 
-### Methods included in NetCoMi
+## Workflow
+
+<img src="man/figures/workflow.png" width=100% />
+
+## Methods included in NetCoMi
 
 Here is an overview of methods available for network construction, together with
 some information on their implementation in R:
@@ -137,6 +96,11 @@ TSS, CSS, COM, VST, and the clr transformation are described in [@badri2020shrin
 install.packages("devtools")
 install.packages("BiocManager")
 
+# Since two of NetCoMi's dependencies are only available on GitHub, it is 
+# recommended to install them first:
+devtools::install_github("zdk123/SpiecEasi")
+devtools::install_github("GraceYoon/SPRING")
+
 # Install NetCoMi
 devtools::install_github("stefpeschel/NetCoMi", 
                          dependencies = c("Depends", "Imports", "LinkingTo"),
@@ -147,30 +111,17 @@ devtools::install_github("stefpeschel/NetCoMi",
 If there are any errors during installation, please install the missing 
 dependencies manually.
 
-In particular the automatic installation of 
-[`SPRING`](https://github.com/GraceYoon/SPRING) and  [`SpiecEasi`](https://github.com/zdk123/SpiecEasi) (only available on 
-GitHub) does sometimes not work. These packages can be installed as follows 
-(the order is important because SPRING depends on SpiecEasi):
-
-```{r install2, eval=FALSE}
-devtools::install_github("zdk123/SpiecEasi")
-devtools::install_github("GraceYoon/SPRING")
-```
-
 Packages that are optionally required in certain settings are not installed 
 together with NetCoMi. These can be installed automatically using:
 
 ```{r install3, eval=FALSE}
 installNetCoMiPacks()
-
-# Please check:
-?installNetCoMiPacks()
 ```
 
 If not installed via `installNetCoMiPacks()`, the required package is installed
 by the respective NetCoMi function when needed.
 
-### Bioconda
+## Bioconda
 
 Thanks to [daydream-boost](https://github.com/daydream-boost), NetCoMi can also
 be installed from conda bioconda channel with
@@ -198,5 +149,5 @@ devtools::install_github("stefpeschel/NetCoMi",
 Please check the [NEWS](https://github.com/stefpeschel/NetCoMi/blob/develop/NEWS.md) 
 document for features implemented on develop branch.
 
-### References
+## References
 

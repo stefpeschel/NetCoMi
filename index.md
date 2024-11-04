@@ -4,6 +4,8 @@
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+[![DOI
+paper](https://img.shields.io/badge/doi-10.1093/bib/bbaa290-yellow.svg)](https://doi.org/10.1093/bib/bbaa290)
 [![install with
 bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
 <!-- badges: end -->
@@ -28,12 +30,13 @@ workflow to their specific research needs, creating highly customizable
 microbial networks.
 
 The package supports both the construction, analysis, and visualization
-of single networks and the comparison of two networks through graphical
-and quantitative approaches, including statistical testing.
-Additionally, NetCoMi offers the capability of constructing differential
-networks, where only differentially associated taxa are connected.
+of a **single network** and the **comparison of two networks** through
+graphical and quantitative approaches, including statistical testing.
+Additionally, NetCoMi offers the capability of constructing
+**differential networks**, where only differentially associated taxa are
+connected.
 
-<img src="man/figures/networkplot_soil.png" width="800" />
+<img src="man/figures/soilrep_networks.png" width="800" />
 
 > Exemplary network comparison using soil microbiome data ([‘soilrep’
 > data from phyloseq
@@ -42,7 +45,11 @@ networks, where only differentially associated taxa are connected.
 > settings ‘warming’ and ‘non-warming’ using the same layout in both
 > groups.
 
-### Methods included in NetCoMi
+## Workflow
+
+<img src="man/figures/workflow.png" width=100% />
+
+## Methods included in NetCoMi
 
 Here is an overview of methods available for network construction,
 together with some information on their implementation in R:
@@ -134,6 +141,11 @@ et al. 2020).
 install.packages("devtools")
 install.packages("BiocManager")
 
+# Since two of NetCoMi's dependencies are only available on GitHub, it is 
+# recommended to install them first:
+devtools::install_github("zdk123/SpiecEasi")
+devtools::install_github("GraceYoon/SPRING")
+
 # Install NetCoMi
 devtools::install_github("stefpeschel/NetCoMi", 
                          dependencies = c("Depends", "Imports", "LinkingTo"),
@@ -144,32 +156,18 @@ devtools::install_github("stefpeschel/NetCoMi",
 If there are any errors during installation, please install the missing
 dependencies manually.
 
-In particular the automatic installation of
-[`SPRING`](https://github.com/GraceYoon/SPRING) and
-[`SpiecEasi`](https://github.com/zdk123/SpiecEasi) (only available on
-GitHub) does sometimes not work. These packages can be installed as
-follows (the order is important because SPRING depends on SpiecEasi):
-
-``` r
-devtools::install_github("zdk123/SpiecEasi")
-devtools::install_github("GraceYoon/SPRING")
-```
-
 Packages that are optionally required in certain settings are not
 installed together with NetCoMi. These can be installed automatically
 using:
 
 ``` r
 installNetCoMiPacks()
-
-# Please check:
-?installNetCoMiPacks()
 ```
 
 If not installed via `installNetCoMiPacks()`, the required package is
 installed by the respective NetCoMi function when needed.
 
-### Bioconda
+## Bioconda
 
 Thanks to [daydream-boost](https://github.com/daydream-boost), NetCoMi
 can also be installed from conda bioconda channel with
@@ -198,7 +196,7 @@ Please check the
 [NEWS](https://github.com/stefpeschel/NetCoMi/blob/develop/NEWS.md)
 document for features implemented on develop branch.
 
-### References
+## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">

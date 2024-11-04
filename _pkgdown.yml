@@ -16,6 +16,8 @@ home:
   links:
   - text: Orchestrating Microbiome Analysis
     href: https://microbiome.github.io/OMA/docs/devel/pages/network_learning.html
+  - text: Development version
+    href: https://github.com/stefpeschel/NetCoMi/tree/develop
 
 articles:
 - title: Main functionality
@@ -70,4 +72,12 @@ reference:
 authors:
   Stefanie Peschel:
     href: https://stefpeschel.de/
+  Christian L. Müller:
+    href: https://www.statistik.uni-muenchen.de/personen/professuren/mueller/index.html
+  Anne-Laure Boulesteix:
+    href: https://www.en.ibe.med.uni-muenchen.de/mitarbeiter/professoren/boulesteix/index.html
+  Erika von Mutius:
+    href: https://www.helmholtz-munich.de/en/iap/pi/erika-von-mutius
+  Martin Depner:
+    href: https://www.helmholtz-munich.de/en/iap
   

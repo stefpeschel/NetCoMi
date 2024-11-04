@@ -23,7 +23,7 @@ library(NetCoMi)
 
 Here is the code for reproducing the network plot shown on the landing page.
 
-```{r example16, eval=FALSE}
+```{r soil_net_comp, eval=FALSE}
 data("soilrep")
 
 soil_warm_yes <- phyloseq::subset_samples(soilrep, warmed == "yes")
@@ -42,6 +42,8 @@ netprops1 <- netAnalyze(net_seas_p, clustMethod = "cluster_fast_greedy")
 nclust <- as.numeric(max(names(table(netprops1$clustering$clust1))))
 
 col <- c(topo.colors(nclust), rainbow(6))
+
+pdf("soilrep_networks.pdf", width = 29, height = 16)
 
 plot(netprops1, 
      sameLayout = TRUE, 
@@ -64,4 +66,6 @@ plot(netprops1,
      nodeFilterPar = 10, 
      nodeTransp = 50, 
      hubTransp = 30)
+
+dev.off()
 ```
