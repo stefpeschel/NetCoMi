@@ -111,6 +111,8 @@ landing page.</p>
 <span></span>
 <span><span class="va">col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">topo.colors</a></span><span class="op">(</span><span class="va">nclust</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">rainbow</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"soilrep_networks.pdf"</span>, width <span class="op">=</span> <span class="fl">29</span>, height <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">netprops1</span>, </span>
 <span>     sameLayout <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>     layoutGroup <span class="op">=</span> <span class="st">"union"</span>, </span>
@@ -131,7 +133,9 @@ landing page.</p>
 <span>     nodeFilter <span class="op">=</span> <span class="st">"clustMin"</span>, </span>
 <span>     nodeFilterPar <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>     nodeTransp <span class="op">=</span> <span class="fl">50</span>, </span>
-<span>     hubTransp <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></code></pre></div>
+<span>     hubTransp <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
   </main>
 </div>
 
