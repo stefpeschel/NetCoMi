@@ -47,9 +47,6 @@ Imports:
     vegan,
     WGCNA
 Remotes: 
-    bioc::Biobase,
-    bioc::metagenomeSeq@1.47.0,
-    bioc::phyloseq, 
     github::zdk123/SpiecEasi,
     github::GraceYoon/SPRING,
     github::vmikk/metagMisc,
