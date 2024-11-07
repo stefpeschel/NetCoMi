@@ -34,15 +34,16 @@ jobs:
         with:
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, any::BiocManager, local::.
-          needs: website
-
+      # Install Bioconductor dependencies
       - name: Install Bioconductor dependencies
         run: |
           Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")'
           Rscript -e 'BiocManager::install(c("metagenomeSeq", "Biobase", "phyloseq"))'
+
+      # Continue with remaining dependencies
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::pkgdown, local::.
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
