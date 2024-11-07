@@ -19,6 +19,7 @@ License: GPL-3 + file LICENSE
 URL: https://netcomi.de, https://github.com/stefpeschel/NetCoMi
 BugReports: https://github.com/stefpeschel/NetCoMi/issues
 Depends: SpiecEasi (>= 1.0.6)
+biocViews:
 Imports: 
     Biobase,
     corrplot,
@@ -50,10 +51,7 @@ Remotes:
     github::zdk123/SpiecEasi,
     github::GraceYoon/SPRING,
     github::vmikk/metagMisc,
-    github::tpq/propr,
-    bioc::release/Biobase,
-    bioc::release/metagenomeSeq,
-    bioc::release/phyloseq
+    github::tpq/propr
 Suggests:
     BiocManager,
     cccd,
