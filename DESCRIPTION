@@ -50,7 +50,10 @@ Remotes:
     github::zdk123/SpiecEasi,
     github::GraceYoon/SPRING,
     github::vmikk/metagMisc,
-    github::tpq/propr
+    github::tpq/propr,
+    bioc::release/Biobase,
+    bioc::release/metagenomeSeq,
+    bioc::release/phyloseq
 Suggests:
     BiocManager,
     cccd,
