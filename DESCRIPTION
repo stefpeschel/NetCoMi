@@ -52,7 +52,7 @@ Remotes:
     github::GraceYoon/SPRING,
     github::vmikk/metagMisc,
     github::tpq/propr,
-    github::metagenomeSeq
+    github::HCBravoLab/metagenomeSeq
 Suggests:
     BiocManager,
     cccd,
