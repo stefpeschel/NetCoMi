@@ -1,9 +1,5 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-# By Stefanie Peschel: Adapted to install Bioconductor packages in advance
-
-name: pkgdown.yaml
-
 on:
   push:
     branches: [main, master]
@@ -12,6 +8,8 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+
+name: pkgdown.yaml
 
 permissions: read-all
 
@@ -34,16 +32,10 @@ jobs:
         with:
           use-public-rspm: true
 
-      # Install Bioconductor dependencies
-      - name: Install Bioconductor dependencies
-        run: |
-          Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")'
-          Rscript -e 'BiocManager::install(c("metagenomeSeq", "Biobase", "phyloseq"))'
-
-      # Continue with remaining dependencies
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
+          needs: website
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
