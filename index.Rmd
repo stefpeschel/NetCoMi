@@ -1,6 +1,9 @@
 ---
 output: github_document
 bibliography: references.bib
+link-citations: true
+nocite: |
+  @peschel2020netcomi
 ---
 
 ```{r setup, echo = FALSE}
@@ -24,7 +27,7 @@ With NetCoMi, users can construct microbial association or dissimilarity network
 
 The package supports both the construction, analysis, and visualization of a **single network** and the **comparison of two networks** through graphical and quantitative approaches, including statistical testing. Additionally, NetCoMi offers the capability of constructing **differential networks**, where only differentially associated taxa are connected.
 
-<img src="man/figures/soilrep_networks.png" width="800" />
+<img src="man/figures/soilrep_networks.png" width=100% />
 
 > Exemplary network comparison using soil microbiome data (['soilrep' data from 
 phyloseq package](https://github.com/joey711/phyloseq/blob/master/data/soilrep.RData)). 
@@ -96,14 +99,13 @@ TSS, CSS, COM, VST, and the clr transformation are described in [@badri2020shrin
 install.packages("devtools")
 install.packages("BiocManager")
 
-# Since two of NetCoMi's dependencies are only available on GitHub, it is 
-# recommended to install them first:
+# Since two of NetCoMi's dependencies are only available on GitHub, 
+# it is recommended to install them first:
 devtools::install_github("zdk123/SpiecEasi")
 devtools::install_github("GraceYoon/SPRING")
 
 # Install NetCoMi
 devtools::install_github("stefpeschel/NetCoMi", 
-                         dependencies = c("Depends", "Imports", "LinkingTo"),
                          repos = c("https://cloud.r-project.org/",
                                    BiocManager::repositories()))
 ```
@@ -114,7 +116,7 @@ dependencies manually.
 Packages that are optionally required in certain settings are not installed 
 together with NetCoMi. These can be installed automatically using:
 
-```{r install3, eval=FALSE}
+```{r install2, eval=FALSE}
 installNetCoMiPacks()
 ```
 
@@ -141,7 +143,6 @@ is invited to install NetCoMi's development version:
 ```{r install4, eval=FALSE}
 devtools::install_github("stefpeschel/NetCoMi", 
                          ref = "develop",
-                         dependencies = c("Depends", "Imports", "LinkingTo"),
                          repos = c("https://cloud.r-project.org/",
                                    BiocManager::repositories()))
 ```

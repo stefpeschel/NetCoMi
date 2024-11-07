@@ -36,7 +36,7 @@ Additionally, NetCoMi offers the capability of constructing
 **differential networks**, where only differentially associated taxa are
 connected.
 
-<img src="man/figures/soilrep_networks.png" width="800" />
+<img src="man/figures/soilrep_networks.png" width=100% />
 
 > Exemplary network comparison using soil microbiome data ([‘soilrep’
 > data from phyloseq
@@ -97,7 +97,7 @@ together with some information on their implementation in R:
   [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from
   `LaplacesDemon` package)
 - Compositional KLD (own implementation following Martin-Fernández et
-  al. (1999))
+  al. ([1999](#ref-martin1999measure)))
 - Aitchison distance
   ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
   and [`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html)
@@ -131,8 +131,8 @@ together with some information on their implementation in R:
   ([`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html) from
   `SpiecEasi` package))
 
-TSS, CSS, COM, VST, and the clr transformation are described in (Badri
-et al. 2020).
+TSS, CSS, COM, VST, and the clr transformation are described in ([Badri
+et al. 2020](#ref-badri2020shrinkage)).
 
 ## Installation
 
@@ -141,14 +141,13 @@ et al. 2020).
 install.packages("devtools")
 install.packages("BiocManager")
 
-# Since two of NetCoMi's dependencies are only available on GitHub, it is 
-# recommended to install them first:
+# Since two of NetCoMi's dependencies are only available on GitHub, 
+# it is recommended to install them first:
 devtools::install_github("zdk123/SpiecEasi")
 devtools::install_github("GraceYoon/SPRING")
 
 # Install NetCoMi
 devtools::install_github("stefpeschel/NetCoMi", 
-                         dependencies = c("Depends", "Imports", "LinkingTo"),
                          repos = c("https://cloud.r-project.org/",
                                    BiocManager::repositories()))
 ```
@@ -187,7 +186,6 @@ invited to install NetCoMi’s development version:
 ``` r
 devtools::install_github("stefpeschel/NetCoMi", 
                          ref = "develop",
-                         dependencies = c("Depends", "Imports", "LinkingTo"),
                          repos = c("https://cloud.r-project.org/",
                                    BiocManager::repositories()))
 ```
@@ -215,6 +213,16 @@ Bioinformatics* 2 (December). <https://doi.org/10.1093/NARGAB/LQAA100>.
 Martin-Fernández, Josep A, M Bren, Carles Barceló-Vidal, and Vera
 Pawlowsky-Glahn. 1999. “A Measure of Difference for Compositional Data
 Based on Measures of Divergence.” In *Proceedings of IAMG*, 99:211–16.
+
+</div>
+
+<div id="ref-peschel2020netcomi" class="csl-entry">
+
+Peschel, Stefanie, Christian L Müller, Erika von Mutius, Anne-Laure
+Boulesteix, and Martin Depner. 2020. “<span class="nocase">NetCoMi:
+network construction and comparison for microbiome data in R</span>.”
+*Briefings in Bioinformatics* 22 (4): bbaa290.
+<https://doi.org/10.1093/bib/bbaa290>.
 
 </div>
 
