@@ -86,7 +86,7 @@
 <p>NetCoMi (<strong>Net</strong>work <strong>Co</strong>nstruction and Comparison for <strong>Mi</strong>crobiome Data) is an R package designed to facilitate the construction, analysis, and comparison of networks tailored to microbial compositional data. It implements a comprehensive workflow introduced in <a href="https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbaa290/6017455" class="external-link">Peschel et al. (2020)</a>, which guides users through each step of network generation and analysis with a strong emphasis on reproducibility and computational efficiency.</p>
 <p>With NetCoMi, users can construct microbial association or dissimilarity networks directly from sequencing data, typically provided as a read count matrix. The package includes a broad selection of methods for handling zeros, normalizing data, computing associations between microbial taxa, and sparsifying the resulting matrices. By offering these components in a modular format, NetCoMi allows users to tailor the workflow to their specific research needs, creating highly customizable microbial networks.</p>
 <p>The package supports both the construction, analysis, and visualization of a <strong>single network</strong> and the <strong>comparison of two networks</strong> through graphical and quantitative approaches, including statistical testing. Additionally, NetCoMi offers the capability of constructing <strong>differential networks</strong>, where only differentially associated taxa are connected.</p>
-<p><img src="reference/figures/soilrep_networks.png" width="800"></p>
+<p><img src="reference/figures/soilrep_networks.png" width="100%"></p>
 <blockquote>
 <p>Exemplary network comparison using soil microbiome data (<a href="https://github.com/joey711/phyloseq/blob/master/data/soilrep.RData" class="external-link">‘soilrep’ data from phyloseq package</a>). Microbial associations are compared between the two experimantal settings ‘warming’ and ‘non-warming’ using the same layout in both groups.</p>
 </blockquote>
@@ -119,7 +119,7 @@
 <li>Kullback-Leibler divergence (KLD) (<a href="https://rdrr.io/cran/LaplacesDemon/man/KLD.html" class="external-link"><code>KLD()</code></a> from <code>LaplacesDemon</code> package)</li>
 <li>Jeffrey divergence (own code using <a href="https://rdrr.io/cran/LaplacesDemon/man/KLD.html" class="external-link"><code>KLD()</code></a> from <code>LaplacesDemon</code> package)</li>
 <li>Jensen-Shannon divergence (own code using <a href="https://rdrr.io/cran/LaplacesDemon/man/KLD.html" class="external-link"><code>KLD()</code></a> from <code>LaplacesDemon</code> package)</li>
-<li>Compositional KLD (own implementation following Martin-Fernández et al. (1999))</li>
+<li>Compositional KLD (own implementation following Martin-Fernández et al. (<a href="#ref-martin1999measure">1999</a>))</li>
 <li>Aitchison distance (<a href="https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist" class="external-link"><code>vegdist()</code></a> and <a href="https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html" class="external-link"><code>clr()</code></a> from <code>SpiecEasi</code> package)</li>
 </ul>
 <p><strong>Methods for zero replacement:</strong></p>
@@ -139,7 +139,7 @@
 <li>Variance Stabilizing Transformation (VST) (<a href=""><code>varianceStabilizingTransformation</code></a> from <code>DESeq2</code> package)</li>
 <li>Centered log-ratio (clr) transformation (<a href="https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html" class="external-link"><code>clr()</code></a> from <code>SpiecEasi</code> package))</li>
 </ul>
-<p>TSS, CSS, COM, VST, and the clr transformation are described in (Badri et al. 2020).</p>
+<p>TSS, CSS, COM, VST, and the clr transformation are described in (<a href="#ref-badri2020shrinkage">Badri et al. 2020</a>).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -149,14 +149,13 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Since two of NetCoMi's dependencies are only available on GitHub, it is </span></span>
-<span><span class="co"># recommended to install them first:</span></span>
+<span><span class="co"># Since two of NetCoMi's dependencies are only available on GitHub, </span></span>
+<span><span class="co"># it is recommended to install them first:</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"zdk123/SpiecEasi"</span><span class="op">)</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"GraceYoon/SPRING"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Install NetCoMi</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"stefpeschel/NetCoMi"</span>, </span>
-<span>                         dependencies <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Depends"</span>, <span class="st">"Imports"</span>, <span class="st">"LinkingTo"</span><span class="op">)</span>,</span>
 <span>                         repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://cloud.r-project.org/"</span>,</span>
 <span>                                   <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>If there are any errors during installation, please install the missing dependencies manually.</p>
@@ -181,7 +180,6 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"stefpeschel/NetCoMi"</span>, </span>
 <span>                         ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
-<span>                         dependencies <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Depends"</span>, <span class="st">"Imports"</span>, <span class="st">"LinkingTo"</span><span class="op">)</span>,</span>
 <span>                         repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://cloud.r-project.org/"</span>,</span>
 <span>                                   <span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/repositories.html" class="external-link">repositories</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Please check the <a href="https://github.com/stefpeschel/NetCoMi/blob/develop/NEWS.md" class="external-link">NEWS</a> document for features implemented on develop branch.</p>
@@ -195,6 +193,9 @@ Badri, Michelle, Zachary D. Kurtz, Richard Bonneau, and Christian L. Müller. 20
 </div>
 <div id="ref-martin1999measure" class="csl-entry">
 Martin-Fernández, Josep A, M Bren, Carles Barceló-Vidal, and Vera Pawlowsky-Glahn. 1999. “A Measure of Difference for Compositional Data Based on Measures of Divergence.” In <em>Proceedings of IAMG</em>, 99:211–16.
+</div>
+<div id="ref-peschel2020netcomi" class="csl-entry">
+Peschel, Stefanie, Christian L Müller, Erika von Mutius, Anne-Laure Boulesteix, and Martin Depner. 2020. “<span class="nocase">NetCoMi: network construction and comparison for microbiome data in R</span>.” <em>Briefings in Bioinformatics</em> 22 (4): bbaa290. <a href="https://doi.org/10.1093/bib/bbaa290" class="external-link uri">https://doi.org/10.1093/bib/bbaa290</a>.
 </div>
 </div>
 </div>
