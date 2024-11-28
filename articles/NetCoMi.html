@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get started">
 </head>
 <body>
@@ -46,6 +46,7 @@
     <li><a class="dropdown-item" href="../articles/create_asso_perm.html">Generate permuted association matrices</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>More examples</h6></li>
+    <li><a class="dropdown-item" href="../articles/plot_modifications.html">Modifying the network plot</a></li>
     <li><a class="dropdown-item" href="../articles/asso_as_input.html">Association matrix as input</a></li>
     <li><a class="dropdown-item" href="../articles/cross_domain_networks.html">Cross-domain networks</a></li>
     <li><a class="dropdown-item" href="../articles/soil_example.html">Soil microbiome example</a></li>
@@ -89,9 +90,10 @@
     
 <p>The American Gut data provided by the <a href="https://github.com/zdk123/SpiecEasi" class="external-link"><code>SpiecEasi</code></a>
 package are used for almost all NetCoMi tutorials.</p>
-<p>We begin by constructing a single network, which we analyze using
-quantitative and graphical methods. Later, we will compare the networks
-of two groups: Individuals with and without seasonal allergies.</p>
+<p>We begin by constructing a single network on genus level, which we
+analyze using quantitative and graphical methods. Later, we will compare
+the networks of two groups: Individuals with and without seasonal
+allergies.</p>
 <p>NetCoMi’s main functions are <code><a href="../reference/netConstruct.html">netConstruct()</a></code> for network
 construction, <code><a href="../reference/netAnalyze.html">netAnalyze()</a></code> for network analysis, and
 <code><a href="../reference/netCompare.html">netCompare()</a></code> for network comparison. As should become clear
@@ -105,14 +107,92 @@ for constructing a differential association network.
 which is automatically loaded together with NetCoMi).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://netcomi.de">NetCoMi</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut1.filt"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut2.filt.phy"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217" class="external-link">phyloseq</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load data sets</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut1.filt"</span><span class="op">)</span> <span class="co"># ASV count matrix</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut2.filt.phy"</span><span class="op">)</span> <span class="co"># phyloseq objext</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="data-agglomeration">Data agglomeration<a class="anchor" aria-label="anchor" href="#data-agglomeration"></a>
+</h3>
+<p><em>Skip this step if you wish to construct the network at ASV
+level</em>.</p>
+<p>We start by agglomerating the phyloseq object to genus level, named
+“Rank6” in this data set.</p>
+<p>The <code>renameTaxa</code> function is used to rename the taxa
+according to a defined pattern and to make the genus names unique.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Agglomerate to genus level</span></span>
+<span><span class="va">amgut_genus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_glom.html" class="external-link">tax_glom</a></span><span class="op">(</span><span class="va">amgut2.filt.phy</span>, taxrank <span class="op">=</span> <span class="st">"Rank6"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Rename taxonomic table and make Rank6 (genus) unique</span></span>
+<span><span class="va">amgut_genus_renamed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/renameTaxa.html">renameTaxa</a></span><span class="op">(</span><span class="va">amgut_genus</span>, </span>
+<span>                                  pat <span class="op">=</span> <span class="st">"&lt;name&gt;"</span>, </span>
+<span>                                  substPat <span class="op">=</span> <span class="st">"&lt;name&gt;_&lt;subst_name&gt;(&lt;subst_R&gt;)"</span>,</span>
+<span>                                  numDupli <span class="op">=</span> <span class="st">"Rank6"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Column 7 contains NAs only and is ignored.</span></span></code></pre></div>
+<p>Let’s compare the taxa names before and after renaming them.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html" class="external-link">tax_table</a></span><span class="op">(</span><span class="va">amgut_genus</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Taxonomy Table:     [6 taxa by 7 taxonomic ranks]:</span></span>
+<span><span class="co">#&gt;        Rank1         Rank2               Rank3                      </span></span>
+<span><span class="co">#&gt; 181016 "k__Bacteria" "p__Firmicutes"     "c__Clostridia"            </span></span>
+<span><span class="co">#&gt; 191687 "k__Bacteria" "p__Firmicutes"     "c__Clostridia"            </span></span>
+<span><span class="co">#&gt; 305760 "k__Bacteria" "p__Proteobacteria" "c__Gammaproteobacteria"   </span></span>
+<span><span class="co">#&gt; 326977 "k__Bacteria" "p__Actinobacteria" "c__Actinobacteria (class)"</span></span>
+<span><span class="co">#&gt; 28186  "k__Bacteria" "p__Firmicutes"     "c__Bacilli"               </span></span>
+<span><span class="co">#&gt; 541301 "k__Bacteria" "p__Bacteroidetes"  "c__Bacteroidia"           </span></span>
+<span><span class="co">#&gt;        Rank4                  Rank5                   Rank6               </span></span>
+<span><span class="co">#&gt; 181016 "o__Clostridiales"     "f__Ruminococcaceae"    "g__Eubacterium"    </span></span>
+<span><span class="co">#&gt; 191687 "o__Clostridiales"     "f__Lachnospiraceae"    "g__Clostridium"    </span></span>
+<span><span class="co">#&gt; 305760 "o__Enterobacteriales" "f__Enterobacteriaceae" "g__Escherichia"    </span></span>
+<span><span class="co">#&gt; 326977 "o__Bifidobacteriales" "f__Bifidobacteriaceae" "g__Bifidobacterium"</span></span>
+<span><span class="co">#&gt; 28186  "o__Lactobacillales"   "f__Enterococcaceae"    "g__Enterococcus"   </span></span>
+<span><span class="co">#&gt; 541301 "o__Bacteroidales"     "f__Porphyromonadaceae" "g__Parabacteroides"</span></span>
+<span><span class="co">#&gt;        Rank7</span></span>
+<span><span class="co">#&gt; 181016 NA   </span></span>
+<span><span class="co">#&gt; 191687 NA   </span></span>
+<span><span class="co">#&gt; 305760 NA   </span></span>
+<span><span class="co">#&gt; 326977 NA   </span></span>
+<span><span class="co">#&gt; 28186  NA   </span></span>
+<span><span class="co">#&gt; 541301 NA</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html" class="external-link">tax_table</a></span><span class="op">(</span><span class="va">amgut_genus_renamed</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Taxonomy Table:     [6 taxa by 7 taxonomic ranks]:</span></span>
+<span><span class="co">#&gt;        Rank1      Rank2            Rank3                    Rank4              </span></span>
+<span><span class="co">#&gt; 181016 "Bacteria" "Firmicutes"     "Clostridia"             "Clostridiales"    </span></span>
+<span><span class="co">#&gt; 191687 "Bacteria" "Firmicutes"     "Clostridia"             "Clostridiales"    </span></span>
+<span><span class="co">#&gt; 305760 "Bacteria" "Proteobacteria" "Gammaproteobacteria"    "Enterobacteriales"</span></span>
+<span><span class="co">#&gt; 326977 "Bacteria" "Actinobacteria" "Actinobacteria (class)" "Bifidobacteriales"</span></span>
+<span><span class="co">#&gt; 28186  "Bacteria" "Firmicutes"     "Bacilli"                "Lactobacillales"  </span></span>
+<span><span class="co">#&gt; 541301 "Bacteria" "Bacteroidetes"  "Bacteroidia"            "Bacteroidales"    </span></span>
+<span><span class="co">#&gt;        Rank5                Rank6             Rank7</span></span>
+<span><span class="co">#&gt; 181016 "Ruminococcaceae"    "Eubacterium1"    NA   </span></span>
+<span><span class="co">#&gt; 191687 "Lachnospiraceae"    "Clostridium1"    NA   </span></span>
+<span><span class="co">#&gt; 305760 "Enterobacteriaceae" "Escherichia"     NA   </span></span>
+<span><span class="co">#&gt; 326977 "Bifidobacteriaceae" "Bifidobacterium" NA   </span></span>
+<span><span class="co">#&gt; 28186  "Enterococcaceae"    "Enterococcus"    NA   </span></span>
+<span><span class="co">#&gt; 541301 "Porphyromonadaceae" "Parabacteroides" NA</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">taxtab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html" class="external-link">tax_table</a></span><span class="op">(</span><span class="va">amgut_genus</span><span class="op">)</span></span>
+<span><span class="va">taxtab</span><span class="op">[</span><span class="va">taxtab</span><span class="op">[</span>, <span class="st">"Rank6"</span><span class="op">]</span> <span class="op">==</span> <span class="st">"g__Eubacterium"</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt; Taxonomy Table:     [2 taxa by 7 taxonomic ranks]:</span></span>
+<span><span class="co">#&gt;        Rank1         Rank2           Rank3           Rank4             </span></span>
+<span><span class="co">#&gt; 181016 "k__Bacteria" "p__Firmicutes" "c__Clostridia" "o__Clostridiales"</span></span>
+<span><span class="co">#&gt; 189396 "k__Bacteria" "p__Firmicutes" "c__Clostridia" "o__Clostridiales"</span></span>
+<span><span class="co">#&gt;        Rank5                Rank6            Rank7</span></span>
+<span><span class="co">#&gt; 181016 "f__Ruminococcaceae" "g__Eubacterium" NA   </span></span>
+<span><span class="co">#&gt; 189396 "f__Lachnospiraceae" "g__Eubacterium" NA</span></span></code></pre></div>
+<p>For example, a “1” has been added to Eubacterium because this genus
+exists twice: once in the Ruminococcaceae family and once in the
+Lachnospiraceae family. For association estimation, it is important to
+distinguish between them, so they are numbered.</p>
+</div>
 <div class="section level3">
 <h3 id="network-construction">Network construction<a class="anchor" aria-label="anchor" href="#network-construction"></a>
 </h3>
 <p>We use the <a href="https://github.com/GraceYoon/SPRING" class="external-link">SPRING</a>
 package for estimating associations (conditional dependence) between
-OTUs.</p>
+taxa.</p>
 <p>The data are filtered within <code><a href="../reference/netConstruct.html">netConstruct()</a></code> as
 follows:</p>
 <ul>
@@ -121,6 +201,8 @@ included (argument <code>filtSamp</code>).</li>
 <li>Only the 50 taxa with highest frequency are included (argument
 <code>filtTax</code>).</li>
 </ul>
+<p>Note that the taxa filter is set for demonstration purposes only, but
+has no effect here because there are only 43 genera in the data set.</p>
 <p><code>measure</code> defines the association or dissimilarity
 measure, which is <code>"spring"</code> in our case. Additional
 arguments are passed to <code><a href="https://rdrr.io/pkg/SPRING/man/SPRING.html" class="external-link">SPRING()</a></code> via
@@ -143,8 +225,9 @@ similarity, which corresponds to edge weights in the network plot.</p>
 <p>The <code>verbose</code> argument is set to 3 so that all messages
 generated by <code><a href="../reference/netConstruct.html">netConstruct()</a></code> as well as messages of external
 functions are printed.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">net_spring</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netConstruct.html">netConstruct</a></span><span class="op">(</span><span class="va">amgut1.filt</span>,</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">net_spring</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netConstruct.html">netConstruct</a></span><span class="op">(</span><span class="va">amgut_genus_renamed</span>,</span>
+<span>                           taxRank <span class="op">=</span> <span class="st">"Rank6"</span>,</span>
 <span>                           filtTax <span class="op">=</span> <span class="st">"highestFreq"</span>,</span>
 <span>                           filtTaxPar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>highestFreq <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>,</span>
 <span>                           filtSamp <span class="op">=</span> <span class="st">"totalReads"</span>,</span>
@@ -161,8 +244,8 @@ functions are printed.</p>
 <span>                           seed <span class="op">=</span> <span class="fl">123456</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Checking input arguments ... Done.</span></span>
 <span><span class="co">#&gt; Data filtering ...</span></span>
-<span><span class="co">#&gt; 77 taxa removed.</span></span>
-<span><span class="co">#&gt; 50 taxa and 289 samples remaining.</span></span>
+<span><span class="co">#&gt; 35 samples removed.</span></span>
+<span><span class="co">#&gt; 43 taxa and 261 samples remaining.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Calculate 'spring' associations ... Registered S3 method overwritten by 'dendextend':</span></span>
 <span><span class="co">#&gt;   method     from </span></span>
@@ -171,12 +254,29 @@ functions are printed.</p>
 <span><span class="co">#&gt;   method         from </span></span>
 <span><span class="co">#&gt;   reorder.hclust vegan</span></span>
 <span><span class="co">#&gt; Done.</span></span></code></pre></div>
+<p>Let’s take a look at the edge list, which contains for each pair of
+nodes the estimated association, the dissimilarity and the adjacency (=
+edge weight for weighted networks).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">net_spring</span><span class="op">$</span><span class="va">edgelist1</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             v1           v2         asso      diss      adja</span></span>
+<span><span class="co">#&gt; 1 Eubacterium1        Dorea  0.003933672 0.7057146 0.2942854</span></span>
+<span><span class="co">#&gt; 2 Eubacterium1      Pantoea -0.014829516 0.7123305 0.2876695</span></span>
+<span><span class="co">#&gt; 3 Clostridium1 Eubacterium2  0.095333048 0.6725574 0.3274426</span></span>
+<span><span class="co">#&gt; 4 Clostridium1   Raoultella -0.012351874 0.7114604 0.2885396</span></span>
+<span><span class="co">#&gt; 5 Clostridium1        Dorea  0.015673519 0.7015435 0.2984565</span></span>
+<span><span class="co">#&gt; 6 Clostridium1      Cedecea -0.002316558 0.7079253 0.2920747</span></span></code></pre></div>
+<p>We can also use NetCoMi’s <code>plotHeat</code> function to plot the
+estimated associations.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotHeat.html">plotHeat</a></span><span class="op">(</span><span class="va">net_spring</span><span class="op">$</span><span class="va">assoMat1</span>, textUpp <span class="op">=</span> <span class="st">"none"</span>, textLow <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="NetCoMi_files/figure-html/unnamed-chunk-6-1.png" width="1152"></p>
 </div>
 <div class="section level3">
 <h3 id="network-analysis">Network analysis<a class="anchor" aria-label="anchor" href="#network-analysis"></a>
 </h3>
 <p>NetCoMi’s <code><a href="../reference/netAnalyze.html">netAnalyze()</a></code> function is used for analyzing
-the constructed network(s).</p>
+the constructed network.</p>
 <p>Here, <code>centrLCC</code> is set to <code>TRUE</code> meaning that
 centralities are calculated only for nodes in the largest connected
 component (LCC).</p>
@@ -193,7 +293,7 @@ returned (with graphlet correlations in the upper triangle and
 significance codes resulting from Student’s t-test in the lower
 triangle). See <code><a href="../reference/calcGCM.html">?calcGCM</a></code> and <code><a href="../reference/testGCM.html">?testGCM</a></code> for
 details.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">props_spring</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netAnalyze.html">netAnalyze</a></span><span class="op">(</span><span class="va">net_spring</span>, </span>
 <span>                           centrLCC <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                           clustMethod <span class="op">=</span> <span class="st">"cluster_fast_greedy"</span>,</span>
@@ -209,39 +309,39 @@ details.</p>
 <span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span></code></pre></div>
 <p><img src="NetCoMi_files/figure-html/single_spring_2-1.png" width="576"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co">#?summary.microNetProps</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">props_spring</span>, numbNodes <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Component sizes</span></span>
-<span><span class="co">#&gt; ```````````````          </span></span>
-<span><span class="co">#&gt; size: 48 1</span></span>
-<span><span class="co">#&gt;    #:  1 2</span></span>
+<span><span class="co">#&gt; ```````````````            </span></span>
+<span><span class="co">#&gt; size: 40 2 1</span></span>
+<span><span class="co">#&gt;    #:  1 1 1</span></span>
 <span><span class="co">#&gt; ______________________________</span></span>
 <span><span class="co">#&gt; Global network properties</span></span>
 <span><span class="co">#&gt; `````````````````````````</span></span>
 <span><span class="co">#&gt; Largest connected component (LCC):</span></span>
 <span><span class="co">#&gt;                                  </span></span>
-<span><span class="co">#&gt; Relative LCC size         0.96000</span></span>
-<span><span class="co">#&gt; Clustering coefficient    0.33594</span></span>
-<span><span class="co">#&gt; Modularity                0.53407</span></span>
-<span><span class="co">#&gt; Positive edge percentage 88.34951</span></span>
-<span><span class="co">#&gt; Edge density              0.09131</span></span>
-<span><span class="co">#&gt; Natural connectivity      0.02855</span></span>
+<span><span class="co">#&gt; Relative LCC size         0.93023</span></span>
+<span><span class="co">#&gt; Clustering coefficient    0.33039</span></span>
+<span><span class="co">#&gt; Modularity                0.41972</span></span>
+<span><span class="co">#&gt; Positive edge percentage 83.01887</span></span>
+<span><span class="co">#&gt; Edge density              0.13590</span></span>
+<span><span class="co">#&gt; Natural connectivity      0.03685</span></span>
 <span><span class="co">#&gt; Vertex connectivity       1.00000</span></span>
 <span><span class="co">#&gt; Edge connectivity         1.00000</span></span>
-<span><span class="co">#&gt; Average dissimilarity*    0.97035</span></span>
-<span><span class="co">#&gt; Average path length**     2.36912</span></span>
+<span><span class="co">#&gt; Average dissimilarity*    0.95654</span></span>
+<span><span class="co">#&gt; Average path length**     1.84125</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Whole network:</span></span>
 <span><span class="co">#&gt;                                  </span></span>
 <span><span class="co">#&gt; Number of components      3.00000</span></span>
-<span><span class="co">#&gt; Clustering coefficient    0.33594</span></span>
-<span><span class="co">#&gt; Modularity                0.53407</span></span>
-<span><span class="co">#&gt; Positive edge percentage 88.34951</span></span>
-<span><span class="co">#&gt; Edge density              0.08408</span></span>
-<span><span class="co">#&gt; Natural connectivity      0.02714</span></span>
+<span><span class="co">#&gt; Clustering coefficient    0.33039</span></span>
+<span><span class="co">#&gt; Modularity                0.42746</span></span>
+<span><span class="co">#&gt; Positive edge percentage 82.24299</span></span>
+<span><span class="co">#&gt; Edge density              0.11849</span></span>
+<span><span class="co">#&gt; Natural connectivity      0.03362</span></span>
 <span><span class="co">#&gt; -----</span></span>
 <span><span class="co">#&gt; *: Dissimilarity = 1 - edge weight</span></span>
 <span><span class="co">#&gt; **: Path length = Units with average dissimilarity</span></span>
@@ -251,18 +351,18 @@ details.</p>
 <span><span class="co">#&gt; - In the whole network</span></span>
 <span><span class="co">#&gt; - Algorithm: cluster_fast_greedy</span></span>
 <span><span class="co">#&gt; ```````````````````````````````` </span></span>
-<span><span class="co">#&gt;                     </span></span>
-<span><span class="co">#&gt; name: 0  1  2  3 4 5</span></span>
-<span><span class="co">#&gt;    #: 2 12 17 10 5 4</span></span>
+<span><span class="co">#&gt;                    </span></span>
+<span><span class="co">#&gt; name: 0  1 2  3 4 5</span></span>
+<span><span class="co">#&gt;    #: 1 10 9 12 2 9</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ______________________________</span></span>
 <span><span class="co">#&gt; Hubs</span></span>
 <span><span class="co">#&gt; - In alphabetical/numerical order</span></span>
 <span><span class="co">#&gt; - Based on empirical quantiles of centralities</span></span>
-<span><span class="co">#&gt; ```````````````````````````````````````````````       </span></span>
-<span><span class="co">#&gt;  190597</span></span>
-<span><span class="co">#&gt;  288134</span></span>
-<span><span class="co">#&gt;  311477</span></span>
+<span><span class="co">#&gt; ```````````````````````````````````````````````                        </span></span>
+<span><span class="co">#&gt;  5_Clostridiales(O)     </span></span>
+<span><span class="co">#&gt;  6_Enterobacteriaceae(F)</span></span>
+<span><span class="co">#&gt;  Clostridium1           </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ______________________________</span></span>
 <span><span class="co">#&gt; Centrality measures</span></span>
@@ -270,74 +370,54 @@ details.</p>
 <span><span class="co">#&gt; - Centrality of disconnected components is zero</span></span>
 <span><span class="co">#&gt; ````````````````````````````````````````````````</span></span>
 <span><span class="co">#&gt; Degree (unnormalized):</span></span>
-<span><span class="co">#&gt;          </span></span>
-<span><span class="co">#&gt; 288134 10</span></span>
-<span><span class="co">#&gt; 190597  9</span></span>
-<span><span class="co">#&gt; 311477  9</span></span>
-<span><span class="co">#&gt; 188236  8</span></span>
-<span><span class="co">#&gt; 199487  8</span></span>
+<span><span class="co">#&gt;                           </span></span>
+<span><span class="co">#&gt; Dorea                   11</span></span>
+<span><span class="co">#&gt; 5_Clostridiales(O)      11</span></span>
+<span><span class="co">#&gt; 6_Enterobacteriaceae(F) 11</span></span>
+<span><span class="co">#&gt; Clostridium1            10</span></span>
+<span><span class="co">#&gt; Raoultella              10</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Betweenness centrality (normalized):</span></span>
-<span><span class="co">#&gt;               </span></span>
-<span><span class="co">#&gt; 302160 0.31360</span></span>
-<span><span class="co">#&gt; 268332 0.24144</span></span>
-<span><span class="co">#&gt; 259569 0.23404</span></span>
-<span><span class="co">#&gt; 470973 0.21462</span></span>
-<span><span class="co">#&gt; 119010 0.19611</span></span>
+<span><span class="co">#&gt;                             </span></span>
+<span><span class="co">#&gt; 2_Ruminococcaceae(F) 0.17274</span></span>
+<span><span class="co">#&gt; Dorea                0.16599</span></span>
+<span><span class="co">#&gt; Odoribacter          0.13495</span></span>
+<span><span class="co">#&gt; 5_Clostridiales(O)   0.12686</span></span>
+<span><span class="co">#&gt; Faecalibacterium     0.12551</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Closeness centrality (normalized):</span></span>
-<span><span class="co">#&gt;               </span></span>
-<span><span class="co">#&gt; 288134 0.68426</span></span>
-<span><span class="co">#&gt; 311477 0.68413</span></span>
-<span><span class="co">#&gt; 199487 0.68099</span></span>
-<span><span class="co">#&gt; 302160 0.67518</span></span>
-<span><span class="co">#&gt; 188236 0.66852</span></span>
+<span><span class="co">#&gt;                                </span></span>
+<span><span class="co">#&gt; 5_Clostridiales(O)      0.83523</span></span>
+<span><span class="co">#&gt; Clostridium1            0.82623</span></span>
+<span><span class="co">#&gt; 2_Ruminococcaceae(F)    0.81965</span></span>
+<span><span class="co">#&gt; Faecalibacterium        0.81242</span></span>
+<span><span class="co">#&gt; 6_Enterobacteriaceae(F) 0.81208</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Eigenvector centrality (normalized):</span></span>
-<span><span class="co">#&gt;               </span></span>
-<span><span class="co">#&gt; 288134 1.00000</span></span>
-<span><span class="co">#&gt; 311477 0.94417</span></span>
-<span><span class="co">#&gt; 190597 0.90794</span></span>
-<span><span class="co">#&gt; 199487 0.85439</span></span>
-<span><span class="co">#&gt; 188236 0.72684</span></span></code></pre>
-<div class="section level4">
-<h4 id="plotting-the-gcm-heatmap-manually">Plotting the GCM heatmap manually<a class="anchor" aria-label="anchor" href="#plotting-the-gcm-heatmap-manually"></a>
-</h4>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plotHeat.html">plotHeat</a></span><span class="op">(</span>mat <span class="op">=</span> <span class="va">props_spring</span><span class="op">$</span><span class="va">graphletLCC</span><span class="op">$</span><span class="va">gcm1</span>,</span>
-<span>         pmat <span class="op">=</span> <span class="va">props_spring</span><span class="op">$</span><span class="va">graphletLCC</span><span class="op">$</span><span class="va">pAdjust1</span>,</span>
-<span>         type <span class="op">=</span> <span class="st">"mixed"</span>,</span>
-<span>         title <span class="op">=</span> <span class="st">"GCM"</span>, </span>
-<span>         colorLim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>         mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Add rectangles highlighting the four types of orbits</span></span>
-<span><span class="fu">graphics</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/graphics/rect.html" class="external-link">rect</a></span><span class="op">(</span>xleft   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">0.5</span>,  <span class="fl">1.5</span>, <span class="fl">4.5</span>,  <span class="fl">7.5</span><span class="op">)</span>,</span>
-<span>               ybottom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">11.5</span>,  <span class="fl">7.5</span>, <span class="fl">4.5</span>,  <span class="fl">0.5</span><span class="op">)</span>,</span>
-<span>               xright  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">1.5</span>,  <span class="fl">4.5</span>, <span class="fl">7.5</span>, <span class="fl">11.5</span><span class="op">)</span>,</span>
-<span>               ytop    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10.5</span>, <span class="fl">10.5</span>, <span class="fl">7.5</span>,  <span class="fl">4.5</span><span class="op">)</span>,</span>
-<span>               lwd <span class="op">=</span> <span class="fl">2</span>, xpd <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">6</span>, <span class="op">-</span><span class="fl">0.2</span>, xpd <span class="op">=</span> <span class="cn">NA</span>, </span>
-<span>     <span class="st">"Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="NetCoMi_files/figure-html/single_spring_heat-1.png" width="576"></p>
-</div>
+<span><span class="co">#&gt;                                </span></span>
+<span><span class="co">#&gt; 5_Clostridiales(O)      1.00000</span></span>
+<span><span class="co">#&gt; Clostridium1            0.99952</span></span>
+<span><span class="co">#&gt; 6_Enterobacteriaceae(F) 0.93828</span></span>
+<span><span class="co">#&gt; Dorea                   0.88613</span></span>
+<span><span class="co">#&gt; 3_Lachnospiraceae(F)    0.81654</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="visualizing-the-network">Visualizing the network<a class="anchor" aria-label="anchor" href="#visualizing-the-network"></a>
 </h3>
 <p>We use the determined clusters as node colors and scale the node
 sizes according to the node’s eigenvector centrality.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># help page</span></span>
 <span><span class="op">?</span><span class="va">plot.microNetProps</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_spring</span>, </span>
+<span>          labelScale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>          nodeColor <span class="op">=</span> <span class="st">"cluster"</span>, </span>
 <span>          nodeSize <span class="op">=</span> <span class="st">"eigenvector"</span>,</span>
-<span>          title1 <span class="op">=</span> <span class="st">"Network on OTU level with SPRING associations"</span>, </span>
+<span>          title1 <span class="op">=</span> <span class="st">"Network on genus level with SPRING associations"</span>, </span>
 <span>          showTitle <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>          cexTitle <span class="op">=</span> <span class="fl">2.3</span><span class="op">)</span></span>
+<span>          cexTitle <span class="op">=</span> <span class="fl">2.3</span>,</span>
+<span>          cexLabels <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">1.1</span>, cex <span class="op">=</span> <span class="fl">2.2</span>, title <span class="op">=</span> <span class="st">"estimated association:"</span>,</span>
 <span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+"</span>,<span class="st">"-"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span>, lwd <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#009900"</span>,<span class="st">"red"</span><span class="op">)</span>, </span>
@@ -350,17 +430,17 @@ default (<code>negDiffCol = TRUE</code>).</p>
 absolute weight below and above the <code>cut</code> value (arguments
 <code>edgeTranspLow</code> and <code>edgeTranspHigh</code>). The
 determined <code>cut</code> value can be read out as follows:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span><span class="op">$</span><span class="va">q1</span><span class="op">$</span><span class="va">Arguments</span><span class="op">$</span><span class="va">cut</span></span>
-<span><span class="co">#&gt;      75% </span></span>
-<span><span class="co">#&gt; 0.337099</span></span></code></pre></div>
+<span><span class="co">#&gt;       75% </span></span>
+<span><span class="co">#&gt; 0.3271051</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="export-to-gephi">Export to Gephi<a class="anchor" aria-label="anchor" href="#export-to-gephi"></a>
 </h3>
 <p>Some users may be interested in how to export the network to Gephi.
 Here’s an example:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># For Gephi, we have to generate an edge list with IDs.</span></span>
 <span><span class="co"># The corresponding labels (and also further node features) are stored as node list.</span></span>
 <span></span>
@@ -398,7 +478,7 @@ normalization method. Zero treatment is necessary in this case.</p>
 <p>A threshold of 0.3 is used as sparsification method, so that only
 OTUs with an absolute correlation greater than or equal to 0.3 are
 connected.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">net_pears</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netConstruct.html">netConstruct</a></span><span class="op">(</span><span class="va">amgut2.filt.phy</span>,  </span>
 <span>                          measure <span class="op">=</span> <span class="st">"pearson"</span>,</span>
 <span>                          normMethod <span class="op">=</span> <span class="st">"clr"</span>,</span>
@@ -420,11 +500,11 @@ connected.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sparsify associations via 'threshold' ... Done.</span></span></code></pre></div>
 <p>Network analysis and plotting:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">props_pears</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netAnalyze.html">netAnalyze</a></span><span class="op">(</span><span class="va">net_pears</span>, </span>
 <span>                          clustMethod <span class="op">=</span> <span class="st">"cluster_fast_greedy"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="NetCoMi_files/figure-html/single_pears_2-1.png" width="576"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_pears</span>, </span>
 <span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>, </span>
 <span>     nodeSize <span class="op">=</span> <span class="st">"eigenvector"</span>,</span>
@@ -456,7 +536,7 @@ the size of big nodes.</li>
 <code>hubBorderCol = "darkgray"</code>: Change border color for a
 better readability of the node labels.</li>
 </ul>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_pears</span>, </span>
 <span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>, </span>
 <span>     nodeSize <span class="op">=</span> <span class="st">"eigenvector"</span>,</span>
@@ -482,7 +562,7 @@ better readability of the node labels.</li>
 <code>edgeFilter</code> (edges are filtered before the layout is
 computed) and <code>edgeInvisFilter</code> (edges are removed after the
 layout is computed and thus just made “invisible”).</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_pears</span>,</span>
 <span>     edgeInvisFilter <span class="op">=</span> <span class="st">"threshold"</span>,</span>
 <span>     edgeInvisPar <span class="op">=</span> <span class="fl">0.4</span>,</span>
@@ -523,7 +603,7 @@ a correlation of -1 and 1 would lead to an edge weight of 1.</p>
 </h4>
 <p>We can pass the network object from before to
 <code><a href="../reference/netConstruct.html">netConstruct()</a></code> to save runtime.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">net_pears_unsigned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netConstruct.html">netConstruct</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">net_pears</span><span class="op">$</span><span class="va">assoEst1</span>,</span>
 <span>                                   dataType <span class="op">=</span> <span class="st">"correlation"</span>, </span>
 <span>                                   sparsMethod <span class="op">=</span> <span class="st">"threshold"</span>,</span>
@@ -541,20 +621,20 @@ a correlation of -1 and 1 would lead to an edge weight of 1.</p>
 are transformed into adjacencies (= sparsified similarities for weighted
 networks).</p>
 <p>Sparsified estimated correlations:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">net_pears</span><span class="op">$</span><span class="va">assoMat1</span>, <span class="fl">100</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">400</span><span class="op">)</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Estimated correlation"</span>, </span>
 <span>     main <span class="op">=</span> <span class="st">"Estimated correlations after sparsification"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="NetCoMi_files/figure-html/single_pears_hist_1-1.png" width="768"></p>
 <p>Adjacency values computed using the “signed” transformation (values
 different from 0 and 1 will be edges in the network):</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">net_pears</span><span class="op">$</span><span class="va">adjaMat1</span>, <span class="fl">100</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">400</span><span class="op">)</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Adjacency values"</span>, </span>
 <span>     main <span class="op">=</span> <span class="st">"Adjacencies (with \"signed\" transformation)"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="NetCoMi_files/figure-html/single_pears_hist_2-1.png" width="768"></p>
 <p>Adjacency values computed using the “unsigned” transformation:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">net_pears_unsigned</span><span class="op">$</span><span class="va">adjaMat1</span>, <span class="fl">100</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">400</span><span class="op">)</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"Adjacency values"</span>, </span>
 <span>     main <span class="op">=</span> <span class="st">"Adjacencies (with \"unsigned\" transformation)"</span><span class="op">)</span></span></code></pre></div>
@@ -563,11 +643,11 @@ different from 0 and 1 will be edges in the network):</p>
 <div class="section level4">
 <h4 id="network-analysis-and-plotting">Network analysis and plotting<a class="anchor" aria-label="anchor" href="#network-analysis-and-plotting"></a>
 </h4>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">props_pears_unsigned</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netAnalyze.html">netAnalyze</a></span><span class="op">(</span><span class="va">net_pears_unsigned</span>, </span>
 <span>                                   clustMethod <span class="op">=</span> <span class="st">"cluster_fast_greedy"</span>,</span>
 <span>                                   gcmHeat <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_pears_unsigned</span>, </span>
 <span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>, </span>
 <span>     nodeSize <span class="op">=</span> <span class="st">"eigenvector"</span>,</span>
@@ -597,7 +677,7 @@ clusters contain strongly positive and negative correlated taxa.</p>
 </h3>
 <p>We now construct a further network, where OTUs are agglomerated to
 genera.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://dx.plos.org/10.1371/journal.pone.0061217" class="external-link">phyloseq</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut2.filt.phy"</span><span class="op">)</span></span>
 <span></span>
@@ -653,7 +733,7 @@ duplicates)</li>
 <li>Node color is gray for all nodes (transparancy is lower for hub
 nodes by default)</li>
 </ul>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute layout</span></span>
 <span><span class="va">graph3</span> <span class="op">&lt;-</span> <span class="fu">igraph</span><span class="fu">::</span><span class="fu"><a href="https://r.igraph.org/reference/graph_from_adjacency_matrix.html" class="external-link">graph_from_adjacency_matrix</a></span><span class="op">(</span><span class="va">net_genus</span><span class="op">$</span><span class="va">adjaMat1</span>, </span>
 <span>                                              weighted <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -695,7 +775,7 @@ data</li>
 <li>Border color of hub nodes is changed from black to darkgray</li>
 <li>Label size of hubs is enlarged</li>
 </ul>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123456</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_genus</span>,</span>
@@ -722,7 +802,7 @@ data</li>
 <p>Let’s check whether the largest nodes are actually those with highest
 column sums in the matrix with normalized counts returned by
 <code><a href="../reference/netConstruct.html">netConstruct()</a></code>.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">net_genus</span><span class="op">$</span><span class="va">normCounts1</span><span class="op">)</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span></span>
 <span><span class="co">#&gt;             Bacteroides              Klebsiella        Faecalibacterium </span></span>
 <span><span class="co">#&gt;               1200.7971               1137.4928                708.0877 </span></span>
@@ -748,7 +828,7 @@ coloring)</li>
 <li>Transparency is increased for edges with high weight to improve the
 readability of node labels</li>
 </ul>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get phyla names</span></span>
 <span><span class="va">taxtab</span> <span class="op">&lt;-</span> <span class="fu">as</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/tax_table-methods.html" class="external-link">tax_table</a></span><span class="op">(</span><span class="va">amgut_genus_renamed</span><span class="op">)</span>, <span class="st">"matrix"</span><span class="op">)</span></span>
 <span><span class="va">phyla</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"p__"</span>, <span class="st">""</span>, <span class="va">taxtab</span><span class="op">[</span>, <span class="st">"Rank2"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>

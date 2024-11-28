@@ -9,8 +9,9 @@ articles:
   dissimilarity_networks: dissimilarity_networks.html
   net_comparison: net_comparison.html
   NetCoMi: NetCoMi.html
+  plot_modifications: plot_modifications.html
   soil_example: soil_example.html
-last_built: 2024-11-07T21:51Z
+last_built: 2024-11-28T15:12Z
 urls:
   reference: https://netcomi.de/reference
   article: https://netcomi.de/articles
