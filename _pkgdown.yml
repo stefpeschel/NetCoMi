@@ -31,6 +31,7 @@ articles:
 - title: More examples
   navbar: More examples
   contents:
+  - plot_modifications
   - asso_as_input
   - cross_domain_networks
   - soil_example
@@ -80,4 +81,3 @@ authors:
     href: https://www.helmholtz-munich.de/en/iap/pi/erika-von-mutius
   Martin Depner:
     href: https://www.helmholtz-munich.de/en/iap
-  
