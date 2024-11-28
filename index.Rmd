@@ -18,7 +18,7 @@ knitr::opts_chunk$set(fig.path="man/figures/readme/")
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
 <!-- badges: end -->
 
-# NetCoMi <a href="https://stefpeschel.github.io/NetCoMi/"><img src="man/figures/logo.png" align="right" height="100" alt="NetCoMi website" /></a>
+# NetCoMi <a href="https://netcomi.de"><img src="man/figures/logo.png" align="right" height="200" alt="NetCoMi website" /></a>
 
 NetCoMi (**Net**work **Co**nstruction and Comparison for **Mi**crobiome Data) 
 is an R package designed to facilitate the construction, analysis, and comparison of networks tailored to microbial compositional data. It implements a comprehensive workflow introduced in [Peschel et al. (2020)](https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbaa290/6017455), which guides users through each step of network generation and analysis with a strong emphasis on reproducibility and computational efficiency.
@@ -27,7 +27,7 @@ With NetCoMi, users can construct microbial association or dissimilarity network
 
 The package supports both the construction, analysis, and visualization of a **single network** and the **comparison of two networks** through graphical and quantitative approaches, including statistical testing. Additionally, NetCoMi offers the capability of constructing **differential networks**, where only differentially associated taxa are connected.
 
-<img src="man/figures/soilrep_networks.png" width=100% />
+<img src="man/figures/soilrep_networks_curved.png" width="800" />
 
 > Exemplary network comparison using soil microbiome data (['soilrep' data from 
 phyloseq package](https://github.com/joey711/phyloseq/blob/master/data/soilrep.RData)). 

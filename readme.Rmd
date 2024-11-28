@@ -10,7 +10,7 @@ nocite: |
 knitr::opts_chunk$set(fig.path="man/figures/readme/")
 ```
 
-# NetCoMi <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="260" />
+# NetCoMi <img src="man/figures/logo.png" align="right" height="200" />
 
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)

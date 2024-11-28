@@ -1,7 +1,7 @@
 ---
 output: github_document
 ---
-## NetCoMi 1.1.0 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+## NetCoMi 1.1.0
 
 ### New features
 
