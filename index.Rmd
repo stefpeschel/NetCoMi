@@ -13,9 +13,10 @@ knitr::opts_chunk$set(fig.path="man/figures/readme/")
 
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
-[![DOI paper](https://img.shields.io/badge/doi-10.1093/bib/bbaa290-yellow.svg)](https://doi.org/10.1093/bib/bbaa290)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/r-netcomi)
+[![DOI](https://zenodo.org/badge/259906607.svg)](https://zenodo.org/badge/latestdoi/259906607)
+[![Citation Badge](https://api.juleskreuer.eu/citation-badge.php?doi=10.1093/bib/bbaa290)](https://juleskreuer.eu/citation-badge/)
+[![DOI paper](https://img.shields.io/badge/doi-10.1093/bib/bbaa290-yellow.svg)](https://doi.org/10.1093/bib/bbaa290)
 <!-- badges: end -->
 
 # NetCoMi <a href="https://netcomi.de"><img src="man/figures/logo.png" align="right" height="200" alt="NetCoMi website" /></a>
