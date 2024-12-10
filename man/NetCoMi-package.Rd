@@ -2,6 +2,7 @@
 % Please edit documentation in R/NetCoMi-package.R
 \docType{package}
 \name{NetCoMi-package}
+\alias{NetCoMi}
 \alias{NetCoMi-package}
 \title{NetCoMi: Network Comparison for Microbial Compositional Data}
 \description{

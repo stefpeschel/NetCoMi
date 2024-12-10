@@ -741,12 +741,12 @@ netCompare <- function(x,
         assoMat1.tmp <- .calcAssociation(count1.tmp,
                                          measure = parNC$measure,
                                          measurePar = parNC$measurePar,
-                                         verbose = FALSE)
+                                         verbose = FALSE)$assoMat
         
         assoMat2.tmp <- .calcAssociation(count2.tmp,
                                          measure = parNC$measure,
                                          measurePar = parNC$measurePar,
-                                         verbose = FALSE)
+                                         verbose = FALSE)$assoMat
         
         if (storeAssoPerm) {
           fmat <- fm.open(filenamebase = fileStoreAssoPerm)
