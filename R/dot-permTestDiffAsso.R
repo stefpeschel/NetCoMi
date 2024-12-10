@@ -411,12 +411,12 @@
       assoMat1.tmp <- .calcAssociation(count1.tmp,
                                        measure = measure,
                                        measurePar = measurePar,
-                                       verbose = FALSE)
+                                       verbose = FALSE)$assoMat
       
       assoMat2.tmp <- .calcAssociation(count2.tmp,
                                        measure = measure,
                                        measurePar = measurePar,
-                                       verbose = FALSE)
+                                       verbose = FALSE)$assoMat
       
       dimnames(assoMat1.tmp) <- dimnames(assoMat1)
       dimnames(assoMat2.tmp) <- dimnames(assoMat2)

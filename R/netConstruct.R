@@ -462,6 +462,8 @@
 #'   is \code{TRUE}.\cr
 #'   \code{normCounts1, normCounts2}\tab Count matrices after zero handling and
 #'   normalization\cr
+#'   \code{measureOut1, measureOut2}\tab Output returned by the function used 
+#'   for association or dissimilarity estimation (defined via `measure`).\cr
 #'   \code{groups}\tab Names of the factor levels according to which the groups
 #'   have been built\cr
 #'   \code{softThreshPower}\tab Determined (or given) power for
@@ -497,6 +499,8 @@
 #'                      sparsMethod = "none",
 #'                      normMethod = "none",
 #'                      verbose = 3)
+#' # Output returned by spiec.easi()
+#' spiec_output <- net1$measureOut1
 #'
 #' # Network analysis (see ?netAnalyze for details)
 #' props1 <- netAnalyze(net1, clustMethod = "cluster_fast_greedy")
@@ -1558,8 +1562,11 @@ netConstruct <- function(data,
               appendLF = FALSE)
     }
     
-    assoMat1 <- .calcAssociation(countMat = counts1, measure = measure,
-                                 measurePar = measurePar, verbose = verbose)
+    calcAssoRes <- .calcAssociation(countMat = counts1, measure = measure,
+                                    measurePar = measurePar, verbose = verbose)
+    
+    measureOut1 <- calcAssoRes$measureOut
+    assoMat1 <- calcAssoRes$assoMat
     
     if (verbose %in% 2:3) message("Done.")
     
@@ -1571,22 +1578,25 @@ netConstruct <- function(data,
                 appendLF = FALSE)
       }
       
-      assoMat2 <- .calcAssociation(countMat = counts2, measure = measure,
+      calcAssoRes <- .calcAssociation(countMat = counts2, measure = measure,
                                    measurePar = measurePar, verbose = verbose)
+      
+      measureOut2 <- calcAssoRes$measureOut
+      assoMat2 <- calcAssoRes$assoMat
+      
       if (verbose %in% 2:3) message("Done.")
       
     } else {
-      assoMat2 <- NULL
+      measureOut2 <- assoMat2 <- NULL
     }
     
   } else {
     assoMat1 <- data
     assoMat2 <- data2
-    counts1 <- NULL
-    counts2 <- NULL
+    measureOut1 <- measureOut2 <- NULL
+    counts1 <- counts2 <- NULL
     countsJointOrig <- NULL
-    countsOrig1 <- NULL
-    countsOrig2 <- NULL
+    countsOrig1 <- countsOrig2 <- NULL
     groups <- NULL
   }
   
@@ -1964,6 +1974,9 @@ netConstruct <- function(data,
   if (!is.null(countsJointOrig)) output$countsJoint <- countsJointOrig
   output$normCounts1 <- counts1
   output$normCounts2 <- counts2
+  output$measureOut1 <- measureOut1
+  output$measureOut2 <- measureOut2
+  
   output$groups <- groups
   output$matchDesign <- matchDesign
   output$sampleSize <- sampleSize

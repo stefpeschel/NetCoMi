@@ -365,6 +365,8 @@ An object of class \code{microNet} containing the following elements:
   is \code{TRUE}.\cr
   \code{normCounts1, normCounts2}\tab Count matrices after zero handling and
   normalization\cr
+  \code{measureOut1, measureOut2}\tab Output returned by the function used 
+  for association or dissimilarity estimation (defined via `measure`).\cr
   \code{groups}\tab Names of the factor levels according to which the groups
   have been built\cr
   \code{softThreshPower}\tab Determined (or given) power for
@@ -547,6 +549,8 @@ net1 <- netConstruct(amgut2.filt.phy,
                      sparsMethod = "none",
                      normMethod = "none",
                      verbose = 3)
+# Output returned by spiec.easi()
+spiec_output <- net1$measureOut1
 
 # Network analysis (see ?netAnalyze for details)
 props1 <- netAnalyze(net1, clustMethod = "cluster_fast_greedy")
