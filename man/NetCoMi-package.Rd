@@ -22,3 +22,4 @@ The main functions are \code{\link{netConstruct}}, \code{\link{netAnalyze}},
    \item Anastasiia Holovchak (package testing and editing)
   }
 }
+\keyword{internal}

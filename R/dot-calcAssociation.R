@@ -14,7 +14,7 @@
 #' @importFrom stats cor
 #' @importFrom WGCNA bicor
 #' @importFrom SpiecEasi spiec.easi sparseiCov getOptCov getRefit symBeta
-#'   getOptBeta sparcc
+#'   getOptBeta sparcc getOptInd prec2cov
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 #' @import mixedCCA
@@ -55,7 +55,6 @@
                                  inner_iter = measurePar$inner_iter,
                                  th = measurePar$th,
                                  iter = measurePar$iter)
-    
     assoMat <- measureOut$Cor
     
     colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
@@ -121,9 +120,9 @@
                                     mode = symBetaMode)
       
     } else if (measurePar$method == "slr") {
-      icov <- measureOut$est$icov[[getOptInd(measureOut)]]
-      secor <- cov2cor(prec2cov(icov))
-      assoMat <- as.matrix(secor * getRefit(measureOut))
+      icov <- measureOut$est$icov[[SpiecEasi::getOptInd(measureOut)]]
+      secor <- cov2cor(SpiecEasi::prec2cov(icov))
+      assoMat <- as.matrix(secor * SpiecEasi::getRefit(measureOut))
       
     } else {
       stop("SpiecEasi method not supported.")
@@ -209,15 +208,15 @@
   } else if (measure == "bray") {
     
     measureOut <- vegan::vegdist(countMat, method = "bray", 
-                              binary = FALSE, diag = FALSE, 
-                              upper = FALSE, na.rm = FALSE)
+                                 binary = FALSE, diag = FALSE, 
+                                 upper = FALSE, na.rm = FALSE)
     assoMat <- as.matrix(measureOut)
     
   } else if (measure == "euclidean") {
     
     measureOut <- vegan::vegdist(countMat, method = "euclidean",
-                              binary = FALSE, diag = FALSE, 
-                              upper = FALSE, na.rm = FALSE)
+                                 binary = FALSE, diag = FALSE, 
+                                 upper = FALSE, na.rm = FALSE)
     assoMat <- as.matrix(measureOut)
     
   } else if (measure %in% c("kld", "jeffrey")) {

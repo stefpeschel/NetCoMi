@@ -16,6 +16,6 @@
 #'    \item Anastasiia Holovchak (package testing and editing)
 #'   }
 #'
-#' @name NetCoMi-package
-#' @docType package
+#' @keywords internal
+"_PACKAGE"
 NULL

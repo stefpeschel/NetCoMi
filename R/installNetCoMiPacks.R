@@ -56,6 +56,15 @@ installNetCoMiPacks <- function(onlyMissing = TRUE, lib = NULL, ...) {
   
   if (length(instpack) != 0) {
     
+    if ("propr" %in% instpack) {
+      if (!requireNamespace("devtools", quietly = TRUE)) {
+        install.packages("devtools")
+      }
+      message("Installing package 'propr' from GitHub...")
+      devtools::install_github("tpq/propr")
+      instpack <- setdiff(instpack, "propr")
+    }
+    
     if (length(instpack) > 1) {
       message("Installing packages using BiocManager: ", 
               paste0(instpack[1:(length(instpack)-1)], ", "), 

@@ -27,9 +27,9 @@
 #'   
 #' @details 
 #'   By default, only the 11 non-redundant orbits are used. These are grouped 
-#'   according to their role: orbit 0 represents the degree, orbits {2, 5, 7} 
-#'   represent nodes within a chain, orbits {8, 10, 11} represent nodes in a 
-#'   cycle, and orbits {6, 9, 4, 1} represent a terminal node.
+#'   according to their role: orbit 0 represents the degree, orbits (2, 5, 7)
+#'   represent nodes within a chain, orbits (8, 10, 11) represent nodes in a 
+#'   cycle, and orbits (6, 9, 4, 1) represent a terminal node.
 #'   
 #' @return A list with the following elements:
 #'   \tabular{ll}{
@@ -145,7 +145,7 @@ calcGCM <- function(adja,
     net <- igraph::graph_from_adjacency_matrix(adja, weighted=T,
                                                mode="undirected", diag=F)
     
-    edgelist <- igraph::get.edgelist(net, names = FALSE)
+    edgelist <- igraph::as_edgelist(net, names = FALSE)
     edgelist <- apply(edgelist, 2, as, Class = "integer")
     
     # Transform into matrix if network consists of one edge only

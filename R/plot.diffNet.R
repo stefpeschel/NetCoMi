@@ -11,7 +11,7 @@
 #'   a character with one of the layouts provided by
 #'   \code{\link[qgraph]{qgraph}}: \code{"spring"}(default), \code{"circle"},
 #'   or \code{"groups"}. Alternatively, the layouts provided by igraph (see
-#'   \code{\link[igraph:layout_]{layout\_}}) are accepted (must be given as
+#'   \code{\link[igraph:layout_]{layout_}}) are accepted (must be given as
 #'   character, e.g. \code{"layout_with_fr"}). Can also be a matrix with row
 #'   number equal to the  number of nodes and two columns corresponding to the x
 #'   and y coordinate.
@@ -22,7 +22,6 @@
 #' @param labels defines the node labels. Can be a character vector with an
 #'   entry for each node. If \code{FALSE}, no labels are plotted. Defaults to
 #'   the row/column names of the association matrices.
-#' @param shortenLabels character indicating how to shorten node labels. 
 #'   Ignored if node labels are defined via \code{labels}. NetCoMi's function 
 #'   \code{\link{editLabels}()} is used for label editing.
 #'   Available options are:

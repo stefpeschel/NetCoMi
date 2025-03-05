@@ -68,7 +68,7 @@
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages are shown. Can also be logical.
 #'
-#' @importFrom igraph graph_from_adjacency_matrix decompose.graph
+#' @importFrom igraph graph_from_adjacency_matrix decompose
 #' @importFrom stats hclust as.dist cutree qlnorm quantile
 #' @importFrom pulsar natural.connectivity
 
@@ -116,7 +116,7 @@
   nNodes <- ncol(adjaMat)
   
   # decomposed graph
-  dg_net <- igraph::decompose.graph(net)
+  dg_net <- igraph::decompose(net)
   
   # size and number of the connected components
   dgcount <- unlist(lapply(dg_net, igraph::vcount))

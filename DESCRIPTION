@@ -49,6 +49,7 @@ Suggests:
     cccd,
     ccrepe,
     DESeq2,
+    devtools,
     discordant,
     LaplacesDemon,
     limma,
