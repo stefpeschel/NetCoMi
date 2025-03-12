@@ -1958,7 +1958,7 @@ netConstruct <- function(data,
     g <- igraph::graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
                                      mode = "undirected", diag = FALSE)
     
-    edgelist1 <- data.frame(igraph::get.edgelist(g))
+    edgelist1 <- data.frame(igraph::as_edgelist(g))
     colnames(edgelist1) <- c("v1", "v2")
     
     if (!is.null(assoMat1)) {
@@ -1986,7 +1986,7 @@ netConstruct <- function(data,
     g <- igraph::graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
                                      mode = "undirected", diag = FALSE)
     
-    edgelist2 <- data.frame(igraph::get.edgelist(g))
+    edgelist2 <- data.frame(igraph::as_edgelist(g))
     colnames(edgelist2) <- c("v1", "v2")
     
     if (!is.null(assoMat2)) {
