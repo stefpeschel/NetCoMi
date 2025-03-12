@@ -22,6 +22,7 @@ Imports:
     gtools,
     huge,
     igraph,
+    lifecycle,
     MASS,
     Matrix,
     mia,

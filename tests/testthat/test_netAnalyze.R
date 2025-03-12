@@ -333,7 +333,7 @@ for (net in networks) {
 testprops<- netAnalyze(get(net), clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", centrLCC = TRUE,
                        normDeg = FALSE,
-                       normBetw = FALSE, normClose = FALSE, normEigen = FALSE,
+                       normBetw = FALSE, normClose = FALSE,
                        hubQuant = 0.95)
 
 summary(testprops)

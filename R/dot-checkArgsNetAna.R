@@ -177,10 +177,22 @@
   
   #-------------------
   # normEigen
-  errs <- 
-    .checkArg(cond = is.logical(args$normEigen), 
-              msg = "\"normEigen\" must be logical.", 
-              errs = errs)
+  
+  if (lifecycle::is_present(args$normEigen)) {
+    if (isTRUE(args$normEigen)) {
+      lifecycle::deprecate_soft(
+        "1.2.0",
+        "netAnalyze(normEigen)",
+        details = "netAnalyze() will always behave as if normEigen=TRUE were used (due to changes in igraph)."
+      )
+    } else {
+      lifecycle::deprecate_warn(
+        "1.2.0",
+        "netAnalyze(normEigen = 'always as if TRUE')",
+        details = "Normalization is always performed (due to changes in igraph)."
+      )
+    }
+  }
   
   #-------------------
   # connectivity

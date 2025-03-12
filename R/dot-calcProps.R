@@ -54,7 +54,7 @@
 #' @param weightDeg logical. If \code{TRUE}, the weighted degree is used (see
 #'   \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
 #'   Is automatically set to \code{TRUE} for a fully connected (dense) network.
-#' @param normDeg,normBetw,normClose,normEigen logical. If \code{TRUE} 
+#' @param normDeg,normBetw,normClose logical. If \code{TRUE} 
 #'   (default for all measures), a normalized version of the respective 
 #'   centrality values is returned.
 #' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
@@ -95,7 +95,6 @@
                        normDeg,
                        normBetw,
                        normClose,
-                       normEigen,
                        centrLCC,
                        jaccard = FALSE,
                        jaccQuant = NULL,
@@ -142,7 +141,7 @@
     output$deg <- output$deg_unnorm <- emptyvec
     output$betw <- output$betw_unnorm <- emptyvec
     output$close <- output$close_unnorm <- emptyvec
-    output$eigen <- output$eigen_unnorm <- emptyvec
+    output$eigen <- emptyvec
     output$lccSize <- 1
     output$lccSizeRel <- 1/nNodes
     output$avDiss <- output$avDiss_lcc <- 1
@@ -298,14 +297,25 @@
   }
   
   # Whole network
-  sPath <- .suppress_warnings(igraph::distances(dissnet, algorithm = sPathAlgo), 
-                              startsWith, "Unweighted algorithm chosen")
+  sPath <- withCallingHandlers(
+    igraph::distances(dissnet, algorithm = sPathAlgo),
+    warning = function(w) {
+      if (grepl("Unweighted algorithm chosen", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
   
   # LCC
-  sPath_lcc <- .suppress_warnings(igraph::distances(dissnet_lcc, 
-                                                    algorithm = sPathAlgo), 
-                                  startsWith, "Unweighted algorithm chosen")
-
+  sPath_lcc <- withCallingHandlers(
+    igraph::distances(dissnet_lcc, algorithm = sPathAlgo),
+    warning = function(w) {
+      if (grepl("Unweighted algorithm chosen", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+  
   if (verbose == 2) {
     message("Done.")
   }
@@ -632,25 +642,17 @@
     for (i in seq_along(dg_net)) {
       ev <- c(ev,
               igraph::eigen_centrality(
-                dg_net[[i]], scale = FALSE)$vector * (dgcount[i] / vnumb))
+                dg_net[[i]])$vector * (dgcount[i] / vnumb))
     }
     
-    eigen_unnorm <- ev[colnames(adjaMat)]
-    
-    if (normEigen) {
-      eigen <- eigen_unnorm / max(eigen_unnorm)
-    } else {
-      eigen <- eigen_unnorm
-    }
+    eigen <- ev[colnames(adjaMat)]
     
   } else {
-    eigen.tmp <- igraph::eigen_centrality(net_lcc, scale = normEigen)$vector
-    eigen_unnorm.tmp <- igraph::eigen_centrality(net_lcc, scale = FALSE)$vector
-    
-    eigen <- eigen_unnorm <- numeric(nNodes)
-    names(eigen) <- names(eigen_unnorm) <- colnames(adjaMat)
+    eigen.tmp <- igraph::eigen_centrality(net_lcc)$vector
+
+    eigen <- numeric(nNodes)
+    names(eigen) <- colnames(adjaMat)
     eigen[names(eigen.tmp)] <- eigen.tmp
-    eigen_unnorm[names(eigen_unnorm.tmp)] <- eigen_unnorm.tmp
   }
   
   if (verbose == 2) {
@@ -730,18 +732,18 @@
       }
     }
     
-    peigen <- try(MASS::fitdistr(eigen_unnorm[eigen_unnorm>0], 
+    peigen <- try(MASS::fitdistr(eigen[eigen>0], 
                                  "lognormal")$estimate, 
                   silent = TRUE)
     
     if (inherits(peigen, "try-error")) {
       topeigen <- hubeigen <- NULL
     } else {
-      hubeigen <- names(eigen_unnorm[eigen_unnorm > stats::qlnorm(hubQuant, 
+      hubeigen <- names(eigen[eigen > stats::qlnorm(hubQuant, 
                                                                   peigen[1], 
                                                                   peigen[2])])
       if (jaccard) {
-        topeigen <- names(eigen_unnorm[eigen_unnorm > stats::qlnorm(jaccQuant, 
+        topeigen <- names(eigen[eigen > stats::qlnorm(jaccQuant, 
                                                                     peigen[1], 
                                                                     peigen[2])])
       } else {
@@ -846,7 +848,6 @@
                 close = close,
                 close_unnorm = close_unnorm,
                 eigen = eigen,
-                eigen_unnorm = eigen_unnorm,
                 lccSize = lccSize,
                 lccSizeRel = lccSizeRel,
                 avDiss = avDiss,

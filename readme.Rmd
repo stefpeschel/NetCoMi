@@ -996,8 +996,7 @@ props_season <- netAnalyze(net_season,
                            lnormFit = TRUE,
                            normDeg = FALSE,
                            normBetw = FALSE,
-                           normClose = FALSE,
-                           normEigen = FALSE)
+                           normClose = FALSE)
 
 summary(props_season)
 ```
