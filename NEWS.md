@@ -1,16 +1,35 @@
 
-## NetCoMi 1.1.0.9000 <img src="man/figures/NetCoMi_logo_800x400_300dpi.png" align="right" width="200" />
+## NetCoMi 1.1.0.9000
 
 ### New features
 
 - `netConstruct()` now returns a **message** if the constructed network
   has **no edges**.
 
-- The **sparse + low-rank decomposition (slr)** implemented in SpiecEasi
-  (latentcor branch) can now be used with NetCoMi. See section
-  “[Learning latent variable graphical
+- In `netConstruct()`: The **sparse + low-rank decomposition (slr)**
+  implemented in SpiecEasi (latentcor branch) can now be used with
+  NetCoMi. See section “[Learning latent variable graphical
   models](https://github.com/zdk123/SpiecEasi/tree/latentcor?tab=readme-ov-file#learning-latent-variable-graphical-models)”
   on SpiecEasi’s github page for details.
+
+- In `netConstruct()`: The output of the function used for
+  association/dissimilarity estimation (defined by `measure`) is now
+  returned by `netConstruct` (objects `measureOut1` and `measureOut2`).
+
+- `netConstruct()` now accepts data of type
+  **“TreeSummarizedExperiment”** as input to be compatible with the
+  miaverse. Details can be found here:
+  <https://microbiome.github.io/OMA/docs/devel/pages/miaverse.html>
+
+### Bug fixes
+
+- In `netAnalyze`: Since the `scale` argument of the igraph function
+  `eigen_centrality` is deprecated, NetCoMi’s `normEigen` argument is
+  deprecated as well. Eigenvector centrality is now always
+  scaled/normalized.
+
+- In `netAnalyze`: Since the igraph function `get.edgelist` is
+  deprecated, `as_edgelist` is used instead.
 
 ## NetCoMi 1.1.0
 
@@ -206,10 +225,6 @@
   - Use camelCase for all functions.
   - Non-exported functions have prefix “.”
   - The following functions have been renamed:
-
-<!-- -->
-
-    ## Warning: package 'knitr' was built under R version 4.4.1
 
 | Old names              | New names             |
 |:-----------------------|:----------------------|
