@@ -3,17 +3,49 @@
 
 ### New features
 
-- **renameTaxa()**: New function for renaming taxa in a taxonomic table.
-  It comes with functionality for making unknown and unclassified taxa
-  unique and substituting them by the next higher known taxonomic level.
-  E.g., an unknown genus “g\_\_“, where family is the next higher known
-  level, can automatically be renamed to”1_Streptococcaceae(F)“.
+- `netConstruct()` now returns a **message** if the constructed network
+  has **no edges**.
+
+- In `netConstruct()`: The **sparse + low-rank decomposition (slr)**
+  implemented in SpiecEasi (latentcor branch) can now be used with
+  NetCoMi. See section “[Learning latent variable graphical
+  models](https://github.com/zdk123/SpiecEasi/tree/latentcor?tab=readme-ov-file#learning-latent-variable-graphical-models)”
+  on SpiecEasi’s github page for details.
+
+- In `netConstruct()`: The output of the function used for
+  association/dissimilarity estimation (defined by `measure`) is now
+  returned by `netConstruct` (objects `measureOut1` and `measureOut2`).
+
+- `netConstruct()` now accepts data of type
+  **“TreeSummarizedExperiment”** as input to be compatible with the
+  miaverse. Details can be found here:
+  <https://microbiome.github.io/OMA/docs/devel/pages/miaverse.html>
+
+### Bug fixes
+
+- In `netAnalyze`: Since the `scale` argument of the igraph function
+  `eigen_centrality` is deprecated, NetCoMi’s `normEigen` argument is
+  deprecated as well. Eigenvector centrality is now always
+  scaled/normalized.
+
+- In `netAnalyze`: Since the igraph function `get.edgelist` is
+  deprecated, `as_edgelist` is used instead.
+
+## NetCoMi 1.1.0
+
+### New features
+
+- **`renameTaxa()`**: New function for renaming taxa in a taxonomic
+  table. It comes with functionality for making unknown and unclassified
+  taxa unique and substituting them by the next higher known taxonomic
+  level. E.g., an unknown genus “g\_\_“, where family is the next higher
+  known level, can automatically be renamed to”1_Streptococcaceae(F)“.
   User-defined patterns determine the format of known and substituted
   names. Unknown names (e.g., NAs) and unclassified taxa can be handled
   separately. Duplicated names within one or more chosen ranks can also
   be made unique by numbering them consecutively.
 
-- **editLabels()**: New function for editing node labels, i.e.,
+- **`editLabels()`**: New function for editing node labels, i.e.,
   shortening to a certain length and removing unwanted characters. It is
   used by NetCoMi’s plot functions plot.microNetProps() and
   plot.diffnet().

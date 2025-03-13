@@ -23,7 +23,6 @@
                             normDeg,
                             normBetw,
                             normClose,
-                            normEigen,
                             centrLCC,
                             testJacc = TRUE,
                             jaccTestGreater = FALSE,
@@ -48,7 +47,7 @@
                        hubPar = hubPar, hubQuant = hubQuant, 
                        lnormFit = lnormFit, weightDeg = weightDeg, 
                        normDeg = normDeg, normBetw = normBetw, 
-                       normClose = normClose, normEigen = normEigen, 
+                       normClose = normClose, 
                        centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   
@@ -63,7 +62,7 @@
                        hubPar = hubPar, hubQuant = hubQuant, 
                        lnormFit = lnormFit, weightDeg = weightDeg, 
                        normDeg = normDeg, normBetw = normBetw, 
-                       normClose = normClose, normEigen = normEigen, 
+                       normClose = normClose,
                        centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   

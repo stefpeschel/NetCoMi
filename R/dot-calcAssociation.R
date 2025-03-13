@@ -14,7 +14,7 @@
 #' @importFrom stats cor
 #' @importFrom WGCNA bicor
 #' @importFrom SpiecEasi spiec.easi sparseiCov getOptCov getRefit symBeta
-#'   getOptBeta sparcc
+#'   getOptBeta sparcc getOptInd prec2cov
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 #' @import mixedCCA
@@ -26,13 +26,15 @@
     
     if (is.null(measurePar$use)) measurePar$use <- "complete.obs"
     
-    assoMat <- stats::cor(countMat, use = measurePar$use, method = "pearson")
+    measureOut <- stats::cor(countMat, use = measurePar$use, method = "pearson")
+    assoMat <- measureOut
     
   } else if (measure == "spearman") {
     
     if (is.null(measurePar$use)) measurePar$use <- "complete.obs"
     
-    assoMat <- stats::cor(countMat, use = measurePar$use, method = "spearman")
+    measureOut <- stats::cor(countMat, use = measurePar$use, method = "spearman")
+    assoMat <- measureOut
     
   } else if (measure == "bicor") {
     
@@ -41,7 +43,8 @@
     if (verbose == 3) {
       message("")
     }
-    assoMat <- do.call(WGCNA::bicor, measurePar)
+    measureOut <- do.call(WGCNA::bicor, measurePar)
+    assoMat <- measureOut
     
   } else if (measure == "sparcc") {
     
@@ -49,10 +52,11 @@
     if (is.null(measurePar$th)) measurePar$th <- 0.1
     if (is.null(measurePar$iter)) measurePar$iter <- 100
     
-    assoMat <- SpiecEasi::sparcc(countMat,
+    measureOut <- SpiecEasi::sparcc(countMat,
                                  inner_iter = measurePar$inner_iter,
                                  th = measurePar$th,
-                                 iter = measurePar$iter)$Cor
+                                 iter = measurePar$iter)
+    assoMat <- measureOut$Cor
     
     colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
     
@@ -67,7 +71,8 @@
       message("")
     }
     
-    assoMat <- do.call("cclasso", measurePar)$cor.w
+    measureOut <- do.call("cclasso", measurePar)
+    assoMat <- measureOut$cor.w
     
   } else if (measure %in% c("reboot", "ccrepe")) {
     
@@ -81,7 +86,8 @@
       measurePar$sim.score.args <- list(method = "pearson")
     }
     
-    assoMat <- do.call(ccrepe::ccrepe, measurePar)$sim.score
+    measureOut <- do.call(ccrepe::ccrepe, measurePar)
+    assoMat <- measureOut$sim.score
     diag(assoMat) <- 1
     
   } else if (measure == "spieceasi") {
@@ -104,14 +110,23 @@
       measurePar$verbose <- FALSE
     }
     
-    spiecres <- do.call(SpiecEasi::spiec.easi, measurePar)
+    measureOut <- do.call(SpiecEasi::spiec.easi, measurePar)
     
-    if (spiecres$est$method == "glasso") {
-      secor <- stats::cov2cor(as.matrix(getOptCov(spiecres)))
-      assoMat <- secor * SpiecEasi::getRefit(spiecres)
-    } else {
-      assoMat <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(spiecres), 
+    if (measurePar$method == "glasso") {
+      secor <- stats::cov2cor(as.matrix(getOptCov(measureOut)))
+      assoMat <- secor * SpiecEasi::getRefit(measureOut)
+      
+    } else if (measurePar$method == "mb") {
+      assoMat <- SpiecEasi::symBeta(SpiecEasi::getOptBeta(measureOut), 
                                     mode = symBetaMode)
+      
+    } else if (measurePar$method == "slr") {
+      icov <- measureOut$est$icov[[SpiecEasi::getOptInd(measureOut)]]
+      secor <- cov2cor(SpiecEasi::prec2cov(icov))
+      assoMat <- as.matrix(secor * SpiecEasi::getRefit(measureOut))
+      
+    } else {
+      stop("SpiecEasi method not supported.")
     }
     
     assoMat <- as.matrix(assoMat)
@@ -141,11 +156,11 @@
       measurePar$verbose <- FALSE
     }
     
-    springres <- do.call(SPRING::SPRING, measurePar)
+    measureOut <- do.call(SPRING::SPRING, measurePar)
     
-    opt.K <- springres$output$stars$opt.index
+    opt.K <- measureOut$output$stars$opt.index
     
-    assoMat <- as.matrix(SpiecEasi::symBeta(springres$output$est$beta[[opt.K]],
+    assoMat <- as.matrix(SpiecEasi::symBeta(measureOut$output$est$beta[[opt.K]],
                                             mode = symBetaMode))
     
     colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
@@ -162,8 +177,8 @@
       message("")
     }
     
-    gcodares <- do.call("gcoda", measurePar)
-    assoMat <- gcodares$opt.icov
+    measureOut <- do.call("gcoda", measurePar)
+    assoMat <- measureOut$opt.icov
     
     assoLow <- assoMat[lower.tri(assoMat, diag = FALSE)]
     assoUp <- t(assoMat)[lower.tri(assoMat, diag = FALSE)]
@@ -187,20 +202,23 @@
     measurePar$counts <- countMat
     if (is.null(measurePar$metric)) measurePar$metric <- "rho"
     
-    assoMat <- suppressMessages(assoMat <- do.call(propr::propr, 
-                                                   measurePar)@matrix)
+    measureOut <- suppressMessages(assoMat <- do.call(propr::propr, 
+                                                   measurePar))
+    assoMat <- measureOut@matrix
     
   } else if (measure == "bray") {
     
-    assoMat <- as.matrix(vegan::vegdist(countMat, method = "bray", 
-                                        binary = FALSE, diag = FALSE, 
-                                        upper = FALSE, na.rm = FALSE))
+    measureOut <- vegan::vegdist(countMat, method = "bray", 
+                                 binary = FALSE, diag = FALSE, 
+                                 upper = FALSE, na.rm = FALSE)
+    assoMat <- as.matrix(measureOut)
     
   } else if (measure == "euclidean") {
     
-    assoMat <- as.matrix(vegan::vegdist(countMat, method = "euclidean",
-                                        binary = FALSE, diag = FALSE, 
-                                        upper = FALSE, na.rm = FALSE))
+    measureOut <- vegan::vegdist(countMat, method = "euclidean",
+                                 binary = FALSE, diag = FALSE, 
+                                 upper = FALSE, na.rm = FALSE)
+    assoMat <- as.matrix(measureOut)
     
   } else if (measure %in% c("kld", "jeffrey")) {
     
@@ -225,6 +243,7 @@
     
     colnames(assoMat) <- rownames(assoMat) <- rownames(countMat)
     diag(assoMat) <- 1
+    measureOut <- assoMat
     
   } else if (measure == "jsd") {
     
@@ -251,6 +270,7 @@
     
     colnames(assoMat) <- rownames(assoMat) <- rownames(countMat)
     diag(assoMat) <- 1
+    measureOut <- assoMat
     
   } else if (measure == "ckld") {
     assoMat <- matrix(0, ncol = nrow(countMat), nrow = nrow(countMat))
@@ -272,6 +292,7 @@
     
     colnames(assoMat) <- rownames(assoMat) <- rownames(countMat)
     diag(assoMat) <- 1
+    measureOut <- assoMat
     
   } else if (measure == "aitchison") {
     
@@ -283,6 +304,7 @@
     countMat_clr<- t(do.call(SpiecEasi::clr, measurePar))
     
     assoMat <- as.matrix(vegan::vegdist(countMat_clr, method = "euclidean"))
+    measureOut <- assoMat
     
   } else {
     stop("Possible association/dissimilarity measures are: \n", 
@@ -297,6 +319,6 @@
     warning("Association matrix contains NAs (replaced by zeros).")
   }
   
-  return(assoMat)
+  return(list(assoMat = assoMat, measureOut = measureOut))
 }
 

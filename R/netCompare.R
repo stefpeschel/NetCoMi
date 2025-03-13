@@ -424,7 +424,6 @@ netCompare <- function(x,
                           normDeg = parNA$normDeg,
                           normBetw = parNA$normBetw,
                           normClose = parNA$normClose,
-                          normEigen = parNA$normEigen,
                           centrLCC = parNA$centrLCC,
                           testRand = testRand,
                           nPermRand = nPermRand,
@@ -741,12 +740,12 @@ netCompare <- function(x,
         assoMat1.tmp <- .calcAssociation(count1.tmp,
                                          measure = parNC$measure,
                                          measurePar = parNC$measurePar,
-                                         verbose = FALSE)
+                                         verbose = FALSE)$assoMat
         
         assoMat2.tmp <- .calcAssociation(count2.tmp,
                                          measure = parNC$measure,
                                          measurePar = parNC$measurePar,
-                                         verbose = FALSE)
+                                         verbose = FALSE)$assoMat
         
         if (storeAssoPerm) {
           fmat <- fm.open(filenamebase = fileStoreAssoPerm)
@@ -895,7 +894,6 @@ netCompare <- function(x,
                                  normDeg = parNA$normDeg,
                                  normBetw = parNA$normBetw,
                                  normClose = parNA$normClose,
-                                 normEigen = parNA$normEigen,
                                  centrLCC = parNA$centrLCC,
                                  nPermRand = nPermRand,
                                  testJacc = FALSE,

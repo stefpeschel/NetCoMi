@@ -1,7 +1,7 @@
 #' @title Constructing Networks for Microbiome Data
 #'
-#' @description Constructing microbial association networks and dissimilarity
-#'   based networks (where nodes are subjects) from compositional count data.
+#' @description Construct microbial association networks and dissimilarity-based 
+#' networks (where nodes are subjects) from compositional count data.
 #'   
 #' @usage netConstruct(data,
 #'              data2 = NULL,
@@ -197,19 +197,22 @@
 #'     \tab diss[x < 0] <- 0\cr
 #'   \code{"TOMdiss"} \tab \code{\link[WGCNA:TOMsimilarity]{TOMdist}}
 #'   }
-#' @param data numeric matrix. Can be a count matrix (rows are samples, columns
-#'   are OTUs/taxa), a phyloseq object, or an association/dissimilarity matrix
-#'   (\code{dataType} must be set).
-#'   a second count matrix/phyloseq object or a second association/dissimilarity
-#'   matrix.
-#' @param data2 optional numeric matrix used for constructing a second 
-#'   network (belonging to group 2). Can be either a second count 
-#'   matrix/phyloseq object or a second association/dissimilarity matrix.
+#' @param data data set from which the network is built. Can be a numeric  
+#'   matrix (samples in rows, OTUs/ASVs in columns) or an object of the classes: 
+#'   \code{\link[phyloseq:phyloseq-class]{phyloseq}},
+#'   \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment}},
+#'   \code{\link[TreeSummarizedExperiment:TreeSummarizedExperiment-class]{TreeSummarizedExperiment}}.
+#'   Can also be an association 
+#'   or dissimilarity matrix (\code{dataType} must be set accordingly).
+#' @param data2 optional data set for constructing a second 
+#'   network (belonging to group 2). Accepted input is the same as for 
+#'   \code{data}.
 #' @param dataType character indicating the data type. Defaults to "counts",
 #'   which means that \code{data} (and data2) is a count matrix or object of
-#'   class \code{\link[phyloseq:phyloseq-class]{phyloseq}}. Further options
-#'   are "correlation", "partialCorr" (partial correlation), "condDependence"
-#'   (conditional dependence), "proportionality" and "dissimilarity".
+#'   class \code{phyloseq}, \code{SummarizedExperiment}, or 
+#'   \code{TreeSummarizedExperiment}. Further options are "association",
+#'   "correlation", "partialCorr" (partial correlation), "condDependence"
+#'   (conditional dependence), "proportionality", and "dissimilarity".
 #' @param group optional binary vector used for splitting the data into two
 #'   groups. If \code{group} is \code{NULL} (default) and \code{data2} is not 
 #'   set, a single network is constructed. See 'Details.'
@@ -276,7 +279,7 @@
 #'   \code{"numbTaxa"} (int), \code{"highestFreq"} (int).
 #' @param taxRank character indicating the taxonomic rank at which the network 
 #'   should be constructed. Only used if data (and data 2) is a phyloseq object. 
-#'   The given rank must match one of the column names of the taxonomic table 
+#'   The given rank must match one of the column names of the taxonomy table 
 #'   (the \code{@tax_table} slot of the phyloseq object). Taxa names of the 
 #'   chosen taxonomic rank must be unique (consider using the function 
 #'   \code{\link{renameTaxa}} to make them unique). If a phyloseq object is 
@@ -462,6 +465,8 @@
 #'   is \code{TRUE}.\cr
 #'   \code{normCounts1, normCounts2}\tab Count matrices after zero handling and
 #'   normalization\cr
+#'   \code{measureOut1, measureOut2}\tab Output returned by the function used 
+#'   for association or dissimilarity estimation (defined via `measure`).\cr
 #'   \code{groups}\tab Names of the factor levels according to which the groups
 #'   have been built\cr
 #'   \code{softThreshPower}\tab Determined (or given) power for
@@ -497,6 +502,8 @@
 #'                      sparsMethod = "none",
 #'                      normMethod = "none",
 #'                      verbose = 3)
+#' # Output returned by spiec.easi()
+#' spiec_output <- net1$measureOut1
 #'
 #' # Network analysis (see ?netAnalyze for details)
 #' props1 <- netAnalyze(net1, clustMethod = "cluster_fast_greedy")
@@ -511,7 +518,7 @@
 #' 
 #' dim(phyloseq::otu_table(amgut.genus.phy))
 #' 
-#' # Rename taxonomic table and make Rank6 (genus) unique
+#' # Rename taxonomy table and make Rank6 (genus) unique
 #' amgut.genus.renamed <- renameTaxa(amgut.genus.phy, pat = "<name>", 
 #'                                   substPat = "<name>_<subst_name>(<subst_R>)",
 #'                                   numDupli = "Rank6")
@@ -689,7 +696,8 @@
 #' @importFrom SPRING SPRING mclr
 #' @importFrom utils capture.output install.packages installed.packages
 #' @importFrom WGCNA pickSoftThreshold TOMdist
-#' @import phyloseq
+#' @importFrom SummarizedExperiment assay assays rowData rowData<-
+#' @import phyloseq mia
 #' @export
 
 netConstruct <- function(data,
@@ -754,14 +762,8 @@ netConstruct <- function(data,
   if (verbose %in% 2:3) message("Done.")
   
   #-----------------------------------------------------------------------------
-
-  if (dataType == "phyloseq") {
-    dataType <- "counts"
-  }
   
   if (dataType =="counts") {
-
-    # handle phyloseq objects
     
     if (inherits(data, "phyloseq")) {
       
@@ -780,7 +782,7 @@ netConstruct <- function(data,
       if (!is.null(taxRank)) {
         
         if (!taxRank %in% colnames(taxtab)) {
-          stop('Argument "taxRank" must match column names of the taxonomic ', 
+          stop('Argument "taxRank" must match column names of the taxonomy ', 
                'table:\n', paste(colnames(taxtab), collapse = ", "))
         }
         
@@ -791,21 +793,55 @@ netConstruct <- function(data,
         colnames(data) <- taxtab[, taxRank]
       }
       
-    } else {
-      if (is.null(rownames(data))) {
-        message("Row names are numbered because sample names were missing.\n")
-        rownames(data) <- 1:nrow(data)
+    } else if (inherits(data, c("SummarizedExperiment", 
+                                "TreeSummarizedExperiment"))) {
+      
+      assay.type <- "counts"
+      
+      if (!assay.type %in% names(assays(data))) {
+        stop("assays(data) must contain an element named 'counts'.")
       }
       
-      if (is.null(colnames(data))) {
-        message("Column names are numbered because taxa names were missing.\n")
-        colnames(data) <- 1:ncol(data)
+      # Abundance table
+      counttab <- t(as.matrix(assay(data, assay.type)))
+      
+      if (!is.null(taxRank)) {
+        
+        if (is.null(rowData(data)) || ncol(rowData(data)) == 0) {
+          stop("rowData(data) must be non-empty if taxRank is given.")
+        }
+        
+        # Taxonomy table
+        taxtab <- as.matrix(rowData(data))
+        
+        if (!taxRank %in% colnames(taxtab)) {
+          stop('Argument "taxRank" must match column names of the taxonomy ', 
+               'table:\n', paste(colnames(taxtab), collapse = ", "))
+        }
+        
+        if (any(duplicated(taxtab[, taxRank]))) {
+          stop(paste0("Taxa names of chosen taxonomic rank must be unique. ",
+                      "Consider using NetCoMi's function renameTaxa()."))
+        }
+        colnames(counttab) <- taxtab[, taxRank]
       }
       
-      if (identical(colnames(data), rownames(data))) {
-        warning(paste0("Row names and column names of 'data' are equal. ",
-                       "Ensure 'data' is a count matrix."))
-      }
+      data <- counttab
+    }
+    
+    if (is.null(rownames(data))) {
+      message("Row names are numbered because sample names were missing.\n")
+      rownames(data) <- 1:nrow(data)
+    }
+    
+    if (is.null(colnames(data))) {
+      message("Column names are numbered because taxa names were missing.\n")
+      colnames(data) <- 1:ncol(data)
+    }
+    
+    if (identical(colnames(data), rownames(data))) {
+      warning(paste0("Row names and column names of 'data' are equal. ",
+                     "Ensure 'data' is a count matrix."))
     }
     
     if (!is.null(data2)) {
@@ -825,7 +861,7 @@ netConstruct <- function(data,
         
         if (!is.null(taxRank)) {
           if (!taxRank %in% colnames(taxtab)) {
-            stop('Argument "taxRank" must match column names of the taxonomic ', 
+            stop('Argument "taxRank" must match column names of the taxonomy ', 
                  'table:\n', paste(colnames(taxtab), collapse = ", "))
           }
           
@@ -835,6 +871,41 @@ netConstruct <- function(data,
           }
           colnames(data2) <- taxtab[, taxRank]
         }
+        
+      } else if (inherits(data2, c("SummarizedExperiment", 
+                                  "TreeSummarizedExperiment"))) {
+        
+        assay.type <- "counts"
+        
+        if (!assay.type %in% names(assays(data2))) {
+          stop("assays(data2) must contain an element named 'counts'.")
+        }
+        
+        # Abundance table
+        counttab <- t(as.matrix(assay(data2, assay.type)))
+        
+        if (!is.null(taxRank)) {
+          
+          if (is.null(rowData(data2)) || ncol(rowData(data2)) == 0) {
+            stop("rowData(data2) must be non-empty if taxRank is given.")
+          }
+          
+          # Taxonomy table
+          taxtab <- as.matrix(rowData(data2))
+          
+          if (!taxRank %in% colnames(taxtab)) {
+            stop('Argument "taxRank" must match column names of the taxonomy ', 
+                 'table:\n', paste(colnames(taxtab), collapse = ", "))
+          }
+          
+          if (any(duplicated(taxtab[, taxRank]))) {
+            stop(paste0("Taxa names of chosen taxonomic rank must be unique. ",
+                        "Consider using NetCoMi's function renameTaxa()."))
+          }
+          colnames(counttab) <- taxtab[, taxRank]
+        }
+        
+        data2 <- counttab
       }
       
       if (is.null(rownames(data2))) {
@@ -1558,8 +1629,11 @@ netConstruct <- function(data,
               appendLF = FALSE)
     }
     
-    assoMat1 <- .calcAssociation(countMat = counts1, measure = measure,
-                                 measurePar = measurePar, verbose = verbose)
+    calcAssoRes <- .calcAssociation(countMat = counts1, measure = measure,
+                                    measurePar = measurePar, verbose = verbose)
+    
+    measureOut1 <- calcAssoRes$measureOut
+    assoMat1 <- calcAssoRes$assoMat
     
     if (verbose %in% 2:3) message("Done.")
     
@@ -1571,22 +1645,25 @@ netConstruct <- function(data,
                 appendLF = FALSE)
       }
       
-      assoMat2 <- .calcAssociation(countMat = counts2, measure = measure,
+      calcAssoRes <- .calcAssociation(countMat = counts2, measure = measure,
                                    measurePar = measurePar, verbose = verbose)
+      
+      measureOut2 <- calcAssoRes$measureOut
+      assoMat2 <- calcAssoRes$assoMat
+      
       if (verbose %in% 2:3) message("Done.")
       
     } else {
-      assoMat2 <- NULL
+      measureOut2 <- assoMat2 <- NULL
     }
     
   } else {
     assoMat1 <- data
     assoMat2 <- data2
-    counts1 <- NULL
-    counts2 <- NULL
+    measureOut1 <- measureOut2 <- NULL
+    counts1 <- counts2 <- NULL
     countsJointOrig <- NULL
-    countsOrig1 <- NULL
-    countsOrig2 <- NULL
+    countsOrig1 <- countsOrig2 <- NULL
     groups <- NULL
   }
   
@@ -1854,18 +1931,34 @@ netConstruct <- function(data,
   }
   
   #=============================================================================
-  # Create edge list
-  g <- graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
-                                   mode = "undirected", diag = FALSE)
+  # Check if networks are empty
   
-  if (is.null(E(g)$weight)) {
-    isempty1 <- TRUE
+  diag_indices <- diag(nrow(adjaMat1))
+  isempty1 <- all(adjaMat1[!diag_indices] == 0)
+  
+  if (isempty1 && verbose > 0) {
+    message("\nNetwork 1 has no edges.")
+  }
+  
+  if (twoNets) {
+    isempty2 <- all(adjaMat2[!diag_indices] == 0)
+    
+    if (isempty2 && verbose > 0) {
+      message("Network 2 has no edges.")
+    }
+  }
+  
+  #=============================================================================
+  # Create edge list
+  
+  if (isempty1) {
     edgelist1 <- NULL
     
   } else {
-    isempty1 <- FALSE
+    g <- igraph::graph_from_adjacency_matrix(adjaMat1, weighted = TRUE,
+                                     mode = "undirected", diag = FALSE)
     
-    edgelist1 <- data.frame(get.edgelist(g))
+    edgelist1 <- data.frame(igraph::as_edgelist(g))
     colnames(edgelist1) <- c("v1", "v2")
     
     if (!is.null(assoMat1)) {
@@ -1889,53 +1982,34 @@ netConstruct <- function(data,
     })
   }
   
-  if (twoNets) {
-    # Create edge list
-    g <- graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
+  if (twoNets && !isempty2) {
+    g <- igraph::graph_from_adjacency_matrix(adjaMat2, weighted = TRUE, 
                                      mode = "undirected", diag = FALSE)
     
-    if (is.null(E(g)$weight)) {
-      isempty2 <- TRUE
-      edgelist2 <- NULL
-      
-    } else {
-      isempty2 <- FALSE
-      
-      edgelist2 <- data.frame(get.edgelist(g))
-      colnames(edgelist2) <- c("v1", "v2")
-      
-      if (!is.null(assoMat2)) {
-        edgelist2$asso <- sapply(1:nrow(edgelist2), function(i) {
-          assoMat2[edgelist2[i, 1], edgelist2[i, 2]]
-        })
-      }
-      
-      edgelist2$diss <- sapply(1:nrow(edgelist2), function(i) {
-        dissMat2[edgelist2[i, 1], edgelist2[i, 2]]
-      })
-      
-      if (all(adjaMat2 %in% c(0, 1))) {
-        edgelist2$sim <- sapply(1:nrow(edgelist2), function(i) {
-          simMat2[edgelist2[i, 1], edgelist2[i, 2]]
-        })
-      }
-      
-      edgelist2$adja <- sapply(1:nrow(edgelist2), function(i) {
-        adjaMat2[edgelist2[i, 1], edgelist2[i, 2]]
+    edgelist2 <- data.frame(igraph::as_edgelist(g))
+    colnames(edgelist2) <- c("v1", "v2")
+    
+    if (!is.null(assoMat2)) {
+      edgelist2$asso <- sapply(1:nrow(edgelist2), function(i) {
+        assoMat2[edgelist2[i, 1], edgelist2[i, 2]]
       })
     }
     
-    if (isempty1 && verbose > 0) {
-      message("\nNetwork 1 has no edges.")
+    edgelist2$diss <- sapply(1:nrow(edgelist2), function(i) {
+      dissMat2[edgelist2[i, 1], edgelist2[i, 2]]
+    })
+    
+    if (all(adjaMat2 %in% c(0, 1))) {
+      edgelist2$sim <- sapply(1:nrow(edgelist2), function(i) {
+        simMat2[edgelist2[i, 1], edgelist2[i, 2]]
+      })
     }
-    if (isempty2 && verbose > 0) {
-      message("Network 2 has no edges.")
-    }
+    
+    edgelist2$adja <- sapply(1:nrow(edgelist2), function(i) {
+      adjaMat2[edgelist2[i, 1], edgelist2[i, 2]]
+    })
   } else {
     edgelist2 <- NULL
-    if (isempty1 && verbose > 0) {
-      message("\nNetwork has no edges.")
-    }
   }
   
   #=============================================================================
@@ -1967,6 +2041,9 @@ netConstruct <- function(data,
   if (!is.null(countsJointOrig)) output$countsJoint <- countsJointOrig
   output$normCounts1 <- counts1
   output$normCounts2 <- counts2
+  output$measureOut1 <- measureOut1
+  output$measureOut2 <- measureOut2
+  
   output$groups <- groups
   output$matchDesign <- matchDesign
   output$sampleSize <- sampleSize

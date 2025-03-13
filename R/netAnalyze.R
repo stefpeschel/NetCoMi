@@ -10,7 +10,7 @@
 #'            normDeg = TRUE,
 #'            normBetw = TRUE,
 #'            normClose = TRUE,
-#'            normEigen = TRUE,
+#'            normEigen = deprecated(),
 #'            
 #'            # Cluster related:
 #'            clustMethod = NULL,
@@ -328,6 +328,7 @@
 #' @import igraph
 #' @importFrom MASS fitdistr
 #' @importFrom graphics layout text rect
+#' @importFrom lifecycle deprecated deprecate_soft deprecate_warn is_present
 #' @export
 
 netAnalyze <- function(net,
@@ -336,7 +337,7 @@ netAnalyze <- function(net,
                        normDeg = TRUE,
                        normBetw = TRUE,
                        normClose = TRUE,
-                       normEigen = TRUE,
+                       normEigen = deprecated(),
                        clustMethod = NULL,
                        clustPar = NULL,
                        clustPar2 = NULL,
@@ -441,7 +442,6 @@ netAnalyze <- function(net,
                        normDeg = normDeg,
                        normBetw = normBetw,
                        normClose = normClose,
-                       normEigen = normEigen,
                        verbose = verbose)
   
   props2 <- NULL
@@ -475,7 +475,6 @@ netAnalyze <- function(net,
                          normDeg = normDeg,
                          normBetw = normBetw,
                          normClose = normClose,
-                         normEigen = normEigen,
                          verbose = verbose)
   }
   
@@ -654,8 +653,7 @@ netAnalyze <- function(net,
                                   weightDeg = weightDeg,
                                   normDeg = normDeg,
                                   normBetw = normBetw,
-                                  normClose = normClose,
-                                  normEigen = normEigen)
+                                  normClose = normClose)
   
   output$paramsNetConstruct <- x$parameters
   

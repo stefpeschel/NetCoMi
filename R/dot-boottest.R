@@ -110,7 +110,7 @@
       assoMat.tmp <- .calcAssociation(countMat = count.tmp,
                                       measure = measure,
                                       measurePar = measurePar,
-                                      verbose = 0)
+                                      verbose = 0)$assoMat
       
       assoMat.tmp
     }
