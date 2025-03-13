@@ -33,6 +33,15 @@
 #'   are shortened to length \code{labelLength}.}
 #'   \item{\code{"none"}}{Default. Original dimnames of the adjacency matrices 
 #'   are used.} }
+#' @param shortenLabels character indicating how to shorten the labels. 
+#'   Available options are:
+#'   \describe{
+#'   \item{\code{"intelligent"}}{Elements of \code{charToRm} are removed,
+#'   labels are shortened to length \code{labelLength}, and duplicates are
+#'   removed using \code{labelPattern}.}
+#'   \item{\code{"simple"}}{Elements of \code{charToRm} are  removed and labels
+#'   are shortened to length \code{labelLength}.}
+#'   \item{\code{"none"}}{Default. Labels are not shortened.} }
 #' @param labelLength integer defining the length to which labels shall
 #'   be shortened if \code{shortenLabels} is set to \code{"simple"} or 
 #'   \code{"intelligent"}. Defaults to 6.

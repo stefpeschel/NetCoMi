@@ -363,8 +363,6 @@ An object of class \code{microNet} containing the following elements:
   \code{countMat1, countMat2}\tab Count matrices after filtering but before
   zero replacement and normalization. Only returned if \code{jointPrepro}
   is \code{FALSE} or for a single network.\cr
-  \code{measureOut1, measureOut2}\tab Output(s) of the function defined as 
-  association or dissimilarity measure (argument \code{measure}).\cr
   \code{countsJoint}\tab Joint count matrix after filtering but before
   zero replacement and normalization. Only returned if \code{jointPrepro}
   is \code{TRUE}.\cr
@@ -555,9 +553,6 @@ net1 <- netConstruct(amgut2.filt.phy,
                      normMethod = "none",
                      verbose = 3)
 # Output returned by spiec.easi()
-spiec_output <- net1$measureOut1
-
-Output returned by spiec.easi()
 spiec_output <- net1$measureOut1
 
 # Network analysis (see ?netAnalyze for details)
