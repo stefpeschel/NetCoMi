@@ -133,15 +133,7 @@ clusters.</p>
 <code class="sourceCode R"><span><span class="va">props_diss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netAnalyze.html">netAnalyze</a></span><span class="op">(</span><span class="va">net_diss</span>,</span>
 <span>                         clustMethod <span class="op">=</span> <span class="st">"hierarchical"</span>,</span>
 <span>                         clustPar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"average"</span>, k <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
-<span>                         hubPar <span class="op">=</span> <span class="st">"eigenvector"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: The `scale` argument of `eigen_centrality()` always as if TRUE as of igraph</span></span>
-<span><span class="co">#&gt; 2.1.1.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Normalization is always performed</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">NetCoMi</span> package.</span></span>
-<span><span class="co">#&gt;   Please report the issue at <span style="color: #0000BB; font-style: italic;">&lt;https://github.com/stefpeschel/NetCoMi/issues&gt;</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;">generated.</span></span></span></code></pre></div>
+<span>                         hubPar <span class="op">=</span> <span class="st">"eigenvector"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="dissimilarity_networks_files/figure-html/example14-1.png" width="576"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">props_diss</span>, </span>

@@ -132,11 +132,7 @@ a value lower than 1, nodes are placed further apart</p></dd>
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
 <dd><p>defines the node labels. Can be a character vector with an
 entry for each node. If <code>FALSE</code>, no labels are plotted. Defaults to
-the row/column names of the association matrices.</p></dd>
-
-
-<dt id="arg-shortenlabels">shortenLabels<a class="anchor" aria-label="anchor" href="#arg-shortenlabels"></a></dt>
-<dd><p>character indicating how to shorten node labels.
+the row/column names of the association matrices.
 Ignored if node labels are defined via <code>labels</code>. NetCoMi's function
 <code><a href="editLabels.html">editLabels</a>()</code> is used for label editing.
 Available options are:</p><dl><dt><code>"intelligent"</code></dt>
@@ -151,6 +147,23 @@ are shortened to length <code>labelLength</code>.</p></dd>
 <dt><code>"none"</code></dt>
 <dd><p>Default. Original dimnames of the adjacency matrices
 are used.</p></dd>
+
+</dl></dd>
+
+
+<dt id="arg-shortenlabels">shortenLabels<a class="anchor" aria-label="anchor" href="#arg-shortenlabels"></a></dt>
+<dd><p>character indicating how to shorten the labels.
+Available options are:</p><dl><dt><code>"intelligent"</code></dt>
+<dd><p>Elements of <code>charToRm</code> are removed,
+labels are shortened to length <code>labelLength</code>, and duplicates are
+removed using <code>labelPattern</code>.</p></dd>
+
+<dt><code>"simple"</code></dt>
+<dd><p>Elements of <code>charToRm</code> are  removed and labels
+are shortened to length <code>labelLength</code>.</p></dd>
+
+<dt><code>"none"</code></dt>
+<dd><p>Default. Labels are not shortened.</p></dd>
 
 </dl></dd>
 
