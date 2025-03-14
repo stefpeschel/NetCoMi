@@ -1,5 +1,5 @@
 
-## NetCoMi 1.1.0
+## NetCoMi 1.2.0
 
 ### New features
 
@@ -225,10 +225,6 @@
   - Use camelCase for all functions.
   - Non-exported functions have prefix “.”
   - The following functions have been renamed:
-
-<!-- -->
-
-    ## Warning: package 'knitr' was built under R version 4.4.2
 
 | Old names              | New names             |
 |:-----------------------|:----------------------|

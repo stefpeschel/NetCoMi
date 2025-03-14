@@ -1,8 +1,8 @@
 Package: NetCoMi
 Type: Package
 Title: Network Construction and Comparison for Microbiome Data
-Version: 1.1.0
-Date: 2022-11-20
+Version: 1.2.0
+Date: 2025-03-14
 Authors@R: c(
     person("Stefanie", "Peschel", email = "stefpeschel@gmail.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7936-7627")),
@@ -18,7 +18,7 @@ Description: NetCoMi offers functions for constructing, analyzing, and comparing
 License: GPL-3 + file LICENSE
 URL: https://netcomi.de, https://github.com/stefpeschel/NetCoMi
 BugReports: https://github.com/stefpeschel/NetCoMi/issues
-Depends: SpiecEasi (>= 1.0.6)
+Depends: SpiecEasi (>= 1.1.1)
 biocViews:
 Imports: 
     Biobase,
