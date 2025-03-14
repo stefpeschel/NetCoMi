@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">NetCoMi</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,24 +52,24 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="netcomi-110">NetCoMi 1.1.0<a class="anchor" aria-label="anchor" href="#netcomi-110"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.2.0" id="netcomi-120">NetCoMi 1.2.0<a class="anchor" aria-label="anchor" href="#netcomi-120"></a></h2>
 <div class="section level3">
-<h3 id="new-features-1-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
+<h3 id="new-features-1-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-2-0"></a></h3>
 <ul><li><p><code><a href="../reference/netConstruct.html">netConstruct()</a></code> now returns a <strong>message</strong> if the constructed network has <strong>no edges</strong>.</p></li>
 <li><p>In <code><a href="../reference/netConstruct.html">netConstruct()</a></code>: The <strong>sparse + low-rank decomposition (slr)</strong> implemented in SpiecEasi (latentcor branch) can now be used with NetCoMi. See section “<a href="https://github.com/zdk123/SpiecEasi/tree/latentcor?tab=readme-ov-file#learning-latent-variable-graphical-models" class="external-link">Learning latent variable graphical models</a>” on SpiecEasi’s github page for details.</p></li>
 <li><p>In <code><a href="../reference/netConstruct.html">netConstruct()</a></code>: The output of the function used for association/dissimilarity estimation (defined by <code>measure</code>) is now returned by <code>netConstruct</code> (objects <code>measureOut1</code> and <code>measureOut2</code>).</p></li>
 <li><p><code><a href="../reference/netConstruct.html">netConstruct()</a></code> now accepts data of type <strong>“TreeSummarizedExperiment”</strong> as input to be compatible with the miaverse. Details can be found here: <a href="https://microbiome.github.io/OMA/docs/devel/pages/miaverse.html" class="external-link uri">https://microbiome.github.io/OMA/docs/devel/pages/miaverse.html</a></p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-1-1-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0"></a></h3>
+<h3 id="bug-fixes-1-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-2-0"></a></h3>
 <ul><li><p>In <code>netAnalyze</code>: Since the <code>scale</code> argument of the igraph function <code>eigen_centrality</code> is deprecated, NetCoMi’s <code>normEigen</code> argument is deprecated as well. Eigenvector centrality is now always scaled/normalized.</p></li>
 <li><p>In <code>netAnalyze</code>: Since the igraph function <code>get.edgelist</code> is deprecated, <code>as_edgelist</code> is used instead.</p></li>
 </ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="netcomi-110-1">NetCoMi 1.1.0<a class="anchor" aria-label="anchor" href="#netcomi-110-1"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.1.0" id="netcomi-110">NetCoMi 1.1.0<a class="anchor" aria-label="anchor" href="#netcomi-110"></a></h2>
 <div class="section level3">
-<h3 id="new-features-1-1-0-1">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0-1"></a></h3>
+<h3 id="new-features-1-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
 <ul><li><p><strong><code><a href="../reference/renameTaxa.html">renameTaxa()</a></code></strong>: New function for renaming taxa in a taxonomic table. It comes with functionality for making unknown and unclassified taxa unique and substituting them by the next higher known taxonomic level. E.g., an unknown genus “g__“, where family is the next higher known level, can automatically be renamed to”1_Streptococcaceae(F)“. User-defined patterns determine the format of known and substituted names. Unknown names (e.g., NAs) and unclassified taxa can be handled separately. Duplicated names within one or more chosen ranks can also be made unique by numbering them consecutively.</p></li>
 <li><p><strong><code><a href="../reference/editLabels.html">editLabels()</a></code></strong>: New function for editing node labels, i.e., shortening to a certain length and removing unwanted characters. It is used by NetCoMi’s plot functions plot.microNetProps() and plot.diffnet().</p></li>
 <li><p>In <code><a href="../reference/netCompare.html">netCompare()</a></code>: The <strong>adjusted Rand index</strong> is also computed for the largest connected component (LCC). The summary method has been adapted.</p></li>
@@ -88,7 +88,7 @@
 <li><p><code><a href="../reference/netConstruct.html">netConstruct()</a></code> has a new argument <strong><code>assoBoot</code></strong>, which enables the computation of bootstrap association matrices outside netConstruct() if <strong>bootstrapping</strong> is used for sparsification. An example has been added to the help page <code><a href="../reference/netConstruct.html">?netConstruct</a></code>. This feature might be useful for very large association matrices (for which the working memory might reach its limit).</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-1-1-0-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0-1"></a></h3>
+<h3 id="bug-fixes-1-1-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0"></a></h3>
 <ul><li>
 <p>In <code><a href="../reference/netConstruct.html">netConstruct()</a></code>:</p>
 <ul><li>Using <strong>“bootstrap”</strong> as sparsification method in combination with one of the association methods “bicor”, “cclasso”, “ccrepe”, or “gcoda” led to the error: <code>argument "verbose" is missing, with no default</code>, which has been fixed.</li>
@@ -129,8 +129,7 @@
 <li>Non-exported functions have prefix “.”</li>
 <li>The following functions have been renamed:</li>
 </ul></li>
-</ul><!-- --><div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## Warning: package 'knitr' was built under R version 4.4.2</span></span></code></pre></div>
-<table class="table"><thead><tr class="header"><th align="left">Old names</th>
+</ul><table class="table"><thead><tr class="header"><th align="left">Old names</th>
 <th align="left">New names</th>
 </tr></thead><tbody><tr class="odd"><td align="left">boottest</td>
 <td align="left">.boottest</td>
