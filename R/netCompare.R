@@ -290,13 +290,27 @@
 #' @seealso \code{\link{summary.microNetComp}}, \code{\link{netConstruct}},
 #'   \code{\link{netAnalyze}}
 #' @references 
-#'   \insertRef{benjamini2000adaptive}{NetCoMi} \cr\cr
-#'   \insertRef{farcomeni2007some}{NetCoMi} \cr\cr
-#'   \insertRef{gill2010statistical}{NetCoMi} \cr\cr
-#'   \insertRef{hocevar2016computation}{NetCoMi}\cr\cr
-#'   \insertRef{qannari2014significance}{NetCoMi}\cr\cr
-#'   \insertRef{real1996probabilistic}{NetCoMi}\cr\cr
-#'   \insertRef{yaveroglu2014revealing}{NetCoMi}
+#'   Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false 
+#'   discovery rate in multiple testing with independent statistics.” 
+#'   \emph{Journal of Educational and Behavioral Statistics}, 25(1), 60–83.\cr\cr
+#'   Farcomeni A (2007). “Some results on the control of the false discovery 
+#'   rate under dependence.” \emph{Scandinavian Journal of Statistics}, 
+#'   34(2), 275–297.\cr\cr
+#'   Gill R, Datta S, Datta S (2010). “A statistical framework for differential 
+#'   network analysis from microarray data.” \emph{BMC Bioinformatics}, 
+#'   11, 95.\cr\cr
+#'   Hocevar T, Demsar J (2016). “Computation of graphlet orbits for nodes and 
+#'   edges in sparse graphs.” \emph{Journal of Statistical Software}, 
+#'   71, 1–24.\cr\cr
+#'   Qannari EM, Courcoux P, Faye P (2014). “Significance test of the adjusted 
+#'   Rand index. Application to the free sorting task.” 
+#'   \emph{Food Quality and Preference}, 32, 93–97.\cr\cr
+#'   Real R, Vargas JM (1996). “The Probabilistic Basis of Jaccard's Index of 
+#'   Similarity.” \emph{Systematic Biology}, 45, 380–385.\cr\cr
+#'   Yaveroglu ON, Malod-Dognin N, Davis D, Levnajic Z, Janjic V, Karapandza R, 
+#'   Stojmirovic A, Przulj N (2014). “Revealing the hidden language of complex 
+#'   networks.” \emph{Scientific reports}, 4(1), 1–9.
+#'
 #' @import foreach doSNOW filematrix
 #' @importFrom stats sd
 #' @importFrom WGCNA randIndex

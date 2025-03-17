@@ -20,7 +20,9 @@
 #' @param verbose if \code{TRUE}, progress messages are returned.
 #'
 #' @references
-#'   \insertRef{farcomeni2007some}{NetCoMi}
+#'   Farcomeni A (2007). “Some results on the control of the false discovery 
+#'   rate under dependence.” \emph{Scandinavian Journal of Statistics}, 
+#'   34(2), 275–297.
 #'
 #' @importFrom fdrtool fdrtool
 #' @importFrom stats p.adjust

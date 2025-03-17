@@ -57,6 +57,7 @@ Statistical significance of correlations between pairs of
   \cite{Friedman and Alm (2012)}.
 }
 \references{
-{\insertRef{friedman2012inferring}{NetCoMi}}
+Friedman J, Alm EJ (2012). “Inferring Correlation Networks from Genomic 
+  Survey Data.” \emph{PLoS Computational Biology}, 8, e1002687.
 }
 \keyword{internal}

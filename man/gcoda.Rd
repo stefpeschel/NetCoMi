@@ -60,8 +60,11 @@ A parallelized implementation of the gCoda approach
   \cite{(Fang et al., 2017)}, published on GitHub \cite{(Fang, 2016)}.
 }
 \references{
-\insertRef{fang2016gcodaGithub}{NetCoMi}\cr\cr
-  \insertRef{fang2017gcoda}{NetCoMi}
+Fang H (2016). “gCoda: conditional dependence network inference for 
+  compositional data.” https://github.com/huayingfang/gCoda.\cr\cr
+  Fang H, Huang C, Zhao H, Deng M (2017). “gCoda: Conditional Dependence 
+  Network Inference for Compositional Data.” 
+  \emph{Journal of Computational Biology}, 24(7), 699–708.
 }
 \author{
 Fang Huaying, Peking University (R-Code and documentation)\cr

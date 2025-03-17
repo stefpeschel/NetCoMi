@@ -83,8 +83,12 @@
 #'   two groups.
 #' @param assoPerm not used anymore.
 #' @references
-#'   \insertRef{gill2010statistical}{NetCoMi}\cr\cr
-#'   \insertRef{knijnenburg2009fewer}{NetCoMi}\cr\cr
+#'   Gill R, Datta S, Datta S (2010). “A statistical framework for differential 
+#'   network analysis from microarray data.” \emph{BMC Bioinformatics}, 
+#'   11, 95.\cr\cr
+#'   Knijnenburg TA, Wessels LF, Reinders MJ, Shmulevich I (2009). “Fewer 
+#'   permutations, more accurate P-values.” \emph{Bioinformatics}, 25(12), 
+#'   i161–i168.
 #'
 #' @seealso \code{\link{diffnet}}
 #' @keywords internal

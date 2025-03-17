@@ -340,11 +340,14 @@ amgut_props4 <- netAnalyze(amgut_net4, clustMethod = "hierarchical",
                            clustPar = list(k = 3))
 
 plot(amgut_props4)
-
 }
 \references{
-\insertRef{hocevar2016computation}{NetCoMi}\cr\cr
-  \insertRef{yaveroglu2014revealing}{NetCoMi}
+Hocevar T, Demsar J (2016). “Computation of graphlet orbits for nodes and 
+  edges in sparse graphs.” \emph{Journal of Statistical Software}, 
+  71, 1–24.\cr\cr
+  Yaveroglu ON, Malod-Dognin N, Davis D, Levnajic Z, Janjic V, Karapandza R, 
+  Stojmirovic A, Przulj N (2014). “Revealing the hidden language of complex 
+  networks.” \emph{Scientific reports}, 4(1), 1–9.
 }
 \seealso{
 \code{\link{netConstruct}} for network construction,

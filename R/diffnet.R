@@ -208,11 +208,20 @@
 #'
 #' @seealso \code{\link{plot.diffnet}}
 #' @references 
-#'   \insertRef{benjamini2000adaptive}{NetCoMi} \cr\cr
-#'   \insertRef{discordant2016}{NetCoMi} \cr\cr
-#'   \insertRef{farcomeni2007some}{NetCoMi} \cr\cr
-#'   \insertRef{fisher1992statistical}{NetCoMi} \cr\cr
-#'   \insertRef{gill2010statistical}{NetCoMi}
+#'   Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false 
+#'   discovery rate in multiple testing with independent statistics.” 
+#'   \emph{Journal of Educational and Behavioral Statistics}, 25(1), 60–83.\cr\cr
+#'   Siska C, Kechris K (2016). discordant: The Discordant Method: A Novel 
+#'   Approach for Differential Correlation. R package version 1.2.0, 
+#'   https://github.com/siskac/discordant.\cr\cr
+#'   Farcomeni A (2007). “Some results on the control of the false discovery 
+#'   rate under dependence.” \emph{Scandinavian Journal of Statistics}, 
+#'   34(2), 275–297.\cr\cr
+#'   Fisher RA (1992). “Statistical methods for research workers.” 
+#'   \emph{Breakthroughs in Statistics}, 66–70. Springer.\cr\cr
+#'   Gill R, Datta S, Datta S (2010). “A statistical framework for differential 
+#'   network analysis from microarray data.” \emph{BMC Bioinformatics}, 11, 95.
+#'   
 #' @importFrom Biobase ExpressionSet
 #' @importFrom Rdpack reprompt
 #' @importFrom stats p.adjust.methods

@@ -38,5 +38,7 @@ defined via \code{trueNullMethod}.}
 The functions adjusts a vector of p-values for multiple testing
 }
 \references{
-\insertRef{farcomeni2007some}{NetCoMi}
+Farcomeni A (2007). “Some results on the control of the false discovery 
+  rate under dependence.” \emph{Scandinavian Journal of Statistics}, 
+  34(2), 275–297.
 }

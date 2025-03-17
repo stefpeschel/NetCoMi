@@ -25,7 +25,9 @@
 #' @param assoBoot list with bootstrap association matrices.
 #' @return \tabular{ll}{ \code{pvals}\tab calculated p-values\cr
 #'   \code{corrMat}\tab estimated correlation matrix}
-#' @references{\insertRef{friedman2012inferring}{NetCoMi}}
+#' @references
+#'   Friedman J, Alm EJ (2012). “Inferring Correlation Networks from Genomic 
+#'   Survey Data.” \emph{PLoS Computational Biology}, 8, e1002687.
 #' @keywords internal
 
 .boottest <- function(countMat, assoMat, nboot = 1000, measure, measurePar,

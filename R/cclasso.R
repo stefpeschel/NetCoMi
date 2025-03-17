@@ -32,8 +32,12 @@
 #'   Fang Huaying, Peking University (R code)\cr
 #'   Stefanie Peschel (documentation)
 #' @references
-#'   \insertRef{fang2015cclasso}{NetCoMi}\cr\cr
-#'   \insertRef{fang2016cclassoGithub}{NetCoMi}
+#'   Fang H, Huang C, Zhao H, Deng M (2015). “CCLasso: correlation inference for 
+#'   compositional data through Lasso.” \emph{Bioinformatic}s, 31(19), 
+#'   3172–3180.\cr\cr
+#'   Fang H (2016). “CCLasso: Correlation Inference for Compositional Data 
+#'   through Lasso.” https://github.com/huayingfang/CCLasso.
+#'   
 #' @import Matrix
 #' @export
 

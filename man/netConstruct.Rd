@@ -731,12 +731,22 @@ plot(props)
 
 }
 \references{
-\insertRef{badri2020normalization}{NetCoMi}\cr\cr
-  \insertRef{benjamini2000adaptive}{NetCoMi}\cr\cr
-  \insertRef{farcomeni2007some}{NetCoMi}\cr\cr
-  \insertRef{friedman2012inferring}{NetCoMi} \cr\cr
-  \insertRef{WGCNApackage}{NetCoMi}\cr\cr
-  \insertRef{zhang2005general}{NetCoMi}
+Badri M, Kurtz ZD, Bonneau R, Mueller CL (2020). “Shrinkage improves 
+  estimation of microbial associations under different normalization methods.” 
+  \emph{NAR Genomics and Bioinformatics}, 2(4).\cr\cr
+  Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false 
+  discovery rate in multiple testing with independent statistics.” 
+  \emph{Journal of Educational and Behavioral Statistics}, 25(1), 60–83.\cr\cr
+  Farcomeni A (2007). “Some results on the control of the false discovery rate 
+  under dependence.” \emph{Scandinavian Journal of Statistics}, 34(2), 
+  275–297.\cr\cr
+  Friedman J, Alm EJ (2012). “Inferring Correlation Networks from Genomic 
+  Survey Data.” \emph{PLoS Computational Biology}, 8, e1002687.\cr\cr
+  Langfelder P, Horvath S (2008). “WGCNA: an R package for weighted 
+  correlation network analysis.” \emph{BMC Bioinformatics}, 9(1), 559.\cr\cr
+  Zhang B, Horvath S (2005). “A General Framework for Weighted Gene 
+  Co-Expression Network Analysis.” 
+  \emph{Statistical Applications in Genetics and Molecular Biology}, 4, 17.
 }
 \seealso{
 \code{\link{netAnalyze}} for analyzing the constructed
