@@ -251,20 +251,21 @@ Calculate and compare network properties for microbial networks
   See \code{\link{calcGCD}} for details.
 }
 \examples{
+knitr::opts_chunk$set(fig.width = 16, fig.height = 8)
 
 # Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut2.filt.phy")
 
 # Split data into two groups: with and without seasonal allergies
-amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy,
                                       SEASONAL_ALLERGIES == "yes")
-amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy,
                                      SEASONAL_ALLERGIES == "no")
 
 amgut_season_yes
 amgut_season_no
 
-# Filter the 121 samples (sample size of the smaller group) with highest 
+# Filter the 121 samples (sample size of the smaller group) with highest
 # frequency to make the sample sizes equal and thus ensure comparability.
 n_yes <- phyloseq::nsamples(amgut_season_yes)
 
@@ -319,10 +320,10 @@ amgut_comp3 <- netCompare(amgut_props, adjust = "BH",
 
 # ... using the stored permutation association matrices
 amgut_comp4 <- netCompare(amgut_props, adjust = "BH",
-                          permTest = TRUE, nPerm = 100L, 
+                          permTest = TRUE, nPerm = 100L,
                           fileLoadAssoPerm = "assoPerm",
                           seed = 123456)
-  
+
 # amgut_comp3 and amgut_comp4 should be equal
 all.equal(amgut_comp3$adjaMatrices, amgut_comp4$adjaMatrices)
 all.equal(amgut_comp3$properties, amgut_comp4$properties)
@@ -333,21 +334,20 @@ summary(amgut_comp4)
 
 #--------------------------
 # Use 'createAssoPerm' to create "permuted" count and association matrices
-createAssoPerm(amgut_props, nPerm = 100, 
+createAssoPerm(amgut_props, nPerm = 100,
                computeAsso = TRUE,
                fileStoreAssoPerm = "assoPerm",
-               storeCountsPerm = TRUE, 
+               storeCountsPerm = TRUE,
                fileStoreCountsPerm = c("countsPerm1", "countsPerm2"),
                append = FALSE, seed = 123456)
 
-amgut_comp5 <- netCompare(amgut_props, permTest = TRUE, nPerm = 100L, 
+amgut_comp5 <- netCompare(amgut_props, permTest = TRUE, nPerm = 100L,
                           fileLoadAssoPerm = "assoPerm")
 
 all.equal(amgut_comp3$properties, amgut_comp5$properties)
 
 summary(amgut_comp5)
 }
-
 }
 \references{
 Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false 

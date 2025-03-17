@@ -2,7 +2,7 @@
 title: "Soil microbiome example"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{soil_example}
+  %\VignetteIndexEntry{Soil microbiome example}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

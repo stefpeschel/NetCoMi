@@ -2,7 +2,7 @@
 title: "Cross-domain networks"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{cross_domain_network}
+  %\VignetteIndexEntry{Cross-domain networks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

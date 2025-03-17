@@ -2,7 +2,7 @@
 title: "Generate permuted association matrices"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{createAssoPerm}
+  %\VignetteIndexEntry{Generate permuted association matrices}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

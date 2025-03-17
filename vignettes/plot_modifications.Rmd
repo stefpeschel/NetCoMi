@@ -2,7 +2,7 @@
 title: "Modifying the network plot"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{plot_modifications}
+  %\VignetteIndexEntry{Modifying the network plot}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -62,7 +62,7 @@ netprops <- netAnalyze(net,
 plot(netprops)
 ```
 
-In the following we will look at the different examples, where the arguments of `plot.microNetProps` are adjusted. 
+In the following we will look at different examples, where the arguments of `plot.microNetProps` are adjusted. 
 
 ### Layout
 
@@ -154,7 +154,7 @@ plot(netprops,
 
 ### Label font
 
-Label fonts can be manipulated with the `labelFont' argument. 2 stands for bold, 3 for italic, and so on. 
+Label fonts can be manipulated with the `labelFont` argument. 2 stands for bold, 3 for italic, and so on. 
 It is recommended to define the hub label font separately.
 
 ```{r netplot_mod_label_font, fig.height=14, fig.width=15, fig.dpi=200, out.width="100%"}

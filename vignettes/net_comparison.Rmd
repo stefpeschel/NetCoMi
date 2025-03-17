@@ -2,7 +2,7 @@
 title: "Network comparison"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{netcompare}
+  %\VignetteIndexEntry{Network comparison}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

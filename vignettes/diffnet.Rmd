@@ -2,7 +2,7 @@
 title: "Differential networks"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{diffnet}
+  %\VignetteIndexEntry{Differential networks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

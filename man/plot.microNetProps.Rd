@@ -414,6 +414,8 @@ Returns (invisibly) a list with the following elements: \tabular{ll}{
 Plotting objects of class \code{microNetProps}.
 }
 \examples{
+knitr::opts_chunk$set(fig.width = 8, fig.height = 8)
+
 # Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
@@ -428,19 +430,19 @@ amgut_net <- netConstruct(amgut1.filt, measure = "pearson",
 amgut_props <- netAnalyze(amgut_net)
 
 ### Network plots ###
-# Clusters are used for node coloring: 
-plot(amgut_props, 
+# Clusters are used for node coloring:
+plot(amgut_props,
      nodeColor = "cluster")
 
 # Remove singletons
-plot(amgut_props, 
-     nodeColor = "cluster", 
+plot(amgut_props,
+     nodeColor = "cluster",
      rmSingles = TRUE)
 
 # A higher repulsion places nodes with high edge weight closer together
-plot(amgut_props, 
-     nodeColor = "cluster", 
-     rmSingles = TRUE, 
+plot(amgut_props,
+     nodeColor = "cluster",
+     rmSingles = TRUE,
      repulsion = 1.2)
 
 # A feature vector is used for node coloring
@@ -451,9 +453,9 @@ featVec <- sample(1:5, nrow(amgut1.filt), replace = TRUE)
 # Names must be equal to ASV names
 names(featVec) <- colnames(amgut1.filt)
 
-plot(amgut_props, 
-     rmSingles = TRUE, 
-     nodeColor = "feature", 
+plot(amgut_props,
+     rmSingles = TRUE,
+     nodeColor = "feature",
      featVecCol = featVec,
      colorVec = heat.colors(5))
 
@@ -465,9 +467,8 @@ plot(amgut_props,
      rmSingles = TRUE,
      nodeColor = "feature",
      featVecCol = featVec,
-     colorVec = heat.colors(5), 
+     colorVec = heat.colors(5),
      nodeShape = c("circle", "square", "diamond"),
-     featVecShape = shapeVec, 
+     featVecShape = shapeVec,
      highlightHubs = FALSE)
-
 }

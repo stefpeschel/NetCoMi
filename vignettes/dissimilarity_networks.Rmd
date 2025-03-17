@@ -2,7 +2,7 @@
 title: "Dissimilarity-based Networks"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dissimilarity_networks}
+  %\VignetteIndexEntry{Dissimilarity-based Networks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

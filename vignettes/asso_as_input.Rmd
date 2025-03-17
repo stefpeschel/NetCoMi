@@ -2,7 +2,7 @@
 title: "Association matrix as input"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{asso_as_input}
+  %\VignetteIndexEntry{Association matrix as input}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

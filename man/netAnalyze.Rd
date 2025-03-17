@@ -275,6 +275,8 @@ Determine network properties for objects of class
   cycle, and orbits (6, 9, 4, 1) represent a terminal node.
 }
 \examples{
+knitr::opts_chunk$set(fig.width = 8, fig.height = 8)
+
 # Load data sets from American Gut Project (from SpiecEasi package)
 data("amgut1.filt")
 
@@ -290,7 +292,7 @@ amgut_net1 <- netConstruct(amgut1.filt, measure = "pearson",
 # Using eigenvector centrality as hub score
 amgut_props1 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
-                           
+
 summary(amgut_props1, showCentr = "eigenvector", numbNodes = 15L, digits = 3L)
 
 # Using degree, betweenness and closeness centrality as hub scores
@@ -300,7 +302,7 @@ amgut_props2 <- netAnalyze(amgut_net1, clustMethod = "cluster_fast_greedy",
 summary(amgut_props2, showCentr = "all",  numbNodes = 5L, digits = 5L)
 
 # Calculate centralities only for the largest connected component
-amgut_props3 <- netAnalyze(amgut_net1, centrLCC = TRUE, 
+amgut_props3 <- netAnalyze(amgut_net1, centrLCC = TRUE,
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector")
 
@@ -316,7 +318,7 @@ plot(amgut_props3)
 plotHeat(mat = amgut_props1$graphletLCC$gcm1,
          pmat = amgut_props1$graphletLCC$pAdjust1,
          type = "mixed",
-         title = "GCM", 
+         title = "GCM",
          colorLim = c(-1, 1),
          mar = c(2, 0, 2, 0))
 # Add rectangles
@@ -326,7 +328,7 @@ graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
                ytop    = c(10.5, 10.5, 7.5,  4.5),
                lwd = 2, xpd = NA)
 
-text(6, -0.2, xpd = NA, 
+text(6, -0.2, xpd = NA,
      "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05")
 
 #----------------------------------------------------------------------------

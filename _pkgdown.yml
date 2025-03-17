@@ -81,3 +81,8 @@ authors:
     href: https://www.helmholtz-munich.de/en/iap/pi/erika-von-mutius
   Martin Depner:
     href: https://www.helmholtz-munich.de/en/iap
+
+figures:
+  dpi: 300
+  fig.width: 10
+  fig.height: 10
