@@ -48,7 +48,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Plot Method for microNetProps Objects</h1>
-      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/v1.2.0/R/plot.microNetProps.R" class="external-link"><code>R/plot.microNetProps.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/main/R/plot.microNetProps.R" class="external-link"><code>R/plot.microNetProps.R</code></a></small>
       <div class="d-none name"><code>plot.microNetProps.Rd</code></div>
     </div>
 
@@ -620,7 +620,9 @@ which is used for network plotting.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load data sets from American Gut Project (from SpiecEasi package)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html" class="external-link">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>fig.width <span class="op">=</span> <span class="fl">8</span>, fig.height <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load data sets from American Gut Project (from SpiecEasi package)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut1.filt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Network construction</span></span></span>
@@ -650,26 +652,26 @@ which is used for network plotting.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Network analysis</span></span></span>
 <span class="r-in"><span><span class="va">amgut_props</span> <span class="op">&lt;-</span> <span class="fu"><a href="netAnalyze.html">netAnalyze</a></span><span class="op">(</span><span class="va">amgut_net</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plot.microNetProps-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plot.microNetProps-1.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">### Network plots ###</span></span></span>
-<span class="r-in"><span><span class="co"># Clusters are used for node coloring: </span></span></span>
-<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>, </span></span>
+<span class="r-in"><span><span class="co"># Clusters are used for node coloring:</span></span></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>,</span></span>
 <span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plot.microNetProps-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plot.microNetProps-2.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove singletons</span></span></span>
-<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>, </span></span>
-<span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>, </span></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>,</span></span>
+<span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
 <span class="r-in"><span>     rmSingles <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plot.microNetProps-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plot.microNetProps-3.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A higher repulsion places nodes with high edge weight closer together</span></span></span>
-<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>, </span></span>
-<span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>, </span></span>
-<span class="r-in"><span>     rmSingles <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>,</span></span>
+<span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
+<span class="r-in"><span>     rmSingles <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>     repulsion <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plot.microNetProps-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plot.microNetProps-4.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A feature vector is used for node coloring</span></span></span>
 <span class="r-in"><span><span class="co"># (this could be a vector with phylum names of the ASVs)</span></span></span>
@@ -679,12 +681,12 @@ which is used for network plotting.</p></dd>
 <span class="r-in"><span><span class="co"># Names must be equal to ASV names</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">featVec</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">amgut1.filt</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>, </span></span>
-<span class="r-in"><span>     rmSingles <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
-<span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"feature"</span>, </span></span>
+<span class="r-in"><span><span class="fu">plot</span><span class="op">(</span><span class="va">amgut_props</span>,</span></span>
+<span class="r-in"><span>     rmSingles <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>     featVecCol <span class="op">=</span> <span class="va">featVec</span>,</span></span>
 <span class="r-in"><span>     colorVec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plot.microNetProps-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plot.microNetProps-5.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use a further feature vector for node shapes</span></span></span>
 <span class="r-in"><span><span class="va">shapeVec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">amgut1.filt</span><span class="op">)</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
@@ -694,12 +696,11 @@ which is used for network plotting.</p></dd>
 <span class="r-in"><span>     rmSingles <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>     nodeColor <span class="op">=</span> <span class="st">"feature"</span>,</span></span>
 <span class="r-in"><span>     featVecCol <span class="op">=</span> <span class="va">featVec</span>,</span></span>
-<span class="r-in"><span>     colorVec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>     colorVec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">heat.colors</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>     nodeShape <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"circle"</span>, <span class="st">"square"</span>, <span class="st">"diamond"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>     featVecShape <span class="op">=</span> <span class="va">shapeVec</span>, </span></span>
+<span class="r-in"><span>     featVecShape <span class="op">=</span> <span class="va">shapeVec</span>,</span></span>
 <span class="r-in"><span>     highlightHubs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plot.microNetProps-6.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span></span></span>
+<span class="r-plt img"><img src="plot.microNetProps-6.png" alt="" width="3000" height="3000"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

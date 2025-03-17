@@ -56,7 +56,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Create a heatmap with p-values</h1>
-      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/v1.2.0/R/plotHeat.R" class="external-link"><code>R/plotHeat.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/main/R/plotHeat.R" class="external-link"><code>R/plotHeat.R</code></a></small>
       <div class="d-none name"><code>plotHeat.Rd</code></div>
     </div>
 
@@ -383,9 +383,9 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Estimated and sparsified associations of group 1</span></span></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span><span class="va">amgut_net</span><span class="op">$</span><span class="va">assoEst1</span>, textUpp <span class="op">=</span> <span class="st">"none"</span>, labCex <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-1.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span><span class="va">amgut_net</span><span class="op">$</span><span class="va">assoMat1</span>, textUpp <span class="op">=</span> <span class="st">"none"</span>, labCex <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-2.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-2.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compute graphlet correlation matrices and perform significance tests</span></span></span>
 <span class="r-in"><span><span class="va">adja1</span> <span class="op">&lt;-</span> <span class="va">amgut_net</span><span class="op">$</span><span class="va">adjaMat1</span></span></span>
@@ -418,7 +418,7 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         pmat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">pAdjust1</span>,</span></span>
 <span class="r-in"><span>         type <span class="op">=</span> <span class="st">"mixed"</span>, </span></span>
 <span class="r-in"><span>         textLow <span class="op">=</span> <span class="st">"code"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-3.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Mixed heatmap of GCM2 and p-values (diagonal disabled)</span></span></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span>mat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">gcm1</span>, </span></span>
@@ -426,7 +426,7 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         diag <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>         type <span class="op">=</span> <span class="st">"mixed"</span>, </span></span>
 <span class="r-in"><span>         textLow <span class="op">=</span> <span class="st">"pmat"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-4.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-4.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Mixed heatmap of differences (GCM1 - GCM2) and significance codes</span></span></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span>mat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">diff</span>, </span></span>
@@ -435,14 +435,14 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         textLow <span class="op">=</span> <span class="st">"code"</span>,</span></span>
 <span class="r-in"><span>         title <span class="op">=</span> <span class="st">"Differences between GCMs (GCM1 - GCM2)"</span>,</span></span>
 <span class="r-in"><span>         mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-5.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-5.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Heatmap of differences (insignificant values are blank)</span></span></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span>mat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">diff</span>, </span></span>
 <span class="r-in"><span>         pmat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">pAdjustDiff</span>,</span></span>
 <span class="r-in"><span>         type <span class="op">=</span> <span class="st">"full"</span>, </span></span>
 <span class="r-in"><span>         textUpp <span class="op">=</span> <span class="st">"sigmat"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-6.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-6.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Same as before but with higher significance level</span></span></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span>mat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">diff</span>, </span></span>
@@ -450,7 +450,7 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         type <span class="op">=</span> <span class="st">"full"</span>, </span></span>
 <span class="r-in"><span>         textUpp <span class="op">=</span> <span class="st">"sigmat"</span>,</span></span>
 <span class="r-in"><span>         argsUpp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sig.level <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-7.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-7.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Heatmap of absolute differences</span></span></span>
 <span class="r-in"><span><span class="co"># (different position of labels and legend)</span></span></span>
@@ -458,7 +458,7 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         type <span class="op">=</span> <span class="st">"full"</span>, </span></span>
 <span class="r-in"><span>         labPos <span class="op">=</span> <span class="st">"d"</span>,</span></span>
 <span class="r-in"><span>         legendPos <span class="op">=</span> <span class="st">"b"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-8.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-8.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Mixed heatmap of absolute differences </span></span></span>
 <span class="r-in"><span><span class="co"># (different methods, text options, and color palette)</span></span></span>
@@ -477,7 +477,7 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         nCol <span class="op">=</span> <span class="fl">21L</span>,</span></span>
 <span class="r-in"><span>         bg <span class="op">=</span> <span class="st">"darkorange"</span>,</span></span>
 <span class="r-in"><span>         addWhite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-9.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-9.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Mixed heatmap of differences </span></span></span>
 <span class="r-in"><span><span class="co"># (different methods, text options, and color palette)</span></span></span>
@@ -493,13 +493,13 @@ full heatmap if <code>type</code> is "full" and for the upper triangle if
 <span class="r-in"><span>         colorPal <span class="op">=</span> <span class="st">"PiYG"</span>,</span></span>
 <span class="r-in"><span>         nCol <span class="op">=</span> <span class="fl">21L</span>,</span></span>
 <span class="r-in"><span>         bg <span class="op">=</span> <span class="st">"gray80"</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-10.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-10.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Heatmap of differences with given color vector</span></span></span>
 <span class="r-in"><span><span class="fu">plotHeat</span><span class="op">(</span>mat <span class="op">=</span> <span class="va">gcmtest</span><span class="op">$</span><span class="va">diff</span>, </span></span>
 <span class="r-in"><span>         nCol <span class="op">=</span> <span class="fl">21L</span>,</span></span>
 <span class="r-in"><span>         color <span class="op">=</span> <span class="fu">grDevices</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"white"</span>, <span class="st">"orange"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">31</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="plotHeat-11.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="plotHeat-11.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

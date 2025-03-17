@@ -52,7 +52,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Constructing Differential Networks for Microbiome Data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/v1.2.0/R/diffnet.R" class="external-link"><code>R/diffnet.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/stefpeschel/NetCoMi/blob/main/R/diffnet.R" class="external-link"><code>R/diffnet.R</code></a></small>
       <div class="d-none name"><code>diffnet.Rd</code></div>
     </div>
 
@@ -283,11 +283,19 @@ the example.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>benjamini2000adaptiveNetCoMi <br><br>
-  discordant2016NetCoMi <br><br>
-  farcomeni2007someNetCoMi <br><br>
-  fisher1992statisticalNetCoMi <br><br>
-  gill2010statisticalNetCoMi</p>
+    <p>Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false
+  discovery rate in multiple testing with independent statistics.”
+  <em>Journal of Educational and Behavioral Statistics</em>, 25(1), 60–83.<br><br>
+  Siska C, Kechris K (2016). discordant: The Discordant Method: A Novel
+  Approach for Differential Correlation. R package version 1.2.0,
+  https://github.com/siskac/discordant.<br><br>
+  Farcomeni A (2007). “Some results on the control of the false discovery
+  rate under dependence.” <em>Scandinavian Journal of Statistics</em>,
+  34(2), 275–297.<br><br>
+  Fisher RA (1992). “Statistical methods for research workers.”
+  <em>Breakthroughs in Statistics</em>, 66–70. Springer.<br><br>
+  Gill R, Datta S, Datta S (2010). “A statistical framework for differential
+  network analysis from microarray data.” <em>BMC Bioinformatics</em>, 11, 95.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -296,7 +304,9 @@ the example.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load data sets from American Gut Project (from SpiecEasi package)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html" class="external-link">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>fig.width <span class="op">=</span> <span class="fl">10</span>, fig.height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load data sets from American Gut Project (from SpiecEasi package)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"amgut1.filt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Generate a random group vector</span></span></span>
@@ -368,13 +378,16 @@ the example.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Checking input arguments ... </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Done.</span>
 <span class="r-in"><span><span class="fu"><a href="plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">amgut_diff2</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="diffnet-1.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="diffnet-1.png" alt="" width="3000" height="3000"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span>  <span class="co"># Permutation test (permutation matrices are stored)</span></span></span>
-<span class="r-in"><span>  <span class="va">amgut_diff3</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, diffMethod <span class="op">=</span> <span class="st">"permute"</span>, nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
-<span class="r-in"><span>                         cores <span class="op">=</span> <span class="fl">4L</span>, adjust <span class="op">=</span> <span class="st">"lfdr"</span>,</span></span>
-<span class="r-in"><span>                         storeCountsPerm <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>  <span class="va">amgut_diff3</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, </span></span>
+<span class="r-in"><span>                         diffMethod <span class="op">=</span> <span class="st">"permute"</span>, </span></span>
+<span class="r-in"><span>                         nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
+<span class="r-in"><span>                         cores <span class="op">=</span> <span class="fl">4L</span>, </span></span>
+<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"lfdr"</span>,</span></span>
+<span class="r-in"><span>                         storeCountsPerm <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>                         fileStoreCountsPerm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"countsPerm1"</span>, <span class="st">"countsPerm2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                         storeAssoPerm <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>                         fileStoreAssoPerm <span class="op">=</span> <span class="st">"assoPerm"</span>,</span></span>
@@ -382,27 +395,33 @@ the example.</p></dd>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span>  <span class="co"># Use the p-values again (different adjustment method possible), but without</span></span></span>
 <span class="r-in"><span>  <span class="co"># re-estimating the associations</span></span></span>
-<span class="r-in"><span>  <span class="va">amgut_diff4</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, diffMethod <span class="op">=</span> <span class="st">"permute"</span>, nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
-<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"none"</span>, pvalsVec <span class="op">=</span> <span class="va">amgut_diff3</span><span class="op">$</span><span class="va">pvalsVec</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">amgut_diff4</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, </span></span>
+<span class="r-in"><span>                         diffMethod <span class="op">=</span> <span class="st">"permute"</span>, </span></span>
+<span class="r-in"><span>                         nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
+<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"none"</span>, </span></span>
+<span class="r-in"><span>                         pvalsVec <span class="op">=</span> <span class="va">amgut_diff3</span><span class="op">$</span><span class="va">pvalsVec</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/x11.html" class="external-link">x11</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">amgut_diff4</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span>  <span class="co"># Use the permutation associations again (same result as amgut_diff4)</span></span></span>
-<span class="r-in"><span>  <span class="va">amgut_diff5</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, diffMethod <span class="op">=</span> <span class="st">"permute"</span>, nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
-<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"none"</span>, </span></span>
+<span class="r-in"><span>  <span class="va">amgut_diff5</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, </span></span>
+<span class="r-in"><span>                         diffMethod <span class="op">=</span> <span class="st">"permute"</span>, </span></span>
+<span class="r-in"><span>                         nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
+<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"none"</span>,</span></span>
 <span class="r-in"><span>                         fileLoadAssoPerm <span class="op">=</span> <span class="st">"assoPerm"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/x11.html" class="external-link">x11</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">amgut_diff5</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span>  <span class="co"># Use the permuted count matrices again (same result as amgut_diff4)</span></span></span>
-<span class="r-in"><span>  <span class="va">amgut_diff6</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, diffMethod <span class="op">=</span> <span class="st">"permute"</span>, nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
-<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"none"</span>, </span></span>
+<span class="r-in"><span>  <span class="va">amgut_diff6</span> <span class="op">&lt;-</span> <span class="fu">diffnet</span><span class="op">(</span><span class="va">amgut_net</span>, </span></span>
+<span class="r-in"><span>                         diffMethod <span class="op">=</span> <span class="st">"permute"</span>, </span></span>
+<span class="r-in"><span>                         nPerm <span class="op">=</span> <span class="fl">1000L</span>,</span></span>
+<span class="r-in"><span>                         adjust <span class="op">=</span> <span class="st">"none"</span>,</span></span>
 <span class="r-in"><span>                         fileLoadCountsPerm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"countsPerm1"</span>, <span class="st">"countsPerm2"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                         seed <span class="op">=</span> <span class="fl">123456</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/x11.html" class="external-link">x11</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot.microNetProps.html">plot</a></span><span class="op">(</span><span class="va">amgut_diff6</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
