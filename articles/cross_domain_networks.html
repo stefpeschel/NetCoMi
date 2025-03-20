@@ -192,7 +192,7 @@ standard pipeline).</p>
 <span></span>
 <span><span class="co"># Network analysis</span></span>
 <span><span class="va">netprops_hmp_16S_prot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/netAnalyze.html">netAnalyze</a></span><span class="op">(</span><span class="va">net_hmp_16S_prot</span>, hubPar <span class="op">=</span> <span class="st">"eigenvector"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="cross_domain_networks_files/figure-html/unnamed-chunk-3-1.png" width="3000"></p>
+<p><img src="cross_domain_networks_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">nodeCols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html" class="external-link">ntaxa</a></span><span class="op">(</span><span class="va">hmp216S</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"orange"</span>, <span class="fu"><a href="https://rdrr.io/pkg/phyloseq/man/ntaxa-methods.html" class="external-link">ntaxa</a></span><span class="op">(</span><span class="va">hmp2prot</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -216,7 +216,7 @@ standard pipeline).</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.2</span>, cex <span class="op">=</span> <span class="fl">3</span>, pt.cex <span class="op">=</span> <span class="fl">4</span>, </span>
 <span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"HMP2 16S"</span>, <span class="st">"HMP2 protein"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lightblue"</span>, <span class="st">"orange"</span><span class="op">)</span>, </span>
 <span>       bty <span class="op">=</span> <span class="st">"n"</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="cross_domain_networks_files/figure-html/network_plot-1.png" width="12000"></p>
+<p><img src="cross_domain_networks_files/figure-html/network_plot-1.png" width="3840"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Network comparison</span></span>
 <span><span class="co"># - Permutation tests cannot be performed because the association matrices are</span></span>
