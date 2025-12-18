@@ -143,8 +143,9 @@ edge colors. 0 means no transparency (default), 100 means full transparency.}
 
 \item{edgeCol}{character vector specifying the edge colors. Must be of length
 6 for the discordant method (default: c("hotpink", "aquamarine", "red",
-"orange", "green", "blue")) and of lengths 9 for permutation tests and
-Fisher's z-test (default: c("chartreuse2", "chartreuse4", "cyan",
+"orange", "green", "blue")) and of lengths 9 for permutation tests,
+Fisher's z-test, and threshold 
+(default: c("chartreuse2", "chartreuse4", "cyan",
 "magenta", "orange", "red", "blue", "black", "purple")).}
 
 \item{title}{optional character string for the main title.}

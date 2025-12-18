@@ -28,7 +28,7 @@
   
   #-------------------
   # diffMethod
-  choices <- c("discordant", "permute", "fisherTest")
+  choices <- c("discordant", "permute", "fisherTest", "threshold")
   
   args$diffMethod <- try(match.arg(args$diffMethod, choices), silent = TRUE)
   
@@ -48,6 +48,18 @@
       args$x$parameters$dataType != "counts") {
     stop(paste0("Discordant method only possible if count matrices were used ", 
                 "for network construction. Use Fisher test instead."))
+  }
+  
+  #-------------------
+  # diffThresh (only for threshold method)
+  if (args$diffMethod == "threshold") {
+    errs <-
+      .checkArg(cond = is.numeric(args$diffThresh) &
+                  length(args$diffThresh) == 1 &
+                  !is.na(args$diffThresh[1]) &
+                  args$diffThresh[1] >= 0,
+                msg = "\"diffThresh\" must be a single numeric value >= 0.",
+                errs = errs)
   }
   
   #-------------------
