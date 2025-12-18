@@ -7,6 +7,7 @@
 diffnet(
   x,
   diffMethod = "permute",
+  diffThresh = 0,
   discordThresh = 0.8,
   n1 = NULL,
   n2 = NULL,
@@ -36,11 +37,23 @@ diffnet(
 \code{\link{netConstruct}}).}
 
 \item{diffMethod}{character string indicating the method used for determining
-differential associations. Possible values are \code{"permute"} (default)
-for performing permutation tests according to \cite{Gill et al. (2010)},
-\code{"discordant"}, which calls \code{\link[discordant]{discordantRun}}
-\cite{(Siska and Kechris, 2016)}, and \code{"fisherTest"} for Fisher's
-z-test \cite{(Fisher , 1992)}.}
+differential associations. Possible values are:
+\itemize{
+  \item \code{"permute"} (default): Permutation test according to
+    \cite{Gill et al. (2010)}.
+  \item \code{"fisherTest"}: Fisher's z-test for comparing correlations
+    between two groups \cite{Fisher (1992)}.
+  \item \code{"discordant"}: Discordant method implemented in
+    \code{\link[discordant]{discordantRun}} \cite{Siska and Kechris (2016)}.
+  \item \code{"threshold"}: Identifies differential associations by
+    thresholding the absolute differences of associations
+    \eqn{|a1_{ij} - a2_{ij}|} (see \code{diffThresh}).
+}}
+
+\item{diffThresh}{numeric value >= 0. Only used if
+\code{diffMethod = "threshold"}. A taxa pair is considered differentially
+associated if \eqn{|a1_ij - a2_ij| > diffThresh}. If set to \code{0}
+(default), the full absolute difference matrix is returned.}
 
 \item{discordThresh}{numeric value in [0,1].
 Only used for the discordant method. Specifies
@@ -182,11 +195,19 @@ The function returns an object of class \code{diffnet}. Depending on
   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
   original data)}
+  \strong{Threshold:}
+  \tabular{ll}{
+  \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
+  original data)\cr
+  \code{diffMat}\tab matrix with absolute differences of associations after
+  thresholding (values \eqn{\le diffThresh} set to 0)\cr
+  \code{diffThresh}\tab the threshold used}
 }
 \description{
 Constructs a differential network for objects of class
-  \code{microNet}. Three methods for identifying differentially associated
-  taxa are provided: Fisher's z-test, permutation test, discordant method.
+  \code{microNet}. Four methods for identifying differentially associated
+  taxa are provided: Fisher's z-test, permutation test, discordant method,
+  and a simple thresholding approach.
 }
 \details{
 \strong{Permutation procedure:}\cr

@@ -1,8 +1,9 @@
 #' @title Constructing Differential Networks for Microbiome Data
 #'
 #' @description Constructs a differential network for objects of class
-#'   \code{microNet}. Three methods for identifying differentially associated
-#'   taxa are provided: Fisher's z-test, permutation test, discordant method.
+#'   \code{microNet}. Four methods for identifying differentially associated
+#'   taxa are provided: Fisher's z-test, permutation test, discordant method,
+#'   and a simple thresholding approach.
 #'
 #' @details \strong{Permutation procedure:}\cr
 #'   The null hypothesis of these tests is defined as
@@ -19,11 +20,22 @@
 #' @param x an object of class \code{microNet} (returned by 
 #'   \code{\link{netConstruct}}).
 #' @param diffMethod character string indicating the method used for determining
-#'   differential associations. Possible values are \code{"permute"} (default)
-#'   for performing permutation tests according to \cite{Gill et al. (2010)},
-#'   \code{"discordant"}, which calls \code{\link[discordant]{discordantRun}}
-#'   \cite{(Siska and Kechris, 2016)}, and \code{"fisherTest"} for Fisher's
-#'   z-test \cite{(Fisher , 1992)}.
+#'   differential associations. Possible values are:
+#'   \itemize{
+#'     \item \code{"permute"} (default): Permutation test according to
+#'       \cite{Gill et al. (2010)}.
+#'     \item \code{"fisherTest"}: Fisher's z-test for comparing correlations
+#'       between two groups \cite{Fisher (1992)}.
+#'     \item \code{"discordant"}: Discordant method implemented in
+#'       \code{\link[discordant]{discordantRun}} \cite{Siska and Kechris (2016)}.
+#'     \item \code{"threshold"}: Identifies differential associations by
+#'       thresholding the absolute differences of associations
+#'       \eqn{|a1_{ij} - a2_{ij}|} (see \code{diffThresh}).
+#'   }
+#' @param diffThresh numeric value >= 0. Only used if
+#'   \code{diffMethod = "threshold"}. A taxa pair is considered differentially
+#'   associated if \eqn{|a1_ij - a2_ij| > diffThresh}. If set to \code{0}
+#'   (default), the full absolute difference matrix is returned.
 #' @param discordThresh numeric value in [0,1].
 #'   Only used for the discordant method. Specifies
 #'   a threshold for the posterior probability that a pair of
@@ -142,6 +154,14 @@
 #'   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
 #'   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
 #'   original data)}
+#'   \strong{Threshold:}
+#'   \tabular{ll}{
+#'   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
+#'   original data)\cr
+#'   \code{diffMat}\tab matrix with absolute differences of associations after
+#'   thresholding (values \eqn{\le diffThresh} set to 0)\cr
+#'   \code{diffThresh}\tab the threshold used}
+
 #'
 #' @example man-roxygen/examples/diffnet_ex.R
 #'
@@ -169,6 +189,7 @@
 
 diffnet <- function(x,
                     diffMethod = "permute",
+                    diffThresh = 0,
                     discordThresh = 0.8,
                     n1 = NULL,
                     n2 = NULL,
@@ -222,7 +243,27 @@ diffnet <- function(x,
     n2 <- nrow(x$normCounts2)
   }
   
-  if (diffMethod == "discordant") {
+  if (diffMethod == "threshold") {
+    
+    if (!is.numeric(diffThresh) || length(diffThresh) != 1 || is.na(diffThresh)) {
+      stop("'diffThresh' must be a single, non-missing numeric value.")
+    }
+    if (diffThresh < 0) stop("'diffThresh' must be >= 0.")
+    
+    diffMat <- abs(assoMat1 - assoMat2)
+    diag(diffMat) <- 0
+    
+    # Keep only differences strictly larger than the threshold
+    diffMat[diffMat <= diffThresh] <- 0
+    
+    output <- list(
+      assoMat1 = assoMat1,
+      assoMat2 = assoMat2,
+      diffMat = diffMat,
+      diffThresh = diffThresh
+    )
+    
+  } else if (diffMethod == "discordant") {
     
     if (!requireNamespace("discordant", quietly = TRUE)) {
       
@@ -482,9 +523,11 @@ diffnet <- function(x,
   if (verbose) {
     
     if (diffMethod == "discordant") {
-      if (all(diffMat == 0)) {
-        message("No differential associations detected.")
-      }
+      if (all(diffMat == 0)) message("No differential associations detected.")
+      
+    } else if (diffMethod == "threshold") {
+      
+      if (all(output$diffMat == 0)) message("No differential associations detected.")
       
     } else { # Fisher test or permutation test
       
@@ -500,10 +543,10 @@ diffnet <- function(x,
       }
     }
   }
-
+  
   output[["groups"]] <- x$groups
   output[["diffMethod"]] <- diffMethod
-  output[["adjusted"]] <- adjust
+  output[["adjusted"]] <- if (diffMethod == "threshold") "none" else adjust
   output[["call"]] <- match.call()
   
   class(output) <- "diffnet"
