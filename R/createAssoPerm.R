@@ -404,10 +404,11 @@ createAssoPerm <- function(x,
         "vegan",
         "LaplacesDemon",
         "propr",
+        "corpcor",
         "DESeq2",
         "filematrix"
       ),
-      .export = c(".calcAssociation", "cclasso", "gcoda"),
+      .export = c(".calcAssociation", "cclasso", "gcoda", "rhoshrink"),
       .options.snow = opts
     ) %do_or_dopar% {
       

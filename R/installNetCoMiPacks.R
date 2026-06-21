@@ -10,6 +10,7 @@
 #'   Installed CRAN packages:
 #'   \itemize{
 #'   \item cccd
+#'   \item corpcor
 #'   \item LaplacesDemon
 #'   \item propr
 #'   \item zCompositions
@@ -45,8 +46,9 @@ installNetCoMiPacks <- function(onlyMissing = TRUE, lib = NULL, ...) {
   
   if (is.null(lib)) lib <- .libPaths()[1]
   
-  needpack <- c("cccd", "ccrepe", "DESeq2", "discordant", "LaplacesDemon", 
-                "limma", "metagenomeSeq", "propr", "zCompositions")
+  needpack <- c("cccd", "ccrepe", "corpcor", "DESeq2", "discordant",
+                "LaplacesDemon", "limma", "metagenomeSeq", "propr",
+                "zCompositions")
   
   if (onlyMissing) {
     instpack <- needpack[!needpack %in% utils::installed.packages()[,"Package"]]

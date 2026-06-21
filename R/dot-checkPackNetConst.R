@@ -11,6 +11,8 @@
     needpack <- c(needpack, "ccrepe")
   } else if (measure == "propr") {
     needpack <- c(needpack, "propr")
+  } else if (measure == "rhoshrink") {
+    needpack <- c(needpack, "corpcor")
   } else if (measure %in% c("kld", "jeffrey", "jsd")) {
     needpack <- c(needpack, "LaplacesDemon")
   }

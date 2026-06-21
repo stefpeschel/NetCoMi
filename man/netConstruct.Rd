@@ -106,7 +106,8 @@ Ignored if \code{data} is not a count matrix (if \code{dataType} is not set
 to \code{"counts"}). Available measures are:
 \code{"pearson"}, \code{"spearman"}, \code{"bicor"}, \code{"sparcc"},
 \code{"cclasso"}, \code{"ccrepe"}, \code{"spieceasi"} (default),
-\code{"spring"}, \code{"gcoda"} and \code{"propr"} as association measures,
+\code{"spring"}, \code{"gcoda"}, \code{"propr"}, and \code{"rhoshrink"}
+as association measures,
 and \code{"euclidean"}, \code{"bray"}, \code{"kld"}, \code{"jeffrey"},
 \code{"jsd"}, \code{"ckld"}, and \code{"aitchison"} as dissimilarity
 measures. Parameters are set via \code{measurePar}.}
@@ -444,7 +445,8 @@ The object returned by \code{netConstruct} can either be passed to
   \code{"spieceasi"}\tab \code{\link[SpiecEasi]{spiec.easi}} \cr
   \code{"spring"}\tab \code{\link[SPRING]{SPRING}} \cr
   \code{"gcoda"}\tab \code{\link[NetCoMi]{gcoda}} \cr
-  \code{"propr"}\tab \code{\link[propr]{propr}}}
+  \code{"propr"}\tab \code{\link[propr]{propr}} \cr
+  \code{"rhoshrink"}\tab \code{\link[NetCoMi]{rhoshrink}}}
   \cr
   \strong{Dissimilarity measures}
   \tabular{lll}{

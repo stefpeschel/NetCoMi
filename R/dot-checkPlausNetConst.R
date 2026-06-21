@@ -117,7 +117,7 @@
       }
       
       #-------------------------------------------------------------------------
-    } else if (measure %in% c("propr")) {
+    } else if (measure %in% c("propr", "rhoshrink")) {
       
       if (zeroMethod == "none") {
         zeroMethod <- "multRepl"
@@ -125,7 +125,7 @@
                              measure, "\". \"", zeroMethod, "\" used."))
       }
       
-      if (normMethod != "none") {
+      if (!normMethod %in% c("none", "TSS", "fractions")) {
         normMethod <- "none"
         msg <- c(msg, paste0("Normalization ignored for measure \"",
                              measure, "\"."))

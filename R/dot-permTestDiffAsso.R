@@ -283,6 +283,7 @@
       ".calcAssociation",
       "cclasso",
       "gcoda",
+      "rhoshrink",
       ".diffConnectPairs",
       ".diffConnectVariables",
       ".diffConnectNetwork",

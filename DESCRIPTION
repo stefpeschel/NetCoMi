@@ -60,6 +60,7 @@ Suggests:
     BiocManager,
     cccd,
     ccrepe,
+    corpcor,
     DESeq2,
     devtools,
     discordant,
@@ -74,5 +75,5 @@ Suggests:
     zCompositions
 RdMacros: Rdpack
 Encoding: UTF-8
-RoxygenNote: 7.3.3
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0

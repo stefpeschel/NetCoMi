@@ -1,4 +1,26 @@
 
+## NetCoMi 1.2.0.9000
+
+### New features
+
+- In `netConstruct()`: New association measure **“rhoshrink”**
+  available. The method estimates proportionality using shrinkage
+  covariance estimation as proposed by Badri et al. (2020), following
+  code from the accompanying [NormCorr manuscript
+  repository](https://github.com/MichelleBadri/NormCorr-manuscript).
+
+- In `diffnet()`: New method **“threshold”** available for identifying
+  differential associations by thresholding the absolute differences
+  between association matrices. The threshold can be set via the new
+  argument `diffThresh`.
+
+### References
+
+Badri M, Kurtz ZD, Bonneau R, Mueller CL (2020). Shrinkage improves
+estimation of microbial associations under different normalization
+methods. *NAR Genomics and Bioinformatics*, 2(4), lqaa100. doi:
+[10.1093/nargab/lqaa100](https://doi.org/10.1093/nargab/lqaa100).
+
 ## NetCoMi 1.2.0
 
 ### New features

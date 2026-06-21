@@ -88,7 +88,8 @@
         "sparcc",
         "cclasso",
         "cclasso.sub",
-        "gcoda"
+        "gcoda",
+        "rhoshrink"
       ),
       .options.snow = opts
     ) %do_or_dopar% {

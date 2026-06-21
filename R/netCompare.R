@@ -532,6 +532,7 @@ netCompare <- function(x,
         "calcGCM",
         "cclasso",
         "gcoda",
+        "rhoshrink",
         "multAdjust"
       ),
       .options.snow = opts

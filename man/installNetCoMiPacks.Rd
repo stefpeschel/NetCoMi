@@ -30,6 +30,7 @@ This function installs the R packages used in NetCoMi not listed
   Installed CRAN packages:
   \itemize{
   \item cccd
+  \item corpcor
   \item LaplacesDemon
   \item propr
   \item zCompositions

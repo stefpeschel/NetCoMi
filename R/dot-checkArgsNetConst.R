@@ -54,6 +54,7 @@
                  "cclasso",
                  "ccrepe",
                  "propr",
+                 "rhoshrink",
                  "spieceasi",
                  "spring",
                  "gcoda",
@@ -80,7 +81,7 @@
       if (args$measure %in% c("pearson", "spearman", "bicor", "sparcc",
                               "cclasso", "ccrepe")) {
         "correlation"
-      } else if (args$measure %in% c("propr")) {
+      } else if (args$measure %in% c("propr", "rhoshrink")) {
         "proportionality"
       } else if (args$measure %in% c("spieceasi", "spring", "gcoda")) {
         "condDependence"

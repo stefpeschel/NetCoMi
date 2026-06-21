@@ -11,7 +11,7 @@ netAnalyze(net,
            normDeg = TRUE,
            normBetw = TRUE,
            normClose = TRUE,
-           normEigen = deprecated(),
+           normEigen = lifecycle::deprecated(),
            
            # Cluster related:
            clustMethod = NULL,

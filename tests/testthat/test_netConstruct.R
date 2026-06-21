@@ -20,7 +20,8 @@ testnet <- netConstruct(amgut2.filt.phy,
 
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
-                       hubPar = "eigenvector")
+                       hubPar = "eigenvector",
+                       gcmHeat = FALSE)
 
 plot(testprops)
 mtext("phyloseq", side = 3, cex = 1.5)
@@ -43,7 +44,8 @@ testnet <- netConstruct(peerj13075,
 
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
-                       hubPar = "eigenvector")
+                       hubPar = "eigenvector",
+                       gcmHeat = FALSE)
 
 plot(testprops)
 mtext("phyloseq", side = 3, cex = 1.5)
@@ -105,8 +107,8 @@ context("netConstruct with different association measures")
 set.seed(123456)
 
 measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
-              "propr","gcoda", "spieceasi_gl", "spieceasi_mb", "spiecease_slr",
-              "spring" )
+              "propr", "rhoshrink", "gcoda", "spieceasi_gl", "spieceasi_mb",
+              "spiecease_slr", "spring" )
 
 for (i in 1:length(measures)) {
   
@@ -152,11 +154,72 @@ for (i in 1:length(measures)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector")
+                         hubPar = "eigenvector",
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
 }
+
+context("netConstruct handles normMethod for rhoshrink")
+
+testnet <- netConstruct(amgut1.filt,
+                        filtTax = "highestVar",
+                        filtTaxPar = list(highestVar = 20),
+                        filtSamp = "totalReads",
+                        filtSampPar = list(totalReads = 1000),
+                        zeroMethod = "none", normMethod = "clr",
+                        measure = "rhoshrink",
+                        sparsMethod = "threshold", thresh = 0.3,
+                        verbose = 0,
+                        seed = 20190101)
+
+expect_equal(testnet$parameters$normMethod, "none")
+
+testnet <- netConstruct(amgut1.filt,
+                        filtTax = "highestVar",
+                        filtTaxPar = list(highestVar = 20),
+                        filtSamp = "totalReads",
+                        filtSampPar = list(totalReads = 1000),
+                        zeroMethod = "none", normMethod = "TSS",
+                        measure = "rhoshrink",
+                        sparsMethod = "threshold", thresh = 0.3,
+                        verbose = 0,
+                        seed = 20190101)
+
+expect_equal(testnet$parameters$normMethod, "none")
+expect_true(testnet$parameters$needfrac)
+
+plausCheck <- NetCoMi:::.checkPlausNetConst(dataType = "counts",
+                                            assoType = "proportionality",
+                                            data2 = NULL,
+                                            measure = "propr",
+                                            normMethod = "TSS",
+                                            zeroMethod = "none",
+                                            sparsMethod = "threshold",
+                                            dissFunc = "signed",
+                                            sampleSize = NULL,
+                                            verbose = 0)
+
+expect_equal(plausCheck$normMethod, "none")
+expect_true(plausCheck$needfrac)
+
+context("netConstruct keeps zeroMethod for spieceasi")
+
+plausCheck <- NetCoMi:::.checkPlausNetConst(dataType = "counts",
+                                            assoType = "condDependence",
+                                            data2 = NULL,
+                                            measure = "spieceasi",
+                                            normMethod = "clr",
+                                            zeroMethod = "multRepl",
+                                            sparsMethod = "threshold",
+                                            dissFunc = "signed",
+                                            sampleSize = NULL,
+                                            verbose = 0)
+
+expect_equal(plausCheck$zeroMethod, "multRepl")
+expect_equal(plausCheck$normMethod, "none")
+expect_equal(plausCheck$sparsMethod, "none")
 
 context("test plot.microNetProps")
 plot(testprops)
@@ -227,7 +290,8 @@ for (i in 1:length(measures)) {
                            seed = 20190101)
   
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector")
+                         hubPar = "eigenvector",
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -260,7 +324,8 @@ for (i in 1:length(zeroMethod)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector")
+                         hubPar = "eigenvector",
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(zeroMethod[i], side = 3, cex = 1.5)
@@ -293,7 +358,8 @@ for (i in 1:length(normMethod)) {
                             seed = 20190101)
     
     testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                           hubPar = "eigenvector")
+                           hubPar = "eigenvector",
+                           gcmHeat = FALSE)
     
     plot(testprops)
     mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
@@ -331,7 +397,8 @@ for (i in 1:length(sparsMethod)) {
     testprops<- netAnalyze(testnet,
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", normDeg = FALSE,
-                           hubQuant = 0.95, lnormFit = FALSE)
+                           hubQuant = 0.95, lnormFit = FALSE,
+                           gcmHeat = FALSE)
     
     plot(testprops)
     mtext(sparsMethod[i], side = 3, cex = 1.5)
@@ -369,7 +436,8 @@ for (i in 1:length(adjustMethod)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE,
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(adjustMethod[i], side = 3, cex = 1.5)
@@ -410,7 +478,8 @@ for (i in 1:length(softThreshType)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE,
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(softThreshType[i], side = 3, cex = 1.5)
@@ -441,7 +510,8 @@ for (i in 1:length(knnMutual)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE,
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(knnMutual[i], side = 3, cex = 1.5)
@@ -474,7 +544,8 @@ for (i in 1:length(dissFunc)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE,
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(dissFunc[i], side = 3, cex = 1.5)
@@ -516,7 +587,8 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE,
+                       gcmHeat = FALSE)
 
 plot(testprops)
 mtext("dissFunc as function", side = 3, cex = 1.5)
@@ -549,7 +621,8 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE,
+                       gcmHeat = FALSE)
 
 plot(testprops)
 mtext("simFunc", side = 3, cex = 1.5)
@@ -577,7 +650,8 @@ for (i in 1:length(scaleDiss)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE,
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(scaleDiss[i], side = 3, cex = 1.5)
@@ -605,7 +679,8 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE,
+                       gcmHeat = FALSE)
 
 summary(testprops)
 
@@ -883,7 +958,7 @@ for (i in 1:length(fsamp)) {
 context("netConstruct with different association measures")
 set.seed(123456)
 
-measures <- c("pearson", "spearman", "bicor", "sparcc", "propr",
+measures <- c("pearson", "spearman", "bicor", "sparcc", "propr", "rhoshrink",
               "cclasso", "ccrepe", "gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
 
 for (i in 1:length(measures)) {
@@ -924,7 +999,8 @@ for (i in 1:length(measures)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector")
+                         hubPar = "eigenvector",
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -959,7 +1035,8 @@ for (i in 1:length(measures)) {
                            seed = 20190101)
   
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector")
+                         hubPar = "eigenvector",
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -991,7 +1068,8 @@ for (i in 1:length(zeroMethod)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector")
+                         hubPar = "eigenvector",
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(zeroMethod[i], side = 3, cex = 1.5)
@@ -1027,7 +1105,8 @@ for (i in 1:length(normMethod)) {
                             seed = 20190101)
     
     testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                           hubPar = "eigenvector")
+                           hubPar = "eigenvector",
+                           gcmHeat = FALSE)
     
     plot(testprops)
     mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
@@ -1064,7 +1143,8 @@ for (i in 1:length(sparsMethod)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE,
+                         gcmHeat = FALSE)
   
   plot(testprops)
   mtext(sparsMethod[i], side = 3, cex = 1.5)
@@ -1097,7 +1177,8 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE,
+                       gcmHeat = FALSE)
 
 plot(testprops)
 

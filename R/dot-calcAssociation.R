@@ -14,7 +14,7 @@
 #' @importFrom stats cor
 #' @importFrom WGCNA bicor
 #' @importFrom SpiecEasi spiec.easi sparseiCov getOptCov getRefit symBeta
-#'   getOptBeta sparcc getOptInd prec2cov
+#' @importFrom SpiecEasi getOptBeta sparcc getOptInd prec2cov
 #' @importFrom SPRING SPRING
 #' @importFrom vegan vegdist
 #' @import mixedCCA
@@ -206,6 +206,20 @@
                                                    measurePar))
     assoMat <- measureOut@matrix
     
+  } else if (measure == "rhoshrink") {
+
+    measurePar$counts <- countMat
+    if (is.null(measurePar$verbose)) measurePar$verbose <- FALSE
+    
+    measureOut <- do.call(rhoshrink, measurePar)
+    rhoMat <- measureOut$assoMat
+    assoMat <- matrix(as.numeric(rhoMat),
+                      nrow = nrow(rhoMat),
+                      ncol = ncol(rhoMat))
+
+    colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
+    diag(assoMat) <- 1
+
   } else if (measure == "bray") {
     
     measureOut <- vegan::vegdist(countMat, method = "bray", 
@@ -309,8 +323,8 @@
   } else {
     stop("Possible association/dissimilarity measures are: \n", 
          "'pearson', 'spearman', 'bicor', 'sparcc', 'cclasso', 'reboot', 'ccrepe', ", 
-         "'bray', 'kld', 'jeffrey', 'jsd', 'aitchison', 'prop', 'spieceasi', ", 
-         "'spring', 'gcoda'.")
+         "'bray', 'kld', 'jeffrey', 'jsd', 'aitchison', 'propr', 'rhoshrink', ",
+         "'spieceasi', 'spring', 'gcoda'.")
   }
   
   

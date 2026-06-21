@@ -10,7 +10,7 @@
 #'            normDeg = TRUE,
 #'            normBetw = TRUE,
 #'            normClose = TRUE,
-#'            normEigen = deprecated(),
+#'            normEigen = lifecycle::deprecated(),
 #'            
 #'            # Cluster related:
 #'            clustMethod = NULL,
@@ -275,7 +275,7 @@ netAnalyze <- function(net,
                        normDeg = TRUE,
                        normBetw = TRUE,
                        normClose = TRUE,
-                       normEigen = deprecated(),
+                       normEigen = lifecycle::deprecated(),
                        clustMethod = NULL,
                        clustPar = NULL,
                        clustPar2 = NULL,
