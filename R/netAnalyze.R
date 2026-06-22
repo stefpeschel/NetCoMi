@@ -27,7 +27,7 @@
 #'            graphlet = TRUE,
 #'            orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
 #'            gcmHeat = FALSE,
-#'            gcmHeatLCC = TRUE,
+#'            gcmHeatLCC = FALSE,
 #'            
 #'            # Further arguments:
 #'            avDissIgnoreInf = FALSE,
@@ -218,9 +218,9 @@
 #'   plotted. Default is \code{FALSE}. This argument is kept for backward
 #'   compatibility; for new code, use \code{\link{plotGCM}} on the object
 #'   returned by \code{netAnalyze()}.
-#' @param gcmHeatLCC logical. The GCM heatmap is plotted for the LCC if 
-#'   \code{TRUE} (default) and for the whole network if \code{FALSE}. This
-#'   argument is only used if \code{gcmHeat = TRUE}.
+#' @param gcmHeatLCC logical. The GCM heatmap is plotted for the whole network
+#'   if \code{FALSE} (default) and for the LCC if \code{TRUE}. This argument is
+#'   only used if \code{gcmHeat = TRUE}.
 #' @param verbose integer indicating the level of verbosity. Possible values:
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages are shown. Can also be logical.
@@ -290,7 +290,7 @@ netAnalyze <- function(net,
                        graphlet = TRUE,
                        orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
                        gcmHeat = FALSE,
-                       gcmHeatLCC = TRUE,
+                       gcmHeatLCC = FALSE,
                        avDissIgnoreInf = FALSE,
                        sPathAlgo = "dijkstra",
                        sPathNorm = TRUE,

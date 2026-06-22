@@ -28,7 +28,7 @@ netAnalyze(net,
            graphlet = TRUE,
            orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
            gcmHeat = FALSE,
-           gcmHeatLCC = TRUE,
+           gcmHeatLCC = FALSE,
            
            # Further arguments:
            avDissIgnoreInf = FALSE,
@@ -102,9 +102,9 @@ plotted. Default is \code{FALSE}. This argument is kept for backward
 compatibility; for new code, use \code{\link{plotGCM}} on the object
 returned by \code{netAnalyze()}.}
 
-\item{gcmHeatLCC}{logical. The GCM heatmap is plotted for the LCC if 
-\code{TRUE} (default) and for the whole network if \code{FALSE}. This
-argument is only used if \code{gcmHeat = TRUE}.}
+\item{gcmHeatLCC}{logical. The GCM heatmap is plotted for the whole network
+if \code{FALSE} (default) and for the LCC if \code{TRUE}. This argument is
+only used if \code{gcmHeat = TRUE}.}
 
 \item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
 calculating the average dissimilarity. If \code{FALSE} (default), infinity 

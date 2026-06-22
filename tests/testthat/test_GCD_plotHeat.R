@@ -29,11 +29,13 @@ props <- netAnalyze(net)
 
 plot(props, rmSingles = TRUE, cexLabels = 1.7, edgeWidth = 1.2)
 plotGCM(props)
-plotGCM(props, gcmLCC = FALSE)
+plotGCM(props, gcmLCC = TRUE)
 
 gcm1 <- calcGCM(adja1)
 gcm2 <- calcGCM(adja2)
+plotGCM(gcm1)
 gcd <- calcGCD(adja1, adja2)
+plotGCM(gcd)
 
 
 gcddiff <- testGCM(obj1 = gcm1, obj2 = gcm2, adjust = "adaptBH")

@@ -18,10 +18,11 @@
   between association matrices. The threshold can be set via the new
   argument `diffThresh`.
 
-- New function **`plotGCM()`** for plotting Graphlet Correlation Matrix
-  (GCM) heatmaps from objects returned by `netAnalyze()`. The `gcmHeat`
-  argument in `netAnalyze()` is kept for backward compatibility, but new code
-  should call `plotGCM()` explicitly.
+- New function **`plotGCM()`** for plotting the Graphlet Correlation
+  Matrix (GCM) heatmaps from objects returned by `netAnalyze()`,
+  `calcGCM()`, and `calcGCD()`. The `gcmHeat` argument in `netAnalyze()`
+  is kept for backward compatibility, but new code should call
+  `plotGCM()` explicitly.
 
 ### References
 

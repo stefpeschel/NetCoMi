@@ -1,13 +1,17 @@
 #' @title Plot a Graphlet Correlation Matrix Heatmap
 #'
 #' @description Plot the Graphlet Correlation Matrix (GCM) heatmap from an
-#'   object returned by \code{\link{netAnalyze}}.
+#'   object returned by \code{\link{netAnalyze}}, \code{\link{calcGCM}}, or
+#'   \code{\link{calcGCD}}.
 #'
 #' @param x object of class \code{microNetProps} returned by
-#'   \code{\link{netAnalyze}}.
-#' @param gcmLCC logical. If \code{TRUE} (default), the GCM heatmap is plotted
-#'   for the largest connected component. If \code{FALSE}, the GCM heatmap is
-#'   plotted for the whole network.
+#'   \code{\link{netAnalyze}}, object of class \code{GCM} returned by
+#'   \code{\link{calcGCM}}, or object of class \code{GCD} returned by
+#'   \code{\link{calcGCD}}.
+#' @param gcmLCC logical. If \code{FALSE} (default), the GCM heatmap is plotted
+#'   for the whole network. If \code{TRUE}, the GCM heatmap is plotted for the
+#'   largest connected component. Only used if \code{x} is of class
+#'   \code{microNetProps}.
 #' @param titles optional character vector with plot titles. For one network,
 #'   a single title is used. For two networks, three titles are used for the
 #'   first GCM, second GCM, and the difference heatmap.
@@ -21,6 +25,7 @@
 #' @examples
 #' data("amgut1.filt")
 #'
+#' # Single-network workflow
 #' amgut_net <- netConstruct(amgut1.filt, measure = "pearson",
 #'                           filtTax = "highestVar",
 #'                           filtTaxPar = list(highestVar = 50),
@@ -30,28 +35,59 @@
 #' amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy",
 #'                           hubPar = "eigenvector")
 #'
+#' # Object returned by netAnalyze()
 #' plotGCM(amgut_props)
 #'
+#' # Object returned by calcGCM()
+#' gcm <- calcGCM(amgut_net$adjaMat1)
+#' plotGCM(gcm)
+#'
+#' # Two-network workflow
+#' data("amgut2.filt.phy")
+#' 
+#' amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy,
+#'                                       SEASONAL_ALLERGIES == "yes")
+#' amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy,
+#'                                      SEASONAL_ALLERGIES == "no")
+#' 
+#' n_yes <- phyloseq::nsamples(amgut_season_yes)
+#' 
+#' amgut_net2 <- netConstruct(data = amgut_season_yes,
+#'                            data2 = amgut_season_no,
+#'                            measure = "pearson",
+#'                            filtSamp = "highestFreq",
+#'                            filtSampPar = list(highestFreq = n_yes),
+#'                            filtTax = "highestVar",
+#'                            filtTaxPar = list(highestVar = 30),
+#'                            zeroMethod = "pseudoZO", normMethod = "clr")
+#' 
+#' # Object returned by calcGCD()
+#' gcd <- calcGCD(amgut_net2$adjaMat1, amgut_net2$adjaMat2)
+#' plotGCM(gcd)
+#'
 #' @seealso \code{\link{netAnalyze}}, \code{\link{calcGCM}},
+#'   \code{\link{calcGCD}},
 #'   \code{\link{testGCM}}, \code{\link{plotHeat}}
 #'
 #' @importFrom graphics layout par text
 #' @export
 
 plotGCM <- function(x,
-                    gcmLCC = TRUE,
+                    gcmLCC = FALSE,
                     titles = NULL,
                     mar = NULL,
                     ...) {
-  if (!inherits(x, "microNetProps")) {
-    stop("\"x\" must be of class \"microNetProps\" returned by netAnalyze().")
+  if (!(inherits(x, "microNetProps") || inherits(x, "GCM") ||
+        inherits(x, "GCD"))) {
+    stop("\"x\" must be of class \"microNetProps\" returned by netAnalyze() ",
+         "or class \"GCM\" or \"GCD\" returned by calcGCM() or calcGCD().")
   }
   
   if (!is.logical(gcmLCC) || length(gcmLCC) != 1L || is.na(gcmLCC)) {
     stop("\"gcmLCC\" must be a logical value.")
   }
   
-  if (is.null(x$graphlet)) {
+  if (inherits(x, "microNetProps") && is.null(x$graphlet)) {
     stop("No graphlet properties found in \"x\". Please run netAnalyze() ",
          "with graphlet = TRUE.")
   }
@@ -64,8 +100,8 @@ plotGCM <- function(x,
     stop("\"mar\" must be a numeric vector with 4 elements.")
   }
   
-  graphlet <- if (gcmLCC) x$graphletLCC else x$graphlet
-  twoNets <- isTRUE(x$input$twoNets)
+  graphlet <- .getGCMPlotData(x, gcmLCC)
+  twoNets <- isTRUE(graphlet$twoNets)
   out <- list()
   
   if (twoNets) {
@@ -136,6 +172,35 @@ plotGCM <- function(x,
   }
   
   invisible(out)
+}
+
+
+#' @keywords internal
+.getGCMPlotData <- function(x, gcmLCC) {
+  if (inherits(x, "GCM")) {
+    gcmtest <- testGCM(x, verbose = FALSE)
+    
+    return(list(ocount1 = x$ocount,
+                gcm1 = x$gcm,
+                pAdjust1 = gcmtest$pAdjust1,
+                twoNets = FALSE))
+  }
+  
+  if (inherits(x, "GCD")) {
+    gcmtest <- testGCM(x, verbose = FALSE)
+    
+    return(list(ocount1 = x$ocount1,
+                ocount2 = x$ocount2,
+                gcm1 = x$gcm1,
+                gcm2 = x$gcm2,
+                pAdjust1 = gcmtest$pAdjust1,
+                pAdjust2 = gcmtest$pAdjust2,
+                twoNets = TRUE))
+  }
+  
+  graphlet <- if (gcmLCC) x$graphletLCC else x$graphlet
+  graphlet$twoNets <- isTRUE(x$input$twoNets)
+  graphlet
 }
 
 
