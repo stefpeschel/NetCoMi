@@ -40,6 +40,11 @@
   to `plot()`. To use the previous discordant coloring, pass
   `edgeCol = c("black", "green", "blue", "orange", "red", "black", "aquamarine", "black", "hotpink")`.
 
+- In `plot.diffnet()`: Layout matrices with row names are now matched
+  to the plotted taxa by name. This makes it possible to reuse a layout
+  returned by `plot.microNetProps()` even if the differential network
+  contains only a subset of the nodes.
+
 - New function **`plotGCM()`** for plotting the Graphlet Correlation
   Matrix (GCM) heatmaps from objects returned by `netAnalyze()`,
   `calcGCM()`, and `calcGCD()`. The `gcmHeat` argument in `netAnalyze()`

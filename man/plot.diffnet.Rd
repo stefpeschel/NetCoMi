@@ -57,7 +57,8 @@ or \code{"groups"}. Alternatively, the layouts provided by igraph (see
 \code{\link[igraph:layout_]{layout_}}) are accepted (must be given as
 character, e.g. \code{"layout_with_fr"}). Can also be a matrix with row
 number equal to the  number of nodes and two columns corresponding to the x
-and y coordinate.}
+and y coordinate. If the matrix has row names, it is matched to the plotted
+nodes by name and may contain additional nodes that are not shown.}
 
 \item{repulsion}{integer specifying repulse radius in the spring layout; for
 a value lower than 1, nodes are placed further apart}

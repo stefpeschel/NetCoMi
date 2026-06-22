@@ -21,136 +21,69 @@ knitr::opts_chunk$set(
 library(NetCoMi)
 ```
 
-A further possibility to compare two networks are so called 
-*differential networks*, where two nodes are connected
-if they are differentially associated between the two groups.
+Differential networks are a further possibility to compare two microbial
+association networks. In a differential network, two nodes are connected if
+their association differs between the two groups.
 
-We start by dividing the amgut data set into two groups: samples with and 
-without seasonal allergies. 
+`diffnet()` provides four methods for identifying differentially associated
+taxa pairs:
+
+* `"threshold"`: simple thresholding of absolute association differences.
+* `"fisherTest"`: Fisher's z-test for comparing correlations between two groups.
+* `"permute"`: a permutation test with re-estimation of associations after
+  permuting group labels.
+* `"discordant"`: the discordant method for detecting differential
+  correlations.
+
+We start by dividing the amgut data set into two groups: samples with and
+without seasonal allergies.
 
 ```{r}
 data("amgut2.filt.phy")
 
 # Split the phyloseq object into two groups
-amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy, 
+amgut_season_yes <- phyloseq::subset_samples(amgut2.filt.phy,
                                              SEASONAL_ALLERGIES == "yes")
-amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy, 
+amgut_season_no <- phyloseq::subset_samples(amgut2.filt.phy,
                                             SEASONAL_ALLERGIES == "no")
 
 amgut_season_yes
 amgut_season_no
 ```
 
-Due to its very short execution time, we use Pearson's correlations for 
-estimating associations between OTUs.
+Due to its short execution time, we use Pearson's correlations for estimating
+associations between OTUs. `sparsMethod` is set to `"none"` so that all
+estimated associations remain available for the association-network plots below.
+The differential network itself is always based on the estimated association
+matrices before sparsification, namely the `assoEst1` and `assoEst2` matrices
+returned by `netConstruct()`.
 
-Fisher's z-test is applied for identifying differentially correlated OTUs. 
-Multiple testing adjustment is done by controlling the local false discovery rate.
-
-`diffnet()` provides four methods for identifying differentially associated
-taxa pairs:
-
-* `"fisherTest"`: Fisher's z-test for comparing correlations between two groups.
-* `"threshold"`: simple thresholding of the absolute association differences.
-* `"permute"`: a permutation test with re-estimation of associations after
-  permuting group labels.
-* `"discordant"`: the discordant method for detecting differential
-  correlations.
-
-Note: `sparsMethod` is set to `"none"`, just to be able to include all 
-differential associations in the association network plot (see below). 
-However, the differential network is always based on the estimated association 
-matrices before sparsification (the `assoEst1` and `assoEst2` matrices returned 
-by `netConstruct()`).
-
-```{r diffnet_fisher, fig.height=20, fig.width=30}
-net_season_pears <- netConstruct(data = amgut_season_no, 
-                                 data2 = amgut_season_yes, 
+```{r netconstruct}
+net_season_pears <- netConstruct(data = amgut_season_no,
+                                 data2 = amgut_season_yes,
                                  filtTax = "highestVar",
                                  filtTaxPar = list(highestVar = 50),
-                                 measure = "pearson", 
+                                 measure = "pearson",
                                  normMethod = "clr",
-                                 sparsMethod = "none", 
+                                 sparsMethod = "none",
                                  thresh = 0.2,
                                  verbose = 3)
 
-# Differential network construction
-diff_season <- diffnet(net_season_pears,
-                       diffMethod = "fisherTest", 
-                       adjust = "lfdr")
-
-# Differential network plot
-plot(diff_season, 
-     cexNodes = 0.8, 
-     cexLegend = 3,
-     cexTitle = 4,
-     mar = c(2,2,8,5),
-     legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6))
-
-```
-
-In the differential network shown above, edge colors represent the direction of 
-associations in the two groups. If, for instance, two OTUs are positively 
-associated in group 1 and negatively associated in group 2 (such as '191541' 
-and '188236'), the respective edge is colored in cyan.  
-
-We also take a look at the corresponding associations by constructing 
-association networks that include only the differentially associated OTUs.
-
-```{r, fig.height=6, fig.width=6}
-props_season_pears <- netAnalyze(net_season_pears, 
+props_season_pears <- netAnalyze(net_season_pears,
                                  clustMethod = "cluster_fast_greedy",
                                  weightDeg = TRUE,
                                  normDeg = FALSE)
 ```
 
+## Thresholding absolute association differences
 
-```{r asso_networks, fig.height=19, fig.width=40}
-# Identify the differentially associated OTUs
-diffmat_sums <- rowSums(diff_season$diffAdjustMat)
-diff_asso_names <- names(diffmat_sums[diffmat_sums > 0])
+The threshold method is the simplest and most flexible way to construct a
+differential network. It keeps all taxa pairs whose absolute difference in
+estimated association exceeds `diffThresh`. It does not perform a statistical
+test or multiple testing adjustment, and is therefore useful as an exploratory
+screening method or whenever a practical effect-size threshold is desired.
 
-p <- plot(props_season_pears, 
-     nodeFilter = "names",
-     nodeFilterPar = diff_asso_names,
-     nodeColor = "gray",
-     highlightHubs = FALSE,
-     sameLayout = TRUE, 
-     layoutGroup = "union",
-     rmSingles = FALSE, 
-     nodeSize = "clr",
-     edgeTranspHigh = 20,
-     labelScale = FALSE,
-     cexNodes = 1.5, 
-     cexLabels = 3,
-     cexTitle = 3.8,
-     groupNames = c("No seasonal allergies", "Seasonal allergies"),
-     hubBorderCol  = "gray40")
-
-legend(-0.15,-0.7, title = "estimated correlation:", legend = c("+","-"), 
-       col = c("#009900","red"), inset = 0.05, cex = 4, lty = 1, lwd = 4, 
-       bty = "n", horiz = TRUE)
-```
-
-We can see that the correlation between the aforementioned OTUs '191541' and 
-'188236' is strongly positive in the left group and negative in the right group.
-
-## Other methods for differential association analysis
-
-The example above used Fisher's z-test. The remaining available methods can be
-applied to the same object returned by `netConstruct()`. The following chunks
-are not evaluated in the vignette to keep build time and optional dependencies
-manageable.
-
-### Thresholding absolute association differences
-
-The threshold method keeps all taxa pairs whose absolute difference in estimated
-association exceeds `diffThresh`. It does not perform a statistical test or
-multiple testing adjustment and can therefore be useful as an exploratory
-screening method.
-
-```{r diffnet_threshold, fig.height=20, fig.width=30}
+```{r diffnet_threshold, fig.height=20, fig.width=25}
 diff_season_thresh <- diffnet(net_season_pears,
                               diffMethod = "threshold",
                               diffThresh = 0.3)
@@ -159,32 +92,105 @@ plot(diff_season_thresh,
      cexNodes = 0.8,
      cexLegend = 3,
      cexTitle = 4,
-     mar = c(2,2,8,5),
+     mar = c(2,2,8,10),
      legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6),
+     legendPos = c(0.9,1.6),
      legendArgs = list(lwd = 8))
 ```
-```{r diffnet_threshold_same_layout, fig.height=20, fig.width=30}
+
+Edge colors represent the signs of the associations in the two groups. For
+example, an edge colored according to `+ | -` indicates that the two taxa are
+positively associated in group 1 and negatively associated in group 2.
+
+We can also inspect the corresponding association networks. First, we compute a
+layout for all taxa in the two association networks. Since the layout matrix has
+taxon names as row names, it can be reused for the differential network and is
+matched to the plotted nodes by name.
+
+```{r association_layout}
+p_all <- plot(props_season_pears,
+              sameLayout = TRUE,
+              layoutGroup = "union",
+              rmSingles = FALSE,
+              doPlot = FALSE)
+```
+
+Next, we plot the association networks for the taxa that occur in the threshold
+differential network. The layout is a subset of the full layout created above.
+
+```{r asso_networks_threshold, fig.height=19, fig.width=40}
+diffmat_sums_thresh <- rowSums(diff_season_thresh$diffMat)
+diff_asso_names_thresh <- names(diffmat_sums_thresh[diffmat_sums_thresh > 0])
+
+p <- plot(props_season_pears,
+          nodeFilter = "names",
+          nodeFilterPar = diff_asso_names_thresh,
+          layout = p_all$layout$layout1[diff_asso_names_thresh, , drop = FALSE],
+          nodeColor = "gray",
+          highlightHubs = FALSE,
+          sameLayout = TRUE,
+          layoutGroup = "union",
+          rmSingles = FALSE,
+          nodeSize = "clr",
+          edgeTranspHigh = 20,
+          labelScale = FALSE,
+          cexNodes = 1.5,
+          cexLabels = 3,
+          cexTitle = 3.8,
+          groupNames = c("No seasonal allergies", "Seasonal allergies"),
+          hubBorderCol  = "gray40")
+
+legend(-0.15,-0.7, title = "estimated correlation:", legend = c("+","-"),
+       col = c("#009900","red"), inset = 0.05, cex = 4, lty = 1, lwd = 4,
+       bty = "n", horiz = TRUE)
+```
+
+The same layout can now be used for the differential network. By keeping the
+default `rmSingles = TRUE`, taxa without differential associations are removed
+from the differential network, and the named layout matrix is subset to the
+same taxa shown in the association-network plot above.
+
+```{r diffnet_threshold_same_layout, fig.height=20, fig.width=25}
 plot(diff_season_thresh,
-     layout = p$layout$layout1,
+     layout = p_all$layout$layout1,
      cexNodes = 0.8,
      cexLegend = 3,
      cexTitle = 4,
-     mar = c(2,2,8,5),
+     mar = c(2,2,8,10),
      legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6),
+     legendPos = c(0.9,1.6),
      legendArgs = list(lwd = 8))
 ```
 
+## Fisher's z-test
 
-### Permutation test
+Fisher's z-test compares correlations between the two groups. Here, multiple
+testing adjustment is done by controlling the local false discovery rate.
+
+```{r diffnet_fisher, fig.height=20, fig.width=25}
+diff_season_fisher <- diffnet(net_season_pears,
+                              diffMethod = "fisherTest",
+                              adjust = "lfdr")
+
+plot(diff_season_fisher,
+     cexNodes = 0.8,
+     cexLegend = 3,
+     cexTitle = 4,
+     mar = c(2,2,8,10),
+     legendGroupnames = c("group 'no'", "group 'yes'"),
+     legendPos = c(0.9,1.6),
+     legendArgs = list(lwd = 8))
+```
+
+## Permutation test
 
 The permutation test randomly reassigns samples to the two groups while keeping
 the group sizes fixed. Associations are re-estimated for each permuted data set,
 which makes this method more computationally demanding than Fisher's z-test.
-The chunk is not evaluated in this vignette to keep build time short.
+The chunks in this section are not evaluated in the vignette to keep build time
+short.
 
-```{r diffnet_permute, eval=FALSE, fig.height=20, fig.width=30}
+```{r diffnet_permute, eval=FALSE, fig.height=20, fig.width=25}
 diff_season_perm <- diffnet(net_season_pears,
                             diffMethod = "permute",
                             nPerm = 1000L,
@@ -196,9 +202,11 @@ plot(diff_season_perm,
      cexNodes = 0.8,
      cexLegend = 3,
      cexTitle = 4,
-     mar = c(2,2,8,5),
+     mar = c(2,2,8,10),
      legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6))
+     legendPos = c(0.9,1.6),
+     legendArgs = list(lwd = 8))
+     legendArgs = list(lwd = 8))
 ```
 
 Permutation association matrices can also be stored and reused, which is helpful
@@ -222,13 +230,13 @@ diff_season_perm_bh <- diffnet(net_season_pears,
                                fileLoadAssoPerm = "assoPerm")
 ```
 
-### Discordant method
+## Discordant method
 
-The discordant method is available through the optional
-`discordant` Bioconductor package. It is shown here as non-evaluated code
-because the package may not be installed.
+The discordant method is available through the optional `discordant`
+Bioconductor package. It is shown here as non-evaluated code because the package
+may not be installed.
 
-```{r diffnet_discordant, eval=FALSE, fig.height=20, fig.width=30}
+```{r diffnet_discordant, eval=FALSE, fig.height=20, fig.width=25}
 diff_season_discordant <- diffnet(net_season_pears,
                                   diffMethod = "discordant",
                                   discordThresh = 0.8,
@@ -238,8 +246,8 @@ plot(diff_season_discordant,
      cexNodes = 0.8,
      cexLegend = 3,
      cexTitle = 4,
-     mar = c(2,2,8,5),
+     mar = c(2,2,8,10),
      legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6),
+     legendPos = c(0.9,1.6),
      legendArgs = list(lwd = 8))
 ```

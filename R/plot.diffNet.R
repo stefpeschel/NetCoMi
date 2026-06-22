@@ -14,7 +14,8 @@
 #'   \code{\link[igraph:layout_]{layout_}}) are accepted (must be given as
 #'   character, e.g. \code{"layout_with_fr"}). Can also be a matrix with row
 #'   number equal to the  number of nodes and two columns corresponding to the x
-#'   and y coordinate.
+#'   and y coordinate. If the matrix has row names, it is matched to the plotted
+#'   nodes by name and may contain additional nodes that are not shown.
 #' @param repulsion positive numeric value indicating the strength of repulsive
 #'   forces in the "spring" layout. Nodes are placed closer together for smaller
 #'   values and further apart for higher values. See the \code{repulsion}
@@ -343,6 +344,23 @@ plot.diffnet <- function(x,
     edgeColMat <- edgeColMat[kept, kept]
   }
   
+  if (is.matrix(layout)) {
+    if (is.null(rownames(layout))) {
+      if (nrow(layout) != ncol(diffMat)) {
+        stop("If 'layout' is a matrix without row names, it must have one row ",
+             "for each plotted node. Alternatively, provide row names matching ",
+             "the taxa names so that the layout can be subset.")
+      }
+    } else {
+      missingLayout <- setdiff(rownames(diffMat), rownames(layout))
+      if (length(missingLayout) > 0) {
+        stop("The layout matrix is missing coordinates for: ",
+             paste(missingLayout, collapse = ", "))
+      }
+      layout <- layout[rownames(diffMat), , drop = FALSE]
+    }
+  }
+
   #=============================================================================
   
   nodeSize <- (7*exp(-ncol(diffMat)/80)+1) * cexNodes
