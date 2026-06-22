@@ -104,10 +104,10 @@ as node labels.}
 associations between taxa or dissimilarities between subjects.
 Ignored if \code{data} is not a count matrix (if \code{dataType} is not set
 to \code{"counts"}). Available measures are:
-\code{"pearson"}, \code{"spearman"}, \code{"bicor"}, \code{"sparcc"},
-\code{"cclasso"}, \code{"ccrepe"}, \code{"spieceasi"} (default),
-\code{"spring"}, \code{"gcoda"}, \code{"propr"}, and \code{"rhoshrink"}
-as association measures,
+\code{"pearson"}, \code{"spearman"}, \code{"bicor"}, \code{"corshrink"},
+\code{"sparcc"}, \code{"cclasso"}, \code{"ccrepe"}, \code{"spieceasi"}
+(default), \code{"spring"}, \code{"gcoda"}, \code{"propr"}, and
+\code{"rhoshrink"} as association measures,
 and \code{"euclidean"}, \code{"bray"}, \code{"kld"}, \code{"jeffrey"},
 \code{"jsd"}, \code{"ckld"}, and \code{"aitchison"} as dissimilarity
 measures. Parameters are set via \code{measurePar}.}
@@ -439,6 +439,7 @@ The object returned by \code{netConstruct} can either be passed to
   \code{"pearson"}\tab \code{\link[stats]{cor}} \cr
   \code{"spearman"}\tab \code{\link[stats]{cor}} \cr
   \code{"bicor"}\tab \code{\link[WGCNA]{bicor}} \cr
+  \code{"corshrink"}\tab \code{\link[corpcor]{cor.shrink}} \cr
   \code{"sparcc"}\tab \code{\link[SpiecEasi]{sparcc}} \cr
   \code{"cclasso"}\tab \code{\link[NetCoMi]{cclasso}} \cr
   \code{"ccrepe"}\tab \code{\link[ccrepe]{ccrepe}} \cr

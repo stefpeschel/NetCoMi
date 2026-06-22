@@ -64,6 +64,7 @@ Suggests:
     DESeq2,
     devtools,
     discordant,
+    dplyr,
     knitr,
     LaplacesDemon,
     limma,

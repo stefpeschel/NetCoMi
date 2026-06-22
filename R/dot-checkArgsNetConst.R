@@ -50,6 +50,7 @@
     choices <- c("pearson",
                  "spearman",
                  "bicor",
+                 "corshrink",
                  "sparcc",
                  "cclasso",
                  "ccrepe",
@@ -78,8 +79,8 @@
     #-------------------
     # Set assoType
     args$assoType <-
-      if (args$measure %in% c("pearson", "spearman", "bicor", "sparcc",
-                              "cclasso", "ccrepe")) {
+      if (args$measure %in% c("pearson", "spearman", "bicor", "corshrink",
+                              "sparcc", "cclasso", "ccrepe")) {
         "correlation"
       } else if (args$measure %in% c("propr", "rhoshrink")) {
         "proportionality"

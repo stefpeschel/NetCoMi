@@ -106,9 +106,9 @@ context("netConstruct with different association measures")
 
 set.seed(123456)
 
-measures <- c("pearson", "spearman", "bicor", "sparcc", "cclasso", "ccrepe",
-              "propr", "rhoshrink", "gcoda", "spieceasi_gl", "spieceasi_mb",
-              "spiecease_slr", "spring" )
+measures <- c("pearson", "spearman", "bicor", "corshrink", "sparcc",
+              "cclasso", "ccrepe", "propr", "rhoshrink", "gcoda",
+              "spieceasi_gl", "spieceasi_mb", "spiecease_slr", "spring" )
 
 for (i in 1:length(measures)) {
   
@@ -958,8 +958,9 @@ for (i in 1:length(fsamp)) {
 context("netConstruct with different association measures")
 set.seed(123456)
 
-measures <- c("pearson", "spearman", "bicor", "sparcc", "propr", "rhoshrink",
-              "cclasso", "ccrepe", "gcoda", "spieceasi_gl", "spieceasi_mb", "spring" )
+measures <- c("pearson", "spearman", "bicor", "corshrink", "sparcc",
+              "propr", "rhoshrink", "cclasso", "ccrepe", "gcoda",
+              "spieceasi_gl", "spieceasi_mb", "spring" )
 
 for (i in 1:length(measures)) {
   

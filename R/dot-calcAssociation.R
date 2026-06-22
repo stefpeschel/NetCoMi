@@ -46,6 +46,19 @@
     measureOut <- do.call(WGCNA::bicor, measurePar)
     assoMat <- measureOut
     
+  } else if (measure == "corshrink") {
+
+    if (is.null(measurePar$verbose)) measurePar$verbose <- FALSE
+
+    measurePar$x <- countMat
+    measureOut <- do.call(corpcor::cor.shrink, measurePar)
+    assoMat <- matrix(as.numeric(measureOut),
+                      nrow = nrow(measureOut),
+                      ncol = ncol(measureOut))
+
+    colnames(assoMat) <- rownames(assoMat) <- colnames(countMat)
+    diag(assoMat) <- 1
+
   } else if (measure == "sparcc") {
     
     if (is.null(measurePar$inner_iter)) measurePar$inner_iter <- 20
@@ -322,7 +335,7 @@
     
   } else {
     stop("Possible association/dissimilarity measures are: \n", 
-         "'pearson', 'spearman', 'bicor', 'sparcc', 'cclasso', 'reboot', 'ccrepe', ", 
+         "'pearson', 'spearman', 'bicor', 'corshrink', 'sparcc', 'cclasso', 'reboot', 'ccrepe', ",
          "'bray', 'kld', 'jeffrey', 'jsd', 'aitchison', 'propr', 'rhoshrink', ",
          "'spieceasi', 'spring', 'gcoda'.")
   }

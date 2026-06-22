@@ -443,3 +443,15 @@ close(assoPerm1)
 close(assoPerm4)
 ```
 
+```{r cleanup, include=FALSE}
+cleanup_files <- c(
+  "assoPerm", "assoPerm_comp",
+  paste0("assoPerm", seq_len(repetitions)),
+  "countsPerm1", "countsPerm2"
+)
+
+unlink(c(paste0(cleanup_files, ".bmat"),
+         paste0(cleanup_files, ".desc.txt"),
+         "log.txt"))
+```
+

@@ -9,6 +9,10 @@
   code from the accompanying [NormCorr manuscript
   repository](https://github.com/MichelleBadri/NormCorr-manuscript).
 
+- In `netConstruct()`: New association measure **“corshrink”**
+  available, which estimates correlations using the Schäfer-Strimmer
+  shrinkage estimator implemented in `corpcor::cor.shrink()`.
+
 - In `diffnet()`: New method **“threshold”** available for identifying
   differential associations by thresholding the absolute differences
   between association matrices. The threshold can be set via the new

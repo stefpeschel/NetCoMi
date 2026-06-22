@@ -25,7 +25,7 @@
     }
   }
   
-  if (measure %in% c("pearson", "spearman", "bicor")) {
+  if (measure %in% c("pearson", "spearman", "bicor", "corshrink")) {
     if (!normMethod %in% c("VST", "clr", "mclr")) {
       if (verbose > 0) {
         message("Attention! The chosen combination of association measure ", 
