@@ -111,7 +111,7 @@ props_season_pears <- netAnalyze(net_season_pears,
 diffmat_sums <- rowSums(diff_season$diffAdjustMat)
 diff_asso_names <- names(diffmat_sums[diffmat_sums > 0])
 
-plot(props_season_pears, 
+p <- plot(props_season_pears, 
      nodeFilter = "names",
      nodeFilterPar = diff_asso_names,
      nodeColor = "gray",
@@ -161,8 +161,21 @@ plot(diff_season_thresh,
      cexTitle = 4,
      mar = c(2,2,8,5),
      legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6))
+     legendPos = c(0.7,1.6),
+     legendArgs = list(lwd = 8))
 ```
+```{r diffnet_threshold_same_layout, fig.height=20, fig.width=30}
+plot(diff_season_thresh,
+     layout = p$layout$layout1,
+     cexNodes = 0.8,
+     cexLegend = 3,
+     cexTitle = 4,
+     mar = c(2,2,8,5),
+     legendGroupnames = c("group 'no'", "group 'yes'"),
+     legendPos = c(0.7,1.6),
+     legendArgs = list(lwd = 8))
+```
+
 
 ### Permutation test
 
@@ -171,7 +184,7 @@ the group sizes fixed. Associations are re-estimated for each permuted data set,
 which makes this method more computationally demanding than Fisher's z-test.
 The chunk is not evaluated in this vignette to keep build time short.
 
-```{r diffnet_permute, eval=FALSE}
+```{r diffnet_permute, eval=FALSE, fig.height=20, fig.width=30}
 diff_season_perm <- diffnet(net_season_pears,
                             diffMethod = "permute",
                             nPerm = 1000L,
@@ -215,7 +228,7 @@ The discordant method is available through the optional
 `discordant` Bioconductor package. It is shown here as non-evaluated code
 because the package may not be installed.
 
-```{r diffnet_discordant, eval=FALSE}
+```{r diffnet_discordant, eval=FALSE, fig.height=20, fig.width=30}
 diff_season_discordant <- diffnet(net_season_pears,
                                   diffMethod = "discordant",
                                   discordThresh = 0.8,
@@ -227,5 +240,6 @@ plot(diff_season_discordant,
      cexTitle = 4,
      mar = c(2,2,8,5),
      legendGroupnames = c("group 'no'", "group 'yes'"),
-     legendPos = c(0.7,1.6))
+     legendPos = c(0.7,1.6),
+     legendArgs = list(lwd = 8))
 ```

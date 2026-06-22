@@ -142,11 +142,26 @@ are shown). x is defined by \code{edgeFilterPar}.}
 edge colors. 0 means no transparency (default), 100 means full transparency.}
 
 \item{edgeCol}{character vector specifying the edge colors. Must be of length
-6 for the discordant method (default: c("hotpink", "aquamarine", "red",
-"orange", "green", "blue")) and of lengths 9 for permutation tests,
-Fisher's z-test, and threshold 
-(default: c("chartreuse2", "chartreuse4", "cyan",
-"magenta", "orange", "red", "blue", "black", "purple")).}
+9. The colors correspond to associations in group 1 and group 2 in the
+following order: +|+, +|0, +|-, -|+, -|0, -|-, 0|+, 0|0, 0|-.
+The default for permutation tests, Fisher's z-test, threshold, and the
+discordant method is
+(default: c("#33A02C", "#2CB7B0", "#56B4E9", "#E69F00",
+"#D55E00", "#CC79A7", "#B2DF8A", "gray30", "#B0E2FF")).
+The legend is reduced to the subset of cases relevant to the plotted
+network; for example, only four entries are shown if no plotted edge has
+an association of exactly zero in either group.
+For the discordant method, only sign-changing classes are colored with
+the corresponding entries of \code{edgeCol}; classes with the same sign in
+both groups are shown with the neutral color \code{edgeCol[8]}. The
+discordant legend follows the same order with the equality cases omitted.
+The previous default colors for permutation tests, Fisher's z-test, and
+threshold can be restored by passing
+\code{edgeCol = c("chartreuse2", "chartreuse4", "cyan", "magenta",
+"orange", "red", "blue", "black", "purple")}. The previous discordant
+colors can be restored by passing
+\code{edgeCol = c("black", "green", "blue", "orange", "red", "black",
+"aquamarine", "black", "hotpink")}.}
 
 \item{title}{optional character string for the main title.}
 

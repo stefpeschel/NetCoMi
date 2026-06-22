@@ -83,11 +83,26 @@
 #' @param edgeTransp an integer between 0 and 100 indicating the transparency of
 #'   edge colors. 0 means no transparency (default), 100 means full transparency.
 #' @param edgeCol character vector specifying the edge colors. Must be of length
-#'   6 for the discordant method (default: c("hotpink", "aquamarine", "red",
-#'   "orange", "green", "blue")) and of lengths 9 for permutation tests,
-#'   Fisher's z-test, and threshold 
-#'   (default: c("chartreuse2", "chartreuse4", "cyan",
-#'   "magenta", "orange", "red", "blue", "black", "purple")).
+#'   9. The colors correspond to associations in group 1 and group 2 in the
+#'   following order: +|+, +|0, +|-, -|+, -|0, -|-, 0|+, 0|0, 0|-.
+#'   The default for permutation tests, Fisher's z-test, threshold, and the
+#'   discordant method is
+#'   (default: c("#33A02C", "#2CB7B0", "#56B4E9", "#E69F00",
+#'   "#D55E00", "#CC79A7", "#B2DF8A", "gray30", "#B0E2FF")).
+#'   The legend is reduced to the subset of cases relevant to the plotted
+#'   network; for example, only four entries are shown if no plotted edge has
+#'   an association of exactly zero in either group.
+#'   For the discordant method, only sign-changing classes are colored with
+#'   the corresponding entries of \code{edgeCol}; classes with the same sign in
+#'   both groups are shown with the neutral color \code{edgeCol[8]}. The
+#'   discordant legend follows the same order with the equality cases omitted.
+#'   The previous default colors for permutation tests, Fisher's z-test, and
+#'   threshold can be restored by passing
+#'   \code{edgeCol = c("chartreuse2", "chartreuse4", "cyan", "magenta",
+#'   "orange", "red", "blue", "black", "purple")}. The previous discordant
+#'   colors can be restored by passing
+#'   \code{edgeCol = c("black", "green", "blue", "orange", "red", "black",
+#'   "aquamarine", "black", "hotpink")}.
 #' @param title optional character string for the main title.
 #' @param legend logical. If \code{TRUE}, a legend is plotted.
 #' @param legendPos either a character specifying the legend's position or a 
@@ -246,13 +261,15 @@ plot.diffnet <- function(x,
     
     # create color matrix
     if (is.null(edgeCol)) {
-      edgeCol <- c("hotpink", "aquamarine", "red", "orange", "green", "blue")
+      edgeCol <- c("#33A02C", "#2CB7B0", "#56B4E9",
+                   "#E69F00", "#D55E00", "#CC79A7",
+                   "#B2DF8A", "gray30", "#B0E2FF")
     } else {
-      stopifnot(length(edgeCol) == 6)
+      stopifnot(length(edgeCol) == 9)
     }
     
     if (edgeTransp > 0) {
-      colVec <- colToTransp(colVec, edgeTransp)
+      edgeCol <- colToTransp(edgeCol, edgeTransp)
     }
     
     classMat <- x$classMat
@@ -260,22 +277,25 @@ plot.diffnet <- function(x,
     
     for (i in 1:nrow(edgeColMat)) {
       for (j in 1:ncol(edgeColMat)) {
-        if (classMat[i,j] %in% c(1,5,9)) edgeColMat[i,j] <- "black"
-        if (classMat[i,j] == 2) edgeColMat[i,j] <- edgeCol[3]
-        if (classMat[i,j] == 3) edgeColMat[i,j] <- edgeCol[5]
-        if (classMat[i,j] == 4) edgeColMat[i,j] <- edgeCol[1]
-        if (classMat[i,j] == 6) edgeColMat[i,j] <- edgeCol[6]
-        if (classMat[i,j] == 7) edgeColMat[i,j] <- edgeCol[2]
+        if (classMat[i,j] == 1) edgeColMat[i,j] <- edgeCol[8]
+        if (classMat[i,j] == 2) edgeColMat[i,j] <- edgeCol[5]
+        if (classMat[i,j] == 3) edgeColMat[i,j] <- edgeCol[2]
+        if (classMat[i,j] == 4) edgeColMat[i,j] <- edgeCol[9]
+        if (classMat[i,j] == 5) edgeColMat[i,j] <- edgeCol[8]
+        if (classMat[i,j] == 6) edgeColMat[i,j] <- edgeCol[3]
+        if (classMat[i,j] == 7) edgeColMat[i,j] <- edgeCol[7]
         if (classMat[i,j] == 8) edgeColMat[i,j] <- edgeCol[4]
+        if (classMat[i,j] == 9) edgeColMat[i,j] <- edgeCol[8]
       }
     }
-    
+    legendCol <- edgeCol[c(2, 3, 4, 5, 7, 9)]
     
   } else {
     
     if (is.null(edgeCol)) {
-      edgeCol <- c("chartreuse2", "chartreuse4", "cyan", "magenta", "orange",
-                   "red", "blue", "black", "purple")
+      edgeCol <- c("#33A02C", "#2CB7B0", "#56B4E9",
+                   "#E69F00", "#D55E00", "#CC79A7",
+                   "#B2DF8A", "gray30", "#B0E2FF")
     } else {
       stopifnot(length(edgeCol) == 9)
     }
@@ -290,22 +310,21 @@ plot.diffnet <- function(x,
     names(corrVec2) <- vector_names
     
     colVec <- rep("black", length(corrVec1))
-    if (any(corrVec1==0) || any(corrVec2 == 0)) {
-      colVec[corrVec1 > 0 & corrVec2 > 0] <- edgeCol[1]
-      colVec[corrVec1 > 0 & corrVec2 == 0] <- edgeCol[2]
-      colVec[corrVec1 > 0 & corrVec2 < 0] <- edgeCol[3]
-      colVec[corrVec1 < 0 & corrVec2 > 0] <- edgeCol[4]
-      colVec[corrVec1 < 0 & corrVec2 == 0] <- edgeCol[5]
-      colVec[corrVec1 < 0 & corrVec2 < 0] <- edgeCol[6]
-      colVec[corrVec1 == 0 & corrVec2 > 0] <- edgeCol[7]
-      colVec[corrVec1 == 0 & corrVec2 == 0] <- edgeCol[8]
-      colVec[corrVec1 == 0 & corrVec2 < 0] <- edgeCol[9]
+    colVec[corrVec1 > 0 & corrVec2 > 0] <- edgeCol[1]
+    colVec[corrVec1 > 0 & corrVec2 == 0] <- edgeCol[2]
+    colVec[corrVec1 > 0 & corrVec2 < 0] <- edgeCol[3]
+    colVec[corrVec1 < 0 & corrVec2 > 0] <- edgeCol[4]
+    colVec[corrVec1 < 0 & corrVec2 == 0] <- edgeCol[5]
+    colVec[corrVec1 < 0 & corrVec2 < 0] <- edgeCol[6]
+    colVec[corrVec1 == 0 & corrVec2 > 0] <- edgeCol[7]
+    colVec[corrVec1 == 0 & corrVec2 == 0] <- edgeCol[8]
+    colVec[corrVec1 == 0 & corrVec2 < 0] <- edgeCol[9]
+
+    plottedEdge <- diffMat[lowtri] != 0
+    if (any(corrVec1[plottedEdge] == 0) || any(corrVec2[plottedEdge] == 0)) {
+      legendCol <- edgeCol
     } else {
-      edgeCol <- edgeCol[c(1,3,4,6)]
-      colVec[corrVec1 > 0 & corrVec2 > 0] <- edgeCol[1]
-      colVec[corrVec1 > 0 & corrVec2 < 0] <- edgeCol[2]
-      colVec[corrVec1 < 0 & corrVec2 > 0] <- edgeCol[3]
-      colVec[corrVec1 < 0 & corrVec2 < 0] <- edgeCol[4]
+      legendCol <- edgeCol[c(1, 3, 4, 6)]
     }
     
     if (edgeTransp > 0) {
@@ -390,25 +409,25 @@ plot.diffnet <- function(x,
     
     if (x$diffMethod %in% c("discordant")) {
       
-      leg_args$legend <- c(legtitle1, 0, 0, "-", "-", "+", "+", 
-                           legtitle2, "-", "+", 0, "+", 0, "-")
-      leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 7))
+      leg_args$legend <- c(legtitle1, "+", "+", "-", "-", 0, 0,
+                           legtitle2, 0, "-", "+", 0, "+", "-")
+      leg_args$col <- c("#FFFFFF00", legendCol, rep("#FFFFFF00", 7))
       leg_args$lty <- c(rep(1,7), rep(-1,7))
       leg_args$pch <- c(rep(-1, 7), rep(20,7))
       
     } else {
-      if (length(edgeCol) == 9) {
+      if (length(legendCol) == 9) {
         
-        leg_args$legend <- c(legtitle1, "+", "+", "+", "-", "-", "-", 0, 0, 0, 
+        leg_args$legend <- c(legtitle1, "+", "+", "+", "-", "-", "-", 0, 0, 0,
                              legtitle2, "+", 0, "-", "+", 0, "-", "+", 0, "-")
-        leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 10))
+        leg_args$col <- c("#FFFFFF00", legendCol, rep("#FFFFFF00", 10))
         leg_args$lty <- c(rep(1,10), rep(-1,10))
         leg_args$pch <- c(rep(-1, 10), rep(20,10))
         
       } else {
-        leg_args$legend <- c(legtitle1, "+", "+", "-", "-", 
+        leg_args$legend <- c(legtitle1, "+", "+", "-", "-",
                              legtitle2, "+", "-", "+", "-")
-        leg_args$col <- c("#FFFFFF00", edgeCol, rep("#FFFFFF00", 5))
+        leg_args$col <- c("#FFFFFF00", legendCol, rep("#FFFFFF00", 5))
         leg_args$lty <- c(rep(1,5), rep(-1,5))
         leg_args$pch <- c(rep(-1, 5), rep(20,5))
       }

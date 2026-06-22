@@ -28,6 +28,20 @@ differential associations by thresholding the absolute differences between
 association matrices. The threshold can be set via the new argument 
 `diffThresh`.
 
+* In `plot.diffnet()`: The default edge colors were changed to
+`c("#33A02C", "#2CB7B0", "#56B4E9", "#E69F00", "#D55E00", "#CC79A7",
+"#B2DF8A", "gray30", "#B0E2FF")`. The colors correspond to associations in
+group 1 and group 2 in the following order: `+|+`, `+|0`, `+|-`, `-|+`,
+`-|0`, `-|-`, `0|+`, `0|0`, `0|-`. For the discordant method, only
+sign-changing classes are colored; same-sign classes are shown in neutral gray.
+The legend is reduced to the subset of cases relevant to the plotted network.
+To use the previous coloring for Fisher's z-test, permutation tests, or
+threshold-based differential networks, pass
+`edgeCol = c("chartreuse2", "chartreuse4", "cyan", "magenta", "orange", "red",
+"blue", "black", "purple")` to `plot()`. To use the previous discordant
+coloring, pass `edgeCol = c("black", "green", "blue", "orange", "red",
+"black", "aquamarine", "black", "hotpink")`.
+
 * New function **`plotGCM()`** for plotting the Graphlet Correlation Matrix 
 (GCM) heatmaps from objects returned by `netAnalyze()`, `calcGCM()`, and 
 `calcGCD()`. The `gcmHeat` argument in `netAnalyze()` is kept for backward 
