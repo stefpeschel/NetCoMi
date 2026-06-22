@@ -52,6 +52,11 @@
 #' @param permPvalsMethod character indicating the method used for determining
 #'   p-values for permutation tests. Currently, "pseudo" is the only available
 #'   option (see details).
+#' @param refinePermPvals logical. If \code{TRUE}, permutation p-values are
+#'   refined using \code{\link[permApprox]{perm_approx}}. Ignored with a warning
+#'   if \code{pvalsVec} is supplied. Defaults to \code{FALSE}.
+#' @param permApproxParams list with additional arguments passed to
+#'   \code{\link[permApprox]{perm_approx}} if \code{refinePermPvals = TRUE}.
 #' @param cores integer indicating the number of CPU cores used for
 #'   permutation tests. If cores > 1, the tests are performed parallel.
 #'   Is limited to the number of available CPU cores determined by
@@ -196,6 +201,8 @@ diffnet <- function(x,
                     fisherTrans = TRUE,
                     nPerm = 1000L,
                     permPvalsMethod = "pseudo",
+                    refinePermPvals = FALSE,
+                    permApproxParams = list(),
                     cores = 1L,
                     verbose = TRUE,
                     logFile = NULL,
@@ -328,6 +335,12 @@ diffnet <- function(x,
     callNetConstr <- x$call
     
     pvalsVecInput <- pvalsVec
+
+    if (refinePermPvals && !is.null(pvalsVec)) {
+      warning("refinePermPvals is ignored because pvalsVec was supplied.",
+              call. = FALSE)
+      refinePermPvals <- FALSE
+    }
     
     if (is.null(pvalsVec)) {
       
@@ -349,6 +362,8 @@ diffnet <- function(x,
         method = "connect.pairs",
         fisherTrans = fisherTrans,
         pvalsMethod = permPvalsMethod,
+        refinePermPvals = refinePermPvals,
+        permApproxParams = permApproxParams,
         adjust = adjust,
         adjust2 = "none",
         alpha = alpha,

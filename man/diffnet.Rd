@@ -14,6 +14,8 @@ diffnet(
   fisherTrans = TRUE,
   nPerm = 1000L,
   permPvalsMethod = "pseudo",
+  refinePermPvals = FALSE,
+  permApproxParams = list(),
   cores = 1L,
   verbose = TRUE,
   logFile = NULL,
@@ -75,6 +77,13 @@ tests. Defaults to 1000L.}
 \item{permPvalsMethod}{character indicating the method used for determining
 p-values for permutation tests. Currently, "pseudo" is the only available
 option (see details).}
+
+\item{refinePermPvals}{logical. If \code{TRUE}, permutation p-values are
+refined using \code{\link[permApprox]{perm_approx}}. Ignored with a warning
+if \code{pvalsVec} is supplied. Defaults to \code{FALSE}.}
+
+\item{permApproxParams}{list with additional arguments passed to
+\code{\link[permApprox]{perm_approx}} if \code{refinePermPvals = TRUE}.}
 
 \item{cores}{integer indicating the number of CPU cores used for
 permutation tests. If cores > 1, the tests are performed parallel.

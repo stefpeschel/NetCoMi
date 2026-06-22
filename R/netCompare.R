@@ -33,6 +33,12 @@
 #' @param verbose logical. If \code{TRUE} (default), status messages are shown.
 #' @param nPerm integer giving the number of permutations if 
 #'   \code{permTest = TRUE}. Default is 1000L.
+#' @param refinePermPvals logical. If \code{TRUE}, p-values from the main
+#'   permutation tests (\code{permTest = TRUE}) are refined using
+#'   \code{\link[permApprox]{perm_approx}}. P-values from the adjusted Rand
+#'   index test are not refined. Defaults to \code{FALSE}.
+#' @param permApproxParams list with additional arguments passed to
+#'   \code{\link[permApprox]{perm_approx}} if \code{refinePermPvals = TRUE}.
 #' @param adjust character indicating the method used for multiple testing
 #'   adjustment of the permutation p-values. Possible values are \code{"lfdr"}
 #'   (default) for local false discovery rate correction (via
@@ -231,6 +237,8 @@ netCompare <- function(x,
                        gcdOrb = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
                        verbose = TRUE,
                        nPerm = 1000L,
+                       refinePermPvals = FALSE,
+                       permApproxParams = list(),
                        adjust = "adaptBH",
                        trueNullMethod = "convest",
                        cores = 1L,
@@ -475,7 +483,15 @@ netCompare <- function(x,
     #---------------------------------------------------------------------------
     # Run permutation tests
     
-    if (verbose) message("Execute permutation tests ... ")
+    if (verbose) {
+      if (!is.null(fileLoadAssoPerm)) {
+        message("Execute permutation tests using loaded association matrices ... ")
+      } else if (!is.null(fileLoadCountsPerm)) {
+        message("Execute permutation tests using loaded count matrices ... ")
+      } else {
+        message("Execute permutation tests ... ")
+      }
+    }
     
     if (!is.null(seed)) {
       seeds <- sample.int(1e8, size = nPerm)
@@ -875,7 +891,7 @@ netCompare <- function(x,
     
     
     if (verbose) {
-      message("Calculating p-values ... ", appendLF = FALSE)
+      message("Collect permutation test statistics ... ", appendLF = FALSE)
     }
     
     #---------------------------------------------------------------------------
@@ -1046,6 +1062,16 @@ netCompare <- function(x,
         exact <- FALSE
       }
     }
+
+    if (verbose) {
+      message("Done.")
+      if (refinePermPvals && !exact) {
+        message("Refine permutation p-values using 'permApprox' ... ",
+                appendLF = FALSE)
+      } else {
+        message("Calculate permutation p-values ... ", appendLF = FALSE)
+      }
+    }
     
     #------------------------------
     # P-values for the global properties
@@ -1057,29 +1083,39 @@ netCompare <- function(x,
     pvalDiffGlobal[["pvalnComp"]] <- 
       .calcPermPval(tstat = props$diffsGlobal[["diffnComp"]],
                     tstatPerm = permDiffsGlobal[, "diffnComp"],
-                    nPerm = nPerm, exact = exact)
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)
     
     
     pvalDiffGlobalLCC[["pvallccSize"]] <-
       .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSize"]],
                     tstatPerm = permDiffsGlobal_lcc[, "difflccSize"],
-                    nPerm = nPerm, exact = exact)
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)
     
     pvalDiffGlobalLCC[["pvallccSizeRel"]] <-
       .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSizeRel"]],
                     tstatPerm = permDiffsGlobal_lcc[, "difflccSizeRel"],
-                    nPerm = nPerm, exact = exact)
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)
     
     for (i in seq_along(pvalnames)) {
       pvalDiffGlobal[[pvalnames[i]]] <-
         .calcPermPval(tstat = props$diffsGlobal[[globNamesDiff[i]]],
                       tstatPerm = permDiffsGlobal[, globNamesDiff[i]],
-                      nPerm = nPerm, exact = exact)
+                      nPerm = nPerm, exact = exact,
+                      refinePermPvals = refinePermPvals,
+                      permApproxParams = permApproxParams)
       
       pvalDiffGlobalLCC[[pvalnames[i]]] <-
         .calcPermPval(tstat = props$diffsGlobalLCC[[globNamesDiff[i]]],
                       tstatPerm = permDiffsGlobal_lcc[, globNamesDiff[i]],
-                      nPerm = nPerm, exact = exact)
+                      nPerm = nPerm, exact = exact,
+                      refinePermPvals = refinePermPvals,
+                      permApproxParams = permApproxParams)
     }
     
     #------------------------------
@@ -1088,22 +1124,30 @@ netCompare <- function(x,
     pvalDiffDeg <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffDeg[i],
                     tstatPerm = absDiffsPermDeg[, i],
-                    nPerm = nPerm, exact = exact)})
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)})
     
     pvalDiffBetw <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffBetw[i],
                     tstatPerm = absDiffsPermBetw[, i],
-                    nPerm = nPerm, exact = exact)})
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)})
     
     pvalDiffClose <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffClose[i],
                     tstatPerm = absDiffsPermClose[, i],
-                    nPerm = nPerm, exact = exact)})
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)})
     
     pvalDiffEigen <- sapply(1:ncol(adja1), function(i) {
       .calcPermPval(tstat = props$absDiffs$absDiffEigen[i],
                     tstatPerm = absDiffsPermEigen[, i],
-                    nPerm = nPerm, exact = exact)})
+                    nPerm = nPerm, exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)})
     
     names(pvalDiffDeg) <- names(pvalDiffBetw) <- 
       names(pvalDiffClose) <- names(pvalDiffEigen) <- colnames(adja1)
@@ -1112,10 +1156,14 @@ netCompare <- function(x,
     # P-value for the GCD
     if (gcd) {
       pvalGCD <- .calcPermPval(props$gcd$gcd, gcdPerm,
-                               nPerm = nPerm, exact = exact)
+                               nPerm = nPerm, exact = exact,
+                               refinePermPvals = refinePermPvals,
+                               permApproxParams = permApproxParams)
       
       pvalGCDLCC <- .calcPermPval(props$gcdLCC$gcd, gcdPermLCC,
-                                  nPerm = nPerm, exact = exact)
+                                  nPerm = nPerm, exact = exact,
+                                  refinePermPvals = refinePermPvals,
+                                  permApproxParams = permApproxParams)
     }
     #------------------------------
     

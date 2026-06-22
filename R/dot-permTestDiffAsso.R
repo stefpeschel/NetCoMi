@@ -24,6 +24,10 @@
 #' @param pvalsMethod currently only \code{"pseudo"} is available, where 1 is
 #'   added to the number of permutations and the permutation test statistics
 #'   being more extreme than the observed one in order to avoid zero p-values.
+#' @param refinePermPvals logical. If \code{TRUE}, permutation p-values are
+#'   refined using \code{\link[permApprox]{perm_approx}}.
+#' @param permApproxParams list with additional arguments passed to
+#'   \code{\link[permApprox]{perm_approx}}.
 #' @param adjust multiple testing adjustment for the tests for differentially
 #'   correlated pairs of taxa; possible values are "lfdr" (default) for local
 #'   false discovery rate correction (via \code{\link[fdrtool]{fdrtool}}) or one
@@ -102,6 +106,8 @@
                                           "connect.network"), 
                                fisherTrans = TRUE,
                                pvalsMethod = "pseudo",
+                               refinePermPvals = FALSE,
+                               permApproxParams = list(),
                                adjust = "lfdr", 
                                adjust2 = "holm",
                                trueNullMethod = "convest", 
@@ -248,7 +254,15 @@
     seeds <- sample.int(1e8, size = nPerm)
   }
   
-  if (verbose) message("Execute permutation tests ... ")
+  if (verbose) {
+    if (!is.null(fileLoadAssoPerm)) {
+      message("Execute permutation tests using loaded association matrices ... ")
+    } else if (!is.null(fileLoadCountsPerm)) {
+      message("Execute permutation tests using loaded count matrices ... ")
+    } else {
+      message("Execute permutation tests ... ")
+    }
+  }
   
   if (cores > 1) {
     cl <- parallel::makeCluster(cores, outfile = "")
@@ -504,20 +518,22 @@
     }
     
     if (pvalsMethod == "pseudo") {
-      
-      if (exact) {
-        # Exact permutation test
-        pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
-          sum(connectPairs[, i] >= connectPairsOrig[i]) / nPerm
-        })
-        
-      } else {
-        # Approximated p-values
-        pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
-          (sum(connectPairs[, i] >= connectPairsOrig[i]) + 1) / (nPerm + 1)
-        })
+      if (verbose && refinePermPvals && !exact) {
+        message("Refine permutation p-values using 'permApprox' ... ",
+                appendLF = FALSE)
       }
-      
+
+      pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
+        .calcPermPval(tstat = connectPairsOrig[i],
+                      tstatPerm = connectPairs[, i],
+                      nPerm = nPerm,
+                      exact = exact,
+                      refinePermPvals = refinePermPvals,
+                      permApproxParams = permApproxParams)
+      })
+
+      if (verbose && refinePermPvals && !exact) message("Done.")
+
     } #else {
     #   pvalsVec <- calc_perm_pvals(tstatPerm = connectPairs,
     #                               tstatObs = connectPairsOrig,
@@ -575,21 +591,22 @@
       connectVariables[i, ] <- result[[i]]$connectVariables
     }
     
-    if (exact) {
-      # Exact permutation test
-      pvalsConnectVariables <-
-        sapply(1:ncol(connectVariables), function(i) {
-          sum(connectVariables[, i] >= connectVariablesOrig[i]) / nPerm
-        })
-      
-    } else {
-      # Approximated p-values
-      pvalsConnectVariables <-
-        sapply(1:ncol(connectVariables), function(i) {
-          (sum(connectVariables[, i] >= connectVariablesOrig[i]) + 1) / 
-            (nPerm + 1)
-        })
+    if (verbose && refinePermPvals && !exact) {
+      message("Refine permutation p-values using 'permApprox' ... ",
+              appendLF = FALSE)
     }
+
+    pvalsConnectVariables <-
+      sapply(1:ncol(connectVariables), function(i) {
+        .calcPermPval(tstat = connectVariablesOrig[i],
+                      tstatPerm = connectVariables[, i],
+                      nPerm = nPerm,
+                      exact = exact,
+                      refinePermPvals = refinePermPvals,
+                      permApproxParams = permApproxParams)
+      })
+
+    if (verbose && refinePermPvals && !exact) message("Done.")
 
     names(pvalsConnectVariables) <- names(connectVariablesOrig)
     
@@ -621,15 +638,19 @@
       connectNetwork[i] <- result[[i]]$connectNetwork
     }
     
-    if (exact) {
-      # Exact permutation test
-      pvalConnectNetwork <- sum(connectNetwork >= connectNetworkOrig)/ nPerm
-      
-    } else {
-      # Approximated p-values
-      pvalConnectNetwork <- (sum(connectNetwork >= connectNetworkOrig) + 1) / 
-        (nPerm + 1)
+    if (verbose && refinePermPvals && !exact) {
+      message("Refine permutation p-values using 'permApprox' ... ",
+              appendLF = FALSE)
     }
+
+    pvalConnectNetwork <- .calcPermPval(tstat = connectNetworkOrig,
+                                        tstatPerm = connectNetwork,
+                                        nPerm = nPerm,
+                                        exact = exact,
+                                        refinePermPvals = refinePermPvals,
+                                        permApproxParams = permApproxParams)
+
+    if (verbose && refinePermPvals && !exact) message("Done.")
     
     
     output[["pvalConnectNetwork"]] <- pvalConnectNetwork

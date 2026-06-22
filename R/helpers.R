@@ -94,14 +94,73 @@
 #-------------------------------------------------------------------------------
 #' @keywords internal
 # Compute empirical permutation p-value.
-# Used in netCompare()
-.calcPermPval <- function(tstat, tstatPerm, nPerm, exact) {
-  if (exact) {
+# Used in netCompare() and .permTestDiffAsso()
+.calcPermPval <- function(tstat, tstatPerm, nPerm, exact,
+                          refinePermPvals = FALSE,
+                          permApproxParams = list()) {
+  pval <- if (exact) {
     sum(tstatPerm >= tstat) / nPerm
   } else {
     (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
   }
+
+  if (refinePermPvals && !exact) {
+    pval <- .permApproxPval(tstat = tstat,
+                            tstatPerm = tstatPerm,
+                            permApproxParams = permApproxParams)
+  }
+
+  pval
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Refine a permutation p-value using permApprox::perm_approx().
+.permApproxPval <- function(tstat, tstatPerm, permApproxParams = list()) {
+  if (!requireNamespace("permApprox", quietly = TRUE)) {
+    stop("Package \"permApprox\" is needed when refinePermPvals = TRUE. ",
+         "Install it with installNetCoMiPacks() or install.packages().")
+  }
+
+  if (!is.list(permApproxParams)) {
+    stop("\"permApproxParams\" must be a list.")
+  }
+
+  if (length(permApproxParams) > 0 &&
+      (is.null(names(permApproxParams)) || any(names(permApproxParams) == ""))) {
+    stop("\"permApproxParams\" must be a named list.")
+  }
   
+  call_args <- list(
+    obs_stats = tstat,
+    perm_stats = matrix(tstatPerm, ncol = 1),
+    alternative = "greater",
+    adjust_method = "none",
+    verbose = FALSE
+  )
+  call_args[names(permApproxParams)] <- permApproxParams
+
+  res <- tryCatch(
+    do.call(permApprox::perm_approx, call_args),
+    error = function(e) {
+      stop("Calling permApprox::perm_approx() failed: ",
+           conditionMessage(e), call. = FALSE)
+    }
+  )
+
+  if (!is.list(res) || is.null(res$p_unadjusted)) {
+    stop("permApprox::perm_approx() must return a list containing ",
+         "\"p_unadjusted\".")
+  }
+
+  pval <- res$p_unadjusted
+
+  if (!is.numeric(pval) || length(pval) != 1 || is.na(pval)) {
+    stop("\"p_unadjusted\" returned by permApprox::perm_approx() must be a ",
+         "single non-missing numeric p-value.")
+  }
+
+  pval
 }
 
 #-------------------------------------------------------------------------------
@@ -135,6 +194,23 @@
   }
   
   return(out)
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
+# Format p-values for summary output.
+.formatPval <- function(x, digits = 6L) {
+  out <- rep(NA_character_, length(x))
+  is_na <- is.na(x)
+  is_small <- !is_na & x <= 10^(-digits)
+
+  out[is_small] <- formatC(x[is_small], format = "e", digits = 2)
+  out[!is_na & !is_small] <- formatC(x[!is_na & !is_small],
+                                     format = "f",
+                                     digits = digits)
+  out[is_na] <- NA_character_
+
+  if (length(out) == 1L) out[[1L]] else out
 }
 
 #-------------------------------------------------------------------------------

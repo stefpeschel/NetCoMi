@@ -15,6 +15,8 @@ netCompare(
   gcdOrb = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
   verbose = TRUE,
   nPerm = 1000L,
+  refinePermPvals = FALSE,
+  permApproxParams = list(),
   adjust = "adaptBH",
   trueNullMethod = "convest",
   cores = 1L,
@@ -71,6 +73,14 @@ thus excluding redundant orbits such as the orbit o3.}
 
 \item{nPerm}{integer giving the number of permutations if 
 \code{permTest = TRUE}. Default is 1000L.}
+
+\item{refinePermPvals}{logical. If \code{TRUE}, p-values from the main
+permutation tests (\code{permTest = TRUE}) are refined using
+\code{\link[permApprox]{perm_approx}}. P-values from the adjusted Rand
+index test are not refined. Defaults to \code{FALSE}.}
+
+\item{permApproxParams}{list with additional arguments passed to
+\code{\link[permApprox]{perm_approx}} if \code{refinePermPvals = TRUE}.}
 
 \item{adjust}{character indicating the method used for multiple testing
 adjustment of the permutation p-values. Possible values are \code{"lfdr"}

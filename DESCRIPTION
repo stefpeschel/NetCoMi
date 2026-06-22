@@ -71,6 +71,7 @@ Suggests:
     limma,
     metagenomeSeq,
     metagMisc,
+    permApprox,
     propr,
     rmarkdown,
     testthat,

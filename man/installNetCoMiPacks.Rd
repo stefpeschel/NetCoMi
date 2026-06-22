@@ -32,6 +32,7 @@ This function installs the R packages used in NetCoMi not listed
   \item cccd
   \item corpcor
   \item LaplacesDemon
+  \item permApprox
   \item propr
   \item zCompositions
   }

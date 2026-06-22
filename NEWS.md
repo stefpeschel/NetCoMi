@@ -27,6 +27,11 @@
   between association matrices. The threshold can be set via the new
   argument `diffThresh`.
 
+- In `netCompare()` and `diffnet()`: Permutation p-values can now
+  optionally be refined with the `permApprox` package by setting
+  `refinePermPvals = TRUE`. Additional arguments for
+  `permApprox::perm_approx()` can be passed via `permApproxParams`.
+
 - In `plot.diffnet()`: The default edge colors were changed to
   `c("#33A02C", "#2CB7B0", "#56B4E9", "#E69F00", "#D55E00", "#CC79A7", "#B2DF8A", "gray30", "#B0E2FF")`.
   The colors correspond to associations in group 1 and group 2 in the

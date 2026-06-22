@@ -95,6 +95,19 @@
                     errs = errs)
 
   args$nPerm <- as.integer(args$nPerm)
+
+  #-------------------
+  # refinePermPvals
+  errs <- .checkArg(cond = is.logical(args$refinePermPvals) &
+                      length(args$refinePermPvals) == 1,
+                    msg = "\"refinePermPvals\" must be logical",
+                    errs = errs)
+
+  #-------------------
+  # permApproxParams
+  errs <- .checkArg(cond = is.list(args$permApproxParams),
+                    msg = "\"permApproxParams\" must be a list",
+                    errs = errs)
   
   #-------------------
   # adjust

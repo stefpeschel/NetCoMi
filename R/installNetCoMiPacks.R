@@ -12,6 +12,7 @@
 #'   \item cccd
 #'   \item corpcor
 #'   \item LaplacesDemon
+#'   \item permApprox
 #'   \item propr
 #'   \item zCompositions
 #'   }
@@ -47,8 +48,8 @@ installNetCoMiPacks <- function(onlyMissing = TRUE, lib = NULL, ...) {
   if (is.null(lib)) lib <- .libPaths()[1]
   
   needpack <- c("cccd", "ccrepe", "corpcor", "DESeq2", "discordant",
-                "LaplacesDemon", "limma", "metagenomeSeq", "propr",
-                "zCompositions")
+                "LaplacesDemon", "limma", "metagenomeSeq", "permApprox",
+                "propr", "zCompositions")
   
   if (onlyMissing) {
     instpack <- needpack[!needpack %in% utils::installed.packages()[,"Package"]]

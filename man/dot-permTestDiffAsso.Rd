@@ -16,6 +16,8 @@
   method = c("connect.pairs", "connect.variables", "connect.network"),
   fisherTrans = TRUE,
   pvalsMethod = "pseudo",
+  refinePermPvals = FALSE,
+  permApproxParams = list(),
   adjust = "lfdr",
   adjust2 = "holm",
   trueNullMethod = "convest",
@@ -64,6 +66,12 @@ be Fisher-transformed.}
 \item{pvalsMethod}{currently only \code{"pseudo"} is available, where 1 is
 added to the number of permutations and the permutation test statistics
 being more extreme than the observed one in order to avoid zero p-values.}
+
+\item{refinePermPvals}{logical. If \code{TRUE}, permutation p-values are
+refined using \code{\link[permApprox]{perm_approx}}.}
+
+\item{permApproxParams}{list with additional arguments passed to
+\code{\link[permApprox]{perm_approx}}.}
 
 \item{adjust}{multiple testing adjustment for the tests for differentially
 correlated pairs of taxa; possible values are "lfdr" (default) for local
