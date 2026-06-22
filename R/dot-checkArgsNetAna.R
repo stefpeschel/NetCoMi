@@ -2,7 +2,7 @@
 
 #' @keywords internal
 
-.checkArgsNetAna <- function(args) {
+.checkArgsNetAna <- function(args, user_env = parent.frame()) {
   
   # Variable for collecting error messages
   errs <- list()
@@ -183,13 +183,18 @@
       lifecycle::deprecate_soft(
         "1.2.0",
         "netAnalyze(normEigen)",
+        user_env = user_env,
         details = "netAnalyze() will always behave as if normEigen=TRUE were used (due to changes in igraph)."
       )
     } else {
       lifecycle::deprecate_warn(
         "1.2.0",
-        "netAnalyze(normEigen = 'always as if TRUE')",
-        details = "Normalization is always performed (due to changes in igraph)."
+        "netAnalyze(normEigen)",
+        user_env = user_env,
+        details = paste(
+          "The value of `normEigen` is ignored.",
+          "Normalization is always performed (due to changes in igraph)."
+        )
       )
     }
   }

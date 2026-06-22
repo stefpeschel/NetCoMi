@@ -51,9 +51,12 @@ for the largest connected component (LCC). If \code{TRUE}
 \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
 Is automatically set to \code{TRUE} for a fully connected (dense) network.}
 
-\item{normDeg, normBetw, normClose, normEigen}{logical. If \code{TRUE} 
+\item{normDeg, normBetw, normClose}{logical. If \code{TRUE} 
 (default for all measures), a normalized version of the respective 
 centrality values is returned.}
+
+\item{normEigen}{Deprecated. Eigenvector centrality is always normalized
+(due to changes in igraph).}
 
 \item{clustMethod}{character indicating the clustering algorithm. Possible
 values are \code{"hierarchical"} for a hierarchical algorithm based on
@@ -256,11 +259,9 @@ Determine network properties for objects of class
   computed for each component separately (using 
   \code{\link[igraph]{eigen_centrality}}) and scaled according to component 
   size to overcome the fact that nodes in smaller components have a higher 
-  EVC. If \code{normEigen == TRUE}, the EVC values are divided by the maximum 
-  EVC value. EVC of single nodes is zero.\cr\cr
+  EVC. EVC values are normalized by igraph. EVC of single nodes is zero.\cr\cr
   Otherwise, the EVC is computed for the LCC using 
-  \code{\link[igraph]{eigen_centrality}} (scale argument is set according to 
-  \code{normEigen}).}
+  \code{\link[igraph]{eigen_centrality}}.}
   }
   \strong{Graphlet-based properties:}\cr
   \describe{

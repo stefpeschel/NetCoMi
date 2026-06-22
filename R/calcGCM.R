@@ -149,7 +149,7 @@ calcGCM <- function(adja,
     net <- igraph::graph_from_adjacency_matrix(adja, weighted=T,
                                                mode="undirected", diag=F)
     
-    edgelist <- igraph::get.edgelist(net, names = FALSE)
+    edgelist <- igraph::as_edgelist(net, names = FALSE)
     edgelist <- apply(edgelist, 2, as, Class = "integer")
     
     # Transform into matrix if network consists of one edge only

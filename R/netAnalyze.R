@@ -130,11 +130,9 @@
 #'   computed for each component separately (using 
 #'   \code{\link[igraph]{eigen_centrality}}) and scaled according to component 
 #'   size to overcome the fact that nodes in smaller components have a higher 
-#'   EVC. If \code{normEigen == TRUE}, the EVC values are divided by the maximum 
-#'   EVC value. EVC of single nodes is zero.\cr\cr
+#'   EVC. EVC values are normalized by igraph. EVC of single nodes is zero.\cr\cr
 #'   Otherwise, the EVC is computed for the LCC using 
-#'   \code{\link[igraph]{eigen_centrality}} (scale argument is set according to 
-#'   \code{normEigen}).}
+#'   \code{\link[igraph]{eigen_centrality}}.}
 #'   }
 #'   \strong{Graphlet-based properties:}\cr
 #'   \describe{
@@ -202,9 +200,11 @@
 #' @param weightDeg logical. If \code{TRUE}, the weighted degree is used (see
 #'   \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
 #'   Is automatically set to \code{TRUE} for a fully connected (dense) network.
-#' @param normDeg,normBetw,normClose,normEigen logical. If \code{TRUE} 
+#' @param normDeg,normBetw,normClose logical. If \code{TRUE} 
 #'   (default for all measures), a normalized version of the respective 
 #'   centrality values is returned.
+#' @param normEigen Deprecated. Eigenvector centrality is always normalized
+#'   (due to changes in igraph).
 #' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
 #'   connectivity are calculated. Might be disabled to reduce execution time.
 #' @param graphlet logical. If \code{TRUE} (default), graphlet-based network 
@@ -300,10 +300,11 @@ netAnalyze <- function(net,
   
   # Check input arguments
   argsIn <- as.list(environment())
+  userEnv <- parent.frame()
 
   if (verbose == 2) message("Checking input arguments ... ", appendLF = FALSE)
   
-  argsOut <- .checkArgsNetAna(argsIn)
+  argsOut <- .checkArgsNetAna(argsIn, user_env = userEnv)
   
   for (i in 1:length(argsOut)) {
     assign(names(argsOut)[i], argsOut[[i]])
