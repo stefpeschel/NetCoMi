@@ -55,9 +55,8 @@ Please visit [netcomi.de](https://netcomi.de/) for a complete reference.
 install.packages("devtools")
 install.packages("BiocManager")
 
-# Since two of NetCoMi's dependencies are only available on GitHub, 
-# it is recommended to install them first:
-devtools::install_github("zdk123/SpiecEasi")
+# Since SPRING is only available on GitHub,
+# it is recommended to install it first:
 devtools::install_github("GraceYoon/SPRING")
 
 # Install NetCoMi

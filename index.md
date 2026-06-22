@@ -67,14 +67,14 @@ together with some information on their implementation in R:
 - Biweight Midcorrelation
   [`bicor()`](https://rdrr.io/cran/WGCNA/man/bicor.html) from `WGCNA`
   package
-- SparCC
-  ([`sparcc()`](https://rdrr.io/github/zdk123/SpiecEasi/man/sparcc.html)
+- SparCC ([`sparcc()`](https://rdrr.io/bioc/SpiecEasi/man/sparcc.html)
   from `SpiecEasi` package)
 - CCLasso ([R code on GitHub](https://github.com/huayingfang/CCLasso))
 - CCREPE
   ([`ccrepe`](https://bioconductor.org/packages/release/bioc/html/ccrepe.html)
   package)
-- SpiecEasi ([`SpiecEasi`](https://github.com/zdk123/SpiecEasi) package)
+- SpiecEasi ([`SpiecEasi`](https://bioconductor.org/packages/SpiecEasi/)
+  package)
 - SPRING ([`SPRING`](https://github.com/GraceYoon/SPRING) package)
 - gCoda ([R code on GitHub](https://github.com/huayingfang/gCoda))
 - propr
@@ -102,8 +102,8 @@ together with some information on their implementation in R:
   al. ([1999](#ref-martin1999measure)))
 - Aitchison distance
   ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist)
-  and [`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html)
-  from `SpiecEasi` package)
+  and [`clr()`](https://rdrr.io/bioc/SpiecEasi/man/clr.html) from
+  `SpiecEasi` package)
 
 **Methods for zero replacement:**
 
@@ -130,7 +130,7 @@ together with some information on their implementation in R:
 - Variance Stabilizing Transformation (VST)
   ([`varianceStabilizingTransformation`]() from `DESeq2` package)
 - Centered log-ratio (clr) transformation
-  ([`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html) from
+  ([`clr()`](https://rdrr.io/bioc/SpiecEasi/man/clr.html) from
   `SpiecEasi` package))
 
 TSS, CSS, COM, VST, and the clr transformation are described in ([Badri
@@ -143,9 +143,8 @@ et al. 2020](#ref-badri2020shrinkage)).
 install.packages("devtools")
 install.packages("BiocManager")
 
-# Since two of NetCoMi's dependencies are only available on GitHub, 
-# it is recommended to install them first:
-devtools::install_github("zdk123/SpiecEasi")
+# Since SPRING is only available on GitHub,
+# it is recommended to install it first:
 devtools::install_github("GraceYoon/SPRING")
 
 # Install NetCoMi
@@ -198,8 +197,7 @@ document for features implemented on develop branch.
 
 ## References
 
-<div id="refs" class="references csl-bib-body hanging-indent"
-entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
 <div id="ref-badri2020shrinkage" class="csl-entry">
 
@@ -214,7 +212,7 @@ Bioinformatics* 2 (December). <https://doi.org/10.1093/NARGAB/LQAA100>.
 
 Martin-Fernández, Josep A, M Bren, Carles Barceló-Vidal, and Vera
 Pawlowsky-Glahn. 1999. “A Measure of Difference for Compositional Data
-Based on Measures of Divergence.” In *Proceedings of IAMG*, 99:211–16.
+Based on Measures of Divergence.” *Proceedings of IAMG* 99: 211–16.
 
 </div>
 

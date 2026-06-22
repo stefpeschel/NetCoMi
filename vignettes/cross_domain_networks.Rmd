@@ -24,7 +24,7 @@ library(NetCoMi)
 
 This tutorial shows how to construct a cross-domain network (e.g. a network consisting of bacteria and fungi) using SpiecEasi's ability to estimate cross-domain associations.
 
-We use the same data as in the "Cross domain interactions" section of the [SpiecEasi tutorial](https://github.com/zdk123/SpiecEasi).
+We use the same data as in the "Cross domain interactions" section of the [SpiecEasi tutorial](https://bioconductor.org/packages/release/bioc/vignettes/SpiecEasi/inst/doc/cross-domain-interactions.html).
 
 The samples are split into two groups and cross-domain associations are computed for each group using SpiecEasi. The association matrices are then passed to NetCoMi's netConstruct() function to conduct a network comparison between the two groups.
 

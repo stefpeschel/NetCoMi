@@ -115,8 +115,9 @@ measures. Parameters are set via \code{measurePar}.}
 \item{measurePar}{list with parameters passed to the function for computing
 associations/dissimilarities. See 'Details' for the respective functions. 
 For SpiecEasi or SPRING as association measure, an additional list element
-"symBetaMode" is accepted to define the "mode" argument of 
-\code{\link[SpiecEasi]{symBeta}}.}
+"symBetaMode" is accepted to define the "mode" argument of
+\code{\link[SpiecEasi]{symBeta}}. SpiecEasi preprocessing options such as
+\code{norm.params} can also be passed via \code{measurePar}.}
 
 \item{jointPrepro}{logical indicating whether data preprocessing (filtering,
 zero treatment, normalization) should be done for the combined data sets,
@@ -163,9 +164,12 @@ combined. The values x are set via \code{filtSampPar}.}
 \item{zeroMethod}{character indicating the method used for zero replacement.
 Possible values are: \code{"none"} (default), \code{"pseudo"}, 
 \code{"pseudoZO"}, \code{"multRepl"}, \code{"alrEM"}, \code{"bayesMult"}. 
-See 'Details'. The corresponding parameters are set via \code{zeroPar}. 
+See 'Details'. The corresponding parameters are set via \code{zeroPar}.
 \code{zeroMethod} is ignored if the approach for
-calculating the associations/dissimilarity includes zero handling.
+calculating the associations/dissimilarity includes zero handling. For
+\code{measure = "spieceasi"}, NetCoMi zero replacement is applied before
+calling \code{\link[SpiecEasi]{spiec.easi}}; SpiecEasi's own zero handling
+can be controlled via \code{measurePar}.
 Defaults to \code{"multRepl"} or \code{"pseudo"} (depending on the expected
 input of the normalization function and measure) if zero replacement is
 required.}

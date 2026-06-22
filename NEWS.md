@@ -3,6 +3,15 @@
 
 ### New features
 
+- `SpiecEasi` is now available from Bioconductor and NetCoMi depends on
+  `SpiecEasi (>= 2.0.0)`. Users no longer need to install `SpiecEasi`
+  from GitHub.
+
+- In `netConstruct()`: NetCoMi’s zero replacement methods are now also
+  applied when `measure = "spieceasi"`. Normalization is still ignored
+  by NetCoMi for this measure and should be controlled via SpiecEasi’s
+  own `norm.params` argument passed through `measurePar`.
+
 - In `netConstruct()`: New association measure **“rhoshrink”**
   available. The method estimates proportionality using shrinkage
   covariance estimation as proposed by Badri et al. (2020), following

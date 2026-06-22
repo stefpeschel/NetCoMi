@@ -18,7 +18,9 @@ Description: NetCoMi offers functions for constructing, analyzing, and comparing
 License: GPL-3 + file LICENSE
 URL: https://netcomi.de, https://github.com/stefpeschel/NetCoMi
 BugReports: https://github.com/stefpeschel/NetCoMi/issues
-Depends: SpiecEasi (>= 1.1.1)
+Depends:
+    R (>= 4.6.0),
+    SpiecEasi (>= 2.0.0)
 biocViews:
 Imports: 
     Biobase,
@@ -51,7 +53,6 @@ Imports:
     vegan,
     WGCNA
 Remotes: 
-    github::zdk123/SpiecEasi,
     github::GraceYoon/SPRING,
     github::vmikk/metagMisc,
     github::tpq/propr,

@@ -17,14 +17,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-The American Gut data provided by the [`SpiecEasi`](https://github.com/zdk123/SpiecEasi) package are used for almost all NetCoMi tutorials. 
+The American Gut data provided by the [`SpiecEasi`](https://bioconductor.org/packages/SpiecEasi/) package are used for almost all NetCoMi tutorials.
 
 We begin by constructing a single network on genus level, which we analyze using quantitative and graphical methods. Later, we will compare the networks of two groups: Individuals with and without seasonal allergies.
 
 NetCoMi's main functions are `netConstruct()` for network construction, `netAnalyze()` for network analysis, and `netCompare()` for network comparison. As should become clear from the following examples, these three functions must be executed in the aforementioned order. A further function is `diffnet()` for constructing a differential association network. `diffnet()` must be applied to the object returned by `netConstruct()`.
 
 First of all, we load NetCoMi and the data from American Gut Project (provided 
-by [`SpiecEasi`](https://github.com/zdk123/SpiecEasi), which is automatically 
+by [`SpiecEasi`](https://bioconductor.org/packages/SpiecEasi/), which is automatically
 loaded together with NetCoMi).
 
 ```{r load_data, message=FALSE, warning=FALSE,}

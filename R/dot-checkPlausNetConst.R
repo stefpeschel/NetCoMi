@@ -50,12 +50,20 @@
   
   if (dataType == "counts") {
     
-    if (measure %in% c("sparcc", "spring", "spieceasi")) {
+    if (measure %in% c("sparcc", "spring")) {
       if (zeroMethod != "none") {
         zeroMethod <- "none"
         msg <- c(msg, paste0("Zero handling included in \"", measure, "\"."))
       }
       
+      if (normMethod != "none") {
+        normMethod <- "none"
+        msg <- c(msg, paste0("Normalization ignored for measure \"",
+                             measure, "\"."))
+      }
+
+      #-------------------------------------------------------------------------
+    } else if (measure == "spieceasi") {
       if (normMethod != "none") {
         normMethod <- "none"
         msg <- c(msg, paste0("Normalization ignored for measure \"",

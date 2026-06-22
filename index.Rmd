@@ -49,10 +49,10 @@ some information on their implementation in R:
 - Pearson coefficient ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor) from `stats` package)
 - Spearman coefficient ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor) from `stats` package)
 - Biweight Midcorrelation [`bicor()`](https://rdrr.io/cran/WGCNA/man/bicor.html) from `WGCNA` package
-- SparCC ([`sparcc()`](https://rdrr.io/github/zdk123/SpiecEasi/man/sparcc.html) from `SpiecEasi` package)
+- SparCC ([`sparcc()`](https://rdrr.io/bioc/SpiecEasi/man/sparcc.html) from `SpiecEasi` package)
 - CCLasso ([R code on GitHub](https://github.com/huayingfang/CCLasso))
 - CCREPE ([`ccrepe`](https://bioconductor.org/packages/release/bioc/html/ccrepe.html) package)
-- SpiecEasi ([`SpiecEasi`](https://github.com/zdk123/SpiecEasi) package)
+- SpiecEasi ([`SpiecEasi`](https://bioconductor.org/packages/SpiecEasi/) package)
 - SPRING ([`SPRING`](https://github.com/GraceYoon/SPRING) package)
 - gCoda ([R code on GitHub](https://github.com/huayingfang/gCoda))
 - propr ([`propr`](https://cran.r-project.org/web/packages/propr/index.html) package)
@@ -68,7 +68,7 @@ from `LaplacesDemon` package)
 from `LaplacesDemon` package)
 - Jensen-Shannon divergence (own code using [`KLD()`](https://rdrr.io/cran/LaplacesDemon/man/KLD.html) from `LaplacesDemon` package)
 - Compositional KLD (own implementation following @martin1999measure)
-- Aitchison distance ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist) and [`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html) from `SpiecEasi` package)
+- Aitchison distance ([`vegdist()`](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/vegdist) and [`clr()`](https://rdrr.io/bioc/SpiecEasi/man/clr.html) from `SpiecEasi` package)
 
 **Methods for zero replacement:**
 
@@ -88,7 +88,7 @@ from `zCompositions` package)
 - Common Sum Scaling (COM) (own implementation)
 - Rarefying ([`rrarefy`]() from `vegan` package)
 - Variance Stabilizing Transformation (VST) ([`varianceStabilizingTransformation`]() from `DESeq2` package)
-- Centered log-ratio (clr) transformation ([`clr()`](https://rdrr.io/github/zdk123/SpiecEasi/man/clr.html) from 
+- Centered log-ratio (clr) transformation ([`clr()`](https://rdrr.io/bioc/SpiecEasi/man/clr.html) from
 `SpiecEasi` package))
 
 TSS, CSS, COM, VST, and the clr transformation are described in [@badri2020shrinkage]. 
@@ -100,9 +100,8 @@ TSS, CSS, COM, VST, and the clr transformation are described in [@badri2020shrin
 install.packages("devtools")
 install.packages("BiocManager")
 
-# Since two of NetCoMi's dependencies are only available on GitHub, 
-# it is recommended to install them first:
-devtools::install_github("zdk123/SpiecEasi")
+# Since SPRING is only available on GitHub,
+# it is recommended to install it first:
 devtools::install_github("GraceYoon/SPRING")
 
 # Install NetCoMi
