@@ -20,8 +20,7 @@ testnet <- netConstruct(amgut2.filt.phy,
 
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
-                       hubPar = "eigenvector",
-                       gcmHeat = FALSE)
+                       hubPar = "eigenvector")
 
 plot(testprops)
 mtext("phyloseq", side = 3, cex = 1.5)
@@ -44,8 +43,7 @@ testnet <- netConstruct(peerj13075,
 
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
-                       hubPar = "eigenvector",
-                       gcmHeat = FALSE)
+                       hubPar = "eigenvector")
 
 plot(testprops)
 mtext("phyloseq", side = 3, cex = 1.5)
@@ -154,8 +152,7 @@ for (i in 1:length(measures)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector",
-                         gcmHeat = FALSE)
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -290,8 +287,7 @@ for (i in 1:length(measures)) {
                            seed = 20190101)
   
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector",
-                         gcmHeat = FALSE)
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -324,8 +320,7 @@ for (i in 1:length(zeroMethod)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector",
-                         gcmHeat = FALSE)
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(zeroMethod[i], side = 3, cex = 1.5)
@@ -358,8 +353,7 @@ for (i in 1:length(normMethod)) {
                             seed = 20190101)
     
     testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                           hubPar = "eigenvector",
-                           gcmHeat = FALSE)
+                           hubPar = "eigenvector")
     
     plot(testprops)
     mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
@@ -397,8 +391,7 @@ for (i in 1:length(sparsMethod)) {
     testprops<- netAnalyze(testnet,
                            clustMethod = "cluster_fast_greedy",
                            hubPar = "eigenvector", normDeg = FALSE,
-                           hubQuant = 0.95, lnormFit = FALSE,
-                           gcmHeat = FALSE)
+                           hubQuant = 0.95, lnormFit = FALSE)
     
     plot(testprops)
     mtext(sparsMethod[i], side = 3, cex = 1.5)
@@ -436,8 +429,7 @@ for (i in 1:length(adjustMethod)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE,
-                         gcmHeat = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE)
   
   plot(testprops)
   mtext(adjustMethod[i], side = 3, cex = 1.5)
@@ -478,8 +470,7 @@ for (i in 1:length(softThreshType)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE,
-                         gcmHeat = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE)
   
   plot(testprops)
   mtext(softThreshType[i], side = 3, cex = 1.5)
@@ -510,8 +501,7 @@ for (i in 1:length(knnMutual)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE,
-                         gcmHeat = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE)
   
   plot(testprops)
   mtext(knnMutual[i], side = 3, cex = 1.5)
@@ -544,8 +534,7 @@ for (i in 1:length(dissFunc)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE,
-                         gcmHeat = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE)
   
   plot(testprops)
   mtext(dissFunc[i], side = 3, cex = 1.5)
@@ -587,8 +576,7 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE,
-                       gcmHeat = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE)
 
 plot(testprops)
 mtext("dissFunc as function", side = 3, cex = 1.5)
@@ -621,8 +609,7 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE,
-                       gcmHeat = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE)
 
 plot(testprops)
 mtext("simFunc", side = 3, cex = 1.5)
@@ -650,8 +637,7 @@ for (i in 1:length(scaleDiss)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE,
-                         gcmHeat = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE)
   
   plot(testprops)
   mtext(scaleDiss[i], side = 3, cex = 1.5)
@@ -679,8 +665,7 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE,
-                       gcmHeat = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE)
 
 summary(testprops)
 
@@ -1000,8 +985,7 @@ for (i in 1:length(measures)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector",
-                         gcmHeat = FALSE)
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -1036,8 +1020,7 @@ for (i in 1:length(measures)) {
                            seed = 20190101)
   
   testprops<- netAnalyze(testnet1, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector",
-                         gcmHeat = FALSE)
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(measures[i], side = 3, cex = 1.5)
@@ -1069,8 +1052,7 @@ for (i in 1:length(zeroMethod)) {
                           seed = 20190101)
   
   testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                         hubPar = "eigenvector",
-                         gcmHeat = FALSE)
+                         hubPar = "eigenvector")
   
   plot(testprops)
   mtext(zeroMethod[i], side = 3, cex = 1.5)
@@ -1106,8 +1088,7 @@ for (i in 1:length(normMethod)) {
                             seed = 20190101)
     
     testprops<- netAnalyze(testnet, clustMethod = "cluster_fast_greedy",
-                           hubPar = "eigenvector",
-                           gcmHeat = FALSE)
+                           hubPar = "eigenvector")
     
     plot(testprops)
     mtext(paste0(normMethod[i], ", ", zeroMethod[z]), side = 3, cex = 1.5)
@@ -1144,8 +1125,7 @@ for (i in 1:length(sparsMethod)) {
   testprops<- netAnalyze(testnet,
                          clustMethod = "cluster_fast_greedy",
                          hubPar = "eigenvector", normDeg = FALSE,
-                         hubQuant = 0.95, lnormFit = FALSE,
-                         gcmHeat = FALSE)
+                         hubQuant = 0.95, lnormFit = FALSE)
   
   plot(testprops)
   mtext(sparsMethod[i], side = 3, cex = 1.5)
@@ -1178,8 +1158,7 @@ testnet <- netConstruct(amgut1.filt,
 testprops<- netAnalyze(testnet,
                        clustMethod = "cluster_fast_greedy",
                        hubPar = "eigenvector", normDeg = FALSE,
-                       hubQuant = 0.95, lnormFit = FALSE,
-                       gcmHeat = FALSE)
+                       hubQuant = 0.95, lnormFit = FALSE)
 
 plot(testprops)
 

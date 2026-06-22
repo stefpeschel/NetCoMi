@@ -92,8 +92,7 @@ association networks that include only the differentially associated OTUs.
 props_season_pears <- netAnalyze(net_season_pears, 
                                  clustMethod = "cluster_fast_greedy",
                                  weightDeg = TRUE,
-                                 normDeg = FALSE,
-                                 gcmHeat = FALSE)
+                                 normDeg = FALSE)
 ```
 
 

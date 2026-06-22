@@ -59,6 +59,7 @@ reference:
   - calcGCM
   - editLabels
   - multAdjust
+  - plotGCM
   - plotHeat
   - renameTaxa
   - testGCM

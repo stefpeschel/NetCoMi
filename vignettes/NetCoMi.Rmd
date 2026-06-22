@@ -149,10 +149,10 @@ Hubs are nodes with an eigenvector centrality value above the empirical
 `weightDeg` and `normDeg` are set to `FALSE` so that the degree of a node is
 simply defined as number of nodes that are adjacent to the node.
 
-By default, a heatmap of the Graphlet Correlation Matrix (GCM) is returned (with 
-graphlet correlations in the upper triangle and significance codes resulting 
-from Student's t-test in the lower triangle). 
-See `?calcGCM` and `?testGCM` for details.
+The Graphlet Correlation Matrix (GCM) is stored in the `netAnalyze()` output
+and can be visualized with `plotGCM()`. The heatmap shows graphlet correlations
+in the upper triangle and significance codes resulting from Student's t-test in
+the lower triangle. See `?plotGCM`, `?calcGCM`, and `?testGCM` for details.
 
 ```{r single_spring_2, fig.height=6, fig.width=6}
 props_spring <- netAnalyze(net_spring, 
@@ -164,6 +164,10 @@ props_spring <- netAnalyze(net_spring,
 
 #?summary.microNetProps
 summary(props_spring, numbNodes = 5L)
+```
+
+```{r single_spring_gcm, fig.height=6, fig.width=6}
+plotGCM(props_spring)
 ```
 
 ### Visualizing the network
@@ -405,8 +409,7 @@ hist(net_pears_unsigned$adjaMat1, 100, ylim = c(0, 400),
 
 ```{r single_pears_unsigned_3, fig.height=6, fig.width=6}
 props_pears_unsigned <- netAnalyze(net_pears_unsigned, 
-                                   clustMethod = "cluster_fast_greedy",
-                                   gcmHeat = FALSE)
+                                   clustMethod = "cluster_fast_greedy")
 ```
 
 

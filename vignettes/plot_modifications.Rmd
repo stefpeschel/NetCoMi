@@ -51,9 +51,7 @@ net <- netConstruct(amgut_genus_renamed,
                     seed = 123456)
 
 netprops <- netAnalyze(net, 
-                       clustMethod = "cluster_fast_greedy",
-                       gcmHeat = FALSE # Do not plot the GCM heatmap
-)
+                       clustMethod = "cluster_fast_greedy")
 ```
 
 ### Simple network plot

@@ -26,7 +26,7 @@
 #'            # Graphlet related:
 #'            graphlet = TRUE,
 #'            orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
-#'            gcmHeat = TRUE,
+#'            gcmHeat = FALSE,
 #'            gcmHeatLCC = TRUE,
 #'            
 #'            # Further arguments:
@@ -215,9 +215,12 @@
 #'   Defaults to c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11), 
 #'   thus excluding redundant orbits such as the orbit o3.
 #' @param gcmHeat logical indicating if a heatmap of the GCM(s) should be 
-#'   plotted. Default is \code{TRUE}.
+#'   plotted. Default is \code{FALSE}. This argument is kept for backward
+#'   compatibility; for new code, use \code{\link{plotGCM}} on the object
+#'   returned by \code{netAnalyze()}.
 #' @param gcmHeatLCC logical. The GCM heatmap is plotted for the LCC if 
-#'   \code{TRUE} (default) and for the whole network if \code{FALSE}. 
+#'   \code{TRUE} (default) and for the whole network if \code{FALSE}. This
+#'   argument is only used if \code{gcmHeat = TRUE}.
 #' @param verbose integer indicating the level of verbosity. Possible values:
 #'   \code{"0"}: no messages, \code{"1"}: only important messages,
 #'   \code{"2"}(default): all progress messages are shown. Can also be logical.
@@ -252,6 +255,7 @@
 #' @seealso \code{\link{netConstruct}} for network construction,
 #'   \code{\link{netCompare}} for network comparison,
 #'   \code{\link{diffnet}} for constructing differential networks,
+#'   \code{\link{plotGCM}} for plotting the Graphlet Correlation Matrix,
 #'   \code{\link{plot.microNetProps}} for the plot method, and
 #'   \code{\link{summary.microNetProps}} for the summary method.
 #'   
@@ -285,7 +289,7 @@ netAnalyze <- function(net,
                        lnormFit = FALSE,
                        graphlet = TRUE,
                        orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
-                       gcmHeat = TRUE,
+                       gcmHeat = FALSE,
                        gcmHeatLCC = TRUE,
                        avDissIgnoreInf = FALSE,
                        sPathAlgo = "dijkstra",
@@ -416,69 +420,6 @@ netAnalyze <- function(net,
                          verbose = verbose)
   }
   
-  #=============================================================================
-  # Plot GCM(s)
-  
-  if (graphlet && gcmHeat) {
-    opar <- par() 
-    
-    if (twoNets) {
-      mat <- matrix(c(1, 2, 3, 3), nrow = 2, ncol = 2, byrow = TRUE)
-
-      graphics::layout(mat = mat)
-      
-      gobj1 <- if (gcmHeatLCC) props1$graphlet_lcc else props1$graphlet
-      gobj2 <- if (gcmHeatLCC) props2$graphlet_lcc else props2$graphlet
-      
-      plotHeat(mat = gobj1$gcm,
-               pmat = gobj1$pAdjust,
-               type = "mixed",
-               title = "GCM1", 
-               colorLim = c(-1, 1),
-               mar = c(0, 0, 2, 0))
-      .addOrbRect()
-      
-      plotHeat(mat = gobj2$gcm,
-               pmat = gobj2$pAdjust,
-               type = "mixed",
-               title = "GCM2", 
-               colorLim = c(-1, 1),
-               mar = c(0, 0, 2, 0))
-      .addOrbRect()
-      
-      gcmtest <- testGCM(gobj1, gobj2, verbose = FALSE)
-      
-      plotHeat(mat = gcmtest$diff, 
-               pmat = gcmtest$pAdjustDiff,
-               type = "mixed", 
-               title = "Differences between GCs (GCM1-GCM2)",
-               mar = c(0, 0, 2, 0))
-      
-      .addOrbRect()
-
-      graphics::text(14, 1, "Significance codes:\n***: 0.001;  **: 0.01;  *: 0.05", 
-           xpd = NA, pos = 4)
-
-      par(mfrow = opar$mfrow)
-      
-    } else {
-      gobj1 <- if (gcmHeatLCC) props1$graphlet_lcc else props1$graphlet
-      
-      plotHeat(mat = gobj1$gcm,
-               pmat = gobj1$pAdjust,
-               type = "mixed",
-               title = "GCM", 
-               colorLim = c(-1, 1),
-               mar = c(2, 0, 2, 0))
-      
-      .addOrbRect()
-      
-      graphics::text(6, -0.2, 
-           "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05", xpd = NA)
-    }
-  }
-  
-  #=============================================================================
   output <- list()
   
   output$lccNames1 <- props1$lccNames
@@ -626,6 +567,17 @@ netAnalyze <- function(net,
   output$isempty <- list(isempty1 = isempty1, isempty2 = isempty2)
   
   class(output) <- "microNetProps"
+  
+  if (graphlet && gcmHeat) {
+    lifecycle::deprecate_soft(
+      "1.2.1",
+      "netAnalyze(gcmHeat)",
+      "plotGCM()",
+      details = "Use plotGCM() on the object returned by netAnalyze()."
+    )
+    plotGCM(output, gcmLCC = gcmHeatLCC)
+  }
+  
   return(output)
 }
 

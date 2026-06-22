@@ -1,0 +1,161 @@
+#' @title Plot a Graphlet Correlation Matrix Heatmap
+#'
+#' @description Plot the Graphlet Correlation Matrix (GCM) heatmap from an
+#'   object returned by \code{\link{netAnalyze}}.
+#'
+#' @param x object of class \code{microNetProps} returned by
+#'   \code{\link{netAnalyze}}.
+#' @param gcmLCC logical. If \code{TRUE} (default), the GCM heatmap is plotted
+#'   for the largest connected component. If \code{FALSE}, the GCM heatmap is
+#'   plotted for the whole network.
+#' @param titles optional character vector with plot titles. For one network,
+#'   a single title is used. For two networks, three titles are used for the
+#'   first GCM, second GCM, and the difference heatmap.
+#' @param mar numeric vector specifying the plot margins passed to
+#'   \code{\link{plotHeat}}. If \code{NULL}, suitable defaults are used.
+#' @param ... further arguments passed to \code{\link{plotHeat}}.
+#'
+#' @return Invisibly returns a list with the arguments used by
+#'   \code{\link{plotHeat}}.
+#'
+#' @examples
+#' data("amgut1.filt")
+#'
+#' amgut_net <- netConstruct(amgut1.filt, measure = "pearson",
+#'                           filtTax = "highestVar",
+#'                           filtTaxPar = list(highestVar = 50),
+#'                           zeroMethod = "pseudoZO", normMethod = "clr",
+#'                           sparsMethod = "threshold", thresh = 0.4)
+#'
+#' amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy",
+#'                           hubPar = "eigenvector")
+#'
+#' plotGCM(amgut_props)
+#'
+#' @seealso \code{\link{netAnalyze}}, \code{\link{calcGCM}},
+#'   \code{\link{testGCM}}, \code{\link{plotHeat}}
+#'
+#' @importFrom graphics layout par text
+#' @export
+
+plotGCM <- function(x,
+                    gcmLCC = TRUE,
+                    titles = NULL,
+                    mar = NULL,
+                    ...) {
+  if (!inherits(x, "microNetProps")) {
+    stop("\"x\" must be of class \"microNetProps\" returned by netAnalyze().")
+  }
+  
+  if (!is.logical(gcmLCC) || length(gcmLCC) != 1L || is.na(gcmLCC)) {
+    stop("\"gcmLCC\" must be a logical value.")
+  }
+  
+  if (is.null(x$graphlet)) {
+    stop("No graphlet properties found in \"x\". Please run netAnalyze() ",
+         "with graphlet = TRUE.")
+  }
+  
+  if (!is.null(titles) && !is.character(titles)) {
+    stop("\"titles\" must be a character vector.")
+  }
+  
+  if (!is.null(mar) && !(is.numeric(mar) && length(mar) == 4L)) {
+    stop("\"mar\" must be a numeric vector with 4 elements.")
+  }
+  
+  graphlet <- if (gcmLCC) x$graphletLCC else x$graphlet
+  twoNets <- isTRUE(x$input$twoNets)
+  out <- list()
+  
+  if (twoNets) {
+    if (is.null(titles)) {
+      titles <- c("GCM1", "GCM2", "Differences between GCMs (GCM1-GCM2)")
+    } else if (length(titles) != 3L) {
+      stop("\"titles\" must have length 3 for two networks.")
+    }
+    
+    if (is.null(mar)) mar <- c(0, 0, 2, 0)
+    
+    opar <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(opar), add = TRUE)
+    
+    mat <- matrix(c(1, 2, 3, 3), nrow = 2, ncol = 2, byrow = TRUE)
+    graphics::layout(mat = mat)
+    
+    out$gcm1 <- .plotGCMHeat(mat = graphlet$gcm1,
+                             pmat = graphlet$pAdjust1,
+                             title = titles[1],
+                             colorLim = c(-1, 1),
+                             mar = mar,
+                             ...)
+    .addOrbRect()
+    
+    out$gcm2 <- .plotGCMHeat(mat = graphlet$gcm2,
+                             pmat = graphlet$pAdjust2,
+                             title = titles[2],
+                             colorLim = c(-1, 1),
+                             mar = mar,
+                             ...)
+    .addOrbRect()
+    
+    gcmtest <- testGCM(.asGCM(graphlet$gcm1, graphlet$ocount1),
+                       .asGCM(graphlet$gcm2, graphlet$ocount2),
+                       verbose = FALSE)
+    
+    out$diff <- .plotGCMHeat(mat = gcmtest$diff,
+                             pmat = gcmtest$pAdjustDiff,
+                             title = titles[3],
+                             mar = mar,
+                             ...)
+    .addOrbRect()
+    
+    graphics::text(14, 1,
+                   "Significance codes:\n***: 0.001;  **: 0.01;  *: 0.05",
+                   xpd = NA, pos = 4)
+  } else {
+    if (is.null(titles)) {
+      titles <- "GCM"
+    } else if (length(titles) != 1L) {
+      stop("\"titles\" must have length 1 for one network.")
+    }
+    
+    if (is.null(mar)) mar <- c(2, 0, 2, 0)
+    
+    out$gcm <- .plotGCMHeat(mat = graphlet$gcm1,
+                            pmat = graphlet$pAdjust1,
+                            title = titles,
+                            colorLim = c(-1, 1),
+                            mar = mar,
+                            ...)
+    .addOrbRect()
+    
+    graphics::text(6, -0.2,
+                   "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05",
+                   xpd = NA)
+  }
+  
+  invisible(out)
+}
+
+
+#' @keywords internal
+.asGCM <- function(gcm, ocount) {
+  out <- list(gcm = gcm, ocount = ocount)
+  class(out) <- "GCM"
+  out
+}
+
+
+#' @keywords internal
+.plotGCMHeat <- function(mat, pmat, title, mar, colorLim = NULL, ...) {
+  args <- list(...)
+  defaults <- list(mat = mat,
+                   pmat = pmat,
+                   type = "mixed",
+                   title = title,
+                   colorLim = colorLim,
+                   mar = mar)
+  defaults <- defaults[!vapply(defaults, is.null, logical(1))]
+  do.call(plotHeat, utils::modifyList(defaults, args))
+}

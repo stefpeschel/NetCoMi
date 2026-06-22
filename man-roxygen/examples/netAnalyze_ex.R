@@ -38,21 +38,7 @@ plot(amgut_props3)
 
 #----------------------------------------------------------------------------
 # Plot the GCM heatmap
-plotHeat(mat = amgut_props1$graphletLCC$gcm1,
-         pmat = amgut_props1$graphletLCC$pAdjust1,
-         type = "mixed",
-         title = "GCM",
-         colorLim = c(-1, 1),
-         mar = c(2, 0, 2, 0))
-# Add rectangles
-graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
-               ybottom = c(11.5,  7.5, 4.5,  0.5),
-               xright  = c( 1.5,  4.5, 7.5, 11.5),
-               ytop    = c(10.5, 10.5, 7.5,  4.5),
-               lwd = 2, xpd = NA)
-
-text(6, -0.2, xpd = NA,
-     "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05")
+plotGCM(amgut_props1)
 
 #----------------------------------------------------------------------------
 # Dissimilarity-based network (where nodes are subjects)

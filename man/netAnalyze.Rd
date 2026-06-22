@@ -27,7 +27,7 @@ netAnalyze(net,
            # Graphlet related:
            graphlet = TRUE,
            orbits = c(0, 2, 5, 7, 8, 10, 11, 6, 9, 4, 1),
-           gcmHeat = TRUE,
+           gcmHeat = FALSE,
            gcmHeatLCC = TRUE,
            
            # Further arguments:
@@ -98,10 +98,13 @@ Defaults to c(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11),
 thus excluding redundant orbits such as the orbit o3.}
 
 \item{gcmHeat}{logical indicating if a heatmap of the GCM(s) should be 
-plotted. Default is \code{TRUE}.}
+plotted. Default is \code{FALSE}. This argument is kept for backward
+compatibility; for new code, use \code{\link{plotGCM}} on the object
+returned by \code{netAnalyze()}.}
 
 \item{gcmHeatLCC}{logical. The GCM heatmap is plotted for the LCC if 
-\code{TRUE} (default) and for the whole network if \code{FALSE}.}
+\code{TRUE} (default) and for the whole network if \code{FALSE}. This
+argument is only used if \code{gcmHeat = TRUE}.}
 
 \item{avDissIgnoreInf}{logical indicating whether to ignore infinities when 
 calculating the average dissimilarity. If \code{FALSE} (default), infinity 
@@ -315,21 +318,7 @@ plot(amgut_props3)
 
 #----------------------------------------------------------------------------
 # Plot the GCM heatmap
-plotHeat(mat = amgut_props1$graphletLCC$gcm1,
-         pmat = amgut_props1$graphletLCC$pAdjust1,
-         type = "mixed",
-         title = "GCM",
-         colorLim = c(-1, 1),
-         mar = c(2, 0, 2, 0))
-# Add rectangles
-graphics::rect(xleft   = c( 0.5,  1.5, 4.5,  7.5),
-               ybottom = c(11.5,  7.5, 4.5,  0.5),
-               xright  = c( 1.5,  4.5, 7.5, 11.5),
-               ytop    = c(10.5, 10.5, 7.5,  4.5),
-               lwd = 2, xpd = NA)
-
-text(6, -0.2, xpd = NA,
-     "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05")
+plotGCM(amgut_props1)
 
 #----------------------------------------------------------------------------
 # Dissimilarity-based network (where nodes are subjects)
@@ -355,6 +344,7 @@ Hocevar T, Demsar J (2016). “Computation of graphlet orbits for nodes and
 \code{\link{netConstruct}} for network construction,
   \code{\link{netCompare}} for network comparison,
   \code{\link{diffnet}} for constructing differential networks,
+  \code{\link{plotGCM}} for plotting the Graphlet Correlation Matrix,
   \code{\link{plot.microNetProps}} for the plot method, and
   \code{\link{summary.microNetProps}} for the summary method.
 }

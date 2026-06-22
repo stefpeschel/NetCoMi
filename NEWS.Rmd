@@ -19,6 +19,11 @@ differential associations by thresholding the absolute differences between
 association matrices. The threshold can be set via the new argument 
 `diffThresh`.
 
+* New function **`plotGCM()`** for plotting Graphlet Correlation Matrix (GCM)
+heatmaps from objects returned by `netAnalyze()`. The `gcmHeat` argument in
+`netAnalyze()` is kept for backward compatibility, but new code should call
+`plotGCM()` explicitly.
+
 ### References
 
 Badri M, Kurtz ZD, Bonneau R, Mueller CL (2020). Shrinkage improves estimation

@@ -28,6 +28,8 @@ adja2 <- net$adjaMat2
 props <- netAnalyze(net)
 
 plot(props, rmSingles = TRUE, cexLabels = 1.7, edgeWidth = 1.2)
+plotGCM(props)
+plotGCM(props, gcmLCC = FALSE)
 
 gcm1 <- calcGCM(adja1)
 gcm2 <- calcGCM(adja2)
