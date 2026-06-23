@@ -57,6 +57,14 @@ of the nodes.
 `calcGCD()`. The `gcmHeat` argument in `netAnalyze()` is kept for backward 
 compatibility, but new code should call `plotGCM()` explicitly.
 
+### Further changes
+
+* In `summary.microNetComp()`: Very small p-values are now shown in scientific
+notation instead of being rounded to zero in the printed summary output.
+
+* In `plotHeat()` and `print.GCD()`: Very small p-values are now shown in
+scientific notation when they are printed.
+
 ### References
 
 Badri M, Kurtz ZD, Bonneau R, Mueller CL (2020). Shrinkage improves estimation

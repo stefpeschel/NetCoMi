@@ -64,7 +64,8 @@ if \code{TRUE} (default) and not adjusted if \code{FALSE}.}
 results are rounded. Defaults to 3L.}
 
 \item{digitsPval}{integer giving the number of decimal places to which the 
-p-values are rounded. Defaults to 6L.}
+p-values are rounded. Values at or below the displayed precision are shown
+in scientific notation. Defaults to 6L.}
 
 \item{...}{not used.}
 

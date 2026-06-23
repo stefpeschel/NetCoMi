@@ -31,7 +31,8 @@
 #' @param digits integer giving the number of decimal places to which the 
 #'   results are rounded. Defaults to 3L. 
 #' @param digitsPval integer giving the number of decimal places to which the 
-#'   p-values are rounded. Defaults to 6L.
+#'   p-values are rounded. Values at or below the displayed precision are shown
+#'   in scientific notation. Defaults to 6L.
 #' @param ... not used.
 #'
 #' @seealso \code{\link{netCompare}}
@@ -103,7 +104,7 @@ summary.microNetComp <- function(object,
   
   if (showJacc) {
     jacc <- numeric(5)
-    p.greater <- p.less <- numeric(5)
+    p.greater <- p.less <- character(5)
     sig.greater <- sig.less <- character(5)
     
     tmp <- c("jaccDeg", "jaccBetw", "jaccClose", "jaccEigen", "jaccHub")
@@ -111,13 +112,13 @@ summary.microNetComp <- function(object,
     for (i in 1:5) {
       jacc[i] <- round(object[[tmp[i]]]["jacc"], digits)
       
-      p.greater[i] <- round(object[[tmp[i]]]["p.greater"], digitsPval)
+      p.greater[i] <- .formatPval(object[[tmp[i]]]["p.greater"], digitsPval)
       
-      p.less[i] <- round(object[[tmp[i]]]["p.less"], digitsPval)
+      p.less[i] <- .formatPval(object[[tmp[i]]]["p.less"], digitsPval)
       
-      sig.greater[i] <- .getSigCode(p.greater[i])
+      sig.greater[i] <- .getSigCode(object[[tmp[i]]]["p.greater"])
       
-      sig.less[i] <- .getSigCode(p.less[i])
+      sig.less[i] <- .getSigCode(object[[tmp[i]]]["p.less"])
       
     }
     
@@ -141,7 +142,7 @@ summary.microNetComp <- function(object,
     rand <- as.data.frame(rand)
     
     rand[1,1] <- round(object$randInd[1], digits)
-    rand[1,2] <- round(object$randInd[2], digitsPval)
+    rand[1,2] <- .formatPval(object$randInd[2], digitsPval)
     
     if (is.na(object$randInd[2])) {
       # no p-value computed
@@ -161,8 +162,8 @@ summary.microNetComp <- function(object,
       
       rand[1, 1] <- round(object$randInd[1], digits)
       rand[1, 2] <- round(object$randIndLCC[1], digits)
-      rand[2, 1] <- round(object$randInd[2], digitsPval)
-      rand[2, 2] <- round(object$randIndLCC[2], digitsPval)
+      rand[2, 1] <- .formatPval(object$randInd[2], digitsPval)
+      rand[2, 2] <- .formatPval(object$randIndLCC[2], digitsPval)
     }
   } else {
     rand <- NULL
@@ -194,9 +195,9 @@ summary.microNetComp <- function(object,
       gcd[1, 4] <- " "
       
       
-      gcd[2, 1] <- round(object$gcd$pval, digitsPval)
+      gcd[2, 1] <- .formatPval(object$gcd$pval, digitsPval)
       gcd[2, 2] <- .getSigCode(object$gcd$pval)
-      gcd[2, 3] <- round(object$gcdLCC$pval, digitsPval)
+      gcd[2, 3] <- .formatPval(object$gcdLCC$pval, digitsPval)
       gcd[2, 4] <- .getSigCode(object$gcdLCC$pval)
       
     }
@@ -291,8 +292,8 @@ summary.microNetComp <- function(object,
       
       if (showGlobPvals) {
         propdiffs[i,4] <- 
-          round(object$pvalDiffGlobal[[paste0("pval", glob_names2[i])]], 
-                digitsPval)
+          .formatPval(object$pvalDiffGlobal[[paste0("pval", glob_names2[i])]],
+                      digitsPval)
         
         propdiffs[i,5] <- 
           .getSigCode(object$pvalDiffGlobal[[paste0("pval", glob_names2[i])]])
@@ -396,8 +397,9 @@ summary.microNetComp <- function(object,
       
       if (showGlobPvals) {
         propdiffs_lcc[i, 4] <-
-          round(object$pvalDiffGlobalLCC[[paste0("pval", glob_names_lcc2[i])]],
-                digitsPval)
+          .formatPval(object$pvalDiffGlobalLCC[[paste0("pval",
+                                                       glob_names_lcc2[i])]],
+                      digitsPval)
         propdiffs_lcc[i, 5] <-
           .getSigCode(object$pvalDiffGlobalLCC[[paste0("pval",
                                                    glob_names_lcc2[i])]])
@@ -458,17 +460,14 @@ summary.microNetComp <- function(object,
       
       if (cols == 5) {
         if (pAdjust) {
-          topDeg[, 4] <-
-            round(object$pvalDiffCentrAdjust$pAdjustDiffDeg[topDegNames],
-                  digitsPval)
+          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffDeg[topDegNames]
         } else {
-          topDeg[, 4] <-
-            round(object$pvalDiffCentr$pvalDiffDeg[topDegNames],
-                  digitsPval)
+          pvals_top <- object$pvalDiffCentr$pvalDiffDeg[topDegNames]
         }
+        topDeg[, 4] <- .formatPval(pvals_top, digitsPval)
         topDeg[, 5] <-
           sapply(1:numbNodes, function(i) {
-            .getSigCode(topDeg[, 4][i])
+            .getSigCode(pvals_top[i])
           })
       }
     } else {
@@ -495,18 +494,13 @@ summary.microNetComp <- function(object,
       
       if (cols == 5) {
         if (pAdjust) {
-          topBetw[, 4] <-
-            round(object$pvalDiffCentrAdjust$pAdjustDiffBetw[topBetwNames],
-                  digitsPval)
-          
+          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffBetw[topBetwNames]
         } else {
-          topBetw[, 4] <-
-            round(object$pvalDiffCentr$pvalDiffBetw[topBetwNames],
-                  digitsPval)
-          
+          pvals_top <- object$pvalDiffCentr$pvalDiffBetw[topBetwNames]
         }
+        topBetw[, 4] <- .formatPval(pvals_top, digitsPval)
         topBetw[, 5] <- sapply(1:numbNodes, function(i) {
-          .getSigCode(topBetw[, 4][i])
+          .getSigCode(pvals_top[i])
         })
       }
     } else {
@@ -530,16 +524,13 @@ summary.microNetComp <- function(object,
       
       if (cols == 5) {
         if (pAdjust) {
-          topClose[, 4] <-
-            round(object$pvalDiffCentrAdjust$pAdjustDiffClose[topCloseNames],
-                  digitsPval)
+          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffClose[topCloseNames]
         } else {
-          topClose[, 4] <-
-            round(object$pvalDiffCentr$pvalDiffClose[topCloseNames],
-                  digitsPval)
+          pvals_top <- object$pvalDiffCentr$pvalDiffClose[topCloseNames]
         }
+        topClose[, 4] <- .formatPval(pvals_top, digitsPval)
         topClose[, 5] <- sapply(1:numbNodes, function(i) {
-          .getSigCode(topClose[, 4][i])})
+          .getSigCode(pvals_top[i])})
       }
     } else {
       topClose <- NULL
@@ -562,17 +553,14 @@ summary.microNetComp <- function(object,
       
       if (cols == 5) {
         if (pAdjust) {
-          topEigen[, 4] <-
-            round(object$pvalDiffCentrAdjust$pAdjustDiffEigen[topEigenNames],
-                  digitsPval)
+          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffEigen[topEigenNames]
         } else {
-          topEigen[, 4] <-
-            round(object$pvalDiffCentr$pvalDiffEigen[topEigenNames],
-                  digitsPval)
+          pvals_top <- object$pvalDiffCentr$pvalDiffEigen[topEigenNames]
         }
+        topEigen[, 4] <- .formatPval(pvals_top, digitsPval)
         topEigen[, 5] <-
           sapply(1:numbNodes, function(i) {
-            .getSigCode(topEigen[, 4][i])
+            .getSigCode(pvals_top[i])
           })
       }
     } else {

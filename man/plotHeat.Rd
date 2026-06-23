@@ -106,13 +106,14 @@ See \code{\link[graphics]{par}}. Default is c(0, 0, 1, 0).}
 is "black".}
 
 \item{textCex}{numeric defining the text size. Default is 1. Currently only 
-works for types "mat" and "code".}
+works for types "mat", "pmat", and "code".}
 
 \item{textFont}{numeric defining the text font. Default is 1. Currently only 
-works for type "mat".}
+works for types "mat" and "pmat".}
 
 \item{digits}{integer defining the number of decimal places used for 
-matrix values and p-values.}
+matrix values and p-values. P-values at or below the displayed precision
+are shown in scientific notation.}
 
 \item{legendPos}{position of the color legend. Possible values are: 
 "r"(right; default), "b"(bottom), "n"(no legend).}

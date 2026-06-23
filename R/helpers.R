@@ -215,6 +215,30 @@
 
 #-------------------------------------------------------------------------------
 #' @keywords internal
+# Add formatted p-values to a corrplot-style matrix display.
+.addPvalText <- function(pmat, type = "full", diag = TRUE, digits = 2L,
+                         textCol = "black", textCex = 1, textFont = 1) {
+  n <- nrow(pmat)
+  idx <- switch(type,
+                "upper" = which(upper.tri(pmat, diag = diag), arr.ind = TRUE),
+                "lower" = which(lower.tri(pmat, diag = diag), arr.ind = TRUE),
+                which(matrix(TRUE, nrow = nrow(pmat), ncol = ncol(pmat)) &
+                        (diag | row(pmat) != col(pmat)), arr.ind = TRUE))
+
+  if (nrow(idx) == 0L) return(invisible(NULL))
+
+  graphics::text(x = idx[, 2],
+                 y = n - idx[, 1] + 1,
+                 labels = .formatPval(pmat[idx], digits),
+                 col = textCol,
+                 cex = textCex,
+                 font = textFont)
+
+  invisible(NULL)
+}
+
+#-------------------------------------------------------------------------------
+#' @keywords internal
 # Make permutation group matrix unique and remove original group vector
 # Used in .getPermGroupMat
 .cleanPermMat <- function(perm_group_mat, groupvec, exact = FALSE) {

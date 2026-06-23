@@ -187,11 +187,16 @@ calcGCD <- function(adja1, adja2,
 #' 
 #' @param x object of class \code{GCD} (returned by to \code{\link{calcGCD}}).
 #' @param ... not used.
+#' @details If a p-value is available in \code{x$pval}, it is printed using
+#'   scientific notation for values at or below the displayed precision.
 #' 
 #' @method print GCD
 #' @rdname print.GCD
 #' @export
 print.GCD <- function(x, ...) {
   cat("GCD: ", round(x$gcd, 5), "\n")
+  if (!is.null(x$pval)) {
+    cat("p-value: ", .formatPval(x$pval, 6L), "\n")
+  }
 }
 

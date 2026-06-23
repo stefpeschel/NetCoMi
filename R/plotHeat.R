@@ -63,11 +63,12 @@
 #' @param textCol color of the cell text (values, p-values, and code). Default 
 #'   is "black".
 #' @param textCex numeric defining the text size. Default is 1. Currently only 
-#'   works for types "mat" and "code".
+#'   works for types "mat", "pmat", and "code".
 #' @param textFont numeric defining the text font. Default is 1. Currently only 
-#'   works for type "mat". 
+#'   works for types "mat" and "pmat". 
 #' @param digits integer defining the number of decimal places used for 
-#'   matrix values and p-values.
+#'   matrix values and p-values. P-values at or below the displayed precision
+#'   are shown in scientific notation.
 #' @param legendPos position of the color legend. Possible values are: 
 #'   "r"(right; default), "b"(bottom), "n"(no legend).
 #' @param colorPal character specifying the color palette used for cell coloring 
@@ -371,14 +372,8 @@ plotHeat <- function(mat,
                       sig.level = 0.05)
   
   argsPvals <- list(corr = mat,
-                    p.mat = pmat,
-                    insig = 'p-value',
-                    sig.level = -1,
-                    pch.col = textCol,
-                    pch.cex = textCex,
                     number.cex = textCex,
-                    number.font = textFont,
-                    number.digits = digits)
+                    number.font = textFont)
   
   argsCode <- list(corr = mat,
                    p.mat = pmat,
@@ -426,6 +421,7 @@ plotHeat <- function(mat,
                              "mixed" = "upper",
                              "full" = "full",
                              "upper" = "upper")
+    argsUpper$.plotPvals <- textUpp == "pmat"
     
     if (type %in% c("full", "upper") && !diag) {
       argsUpper$diag <- FALSE
@@ -464,6 +460,7 @@ plotHeat <- function(mat,
     argsLower <- append(argsLower, argsAdd)
     
     argsLower$type <- "lower"
+    argsLower$.plotPvals <- textLow == "pmat"
     
     if (type == "mixed") {
       if (textUpp != "mat") {
@@ -486,21 +483,48 @@ plotHeat <- function(mat,
   # Plot the heatmaps
   if (type %in% c("mixed", "full", "upper")) {
     argsFirst <- if (upperFirst) argsUpper else argsLower
+    plotPvals <- isTRUE(argsFirst$.plotPvals)
+    argsFirst$.plotPvals <- NULL
     
     .suppress_warnings(base::do.call(corrplot, args = argsFirst), 
                        startsWith, 
                        "col.lim interval ")
+
+    if (plotPvals) {
+      .addPvalText(pmat = pmat,
+                   type = argsFirst$type,
+                   diag = if (is.null(argsFirst$diag)) TRUE else argsFirst$diag,
+                   digits = digits,
+                   textCol = textCol,
+                   textCex = textCex,
+                   textFont = textFont)
+    }
     
   }
   
   if (type %in% c("mixed", "lower")) {
     argsSec <- if (upperFirst) argsLower else argsUpper
+    plotPvals <- isTRUE(argsSec$.plotPvals)
+    argsSec$.plotPvals <- NULL
     
     .suppress_warnings(base::do.call(corrplot, args = argsSec), 
                        startsWith, 
                        "col.lim interval ")
+
+    if (plotPvals) {
+      .addPvalText(pmat = pmat,
+                   type = argsSec$type,
+                   diag = if (is.null(argsSec$diag)) TRUE else argsSec$diag,
+                   digits = digits,
+                   textCol = textCol,
+                   textCex = textCex,
+                   textFont = textFont)
+    }
   }
   
+  if (!is.null(argsUpper)) argsUpper$.plotPvals <- NULL
+  if (!is.null(argsLower)) argsLower$.plotPvals <- NULL
+
   output <- list(argsUpper = argsUpper, argsLower = argsLower)
   
   invisible(output)
