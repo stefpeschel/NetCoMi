@@ -56,6 +56,9 @@
   is kept for backward compatibility, but new code should call
   `plotGCM()` explicitly.
 
+- `plotHeat()` now has a new argument `legendCex` to control the text
+  size of the color legend.
+
 ### Further changes
 
 - In `summary.microNetComp()`: Very small p-values are now shown in

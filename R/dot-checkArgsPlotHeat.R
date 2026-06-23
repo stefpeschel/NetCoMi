@@ -86,6 +86,11 @@
   
   args$legendPos <- match.arg(args$legendPos, c("r", "b", "n"))
   
+  if (!(is.numeric(args$legendCex) && length(args$legendCex) == 1L &&
+        args$legendCex > 0)) {
+    stop("\"legendCex\" must be a positive numeric value.")
+  }
+  
   # Sequential and diverging palettes from RColorBrewer function
   sequential <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", 
                   "Oranges", "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples", 

@@ -71,6 +71,8 @@
 #'   are shown in scientific notation.
 #' @param legendPos position of the color legend. Possible values are: 
 #'   "r"(right; default), "b"(bottom), "n"(no legend).
+#' @param legendCex numeric defining the legend label size. Default is 1.
+#'   Passed to \code{\link[corrplot]{corrplot}} argument \code{cl.cex}.
 #' @param colorPal character specifying the color palette used for cell coloring 
 #'   if \code{color} is not set. Available are the sequential and diverging 
 #'   color palettes from \code{\link[RColorBrewer]{RColorBrewer}}:
@@ -260,6 +262,7 @@ plotHeat <- function(mat,
                      textFont = 1,
                      digits = 2L,
                      legendPos = "r",
+                     legendCex = 1,
                      colorPal = NULL,
                      addWhite = TRUE,
                      nCol = 51L,
@@ -390,6 +393,7 @@ plotHeat <- function(mat,
                   tl.col = labCol,
                   tl.cex = labCex,
                   cl.pos = legendPos,
+                  cl.cex = legendCex,
                   col = color,
                   bg = bg,
                   is.corr = FALSE,

@@ -23,6 +23,7 @@ plotHeat(
   textFont = 1,
   digits = 2L,
   legendPos = "r",
+  legendCex = 1,
   colorPal = NULL,
   addWhite = TRUE,
   nCol = 51L,
@@ -117,6 +118,9 @@ are shown in scientific notation.}
 
 \item{legendPos}{position of the color legend. Possible values are: 
 "r"(right; default), "b"(bottom), "n"(no legend).}
+
+\item{legendCex}{numeric defining the legend label size. Default is 1.
+Passed to \code{\link[corrplot]{corrplot}} argument \code{cl.cex}.}
 
 \item{colorPal}{character specifying the color palette used for cell coloring 
 if \code{color} is not set. Available are the sequential and diverging 
