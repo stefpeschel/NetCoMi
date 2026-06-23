@@ -48,6 +48,8 @@
 #'   are white. If \code{FALSE} and \code{type} is "upper" or "lower", only the 
 #'   non-diagonal cells are printed.
 #' @param title character giving the title.
+#' @param titleCex numeric defining the title size. Default is 1. Passed to
+#'   \code{\link[corrplot]{corrplot}} argument \code{cex.main}.
 #' @param mar vector specifying the plot margins. 
 #'   See \code{\link[graphics]{par}}. Default is c(0, 0, 1, 0).
 #' @param labPos character defining the label position. Possible values are:
@@ -253,6 +255,7 @@ plotHeat <- function(mat,
                      methLow = "color",
                      diag = TRUE,
                      title = "",
+                     titleCex = 1,
                      mar = c(0, 0, 1, 0),
                      labPos = "lt",
                      labCol = "gray40",
@@ -399,6 +402,7 @@ plotHeat <- function(mat,
                   is.corr = FALSE,
                   col.lim = colorLim,
                   title = title, 
+                  cex.main = titleCex,
                   mar = mar)
   
   # If TRUE, the upper triangle is plotted first

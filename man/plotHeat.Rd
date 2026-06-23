@@ -14,6 +14,7 @@ plotHeat(
   methLow = "color",
   diag = TRUE,
   title = "",
+  titleCex = 1,
   mar = c(0, 0, 1, 0),
   labPos = "lt",
   labCol = "gray40",
@@ -86,6 +87,9 @@ are white. If \code{FALSE} and \code{type} is "upper" or "lower", only the
 non-diagonal cells are printed.}
 
 \item{title}{character giving the title.}
+
+\item{titleCex}{numeric defining the title size. Default is 1. Passed to
+\code{\link[corrplot]{corrplot}} argument \code{cex.main}.}
 
 \item{mar}{vector specifying the plot margins. 
 See \code{\link[graphics]{par}}. Default is c(0, 0, 1, 0).}

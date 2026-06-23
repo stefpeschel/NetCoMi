@@ -52,6 +52,11 @@
     stop("\"title\" must be a character value.")
   }
   
+  if (!(is.numeric(args$titleCex) && length(args$titleCex) == 1L &&
+        args$titleCex > 0)) {
+    stop("\"titleCex\" must be a positive numeric value.")
+  }
+  
   if (!(is.numeric(args$mar) & length(args$mar) == 4)) {
     stop("\"mar\" must be a numeric vector with 4 elements.")
   }

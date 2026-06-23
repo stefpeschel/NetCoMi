@@ -56,8 +56,8 @@
   is kept for backward compatibility, but new code should call
   `plotGCM()` explicitly.
 
-- `plotHeat()` now has a new argument `legendCex` to control the text
-  size of the color legend.
+- In `plotHeat()`: The title and legend text sizes can now be adjusted
+  more directly using the new `titleCex` and `legendCex` arguments.
 
 ### Further changes
 
