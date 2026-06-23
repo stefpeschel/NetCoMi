@@ -17,6 +17,8 @@
 #'   first GCM, second GCM, and the difference heatmap.
 #' @param mar numeric vector specifying the plot margins passed to
 #'   \code{\link{plotHeat}}. If \code{NULL}, suitable defaults are used.
+#' @param sigTextCex numeric defining the size of the explanatory significance
+#'   code text. Default is 1.
 #' @param ... further arguments passed to \code{\link{plotHeat}}.
 #'
 #' @return Invisibly returns a list with the arguments used by
@@ -76,6 +78,7 @@ plotGCM <- function(x,
                     gcmLCC = FALSE,
                     titles = NULL,
                     mar = NULL,
+                    sigTextCex = 1,
                     ...) {
   if (!(inherits(x, "microNetProps") || inherits(x, "GCM") ||
         inherits(x, "GCD"))) {
@@ -98,6 +101,11 @@ plotGCM <- function(x,
   
   if (!is.null(mar) && !(is.numeric(mar) && length(mar) == 4L)) {
     stop("\"mar\" must be a numeric vector with 4 elements.")
+  }
+  
+  if (!(is.numeric(sigTextCex) && length(sigTextCex) == 1L &&
+        sigTextCex > 0)) {
+    stop("\"sigTextCex\" must be a positive numeric value.")
   }
   
   graphlet <- .getGCMPlotData(x, gcmLCC)
@@ -148,7 +156,7 @@ plotGCM <- function(x,
     
     graphics::text(14, 1,
                    "Significance codes:\n***: 0.001;  **: 0.01;  *: 0.05",
-                   xpd = NA, pos = 4)
+                   xpd = NA, pos = 4, cex = sigTextCex)
   } else {
     if (is.null(titles)) {
       titles <- "GCM"
@@ -168,7 +176,7 @@ plotGCM <- function(x,
     
     graphics::text(6, -0.2,
                    "Significance codes:  ***: 0.001;  **: 0.01;  *: 0.05",
-                   xpd = NA)
+                   xpd = NA, cex = sigTextCex)
   }
   
   invisible(out)

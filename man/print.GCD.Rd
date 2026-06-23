@@ -16,5 +16,5 @@ Print method for GCD objects
 }
 \details{
 If a p-value is available in \code{x$pval}, it is printed using
-scientific notation for values at or below the displayed precision.
+  scientific notation for values at or below the displayed precision.
 }

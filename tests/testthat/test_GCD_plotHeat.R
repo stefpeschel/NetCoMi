@@ -46,7 +46,7 @@ plotHeat(mat = gcm1$gcm, diag = FALSE)
 
 plotHeat(mat = gcm2$gcm)
 plotHeat(mat = gcm2$gcm, legendCex = 1.4)
-plotGCM(gcm1, legendCex = 1.4)
+plotGCM(gcm1, legendCex = 1.4, sigTextCex = 1.4)
 
 plotHeat(mat = gcddiff$diff)
 

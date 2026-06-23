@@ -4,7 +4,7 @@
 \alias{plotGCM}
 \title{Plot a Graphlet Correlation Matrix Heatmap}
 \usage{
-plotGCM(x, gcmLCC = FALSE, titles = NULL, mar = NULL, ...)
+plotGCM(x, gcmLCC = FALSE, titles = NULL, mar = NULL, sigTextCex = 1, ...)
 }
 \arguments{
 \item{x}{object of class \code{microNetProps} returned by
@@ -23,6 +23,9 @@ first GCM, second GCM, and the difference heatmap.}
 
 \item{mar}{numeric vector specifying the plot margins passed to
 \code{\link{plotHeat}}. If \code{NULL}, suitable defaults are used.}
+
+\item{sigTextCex}{numeric defining the size of the explanatory significance
+code text. Default is 1.}
 
 \item{...}{further arguments passed to \code{\link{plotHeat}}.}
 }
