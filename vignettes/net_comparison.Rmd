@@ -48,6 +48,15 @@ smaller networks.
 We filter the 121 samples (sample size of the smaller group) with highest 
 frequency to make the sample sizes equal and thus ensure comparability.
 
+For network construction, we estimate associations with `corshrink`, a shrinkage
+correlation estimator that is relatively fast and therefore well suited for the
+permutation examples in this vignette. Since the data are compositional and
+contain zeros, zeros are first replaced by multiplicative replacement
+(`zeroMethod = "multRepl"`) and the data are then centered log-ratio transformed
+(`normMethod = "clr"`). The networks are sparsified by thresholding absolute
+association values below 0.2, and the signed dissimilarity transformation keeps
+the sign of the estimated associations for downstream network analysis.
+
 ```{r netcomp_spring_1}
 n_yes <- phyloseq::nsamples(amgut_season_yes)
 
@@ -58,15 +67,13 @@ net_season <- netConstruct(data = amgut_season_no,
                            filtTaxPar = list(highestVar = 50),
                            filtSamp = "highestFreq",
                            filtSampPar = list(highestFreq = n_yes),
-                           measure = "spring",
-                           measurePar = list(nlambda = 10, 
-                                             rep.num = 10,
-                                             Rmethod = "approx"),
-                           normMethod = "none", 
-                           zeroMethod = "none",
-                           sparsMethod = "none", 
+                           measure = "corshrink",
+                           zeroMethod = "multRepl",
+                           normMethod = "clr", 
+                           sparsMethod = "threshold",
+                           thresh = 0.2,
                            dissFunc = "signed",
-                           verbose = 2,
+                           verbose = 3,
                            seed = 123456)
 ```
 
@@ -93,13 +100,11 @@ net_season <- netConstruct(countMat,
                            filtTaxPar = list(highestVar = 50),
                            filtSamp = "highestFreq",
                            filtSampPar = list(highestFreq = n_yes),
-                           measure = "spring",
-                           measurePar = list(nlambda=10, 
-                                             rep.num=10,
-                                             Rmethod = "approx"),
-                           normMethod = "none", 
-                           zeroMethod = "none",
-                           sparsMethod = "none", 
+                           measure = "corshrink",
+                           zeroMethod = "multRepl",
+                           normMethod = "clr", 
+                           sparsMethod = "threshold",
+                           thresh = 0.2,
                            dissFunc = "signed",
                            verbose = 3,
                            seed = 123456)
@@ -144,20 +149,20 @@ props_season <- netAnalyze(net_season,
                            lnormFit = TRUE,
                            normDeg = FALSE,
                            normBetw = FALSE,
-                           normClose = FALSE,
-                           normEigen = FALSE)
+                           normClose = FALSE)
 
-summary(props_season)
+print(summary(props_season))
 ```
 
 
 ### Visual network comparison
 
-First, the layout is computed separately in both groups (qgraph's "spring" 
-layout in this case).
+First, the layout is computed separately in both groups (qgraph's "spring"
+layout in this case). The associations are estimated with `corshrink`, which is
+comparatively fast and therefore convenient for the permutation examples below.
 
-Node sizes are scaled according to the mclr-transformed data since `SPRING` uses
-the mclr transformation as normalization method.
+Node sizes are scaled according to the clr-transformed data used for network
+construction.
 
 Node colors represent clusters. Note that by default, two clusters have the same 
 color in both groups if they have at least two nodes in common 
@@ -167,7 +172,7 @@ color in both groups if they have at least two nodes in common
 plot(props_season, 
      sameLayout = FALSE, 
      nodeColor = "cluster",
-     nodeSize = "mclr",
+     nodeSize = "clr",
      labelScale = FALSE,
      cexNodes = 1.5, 
      cexLabels = 2.5,
@@ -197,7 +202,7 @@ plot(props_season,
      sameLayout = TRUE, 
      layoutGroup = 1,
      rmSingles = "inboth", 
-     nodeSize = "mclr", 
+     nodeSize = "clr", 
      labelScale = FALSE,
      cexNodes = 1.5, 
      cexLabels = 2.5,
@@ -235,7 +240,7 @@ plot(props_season,
      repulsion = 0.95,
      layoutGroup = "union",
      rmSingles = "inboth", 
-     nodeSize = "mclr", 
+     nodeSize = "clr", 
      labelScale = FALSE,
      cexNodes = 1.5, 
      cexLabels = 2.5,
@@ -271,4 +276,67 @@ summary(comp_season,
         numbNodes = 5)
 ```
 
+#### Refining permutation p-values
 
+Permutation tests can also be combined with p-value refinement using the
+`permApprox` package. The following example first computes the permutation
+p-values in the classical way. The permutation association matrices are stored
+so that they can be reused in the second call, where the p-values are refined
+without re-estimating the permutation associations.
+
+```{r netcomp_spring_perm_classic, eval=FALSE}
+comp_season_perm <- netCompare(props_season,
+                               permTest = TRUE,
+                               nPerm = 999,
+                               storeAssoPerm = TRUE,
+                               fileStoreAssoPerm = "assoPerm_season",
+                               storeCountsPerm = FALSE,
+                               refinePermPvals = FALSE,
+                               cores = 10,
+                               verbose = TRUE,
+                               seed = 123456)
+
+summary(comp_season_perm,
+        groupNames = c("No allergies", "Allergies"),
+        showCentr = c("degree", "between", "closeness"),
+        numbNodes = 5)
+```
+
+The second run loads the stored permutation association matrices and refines the
+permutation p-values with `permApprox::perm_approx()`. Here, the GPD
+approximation is used. The control arguments for the GPD fit are created with
+`permApprox::make_gpd_ctrl()` and passed to `netCompare()` via
+`permApproxParams`.
+
+```{r netcomp_spring_perm_refined, eval=FALSE}
+gpd_ctrl <- permApprox::make_gpd_ctrl(
+  constraint = "support_at_obs",
+  sample_size = min(nrow(net_season$normCounts1), nrow(net_season$normCounts2))
+)
+
+comp_season_perm_refined <- netCompare(
+  props_season,
+  permTest = TRUE,
+  nPerm = 999,
+  fileLoadAssoPerm = "assoPerm_season",
+  storeAssoPerm = FALSE,
+  refinePermPvals = TRUE,
+  permApproxParams = list(
+    method = "gpd",
+    gpd_ctrl = gpd_ctrl
+  ),
+  cores = 10,
+  verbose = TRUE,
+  seed = 123456
+)
+
+summary(comp_season_perm_refined,
+        groupNames = c("No allergies", "Allergies"),
+        showCentr = c("degree", "between", "closeness"),
+        numbNodes = 5)
+```
+
+In this example, the empirical p-values are not close to the lower resolution
+limit of the permutation test. Thus, refining them with `permApprox` does not
+lead to a visible improvement, but the workflow illustrates how refinement can
+be added when very small p-values are expected.
