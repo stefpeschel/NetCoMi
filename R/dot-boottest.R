@@ -80,9 +80,15 @@
     
     # Run foreach
     
+    foreachPackages <- .getPermWorkerPackages(
+      measure = measure,
+      includePrepro = FALSE,
+      useFilematrix = FALSE
+    )
+    
     assoBoot <- foreach(
       b = 1:nboot,
-      .packages = c("gtools", "vegan", "LaplacesDemon"),
+      .packages = foreachPackages,
       .export = c(
         ".calcAssociation",
         "sparcc",

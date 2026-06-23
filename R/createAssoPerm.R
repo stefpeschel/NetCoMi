@@ -393,21 +393,17 @@ createAssoPerm <- function(x,
     
     if (!is.null(logFile)) cat("", file=logFile, append=FALSE)
     
+    foreachPackages <- .getPermWorkerPackages(
+      measure = parNC$measure,
+      zeroMethod = parNC$zeroMethod,
+      normMethod = parNC$normMethod,
+      includePrepro = !parNC$jointPrepro
+    )
+    
     p <- NULL
     propsPerm <- foreach(
       p = 1:nPerm,
-      .packages = c(
-        "WGCNA",
-        "SPRING",
-        "SpiecEasi",
-        "ccrepe",
-        "vegan",
-        "LaplacesDemon",
-        "propr",
-        "corpcor",
-        "DESeq2",
-        "filematrix"
-      ),
+      .packages = foreachPackages,
       .export = c(".calcAssociation", "cclasso", "gcoda", "rhoshrink"),
       .options.snow = opts
     ) %do_or_dopar% {
@@ -468,17 +464,17 @@ createAssoPerm <- function(x,
       }
       
       if (storeCountsPerm) {
-        fmat_counts1 <- fm.open(filenamebase = fileStoreCountsPerm[1])
-        fmat_counts2 <- fm.open(filenamebase = fileStoreCountsPerm[2])
+        fmat_counts1_iter <- fm.open(filenamebase = fileStoreCountsPerm[1])
+        fmat_counts2_iter <- fm.open(filenamebase = fileStoreCountsPerm[2])
         
-        fmat_counts1[startIndex_counts1 + (p-1) * n1 + (1:n1), 
-                     1:nVar] <- count1.tmp
+        fmat_counts1_iter[startIndex_counts1 + (p-1) * n1 + (1:n1), 
+                          1:nVar] <- count1.tmp
         
-        fmat_counts2[startIndex_counts2 + (p-1) * n2 + (1:n2), 
-                     1:nVar] <- count2.tmp
+        fmat_counts2_iter[startIndex_counts2 + (p-1) * n2 + (1:n2), 
+                          1:nVar] <- count2.tmp
         
-        close(fmat_counts1)
-        close(fmat_counts2)
+        close(fmat_counts1_iter)
+        close(fmat_counts2_iter)
       }
       
       assoMat1.tmp <- .calcAssociation(count1.tmp,
@@ -490,14 +486,17 @@ createAssoPerm <- function(x,
                                        measurePar = parNC$measurePar,
                                        verbose = FALSE)$assoMat
       
-      fmat <- fm.open(filenamebase = fileStoreAssoPerm)
+      # Use a separate variable to avoid overwriting the outer 'fmat' handle
+      # (foreach %do% evaluates in the calling scope, so reusing 'fmat' here
+      # would orphan the open outer fmat and leak its file handle on Windows)
+      fmat_iter <- fm.open(filenamebase = fileStoreAssoPerm)
       
-      fmat[startIndex + (p-1) * nVar + (1:nVar), 
-           1:nVar] <- assoMat1.tmp
-      fmat[startIndex + (p-1) * nVar + (1:nVar), 
-           nVar + (1:nVar)] <- assoMat2.tmp
+      fmat_iter[startIndex + (p-1) * nVar + (1:nVar), 
+                1:nVar] <- assoMat1.tmp
+      fmat_iter[startIndex + (p-1) * nVar + (1:nVar), 
+                nVar + (1:nVar)] <- assoMat2.tmp
       
-      close(fmat)
+      close(fmat_iter)
     }
     
     if (verbose) {

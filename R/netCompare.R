@@ -526,11 +526,18 @@ netCompare <- function(x,
     
     if (!is.null(logFile)) cat("", file=logFile, append=FALSE)
     
+    foreachPackages <- .getPermWorkerPackages(
+      measure = parNC$measure,
+      zeroMethod = parNC$zeroMethod,
+      normMethod = parNC$normMethod,
+      includePrepro = !parNC$jointPrepro
+    )
+    
     p <- NULL
     
     propsPerm <- foreach(
       p = 1:nPerm,
-      .packages = c("filematrix"),
+      .packages = foreachPackages,
       .export = c(
         ".calcAssociation",
         ".calcDiffProps",

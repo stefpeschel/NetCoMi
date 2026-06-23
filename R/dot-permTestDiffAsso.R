@@ -290,9 +290,16 @@
   #-----------------------------------------------------------------------------
   # Run foreach
   
+  foreachPackages <- .getPermWorkerPackages(
+    measure = measure,
+    zeroMethod = zeroMethod,
+    normMethod = normMethod,
+    includePrepro = !jointPrepro
+  )
+  
   result <- foreach(
     p = 1:nPerm,
-    .packages = c("filematrix"),
+    .packages = foreachPackages,
     .export = c(
       ".calcAssociation",
       "cclasso",

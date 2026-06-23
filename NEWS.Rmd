@@ -62,6 +62,12 @@ directly using the new `titleCex` and `legendCex` arguments.
 
 ### Further changes
 
+* In `createAssoPerm()`, `netCompare()`, `diffnet()`, and the internal
+bootstrap tests used for sparsification: Parallel workers now load only the
+packages required by the selected association/dissimilarity measure and
+preprocessing settings. Suggested packages are no longer required merely because
+permutation or bootstrap computations are run in parallel.
+
 * In `summary.microNetComp()`: Very small p-values are now shown in scientific
 notation instead of being rounded to zero in the printed summary output.
 
