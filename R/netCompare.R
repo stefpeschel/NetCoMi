@@ -1087,91 +1087,146 @@ netCompare <- function(x,
     
     pvalnames <- paste0("pval", globNames)
     
-    pvalDiffGlobal <-  pvalDiffGlobalLCC <- list()
+    pvalDiffGlobalRes <-  pvalDiffGlobalLCCRes <- list()
     
-    pvalDiffGlobal[["pvalnComp"]] <- 
+    pvalDiffGlobalRes[["pvalnComp"]] <-
       .calcPermPval(tstat = props$diffsGlobal[["diffnComp"]],
                     tstatPerm = permDiffsGlobal[, "diffnComp"],
                     nPerm = nPerm, exact = exact,
                     refinePermPvals = refinePermPvals,
                     permApproxParams = permApproxParams)
-    
-    
-    pvalDiffGlobalLCC[["pvallccSize"]] <-
+
+
+    pvalDiffGlobalLCCRes[["pvallccSize"]] <-
       .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSize"]],
                     tstatPerm = permDiffsGlobal_lcc[, "difflccSize"],
                     nPerm = nPerm, exact = exact,
                     refinePermPvals = refinePermPvals,
                     permApproxParams = permApproxParams)
-    
-    pvalDiffGlobalLCC[["pvallccSizeRel"]] <-
+
+    pvalDiffGlobalLCCRes[["pvallccSizeRel"]] <-
       .calcPermPval(tstat = props$diffsGlobalLCC[["difflccSizeRel"]],
                     tstatPerm = permDiffsGlobal_lcc[, "difflccSizeRel"],
                     nPerm = nPerm, exact = exact,
                     refinePermPvals = refinePermPvals,
                     permApproxParams = permApproxParams)
-    
+
     for (i in seq_along(pvalnames)) {
-      pvalDiffGlobal[[pvalnames[i]]] <-
+      pvalDiffGlobalRes[[pvalnames[i]]] <-
         .calcPermPval(tstat = props$diffsGlobal[[globNamesDiff[i]]],
                       tstatPerm = permDiffsGlobal[, globNamesDiff[i]],
                       nPerm = nPerm, exact = exact,
                       refinePermPvals = refinePermPvals,
                       permApproxParams = permApproxParams)
-      
-      pvalDiffGlobalLCC[[pvalnames[i]]] <-
+
+      pvalDiffGlobalLCCRes[[pvalnames[i]]] <-
         .calcPermPval(tstat = props$diffsGlobalLCC[[globNamesDiff[i]]],
                       tstatPerm = permDiffsGlobal_lcc[, globNamesDiff[i]],
                       nPerm = nPerm, exact = exact,
                       refinePermPvals = refinePermPvals,
                       permApproxParams = permApproxParams)
     }
-    
+
     #------------------------------
     # P-values for the centralities
+
+    pvalDiffDegRes <- .calcPermPval(tstat = props$absDiffs$absDiffDeg,
+                                    tstatPerm = absDiffsPermDeg,
+                                    nPerm = nPerm, exact = exact,
+                                    refinePermPvals = refinePermPvals,
+                                    permApproxParams = permApproxParams)
+
+    pvalDiffBetwRes <- .calcPermPval(tstat = props$absDiffs$absDiffBetw,
+                                     tstatPerm = absDiffsPermBetw,
+                                     nPerm = nPerm, exact = exact,
+                                     refinePermPvals = refinePermPvals,
+                                     permApproxParams = permApproxParams)
+
+    pvalDiffCloseRes <- .calcPermPval(tstat = props$absDiffs$absDiffClose,
+                                      tstatPerm = absDiffsPermClose,
+                                      nPerm = nPerm, exact = exact,
+                                      refinePermPvals = refinePermPvals,
+                                      permApproxParams = permApproxParams)
+
+    pvalDiffEigenRes <- .calcPermPval(tstat = props$absDiffs$absDiffEigen,
+                                      tstatPerm = absDiffsPermEigen,
+                                      nPerm = nPerm, exact = exact,
+                                      refinePermPvals = refinePermPvals,
+                                      permApproxParams = permApproxParams)
     
-    pvalDiffDeg <- .calcPermPval(tstat = props$absDiffs$absDiffDeg,
-                                 tstatPerm = absDiffsPermDeg,
-                                 nPerm = nPerm, exact = exact,
-                                 refinePermPvals = refinePermPvals,
-                                 permApproxParams = permApproxParams)
-    
-    pvalDiffBetw <- .calcPermPval(tstat = props$absDiffs$absDiffBetw,
-                                  tstatPerm = absDiffsPermBetw,
-                                  nPerm = nPerm, exact = exact,
-                                  refinePermPvals = refinePermPvals,
-                                  permApproxParams = permApproxParams)
-    
-    pvalDiffClose <- .calcPermPval(tstat = props$absDiffs$absDiffClose,
-                                   tstatPerm = absDiffsPermClose,
-                                   nPerm = nPerm, exact = exact,
-                                   refinePermPvals = refinePermPvals,
-                                   permApproxParams = permApproxParams)
-    
-    pvalDiffEigen <- .calcPermPval(tstat = props$absDiffs$absDiffEigen,
-                                   tstatPerm = absDiffsPermEigen,
-                                   nPerm = nPerm, exact = exact,
-                                   refinePermPvals = refinePermPvals,
-                                   permApproxParams = permApproxParams)
+    pvalDiffDeg <- pvalDiffDegRes$pval
+    pvalDiffBetw <- pvalDiffBetwRes$pval
+    pvalDiffClose <- pvalDiffCloseRes$pval
+    pvalDiffEigen <- pvalDiffEigenRes$pval
     
     names(pvalDiffDeg) <- names(pvalDiffBetw) <- 
       names(pvalDiffClose) <- names(pvalDiffEigen) <- colnames(adja1)
+    names(pvalDiffDegRes$empirical) <- names(pvalDiffBetwRes$empirical) <-
+      names(pvalDiffCloseRes$empirical) <- names(pvalDiffEigenRes$empirical) <-
+      colnames(adja1)
+    if (!is.null(pvalDiffDegRes$refined)) {
+      names(pvalDiffDegRes$refined) <- names(pvalDiffBetwRes$refined) <-
+        names(pvalDiffCloseRes$refined) <- names(pvalDiffEigenRes$refined) <-
+        colnames(adja1)
+    }
     
     #------------------------------
     # P-value for the GCD
     if (gcd) {
-      pvalGCD <- .calcPermPval(props$gcd$gcd, gcdPerm,
-                               nPerm = nPerm, exact = exact,
-                               refinePermPvals = refinePermPvals,
-                               permApproxParams = permApproxParams)
-      
-      pvalGCDLCC <- .calcPermPval(props$gcdLCC$gcd, gcdPermLCC,
+      pvalGCDRes <- .calcPermPval(props$gcd$gcd, gcdPerm,
                                   nPerm = nPerm, exact = exact,
                                   refinePermPvals = refinePermPvals,
                                   permApproxParams = permApproxParams)
+      pvalGCD <- pvalGCDRes$pval
+
+      pvalGCDLCCRes <- .calcPermPval(props$gcdLCC$gcd, gcdPermLCC,
+                                     nPerm = nPerm, exact = exact,
+                                     refinePermPvals = refinePermPvals,
+                                     permApproxParams = permApproxParams)
+      pvalGCDLCC <- pvalGCDLCCRes$pval
     }
     #------------------------------
     
+    pvalDiffGlobal <- lapply(pvalDiffGlobalRes, `[[`, "pval")
+    pvalDiffGlobalEmpirical <- lapply(pvalDiffGlobalRes, `[[`, "empirical")
+    pvalDiffGlobalRefined <- if (any(vapply(pvalDiffGlobalRes, function(x) {
+      !is.null(x$refined)
+    }, logical(1)))) {
+      lapply(pvalDiffGlobalRes, `[[`, "refined")
+    } else {
+      NULL
+    }
+
+    pvalDiffGlobalLCC <- lapply(pvalDiffGlobalLCCRes, `[[`, "pval")
+    pvalDiffGlobalLCCEmpirical <- lapply(pvalDiffGlobalLCCRes, `[[`,
+                                         "empirical")
+    pvalDiffGlobalLCCRefined <- if (any(vapply(pvalDiffGlobalLCCRes,
+                                               function(x) {
+      !is.null(x$refined)
+    }, logical(1)))) {
+      lapply(pvalDiffGlobalLCCRes, `[[`, "refined")
+    } else {
+      NULL
+    }
+
+    pvalDiffCentrEmpirical <- list(
+      pvalDiffDeg = pvalDiffDegRes$empirical,
+      pvalDiffBetw = pvalDiffBetwRes$empirical,
+      pvalDiffClose = pvalDiffCloseRes$empirical,
+      pvalDiffEigen = pvalDiffEigenRes$empirical
+    )
+
+    pvalDiffCentrRefined <- if (!is.null(pvalDiffDegRes$refined)) {
+      list(
+        pvalDiffDeg = pvalDiffDegRes$refined,
+        pvalDiffBetw = pvalDiffBetwRes$refined,
+        pvalDiffClose = pvalDiffCloseRes$refined,
+        pvalDiffEigen = pvalDiffEigenRes$refined
+      )
+    } else {
+      NULL
+    }
+
     if (verbose) message("Done.")
     
     if (verbose & adjust != "none") {
@@ -1216,14 +1271,27 @@ netCompare <- function(x,
     if (verbose & adjust != "none") message("Done.")
     
     output$pvalDiffGlobal <- pvalDiffGlobal 
+    output$pvalDiffGlobalEmpirical <- pvalDiffGlobalEmpirical
+    if (!is.null(pvalDiffGlobalRefined)) {
+      output$pvalDiffGlobalRefined <- pvalDiffGlobalRefined
+    }
     
     output$pvalDiffGlobalLCC <- pvalDiffGlobalLCC
+    output$pvalDiffGlobalLCCEmpirical <- pvalDiffGlobalLCCEmpirical
+    if (!is.null(pvalDiffGlobalLCCRefined)) {
+      output$pvalDiffGlobalLCCRefined <- pvalDiffGlobalLCCRefined
+    }
     
     output$pvalDiffCentr <- list(pvalDiffDeg = pvalDiffDeg,
                                  pvalDiffBetw = pvalDiffBetw,
                                  pvalDiffClose = pvalDiffClose,
                                  pvalDiffEigen = pvalDiffEigen)
     
+    output$pvalDiffCentrEmpirical <- pvalDiffCentrEmpirical
+    if (!is.null(pvalDiffCentrRefined)) {
+      output$pvalDiffCentrRefined <- pvalDiffCentrRefined
+    }
+
     output$pvalDiffCentrAdjust <- list(pAdjustDiffDeg = pAdjustDiffDeg,
                                        pAdjustDiffBetw = pAdjustDiffBetw,
                                        pAdjustDiffClose = pAdjustDiffClose,
@@ -1246,24 +1314,32 @@ netCompare <- function(x,
     
     if (gcd) {
       output$gcd$pval <- pvalGCD
+      output$gcd$pvalEmpirical <- pvalGCDRes$empirical
+      if (!is.null(pvalGCDRes$refined)) {
+        output$gcd$pvalRefined <- pvalGCDRes$refined
+      }
       output$gcd$gcdPerm <- gcdPerm
       
       output$gcdLCC$pval <- pvalGCDLCC
+      output$gcdLCC$pvalEmpirical <- pvalGCDLCCRes$empirical
+      if (!is.null(pvalGCDLCCRes$refined)) {
+        output$gcdLCC$pvalRefined <- pvalGCDLCCRes$refined
+      }
       output$gcdLCC$gcdPerm <- gcdPermLCC
       
       # Reorder
-      output$gcd <- output$gcd[c("gcd", "pval", "gcdPerm", "ocount1",
-                                 "ocount2", "gcm1", "gcm2")]
-      
-      output$gcdLCC <- output$gcdLCC[c("gcd", "pval", "gcdPerm", "ocount1",
-                                       "ocount2", "gcm1", "gcm2")]
+      gcdNames <- c("gcd", "pval", "pvalEmpirical",
+                    if (!is.null(pvalGCDRes$refined)) "pvalRefined",
+                    "gcdPerm", "ocount1", "ocount2", "gcm1", "gcm2")
+      output$gcd <- output$gcd[gcdNames]
+
+      gcdLCCNames <- c("gcd", "pval", "pvalEmpirical",
+                       if (!is.null(pvalGCDLCCRes$refined)) "pvalRefined",
+                       "gcdPerm", "ocount1", "ocount2", "gcm1", "gcm2")
+      output$gcdLCC <- output$gcdLCC[gcdLCCNames]
     }
   }
   
   class(output) <- "microNetComp"
   return(output)
 }
-
-
-
-

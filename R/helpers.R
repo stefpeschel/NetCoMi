@@ -101,7 +101,7 @@
 
 #-------------------------------------------------------------------------------
 #' @keywords internal
-# Compute empirical permutation p-value.
+# Compute empirical and, optionally, refined permutation p-values.
 # Used in netCompare() and .permTestDiffAsso()
 .calcPermPval <- function(tstat, tstatPerm, nPerm, exact,
                           refinePermPvals = FALSE,
@@ -116,8 +116,7 @@
            "of \"tstat\".")
     }
   }
-  browser()
-  pval <- if (exact) {
+  empirical <- if (exact) {
     if (is.matrix(tstatPerm)) {
       colSums(sweep(tstatPerm, 2, tstat, FUN = ">=")) / nPerm
     } else {
@@ -131,17 +130,25 @@
     }
   }
 
+  refined <- NULL
   if (refinePermPvals && !exact) {
-    pval <- .permApproxPval(tstat = tstat,
-                            tstatPerm = tstatPerm,
-                            permApproxParams = permApproxParams)
-  }
-  
-  if (!is.null(names(tstat))) {
-    names(pval) <- names(tstat)
+    refined <- .permApproxPval(tstat = tstat,
+                               tstatPerm = tstatPerm,
+                               permApproxParams = permApproxParams)
   }
 
-  pval
+  if (!is.null(names(tstat))) {
+    names(empirical) <- names(tstat)
+    if (!is.null(refined)) {
+      names(refined) <- names(tstat)
+    }
+  }
+
+  list(
+    pval = if (is.null(refined)) empirical else refined,
+    empirical = empirical,
+    refined = refined
+  )
 }
 
 #-------------------------------------------------------------------------------

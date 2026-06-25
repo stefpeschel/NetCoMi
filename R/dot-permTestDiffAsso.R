@@ -146,13 +146,13 @@
   if (jointPrepro) {
     n1 <- nrow(normCounts1)
     n2 <- nrow(normCounts2)
-    
+
     xbind <- rbind(normCounts1, normCounts2)
-    
+
   } else {
     n1 <- nrow(countMat1)
     n2 <- nrow(countMat2)
-    
+
     xbind <- rbind(countMat1, countMat2)
   }
   
@@ -332,7 +332,7 @@
       count1.tmp <- count2.tmp <- NULL
       dimnames(assoMat1.tmp) <- dimnames(assoMat1)
       dimnames(assoMat2.tmp) <- dimnames(assoMat2)
-      
+
     } else if (!is.null(fileLoadAssoPerm )) {
       
       fmat <- fm.open(filenamebase = fileLoadAssoPerm, 
@@ -530,12 +530,13 @@
                 appendLF = FALSE)
       }
 
-      pvalsVec <- .calcPermPval(tstat = connectPairsOrig,
-                                tstatPerm = connectPairs,
-                                nPerm = nPerm,
-                                exact = exact,
-                                refinePermPvals = refinePermPvals,
-                                permApproxParams = permApproxParams)
+      pvalsVecRes <- .calcPermPval(tstat = connectPairsOrig,
+                                   tstatPerm = connectPairs,
+                                   nPerm = nPerm,
+                                   exact = exact,
+                                   refinePermPvals = refinePermPvals,
+                                   permApproxParams = permApproxParams)
+      pvalsVec <- pvalsVecRes$pval
 
       if (verbose && refinePermPvals && !exact) message("Done.")
 
@@ -548,6 +549,10 @@
     names(pvalsVec) <- names(connectPairsOrig)
     
     output[["pvalsVec"]] <- pvalsVec
+    output[["pvalsVecEmpirical"]] <- pvalsVecRes$empirical
+    if (!is.null(pvalsVecRes$refined)) {
+      output[["pvalsVecRefined"]] <- pvalsVecRes$refined
+    }
     
     # adjust for multiple testing
     if (verbose & adjust != "none") {
@@ -569,6 +574,16 @@
     
     output[["pvalsMat"]] <- pvalsMat
     
+    mat.tmp[lower.tri(mat.tmp)] <- output[["pvalsVecEmpirical"]]
+    mat.tmp[upper.tri(mat.tmp)] <- t(mat.tmp)[upper.tri(t(mat.tmp))]
+    output[["pvalsMatEmpirical"]] <- mat.tmp
+
+    if (!is.null(pvalsVecRes$refined)) {
+      mat.tmp[lower.tri(mat.tmp)] <- output[["pvalsVecRefined"]]
+      mat.tmp[upper.tri(mat.tmp)] <- t(mat.tmp)[upper.tri(t(mat.tmp))]
+      output[["pvalsMatRefined"]] <- mat.tmp
+    }
+
     if (adjust == "none") {
       output[["pAdjustMat"]] <- NULL
     } else {
@@ -601,19 +616,26 @@
               appendLF = FALSE)
     }
 
-    pvalsConnectVariables <-
+    pvalsConnectVariablesRes <-
       .calcPermPval(tstat = connectVariablesOrig,
                     tstatPerm = connectVariables,
                     nPerm = nPerm,
                     exact = exact,
                     refinePermPvals = refinePermPvals,
                     permApproxParams = permApproxParams)
+    pvalsConnectVariables <- pvalsConnectVariablesRes$pval
 
     if (verbose && refinePermPvals && !exact) message("Done.")
 
     names(pvalsConnectVariables) <- names(connectVariablesOrig)
     
     output[["pvalsConnectVariables"]] <- pvalsConnectVariables
+    output[["pvalsConnectVariablesEmpirical"]] <-
+      pvalsConnectVariablesRes$empirical
+    if (!is.null(pvalsConnectVariablesRes$refined)) {
+      output[["pvalsConnectVariablesRefined"]] <-
+        pvalsConnectVariablesRes$refined
+    }
     
     # adjust for multiple testing
     if (adjust2 == "none") {
@@ -646,17 +668,23 @@
               appendLF = FALSE)
     }
 
-    pvalConnectNetwork <- .calcPermPval(tstat = connectNetworkOrig,
-                                        tstatPerm = connectNetwork,
-                                        nPerm = nPerm,
-                                        exact = exact,
-                                        refinePermPvals = refinePermPvals,
-                                        permApproxParams = permApproxParams)
+    pvalConnectNetworkRes <- .calcPermPval(tstat = connectNetworkOrig,
+                                           tstatPerm = connectNetwork,
+                                           nPerm = nPerm,
+                                           exact = exact,
+                                           refinePermPvals = refinePermPvals,
+                                           permApproxParams = permApproxParams)
+    pvalConnectNetwork <- pvalConnectNetworkRes$pval
 
     if (verbose && refinePermPvals && !exact) message("Done.")
     
     
     output[["pvalConnectNetwork"]] <- pvalConnectNetwork
+    output[["pvalConnectNetworkEmpirical"]] <-
+      pvalConnectNetworkRes$empirical
+    if (!is.null(pvalConnectNetworkRes$refined)) {
+      output[["pvalConnectNetworkRefined"]] <- pvalConnectNetworkRes$refined
+    }
   }
   
   return(output)
@@ -734,5 +762,3 @@
   d <- (sum(diff) - sum(diag(diff))) / (nVar * (nVar-1))
   return(d)
 }
-
-

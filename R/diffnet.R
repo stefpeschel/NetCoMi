@@ -273,9 +273,9 @@ diffnet <- function(x,
   } else if (diffMethod == "discordant") {
     
     if (!requireNamespace("discordant", quietly = TRUE)) {
-      
+
       message("Installing missing package 'discordant' ...")
-      
+
       if (!requireNamespace("BiocManager", quietly = TRUE)) {
         utils::install.packages("BiocManager")
       }
@@ -386,6 +386,10 @@ diffnet <- function(x,
       
       pvalsVec <- permResult$pvalsVec
       pAdjustVec <- permResult$pAdjustVec
+      pvalsVecEmpirical <- permResult$pvalsVecEmpirical
+      pvalsVecRefined <- permResult$pvalsVecRefined
+      pvalsMatEmpiricalPerm <- permResult$pvalsMatEmpirical
+      pvalsMatRefinedPerm <- permResult$pvalsMatRefined
       
       testStatData <- permResult$testStatData
       testStatPerm <- permResult$testStatPerm
@@ -403,6 +407,11 @@ diffnet <- function(x,
                                trueNullMethod = trueNullMethod, verbose = verbose)
       if (verbose & adjust != "none") message("Done.")
       
+      pvalsVecEmpirical <- NULL
+      pvalsVecRefined <- NULL
+      pvalsMatEmpiricalPerm <- NULL
+      pvalsMatRefinedPerm <- NULL
+
       testStatData <- NULL
       testStatPerm <- NULL
       
@@ -448,6 +457,14 @@ diffnet <- function(x,
     #output[["nExceedsVec"]] <- nExceedsVec
     
     output[["pvalsMat"]] <- pvalsMat
+    if (!is.null(pvalsVecEmpirical)) {
+      output[["pvalsVecEmpirical"]] <- pvalsVecEmpirical
+      output[["pvalsMatEmpirical"]] <- pvalsMatEmpiricalPerm
+    }
+    if (!is.null(pvalsVecRefined)) {
+      output[["pvalsVecRefined"]] <- pvalsVecRefined
+      output[["pvalsMatRefined"]] <- pvalsMatRefinedPerm
+    }
     output[["pAdjustMat"]] <- pAdjustMat
     
     output[["testStatData"]] <- testStatData
@@ -568,8 +585,5 @@ diffnet <- function(x,
   
   return(output)
 }
-
-
-
 
 
