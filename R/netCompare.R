@@ -1130,33 +1130,29 @@ netCompare <- function(x,
     #------------------------------
     # P-values for the centralities
     
-    pvalDiffDeg <- sapply(1:ncol(adja1), function(i) {
-      .calcPermPval(tstat = props$absDiffs$absDiffDeg[i],
-                    tstatPerm = absDiffsPermDeg[, i],
-                    nPerm = nPerm, exact = exact,
-                    refinePermPvals = refinePermPvals,
-                    permApproxParams = permApproxParams)})
+    pvalDiffDeg <- .calcPermPval(tstat = props$absDiffs$absDiffDeg,
+                                 tstatPerm = absDiffsPermDeg,
+                                 nPerm = nPerm, exact = exact,
+                                 refinePermPvals = refinePermPvals,
+                                 permApproxParams = permApproxParams)
     
-    pvalDiffBetw <- sapply(1:ncol(adja1), function(i) {
-      .calcPermPval(tstat = props$absDiffs$absDiffBetw[i],
-                    tstatPerm = absDiffsPermBetw[, i],
-                    nPerm = nPerm, exact = exact,
-                    refinePermPvals = refinePermPvals,
-                    permApproxParams = permApproxParams)})
+    pvalDiffBetw <- .calcPermPval(tstat = props$absDiffs$absDiffBetw,
+                                  tstatPerm = absDiffsPermBetw,
+                                  nPerm = nPerm, exact = exact,
+                                  refinePermPvals = refinePermPvals,
+                                  permApproxParams = permApproxParams)
     
-    pvalDiffClose <- sapply(1:ncol(adja1), function(i) {
-      .calcPermPval(tstat = props$absDiffs$absDiffClose[i],
-                    tstatPerm = absDiffsPermClose[, i],
-                    nPerm = nPerm, exact = exact,
-                    refinePermPvals = refinePermPvals,
-                    permApproxParams = permApproxParams)})
+    pvalDiffClose <- .calcPermPval(tstat = props$absDiffs$absDiffClose,
+                                   tstatPerm = absDiffsPermClose,
+                                   nPerm = nPerm, exact = exact,
+                                   refinePermPvals = refinePermPvals,
+                                   permApproxParams = permApproxParams)
     
-    pvalDiffEigen <- sapply(1:ncol(adja1), function(i) {
-      .calcPermPval(tstat = props$absDiffs$absDiffEigen[i],
-                    tstatPerm = absDiffsPermEigen[, i],
-                    nPerm = nPerm, exact = exact,
-                    refinePermPvals = refinePermPvals,
-                    permApproxParams = permApproxParams)})
+    pvalDiffEigen <- .calcPermPval(tstat = props$absDiffs$absDiffEigen,
+                                   tstatPerm = absDiffsPermEigen,
+                                   nPerm = nPerm, exact = exact,
+                                   refinePermPvals = refinePermPvals,
+                                   permApproxParams = permApproxParams)
     
     names(pvalDiffDeg) <- names(pvalDiffBetw) <- 
       names(pvalDiffClose) <- names(pvalDiffEigen) <- colnames(adja1)

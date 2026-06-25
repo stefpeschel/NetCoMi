@@ -492,8 +492,6 @@
   
   if (cores > 1) parallel::stopCluster(cl)
   
-  #____________________________________________________
-  browser()
   output <- list()
   
   if (verbose) close(pb) 
@@ -532,14 +530,12 @@
                 appendLF = FALSE)
       }
 
-      pvalsVec <- sapply(1:ncol(connectPairs), function(i) {
-        .calcPermPval(tstat = connectPairsOrig[i],
-                      tstatPerm = connectPairs[, i],
-                      nPerm = nPerm,
-                      exact = exact,
-                      refinePermPvals = refinePermPvals,
-                      permApproxParams = permApproxParams)
-      })
+      pvalsVec <- .calcPermPval(tstat = connectPairsOrig,
+                                tstatPerm = connectPairs,
+                                nPerm = nPerm,
+                                exact = exact,
+                                refinePermPvals = refinePermPvals,
+                                permApproxParams = permApproxParams)
 
       if (verbose && refinePermPvals && !exact) message("Done.")
 
@@ -606,14 +602,12 @@
     }
 
     pvalsConnectVariables <-
-      sapply(1:ncol(connectVariables), function(i) {
-        .calcPermPval(tstat = connectVariablesOrig[i],
-                      tstatPerm = connectVariables[, i],
-                      nPerm = nPerm,
-                      exact = exact,
-                      refinePermPvals = refinePermPvals,
-                      permApproxParams = permApproxParams)
-      })
+      .calcPermPval(tstat = connectVariablesOrig,
+                    tstatPerm = connectVariables,
+                    nPerm = nPerm,
+                    exact = exact,
+                    refinePermPvals = refinePermPvals,
+                    permApproxParams = permApproxParams)
 
     if (verbose && refinePermPvals && !exact) message("Done.")
 

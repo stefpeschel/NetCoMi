@@ -106,16 +106,39 @@
 .calcPermPval <- function(tstat, tstatPerm, nPerm, exact,
                           refinePermPvals = FALSE,
                           permApproxParams = list()) {
+  if (length(tstat) > 1) {
+    if (!is.matrix(tstatPerm)) {
+      stop("\"tstatPerm\" must be a matrix when \"tstat\" contains ",
+           "multiple test statistics.")
+    }
+    if (ncol(tstatPerm) != length(tstat)) {
+      stop("The number of columns in \"tstatPerm\" must match the length ",
+           "of \"tstat\".")
+    }
+  }
+  browser()
   pval <- if (exact) {
-    sum(tstatPerm >= tstat) / nPerm
+    if (is.matrix(tstatPerm)) {
+      colSums(sweep(tstatPerm, 2, tstat, FUN = ">=")) / nPerm
+    } else {
+      sum(tstatPerm >= tstat) / nPerm
+    }
   } else {
-    (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
+    if (is.matrix(tstatPerm)) {
+      (colSums(sweep(tstatPerm, 2, tstat, FUN = ">=")) + 1) / (nPerm + 1)
+    } else {
+      (sum(tstatPerm >= tstat) + 1) / (nPerm + 1)
+    }
   }
 
   if (refinePermPvals && !exact) {
     pval <- .permApproxPval(tstat = tstat,
                             tstatPerm = tstatPerm,
                             permApproxParams = permApproxParams)
+  }
+  
+  if (!is.null(names(tstat))) {
+    names(pval) <- names(tstat)
   }
 
   pval
@@ -138,10 +161,20 @@
       (is.null(names(permApproxParams)) || any(names(permApproxParams) == ""))) {
     stop("\"permApproxParams\" must be a named list.")
   }
-  browser()
+  perm_stats <- if (is.matrix(tstatPerm)) {
+    tstatPerm
+  } else {
+    matrix(tstatPerm, ncol = 1)
+  }
+  
+  if (ncol(perm_stats) != length(tstat)) {
+    stop("The number of columns in \"tstatPerm\" must match the length ",
+         "of \"tstat\".")
+  }
+  
   call_args <- list(
     obs_stats = tstat,
-    perm_stats = matrix(tstatPerm, ncol = 1),
+    perm_stats = perm_stats,
     alternative = "greater",
     adjust_method = "none",
     verbose = FALSE
@@ -163,9 +196,13 @@
 
   pval <- res$p_unadjusted
 
-  if (!is.numeric(pval) || length(pval) != 1 || is.na(pval)) {
+  if (!is.numeric(pval) || length(pval) != length(tstat) || anyNA(pval)) {
     stop("\"p_unadjusted\" returned by permApprox::perm_approx() must be a ",
-         "single non-missing numeric p-value.")
+         "non-missing numeric vector with the same length as \"tstat\".")
+  }
+  
+  if (!is.null(names(tstat))) {
+    names(pval) <- names(tstat)
   }
 
   pval
