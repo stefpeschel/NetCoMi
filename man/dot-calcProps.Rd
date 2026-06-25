@@ -27,6 +27,7 @@
   normDeg,
   normBetw,
   normClose,
+  normEigen,
   centrLCC,
   jaccard = FALSE,
   jaccQuant = NULL,
@@ -107,7 +108,7 @@ orbits.}
 \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
 Is automatically set to \code{TRUE} for a fully connected (dense) network.}
 
-\item{normDeg, normBetw, normClose}{logical. If \code{TRUE} 
+\item{normDeg, normBetw, normClose, normEigen}{logical. If \code{TRUE} 
 (default for all measures), a normalized version of the respective 
 centrality values is returned.}
 

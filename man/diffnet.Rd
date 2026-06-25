@@ -36,7 +36,7 @@ diffnet(
 )
 }
 \arguments{
-\item{x}{an object of class \code{microNet} (returned by 
+\item{x}{an object of class \code{microNet} (returned by
 \code{\link{netConstruct}}).}
 
 \item{diffMethod}{character string indicating the method used for determining
@@ -65,8 +65,8 @@ taxa is differentially correlated between the groups. Taxa pairs with a
 posterior above this threshold are connected in the network. Defaults to
 0.8.}
 
-\item{n1, n2}{integer giving the sample sizes of the two data sets used for 
-network construction. Needed for Fisher's z-test if association matrices 
+\item{n1, n2}{integer giving the sample sizes of the two data sets used for
+network construction. Needed for Fisher's z-test if association matrices
 instead of count matrices were used for network construction.}
 
 \item{fisherTrans}{logical. If \code{TRUE} (default), Fisher-transformed
@@ -133,36 +133,36 @@ the "iterative plug-in method" proposed by \cite{Farcomeni (2007)}.}
 for performing another method for multiple testing adjustment without
 executing the complete permutation process again. See the example.}
 
-\item{fileLoadAssoPerm}{character giving the name (without extension) 
-or path of the file storing the "permuted" association/dissimilarity 
-matrices that have been exported by setting \code{storeAssoPerm} to 
-\code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
+\item{fileLoadAssoPerm}{character giving the name (without extension)
+or path of the file storing the "permuted" association/dissimilarity
+matrices that have been exported by setting \code{storeAssoPerm} to
+\code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no
 existing associations should be used.}
 
-\item{fileLoadCountsPerm}{character giving the name (without extension) 
-or path of the file storing the "permuted" count matrices that have been 
-exported by setting \code{storeCountsPerm} to \code{TRUE}. 
-Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
+\item{fileLoadCountsPerm}{character giving the name (without extension)
+or path of the file storing the "permuted" count matrices that have been
+exported by setting \code{storeCountsPerm} to \code{TRUE}.
+Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}.
 Set to \code{NULL} if no existing count matrices should be used.}
 
 \item{storeAssoPerm}{logical indicating whether the association (or
 dissimilarity) matrices for the permuted data should be stored in a file.
-The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE}, 
+The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE},
 the computed "permutation" association/dissimilarity matrices can be reused
 via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.}
 
 \item{fileStoreAssoPerm}{character giving the file name to store a matrix
-containing a matrix with associations/dissimilarities for the permuted 
+containing a matrix with associations/dissimilarities for the permuted
 data. Can also be a path.}
 
 \item{storeCountsPerm}{logical indicating whether the permuted count matrices
 should be stored in an external file. Defaults to \code{FALSE}.}
 
-\item{fileStoreCountsPerm}{character vector with two elements giving the 
-names of two files storing the permuted count matrices belonging to the 
+\item{fileStoreCountsPerm}{character vector with two elements giving the
+names of two files storing the permuted count matrices belonging to the
 two groups.}
 
-\item{assoPerm}{only needed for output generated with NetCoMi v1.0.1! A 
+\item{assoPerm}{only needed for output generated with NetCoMi v1.0.1! A
 list with two elements used for the permutation procedure.
 Each entry must contain association matrices for \code{"nPerm"}
 permutations. This can be either the \code{"assoPerm"} value as part of the
@@ -177,21 +177,19 @@ The function returns an object of class \code{diffnet}. Depending on
   \tabular{ll}{
   \code{diffMat}\tab matrix with absolute differences of associations that are
   significantly different from zero; optional adjacency matrix\cr
-  \code{diffAdjustMat}\tab matrix with absolute differences of associations 
-  that are significantly different from zero (after multiple testing 
+  \code{diffAdjustMat}\tab matrix with absolute differences of associations
+  that are significantly different from zero (after multiple testing
   correction); optional adjacency matrix\cr
   \code{pvalsVec}\tab vector with p-values\cr
   \code{pAdjustVec}\tab vector with adjusted p-values\cr
   \code{pvalsMat}\tab matrix with p-values\cr
   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
-  \code{testStatData}\tab vector with test statistics (absolute differences 
+  \code{testStatData}\tab vector with test statistics (absolute differences
   of associations) for the original data\cr
-  \code{testStatPerm}\tab matrix with test statistics (absolute differences 
+  \code{testStatPerm}\tab matrix with test statistics (absolute differences
   of associations) for the permuted data\cr
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
-  original data)\cr
-  \code{adjustNonzeroOnly,adjustIncludeVec,nTestsTotal,nTestsAdjusted}\tab
-  metadata describing which tests were included in multiple testing adjustment}
+  original data)}
   \strong{Discordant:}
   \tabular{ll}{
   \code{assoMat1,assoMat2}\tab matrices with estimated correlations\cr
@@ -203,17 +201,15 @@ The function returns an object of class \code{diffnet}. Depending on
   \tabular{ll}{
   \code{diffMat}\tab matrix with absolute differences of associations that are
   significantly different from zero; optional adjacency matrix\cr
-  \code{diffAdjustMat}\tab matrix with absolute differences of associations 
-  that are significantly different from zero (after multiple testing 
+  \code{diffAdjustMat}\tab matrix with absolute differences of associations
+  that are significantly different from zero (after multiple testing
   correction); optional adjacency matrix\cr
   \code{pvalsVec}\tab vector with p-values\cr
   \code{pAdjustVec}\tab vector with adjusted p-values\cr
   \code{pvalsMat}\tab matrix with p-values\cr
   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
-  original data)\cr
-  \code{adjustNonzeroOnly,adjustIncludeVec,nTestsTotal,nTestsAdjusted}\tab
-  metadata describing which tests were included in multiple testing adjustment}
+  original data)}
   \strong{Threshold:}
   \tabular{ll}{
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
@@ -319,18 +315,18 @@ plot(amgut_diff2)
 }
 }
 \references{
-Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false 
-  discovery rate in multiple testing with independent statistics.” 
+Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false
+  discovery rate in multiple testing with independent statistics.”
   \emph{Journal of Educational and Behavioral Statistics}, 25(1), 60–83.\cr\cr
-  Siska C, Kechris K (2016). discordant: The Discordant Method: A Novel 
-  Approach for Differential Correlation. R package version 1.2.0, 
+  Siska C, Kechris K (2016). discordant: The Discordant Method: A Novel
+  Approach for Differential Correlation. R package version 1.2.0,
   https://github.com/siskac/discordant.\cr\cr
-  Farcomeni A (2007). “Some results on the control of the false discovery 
-  rate under dependence.” \emph{Scandinavian Journal of Statistics}, 
+  Farcomeni A (2007). “Some results on the control of the false discovery
+  rate under dependence.” \emph{Scandinavian Journal of Statistics},
   34(2), 275–297.\cr\cr
-  Fisher RA (1992). “Statistical methods for research workers.” 
+  Fisher RA (1992). “Statistical methods for research workers.”
   \emph{Breakthroughs in Statistics}, 66–70. Springer.\cr\cr
-  Gill R, Datta S, Datta S (2010). “A statistical framework for differential 
+  Gill R, Datta S, Datta S (2010). “A statistical framework for differential
   network analysis from microarray data.” \emph{BMC Bioinformatics}, 11, 95.
 }
 \seealso{

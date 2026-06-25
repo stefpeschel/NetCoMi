@@ -23,6 +23,7 @@
                             normDeg,
                             normBetw,
                             normClose,
+                            normEigen,
                             centrLCC,
                             testJacc = TRUE,
                             jaccTestGreater = FALSE,
@@ -49,7 +50,7 @@
                        hubPar = hubPar, hubQuant = hubQuant, 
                        lnormFit = lnormFit, weightDeg = weightDeg, 
                        normDeg = normDeg, normBetw = normBetw, 
-                       normClose = normClose, 
+                       normClose = normClose, normEigen = normEigen,
                        centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   
@@ -64,7 +65,7 @@
                        hubPar = hubPar, hubQuant = hubQuant, 
                        lnormFit = lnormFit, weightDeg = weightDeg, 
                        normDeg = normDeg, normBetw = normBetw, 
-                       normClose = normClose,
+                       normClose = normClose, normEigen = normEigen,
                        centrLCC = centrLCC, graphlet = FALSE,
                        jaccard = TRUE, jaccQuant = jaccQuant)
   
@@ -220,7 +221,7 @@
   
   c1names <- names(clust1_lcc.tmp)
   c2names <- names(clust2_lcc.tmp)
-  uniNames <- union(c1names, c2names)
+  uniNames <- base::union(c1names, c2names)
   
   clust1_lcc <- clust2_lcc <- rep(0, length(uniNames))
   names(clust1_lcc) <- names(clust2_lcc) <- uniNames

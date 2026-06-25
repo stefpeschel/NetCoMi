@@ -339,6 +339,74 @@ testprops<- netAnalyze(get(net), clustMethod = "cluster_fast_greedy",
 summary(testprops)
 }
 
+test_that("normEigen controls eigenvector centrality scaling", {
+  adja <- matrix(c(0, 1, 0,
+                   1, 0, 1,
+                   0, 1, 0),
+                 nrow = 3, byrow = TRUE)
+  colnames(adja) <- rownames(adja) <- paste0("n", 1:3)
+
+  diss <- adja
+  diss[diss == 0] <- Inf
+  diag(diss) <- 0
+
+  props_norm <- NetCoMi:::.calcProps(
+    adjaMat = adja, dissMat = diss, assoMat = adja,
+    avDissIgnoreInf = FALSE, sPathNorm = TRUE, sPathAlgo = "dijkstra",
+    normNatConnect = TRUE, weighted = FALSE, isempty = FALSE,
+    clustMethod = "none", clustPar = NULL, weightClustCoef = TRUE,
+    hubPar = "eigenvector", hubQuant = 0.95, lnormFit = FALSE,
+    connectivity = FALSE, graphlet = FALSE, orbits = c(0, 2),
+    weightDeg = FALSE, normDeg = TRUE, normBetw = TRUE, normClose = TRUE,
+    normEigen = TRUE, centrLCC = TRUE)
+
+  props_unnorm <- NetCoMi:::.calcProps(
+    adjaMat = adja, dissMat = diss, assoMat = adja,
+    avDissIgnoreInf = FALSE, sPathNorm = TRUE, sPathAlgo = "dijkstra",
+    normNatConnect = TRUE, weighted = FALSE, isempty = FALSE,
+    clustMethod = "none", clustPar = NULL, weightClustCoef = TRUE,
+    hubPar = "eigenvector", hubQuant = 0.95, lnormFit = FALSE,
+    connectivity = FALSE, graphlet = FALSE, orbits = c(0, 2),
+    weightDeg = FALSE, normDeg = TRUE, normBetw = TRUE, normClose = TRUE,
+    normEigen = FALSE, centrLCC = TRUE)
+
+  expect_equal(max(props_norm$eigen), 1)
+  expect_equal(sqrt(sum(props_unnorm$eigen^2)), 1)
+  expect_false(isTRUE(all.equal(props_norm$eigen, props_unnorm$eigen)))
+})
+
+test_that("normEigen is applied before disconnected component scaling", {
+  adja <- matrix(0, nrow = 6, ncol = 6)
+  colnames(adja) <- rownames(adja) <- paste0("n", 1:6)
+  adja[cbind(c(1, 2, 2, 3, 4, 5), c(2, 1, 3, 2, 5, 4))] <- 1
+
+  diss <- adja
+  diss[diss == 0] <- Inf
+  diag(diss) <- 0
+
+  props <- NetCoMi:::.calcProps(
+    adjaMat = adja, dissMat = diss, assoMat = adja,
+    avDissIgnoreInf = FALSE, sPathNorm = TRUE, sPathAlgo = "dijkstra",
+    normNatConnect = TRUE, weighted = FALSE, isempty = FALSE,
+    clustMethod = "none", clustPar = NULL, weightClustCoef = TRUE,
+    hubPar = "eigenvector", hubQuant = 0.95, lnormFit = FALSE,
+    connectivity = FALSE, graphlet = FALSE, orbits = c(0, 2),
+    weightDeg = FALSE, normDeg = TRUE, normBetw = TRUE, normClose = TRUE,
+    normEigen = FALSE, centrLCC = FALSE)
+
+  expect_equal(sqrt(sum(props$eigen[paste0("n", 1:3)]^2)), 3 / 5)
+  expect_equal(sqrt(sum(props$eigen[paste0("n", 4:5)]^2)), 2 / 5)
+  expect_equal(unname(props$eigen["n6"]), 0)
+})
+
+test_that("normEigen must be logical", {
+  expect_error(
+    netAnalyze(net_asso_single, normEigen = "nope", graphlet = FALSE,
+               connectivity = FALSE),
+    "normEigen"
+  )
+})
+
 
 #===============================================================================
 context("plot.microNetProps: test different layouts")

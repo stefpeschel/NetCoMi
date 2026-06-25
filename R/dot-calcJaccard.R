@@ -1,7 +1,7 @@
 #' @keywords internal
 .calcJaccard <- function(group1, group2, sigTest, greater) {
-  N <- length(union(group1, group2))
-  C <- length(intersect(group1, group2))
+  N <- length(base::union(group1, group2))
+  C <- length(base::intersect(group1, group2))
   jacc <- ifelse(N>0, C/N, 0)
   p.greater <- NA
   p.less <- NA

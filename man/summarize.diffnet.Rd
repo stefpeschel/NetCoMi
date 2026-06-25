@@ -26,7 +26,7 @@ in scientific notation. Defaults to 6L.}
 }
 \description{
 The main results returned by \code{\link{diffnet}} are printed
-in a compact summary.
+  in a compact summary.
 }
 \seealso{
 \code{\link{diffnet}}

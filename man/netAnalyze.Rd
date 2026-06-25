@@ -11,7 +11,7 @@ netAnalyze(net,
            normDeg = TRUE,
            normBetw = TRUE,
            normClose = TRUE,
-           normEigen = lifecycle::deprecated(),
+           normEigen = TRUE,
            
            # Cluster related:
            clustMethod = NULL,
@@ -55,8 +55,10 @@ Is automatically set to \code{TRUE} for a fully connected (dense) network.}
 (default for all measures), a normalized version of the respective 
 centrality values is returned.}
 
-\item{normEigen}{Deprecated. Eigenvector centrality is always normalized
-(due to changes in igraph).}
+\item{normEigen}{logical. If \code{TRUE} (default), eigenvector centrality is
+scaled to have maximum one. If \code{FALSE}, eigenvector centrality is
+scaled to have Euclidean norm one, corresponding to igraph's former
+\code{scale = FALSE} behavior.}
 
 \item{clustMethod}{character indicating the clustering algorithm. Possible
 values are \code{"hierarchical"} for a hierarchical algorithm based on
@@ -259,9 +261,11 @@ Determine network properties for objects of class
   computed for each component separately (using 
   \code{\link[igraph]{eigen_centrality}}) and scaled according to component 
   size to overcome the fact that nodes in smaller components have a higher 
-  EVC. EVC values are normalized by igraph. EVC of single nodes is zero.\cr\cr
+  EVC. EVC of single nodes is zero.\cr\cr
   Otherwise, the EVC is computed for the LCC using 
-  \code{\link[igraph]{eigen_centrality}}.}
+  \code{\link[igraph]{eigen_centrality}}. If \code{normEigen = TRUE}, EVC
+  values are scaled to have maximum one. If \code{normEigen = FALSE}, EVC
+  values are scaled to have Euclidean norm one.}
   }
   \strong{Graphlet-based properties:}\cr
   \describe{

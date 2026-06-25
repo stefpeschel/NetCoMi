@@ -274,6 +274,7 @@ netCompare <- function(x,
   
   # Parameters used for network analysis
   parNA <- x$paramsProperties
+  if (is.null(parNA$normEigen)) parNA$normEigen <- TRUE
   
   assoType <- x$input$assoType
   distNet <- ifelse(assoType == "dissimilarity", TRUE, FALSE)
@@ -350,6 +351,7 @@ netCompare <- function(x,
                           normDeg = parNA$normDeg,
                           normBetw = parNA$normBetw,
                           normClose = parNA$normClose,
+                          normEigen = parNA$normEigen,
                           centrLCC = parNA$centrLCC,
                           testRand = testRand,
                           nPermRand = nPermRand,
@@ -838,6 +840,7 @@ netCompare <- function(x,
                                  normDeg = parNA$normDeg,
                                  normBetw = parNA$normBetw,
                                  normClose = parNA$normClose,
+                                 normEigen = parNA$normEigen,
                                  centrLCC = parNA$centrLCC,
                                  nPermRand = nPermRand,
                                  testJacc = FALSE,

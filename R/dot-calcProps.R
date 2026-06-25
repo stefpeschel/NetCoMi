@@ -54,7 +54,7 @@
 #' @param weightDeg logical. If \code{TRUE}, the weighted degree is used (see
 #'   \code{\link[igraph]{strength}}). Default is \code{FALSE}. 
 #'   Is automatically set to \code{TRUE} for a fully connected (dense) network.
-#' @param normDeg,normBetw,normClose logical. If \code{TRUE} 
+#' @param normDeg,normBetw,normClose,normEigen logical. If \code{TRUE} 
 #'   (default for all measures), a normalized version of the respective 
 #'   centrality values is returned.
 #' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
@@ -95,6 +95,7 @@
                        normDeg,
                        normBetw,
                        normClose,
+                       normEigen,
                        centrLCC,
                        jaccard = FALSE,
                        jaccQuant = NULL,
@@ -630,6 +631,19 @@
   if (verbose == 2) {
     message("Eigenvector centrality ... ", appendLF = FALSE)
   }
+
+  calcEigen <- function(graph) {
+    eigen <- igraph::eigen_centrality(graph)$vector
+
+    if (!normEigen) {
+      eigenNorm <- sqrt(sum(eigen^2))
+      if (is.finite(eigenNorm) && eigenNorm > 0) {
+        eigen <- eigen / eigenNorm
+      }
+    }
+
+    eigen
+  }
   
   if (!centrLCC && nComp > 1) {
     
@@ -640,15 +654,13 @@
     ev <- numeric(0)
     
     for (i in seq_along(dg_net)) {
-      ev <- c(ev,
-              igraph::eigen_centrality(
-                dg_net[[i]])$vector * (dgcount[i] / vnumb))
+      ev <- c(ev, calcEigen(dg_net[[i]]) * (dgcount[i] / vnumb))
     }
     
     eigen <- ev[colnames(adjaMat)]
     
   } else {
-    eigen.tmp <- igraph::eigen_centrality(net_lcc)$vector
+    eigen.tmp <- calcEigen(net_lcc)
 
     eigen <- numeric(nNodes)
     names(eigen) <- colnames(adjaMat)

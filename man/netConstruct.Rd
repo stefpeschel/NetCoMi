@@ -163,7 +163,8 @@ combined. The values x are set via \code{filtSampPar}.}
 
 \item{zeroMethod}{character indicating the method used for zero replacement.
 Possible values are: \code{"none"} (default), \code{"pseudo"}, 
-\code{"pseudoZO"}, \code{"multRepl"}, \code{"alrEM"}, \code{"bayesMult"}. 
+\code{"pseudoZO"}, \code{"multRepl"}, \code{"alrEM"}, 
+\code{"bayesMult"}. 
 See 'Details'. The corresponding parameters are set via \code{zeroPar}.
 \code{zeroMethod} is ignored if the approach for
 calculating the associations/dissimilarity includes zero handling. For
@@ -176,13 +177,13 @@ required.}
 
 \item{zeroPar}{list with parameters passed to the function for zero
 replacement (\code{zeroMethod}). See the help page of the respective
-function for details. If \code{zeroMethod} is \code{"pseudo"}, the pseudo
-count can be specified via \code{zeroPar = list(pseudocount = x)} (where x is
-numeric). Set \code{zeroPar$zerosOnly = TRUE} to replace only zeros. Set
-\code{zeroPar$random = TRUE} to replace zeros by random values sampled
-uniformly between zero and the pseudo count; this requires
-\code{zeroPar$zerosOnly = TRUE}. \code{zeroMethod = "pseudoZO"} is deprecated
-and maps to \code{zeroPar$zerosOnly = TRUE}.}
+function for details. If \code{zeroMethod} is \code{"pseudo"}, the pseudo 
+count can be specified via \code{zeroPar = list(pseudocount = x)} 
+(where x is numeric). Set \code{zeroPar$zerosOnly = TRUE} to replace only 
+zeros. Set \code{zeroPar$random = TRUE} to replace zeros by random values
+sampled uniformly between zero and the pseudo count; this requires
+\code{zeroPar$zerosOnly = TRUE}. \code{zeroMethod = "pseudoZO"} is
+deprecated and maps to \code{zeroPar$zerosOnly = TRUE}.}
 
 \item{normMethod}{character indicating the normalization method (to
 make counts of different samples comparable). Possible options are:
@@ -495,12 +496,12 @@ The object returned by \code{netConstruct} can either be passed to
   association/dissimilarity measure).\tab -\cr
   \code{"pseudo"} \tab A pseudo count (defined by \code{pseudocount} as 
   optional element of \code{zeroPar}) is added to all counts by default.
-  If \code{zeroPar$zerosOnly = TRUE}, only zeros are replaced. If
+  If \code{zeroPar$zerosOnly = TRUE}, only zeros are replaced. If 
   \code{zeroPar$random = TRUE}, zeros are replaced by random values sampled
   from a uniform distribution between zero and the pseudo count. The random
   values are reproducible if \code{seed} is set.\tab -\cr
-  \code{"pseudoZO"} \tab Deprecated alias for \code{zeroMethod = "pseudo"}
-  with \code{zeroPar$zerosOnly = TRUE}.\tab -\cr
+  \code{"pseudoZO"} \tab Deprecated alias for 
+  \code{zeroMethod = "pseudo"} with \code{zeroPar$zerosOnly = TRUE}.\tab -\cr
   \code{"multRepl"} \tab Multiplicative simple replacement \tab
  \code{\link[zCompositions:multRepl]{multRepl}}\cr
   \code{"alrEM"} \tab Modified EM alr-algorithm 

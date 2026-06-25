@@ -10,7 +10,7 @@
 #'            normDeg = TRUE,
 #'            normBetw = TRUE,
 #'            normClose = TRUE,
-#'            normEigen = lifecycle::deprecated(),
+#'            normEigen = TRUE,
 #'            
 #'            # Cluster related:
 #'            clustMethod = NULL,
@@ -130,9 +130,11 @@
 #'   computed for each component separately (using 
 #'   \code{\link[igraph]{eigen_centrality}}) and scaled according to component 
 #'   size to overcome the fact that nodes in smaller components have a higher 
-#'   EVC. EVC values are normalized by igraph. EVC of single nodes is zero.\cr\cr
+#'   EVC. EVC of single nodes is zero.\cr\cr
 #'   Otherwise, the EVC is computed for the LCC using 
-#'   \code{\link[igraph]{eigen_centrality}}.}
+#'   \code{\link[igraph]{eigen_centrality}}. If \code{normEigen = TRUE}, EVC
+#'   values are scaled to have maximum one. If \code{normEigen = FALSE}, EVC
+#'   values are scaled to have Euclidean norm one.}
 #'   }
 #'   \strong{Graphlet-based properties:}\cr
 #'   \describe{
@@ -203,8 +205,10 @@
 #' @param normDeg,normBetw,normClose logical. If \code{TRUE} 
 #'   (default for all measures), a normalized version of the respective 
 #'   centrality values is returned.
-#' @param normEigen Deprecated. Eigenvector centrality is always normalized
-#'   (due to changes in igraph).
+#' @param normEigen logical. If \code{TRUE} (default), eigenvector centrality is
+#'   scaled to have maximum one. If \code{FALSE}, eigenvector centrality is
+#'   scaled to have Euclidean norm one, corresponding to igraph's former
+#'   \code{scale = FALSE} behavior.
 #' @param connectivity logical. If \code{TRUE} (default), edge and vertex 
 #'   connectivity are calculated. Might be disabled to reduce execution time.
 #' @param graphlet logical. If \code{TRUE} (default), graphlet-based network 
@@ -270,7 +274,7 @@
 #' @import igraph
 #' @importFrom MASS fitdistr
 #' @importFrom graphics layout text rect
-#' @importFrom lifecycle deprecated deprecate_soft deprecate_warn is_present
+#' @importFrom lifecycle deprecate_soft
 #' @export
 
 netAnalyze <- function(net,
@@ -279,7 +283,7 @@ netAnalyze <- function(net,
                        normDeg = TRUE,
                        normBetw = TRUE,
                        normClose = TRUE,
-                       normEigen = lifecycle::deprecated(),
+                       normEigen = TRUE,
                        clustMethod = NULL,
                        clustPar = NULL,
                        clustPar2 = NULL,
@@ -385,6 +389,7 @@ netAnalyze <- function(net,
                        normDeg = normDeg,
                        normBetw = normBetw,
                        normClose = normClose,
+                       normEigen = normEigen,
                        verbose = verbose)
   
   props2 <- NULL
@@ -418,6 +423,7 @@ netAnalyze <- function(net,
                          normDeg = normDeg,
                          normBetw = normBetw,
                          normClose = normClose,
+                         normEigen = normEigen,
                          verbose = verbose)
   }
   
@@ -533,7 +539,8 @@ netAnalyze <- function(net,
                                   weightDeg = weightDeg,
                                   normDeg = normDeg,
                                   normBetw = normBetw,
-                                  normClose = normClose)
+                                  normClose = normClose,
+                                  normEigen = normEigen)
   
   output$paramsNetConstruct <- x$parameters
   

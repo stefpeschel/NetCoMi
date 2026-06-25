@@ -5,6 +5,11 @@ output: github_document
 
 ### New features
 
+* In `netAnalyze()`: The `normEigen` argument is active again. The default
+  `normEigen = TRUE` keeps the current max-normalized eigenvector centrality,
+  while `normEigen = FALSE` returns eigenvector centralities with Euclidean
+  norm one, corresponding to igraph's former `scale = FALSE` behavior.
+
 * In `diffnet()`: New argument `adjustNonzeroOnly` can restrict multiple
 testing adjustment to taxa pairs with a non-zero association in at least one of
 the two networks. A new `summary.diffnet()` method summarizes association
