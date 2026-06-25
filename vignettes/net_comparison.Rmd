@@ -306,7 +306,8 @@ The second run loads the stored permutation association matrices and refines the
 permutation p-values with `permApprox::perm_approx()`. Here, the GPD
 approximation is used. The control arguments for the GPD fit are created with
 `permApprox::make_gpd_ctrl()` and passed to `netCompare()` via
-`permApproxParams`.
+`permApproxParams`. If the adjusted Rand index permutation test is run
+(`testRand = TRUE`, the default), its p-values are refined as well.
 
 ```{r netcomp_spring_perm_refined, eval=FALSE}
 gpd_ctrl <- permApprox::make_gpd_ctrl(

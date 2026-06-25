@@ -74,10 +74,10 @@ thus excluding redundant orbits such as the orbit o3.}
 \item{nPerm}{integer giving the number of permutations if 
 \code{permTest = TRUE}. Default is 1000L.}
 
-\item{refinePermPvals}{logical. If \code{TRUE}, p-values from the main
-permutation tests (\code{permTest = TRUE}) are refined using
-\code{\link[permApprox]{perm_approx}}. P-values from the adjusted Rand
-index test are not refined. Defaults to \code{FALSE}.}
+\item{refinePermPvals}{logical. If \code{TRUE}, permutation p-values are
+refined using \code{\link[permApprox]{perm_approx}}. This includes the
+p-values from the adjusted Rand index test if \code{testRand = TRUE}.
+Defaults to \code{FALSE}.}
 
 \item{permApproxParams}{list with additional arguments passed to
 \code{\link[permApprox]{perm_approx}} if \code{refinePermPvals = TRUE}.}

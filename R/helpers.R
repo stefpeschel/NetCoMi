@@ -42,7 +42,9 @@
 
 #-------------------------------------------------------------------------------
 #' @keywords internal
-.sigTestRand <- function(randInd, nPermRand, clust1, clust2) {
+.sigTestRand <- function(randInd, nPermRand, clust1, clust2,
+                         refinePermPvals = FALSE,
+                         permApproxParams = list()) {
   randPerm <- numeric(nPermRand)
   
   for (i in 1:nPermRand) {
@@ -60,6 +62,12 @@
   
   pval <-  (sum(normRandPerm >= abs(normRand)) + 
               sum(normRandPerm <= -abs(normRand))) / nPermRand
+
+  if (refinePermPvals) {
+    pval <- .permApproxPval(tstat = abs(normRand),
+                            tstatPerm = abs(normRandPerm),
+                            permApproxParams = permApproxParams)
+  }
   
   return(pval)
 }
@@ -130,7 +138,7 @@
       (is.null(names(permApproxParams)) || any(names(permApproxParams) == ""))) {
     stop("\"permApproxParams\" must be a named list.")
   }
-  
+  browser()
   call_args <- list(
     obs_stats = tstat,
     perm_stats = matrix(tstatPerm, ncol = 1),

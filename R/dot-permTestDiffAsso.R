@@ -308,7 +308,9 @@
       ".diffConnectPairs",
       ".diffConnectVariables",
       ".diffConnectNetwork",
-      ".getVecNames"
+      ".getVecNames",
+      ".normCounts",
+      ".zeroTreat"
     ),
     .options.snow = opts
   ) %do_or_dopar% {
@@ -491,7 +493,7 @@
   if (cores > 1) parallel::stopCluster(cl)
   
   #____________________________________________________
-  
+  browser()
   output <- list()
   
   if (verbose) close(pb) 

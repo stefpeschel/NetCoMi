@@ -29,7 +29,9 @@
                             testRand = TRUE,
                             nPermRand = 1000,
                             gcd,
-                            gcdOrb = NULL) {
+                            gcdOrb = NULL,
+                            refinePermPvals = FALSE,
+                            permApproxParams = list()) {
   
   
   isempty1 <- all(adja1[lower.tri(adja1)] == 0)
@@ -240,12 +242,16 @@
     if (testRand) {
       randInd["pval"] <- .sigTestRand(randInd = randInd[1],
                                       nPermRand = nPermRand,
-                                      clust1 = clust1, clust2 = clust2)
+                                      clust1 = clust1, clust2 = clust2,
+                                      refinePermPvals = refinePermPvals,
+                                      permApproxParams = permApproxParams)
       
       randInd_lcc["pval"] <- .sigTestRand(randInd = randInd_lcc[1],
                                           nPermRand = nPermRand,
                                           clust1 = clust1_lcc,
-                                          clust2 = clust2_lcc)
+                                          clust2 = clust2_lcc,
+                                          refinePermPvals = refinePermPvals,
+                                          permApproxParams = permApproxParams)
     }
   }
   

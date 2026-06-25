@@ -33,10 +33,10 @@
 #' @param verbose logical. If \code{TRUE} (default), status messages are shown.
 #' @param nPerm integer giving the number of permutations if 
 #'   \code{permTest = TRUE}. Default is 1000L.
-#' @param refinePermPvals logical. If \code{TRUE}, p-values from the main
-#'   permutation tests (\code{permTest = TRUE}) are refined using
-#'   \code{\link[permApprox]{perm_approx}}. P-values from the adjusted Rand
-#'   index test are not refined. Defaults to \code{FALSE}.
+#' @param refinePermPvals logical. If \code{TRUE}, permutation p-values are
+#'   refined using \code{\link[permApprox]{perm_approx}}. This includes the
+#'   p-values from the adjusted Rand index test if \code{testRand = TRUE}.
+#'   Defaults to \code{FALSE}.
 #' @param permApproxParams list with additional arguments passed to
 #'   \code{\link[permApprox]{perm_approx}} if \code{refinePermPvals = TRUE}.
 #' @param adjust character indicating the method used for multiple testing
@@ -353,7 +353,9 @@ netCompare <- function(x,
                           centrLCC = parNA$centrLCC,
                           testRand = testRand,
                           nPermRand = nPermRand,
-                          gcd = gcd, gcdOrb = gcdOrb)
+                          gcd = gcd, gcdOrb = gcdOrb,
+                          refinePermPvals = refinePermPvals,
+                          permApproxParams = permApproxParams)
   
   if (permTest & verbose) message("Done.")
   
