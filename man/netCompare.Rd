@@ -287,7 +287,9 @@ amgut_net <- netConstruct(data = amgut_season_yes,
                           filtSampPar = list(highestFreq = n_yes),
                           filtTax = "highestVar",
                           filtTaxPar = list(highestVar = 30),
-                          zeroMethod = "pseudoZO", normMethod = "clr")
+                          zeroMethod = "pseudo",
+                          zeroPar = list(zerosOnly = TRUE),
+                          normMethod = "clr")
 
 # Network analysis
 # Note: Please zoom into the GCM plot or open a new window using:

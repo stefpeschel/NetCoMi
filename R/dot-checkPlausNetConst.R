@@ -7,6 +7,7 @@
                                measure,
                                normMethod,
                                zeroMethod,
+                               zeroPar = NULL,
                                sparsMethod,
                                dissFunc,
                                sampleSize,
@@ -48,6 +49,18 @@
   
   msg <- character(0)
   
+  if (zeroMethod == "pseudoZO") {
+    warning(
+      "'zeroMethod = \"pseudoZO\"' is deprecated. Use ",
+      "'zeroMethod = \"pseudo\", zeroPar = list(zerosOnly = TRUE)' instead.",
+      call. = FALSE
+    )
+    zeroMethod <- "pseudo"
+    if (is.null(zeroPar)) zeroPar <- list()
+    zeroPar$zerosOnly <- TRUE
+    zeroPar$random <- FALSE
+  }
+  
   if (dataType == "counts") {
     
     if (measure %in% c("sparcc", "spring")) {
@@ -83,7 +96,7 @@
                              measure, "\"."))
       }
       
-      if (zeroMethod %in% c("pseudo", "pseudoZO")) {
+      if (zeroMethod == "pseudo") {
         normMethod <- "fractions"
       } else {
         normMethod <- "none"
@@ -103,7 +116,7 @@
                              measure, "\"."))
       }
       
-      if (zeroMethod %in% c("pseudo", "pseudoZO")) {
+      if (zeroMethod == "pseudo") {
         normMethod <- "fractions"
       } else {
         normMethod <- "none"
@@ -117,7 +130,7 @@
                  paste0("Measure \"", measure, "\" needs fractions as input. ",
                         "\"normMethod\" changed to \"fractions\"."))
       }
-      if (zeroMethod %in% c("none", "pseudo", "pseudoZO")) {
+      if (zeroMethod %in% c("none", "pseudo")) {
         normMethod <- "fractions"
       } else {
         normMethod <- "none"
@@ -144,7 +157,9 @@
       
       if (zeroMethod == "none") {
         if (normMethod %in% c("VST", "rarefy")) {
-          zeroMethod <- "pseudoZO"
+          zeroMethod <- "pseudo"
+          if (is.null(zeroPar)) zeroPar <- list()
+          zeroPar$zerosOnly <- TRUE
         } else {
           zeroMethod <- "multRepl"
         }
@@ -157,7 +172,7 @@
     #-------------------------------------------------------------------------
     #-------------------------------------------------------------------------
     if (normMethod %in% c("TSS", "fractions") & 
-        !zeroMethod %in% c("none", "pseudo", "pseudoZO")) {
+        !zeroMethod %in% c("none", "pseudo")) {
       normMethod <- "none"
       needfrac <- TRUE
     }
@@ -266,6 +281,7 @@
   
   output <- list(
     zeroMethod = zeroMethod,
+    zeroPar = zeroPar,
     normMethod = normMethod,
     sparsMethod = sparsMethod,
     dissFunc = dissFunc,

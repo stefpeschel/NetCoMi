@@ -52,7 +52,9 @@
 #'                             measure = "pearson",
 #'                             filtTax = "highestVar",
 #'                             filtTaxPar = list(highestVar = 30),
-#'                             zeroMethod = "pseudoZO", normMethod = "clr")
+#'                             zeroMethod = "pseudo",
+#'                             zeroPar = list(zerosOnly = TRUE),
+#'                             normMethod = "clr")
 #' 
 #'   # Network analysis:
 #'   amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy")

@@ -176,9 +176,13 @@ required.}
 
 \item{zeroPar}{list with parameters passed to the function for zero
 replacement (\code{zeroMethod}). See the help page of the respective
-function for details. If \code{zeroMethod} is \code{"pseudo"} or 
-\code{"pseudoZO"}, the pseudo count can be specified via 
-\code{zeroPar = list(pseudocount = x)} (where x is numeric).}
+function for details. If \code{zeroMethod} is \code{"pseudo"}, the pseudo
+count can be specified via \code{zeroPar = list(pseudocount = x)} (where x is
+numeric). Set \code{zeroPar$zerosOnly = TRUE} to replace only zeros. Set
+\code{zeroPar$random = TRUE} to replace zeros by random values sampled
+uniformly between zero and the pseudo count; this requires
+\code{zeroPar$zerosOnly = TRUE}. \code{zeroMethod = "pseudoZO"} is deprecated
+and maps to \code{zeroPar$zerosOnly = TRUE}.}
 
 \item{normMethod}{character indicating the normalization method (to
 make counts of different samples comparable). Possible options are:
@@ -490,11 +494,13 @@ The object returned by \code{netConstruct} can either be passed to
   replacement is needed for the chosen normalization method and 
   association/dissimilarity measure).\tab -\cr
   \code{"pseudo"} \tab A pseudo count (defined by \code{pseudocount} as 
-  optional element of \code{zeroPar}) is added to all counts. A unit zero 
-  count is used by default.\tab -\cr
-  \code{"pseudoZO"} \tab A pseudo count (defined by \code{pseudocount} as 
-  optional element of \code{zeroPar}) is added to zero counts only. 
-  A unit zero count is used by default.\tab -\cr
+  optional element of \code{zeroPar}) is added to all counts by default.
+  If \code{zeroPar$zerosOnly = TRUE}, only zeros are replaced. If
+  \code{zeroPar$random = TRUE}, zeros are replaced by random values sampled
+  from a uniform distribution between zero and the pseudo count. The random
+  values are reproducible if \code{seed} is set.\tab -\cr
+  \code{"pseudoZO"} \tab Deprecated alias for \code{zeroMethod = "pseudo"}
+  with \code{zeroPar$zerosOnly = TRUE}.\tab -\cr
   \code{"multRepl"} \tab Multiplicative simple replacement \tab
  \code{\link[zCompositions:multRepl]{multRepl}}\cr
   \code{"alrEM"} \tab Modified EM alr-algorithm 
@@ -657,7 +663,8 @@ for (i in 1:niter) {
                       filtSampPar = list(totalReads = 0),
                       measure = "pearson",
                       normMethod = "clr",
-                      zeroMethod = "pseudoZO",
+                      zeroMethod = "pseudo",
+                      zeroPar = list(zerosOnly = TRUE),
                       sparsMethod = "bootstrap",
                       cores = 1,
                       nboot = nboot,
@@ -676,7 +683,8 @@ net_final <- netConstruct(amgut1.filt,
                           filtSampPar = list(totalReads = 0),
                           measure = "pearson",
                           normMethod = "clr",
-                          zeroMethod = "pseudoZO",
+                          zeroMethod = "pseudo",
+                          zeroPar = list(zerosOnly = TRUE),
                           sparsMethod = "bootstrap",
                           cores = 1,
                           nboot = nboot * niter,

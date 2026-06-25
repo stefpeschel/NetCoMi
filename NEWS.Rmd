@@ -14,6 +14,14 @@ when `measure = "spieceasi"`. Normalization is still ignored by NetCoMi for
 this measure and should be controlled via SpiecEasi's own `norm.params`
 argument passed through `measurePar`.
 
+* In `netConstruct()`: The pseudo-count zero replacement method can now be
+configured via `zeroPar`. Set `zerosOnly = TRUE` to replace only zeros, and set
+`random = TRUE` together with `zerosOnly = TRUE` to replace zeros by random
+values sampled uniformly between zero and the pseudo count. The former
+`zeroMethod = "pseudoZO"` option is soft-deprecated and maps to
+`zeroMethod = "pseudo", zeroPar = list(zerosOnly = TRUE)`. The legacy alias
+now uses the intended zeros-only behavior.
+
 * In `netConstruct()`: New association measure **"rhoshrink"** available.
 The method estimates proportionality using shrinkage covariance estimation as
 proposed by Badri et al. (2020), following code from the accompanying

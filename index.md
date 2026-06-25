@@ -110,6 +110,8 @@ together with some information on their implementation in R:
 - Add a predefined pseudo count to the count table
 - Replace only zeros in the count table by a predefined pseudo count
   (ratios between non-zero values are preserved)
+- Replace zeros by random values sampled uniformly below a predefined
+  pseudo count (via the pseudo-count zero replacement options)
 - Multiplicative replacement
   ([`multRepl`](https://rdrr.io/cran/zCompositions/man/multRepl.html)
   from `zCompositions` package)

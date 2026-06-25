@@ -157,11 +157,13 @@
 #'   replacement is needed for the chosen normalization method and 
 #'   association/dissimilarity measure).\tab -\cr
 #'   \code{"pseudo"} \tab A pseudo count (defined by \code{pseudocount} as 
-#'   optional element of \code{zeroPar}) is added to all counts. A unit zero 
-#'   count is used by default.\tab -\cr
-#'   \code{"pseudoZO"} \tab A pseudo count (defined by \code{pseudocount} as 
-#'   optional element of \code{zeroPar}) is added to zero counts only. 
-#'   A unit zero count is used by default.\tab -\cr
+#'   optional element of \code{zeroPar}) is added to all counts by default.
+#'   If \code{zeroPar$zerosOnly = TRUE}, only zeros are replaced. If 
+#'   \code{zeroPar$random = TRUE}, zeros are replaced by random values sampled
+#'   from a uniform distribution between zero and the pseudo count. The random
+#'   values are reproducible if \code{seed} is set.\tab -\cr
+#'   \code{"pseudoZO"} \tab Deprecated alias for 
+#'   \code{zeroMethod = "pseudo"} with \code{zeroPar$zerosOnly = TRUE}.\tab -\cr
 #'   \code{"multRepl"} \tab Multiplicative simple replacement \tab
 #'  \code{\link[zCompositions:multRepl]{multRepl}}\cr
 #'   \code{"alrEM"} \tab Modified EM alr-algorithm 
@@ -291,7 +293,8 @@
 #'   as node labels.
 #' @param zeroMethod character indicating the method used for zero replacement.
 #'   Possible values are: \code{"none"} (default), \code{"pseudo"}, 
-#'   \code{"pseudoZO"}, \code{"multRepl"}, \code{"alrEM"}, \code{"bayesMult"}. 
+#'   \code{"pseudoZO"}, \code{"multRepl"}, \code{"alrEM"}, 
+#'   \code{"bayesMult"}. 
 #'   See 'Details'. The corresponding parameters are set via \code{zeroPar}.
 #'   \code{zeroMethod} is ignored if the approach for
 #'   calculating the associations/dissimilarity includes zero handling. For
@@ -303,9 +306,13 @@
 #'   required.
 #' @param zeroPar list with parameters passed to the function for zero
 #'   replacement (\code{zeroMethod}). See the help page of the respective
-#'   function for details. If \code{zeroMethod} is \code{"pseudo"} or 
-#'   \code{"pseudoZO"}, the pseudo count can be specified via 
-#'   \code{zeroPar = list(pseudocount = x)} (where x is numeric).
+#'   function for details. If \code{zeroMethod} is \code{"pseudo"}, the pseudo 
+#'   count can be specified via \code{zeroPar = list(pseudocount = x)} 
+#'   (where x is numeric). Set \code{zeroPar$zerosOnly = TRUE} to replace only 
+#'   zeros. Set \code{zeroPar$random = TRUE} to replace zeros by random values
+#'   sampled uniformly between zero and the pseudo count; this requires
+#'   \code{zeroPar$zerosOnly = TRUE}. \code{zeroMethod = "pseudoZO"} is
+#'   deprecated and maps to \code{zeroPar$zerosOnly = TRUE}.
 #' @param normMethod character indicating the normalization method (to
 #'   make counts of different samples comparable). Possible options are:
 #'   \code{"none"} (default), \code{"TSS"} (or \code{"fractions"}), \code{"CSS"},
@@ -777,8 +784,9 @@ netConstruct <- function(data,
   plausCheck <- .checkPlausNetConst(dataType = dataType, assoType = assoType,
                              data2 = data2, measure = measure,
                              normMethod = normMethod, zeroMethod = zeroMethod,
-                             sparsMethod = sparsMethod, dissFunc = dissFunc,
-                             sampleSize = sampleSize, verbose = verbose)
+                             zeroPar = zeroPar, sparsMethod = sparsMethod,
+                             dissFunc = dissFunc, sampleSize = sampleSize,
+                             verbose = verbose)
 
   for (i in 1:length(plausCheck)) {
     assign(names(plausCheck)[i], plausCheck[[i]])

@@ -6,72 +6,24 @@
     countMat_repl <- countMat
     attributes(countMat_repl)$scale <- "counts"
     
+  } else if (zeroMethod == "pseudoZO") {
+    warning(
+      "'zeroMethod = \"pseudoZO\"' is deprecated. Use ",
+      "'zeroMethod = \"pseudo\", zeroPar = list(zerosOnly = TRUE)' instead.",
+      call. = FALSE
+    )
+    if (is.null(zeroParam)) zeroParam <- list()
+    zeroParam$zerosOnly <- TRUE
+    zeroParam$random <- FALSE
+    countMat_repl <- .pseudoReplace(countMat, zeroParam, needint, verbose)
+    
   } else if (all(countMat != 0)) {
     message("Data contains no zeros.")
     countMat_repl <- countMat
     attributes(countMat_repl)$scale <- "counts"
     
   } else if (zeroMethod =="pseudo") {
-    
-    if (is.null(zeroParam$pseudocount)) {
-      zeroParam$pseudocount <- 1
-    }
-    
-    countMat_repl <- countMat + zeroParam$pseudocount
-    
-    if (verbose %in% 2:3) {
-      message("Pseudo count of ", zeroParam$pseudocount, " added.")
-    } 
-    
-    if (needint) {
-      if (zeroParam$pseudocount != 1) {
-        message("Counts coerced to integer mode (needed for normalization ", 
-                "method). \nConsider using unit pseudo counts for zero ", 
-                "treatment: \n'zeroMethod = pseudo', ", 
-                "zeroPar = list(pseudocount = 1)")
-      }
-      countMat.tmp <- ceiling(countMat_repl)
-      countMat_repl <- apply(countMat.tmp, 2, as.integer)
-      rownames(countMat_repl) <- rownames(countMat.tmp)
-      
-      attributes(countMat_repl)$scale <- "integer"
-      
-    } else {
-      attributes(countMat_repl)$scale <- "pseudo-counts"
-    }
-    
-  } else if (zeroMethod =="pseudoZO") {
-    
-    if (is.null(zeroParam$pseudocount)) {
-      zeroParam$pseudocount <- 1
-    }
-    
-    countMat_repl <- countMat
-    
-    countMat_repl[countMat_repl == 0] <- zeroParam$pseudocount
-    
-    countMat_repl <- countMat + zeroParam$pseudocount
-    
-    if (verbose %in% 2:3) {
-      message("Zero counts replaced by ", zeroParam$pseudocount)
-    } 
-    
-    if (needint) {
-      if (zeroParam$pseudocount != 1) {
-        message("Counts coerced to integer mode (needed for normalization ", 
-                "method). \nConsider using unit pseudo counts for zero ", 
-                "treatment: \n'zeroMethod = pseudo', ", 
-                "zeroPar = list(pseudocount = 1)")
-      }
-      countMat.tmp <- ceiling(countMat_repl)
-      countMat_repl <- apply(countMat.tmp, 2, as.integer)
-      rownames(countMat_repl) <- rownames(countMat.tmp)
-      
-      attributes(countMat_repl)$scale <- "integer"
-      
-    } else {
-      attributes(countMat_repl)$scale <- "pseudo-counts"
-    }
+    countMat_repl <- .pseudoReplace(countMat, zeroParam, needint, verbose)
     
   } else {
     
@@ -216,6 +168,83 @@
     attributes(countMat_repl)$rowsums <- rsums
   }
   
+  
+  return(countMat_repl)
+}
+
+.pseudoReplace <- function(countMat, zeroParam, needint, verbose) {
+  if (is.null(zeroParam)) zeroParam <- list()
+  
+  if (is.null(zeroParam$pseudocount)) zeroParam$pseudocount <- 1
+  if (is.null(zeroParam$zerosOnly)) zeroParam$zerosOnly <- FALSE
+  if (is.null(zeroParam$random)) zeroParam$random <- FALSE
+  
+  if (!is.numeric(zeroParam$pseudocount) ||
+      length(zeroParam$pseudocount) != 1 ||
+      zeroParam$pseudocount <= 0) {
+    stop("'zeroPar$pseudocount' must be a single positive numeric value.")
+  }
+  
+  if (!is.logical(zeroParam$zerosOnly) ||
+      length(zeroParam$zerosOnly) != 1 ||
+      is.na(zeroParam$zerosOnly)) {
+    stop("'zeroPar$zerosOnly' must be a single logical value.")
+  }
+  
+  if (!is.logical(zeroParam$random) ||
+      length(zeroParam$random) != 1 ||
+      is.na(zeroParam$random)) {
+    stop("'zeroPar$random' must be a single logical value.")
+  }
+  
+  if (zeroParam$random && !zeroParam$zerosOnly) {
+    stop("'zeroPar$random = TRUE' is only possible if 'zeroPar$zerosOnly = TRUE'.")
+  }
+  
+  if (zeroParam$zerosOnly) {
+    countMat_repl <- countMat
+    nzeros <- sum(countMat_repl == 0)
+    
+    if (zeroParam$random) {
+      countMat_repl[countMat_repl == 0] <- stats::runif(
+        nzeros, min = .Machine$double.eps, max = zeroParam$pseudocount
+      )
+      
+      if (verbose %in% 2:3) {
+        message("Zero counts replaced by random values below ",
+                zeroParam$pseudocount)
+      }
+    } else {
+      countMat_repl[countMat_repl == 0] <- zeroParam$pseudocount
+      
+      if (verbose %in% 2:3) {
+        message("Zero counts replaced by ", zeroParam$pseudocount)
+      }
+    }
+  } else {
+    countMat_repl <- countMat + zeroParam$pseudocount
+    
+    if (verbose %in% 2:3) {
+      message("Pseudo count of ", zeroParam$pseudocount, " added.")
+    }
+  }
+  
+  if (needint) {
+    if (zeroParam$pseudocount != 1) {
+      message("Counts coerced to integer mode (needed for normalization ", 
+              "method). \nConsider using unit pseudo counts for zero ", 
+              "treatment: \n'zeroMethod = pseudo', ", 
+              "zeroPar = list(pseudocount = 1)")
+    }
+    countMat.tmp <- ceiling(countMat_repl)
+    countMat_repl <- apply(countMat.tmp, 2, as.integer)
+    rownames(countMat_repl) <- rownames(countMat.tmp)
+    
+    attributes(countMat_repl)$scale <- "integer"
+    
+  } else {
+    attributes(countMat_repl)$scale <- "pseudo-counts"
+  }
   
   return(countMat_repl)
 }

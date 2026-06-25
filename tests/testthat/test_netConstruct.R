@@ -303,7 +303,84 @@ context("netConstruct with different methods for zero replacement")
 
 set.seed(123456)
 
-zeroMethod <- c("none", "pseudo", "pseudoZO", "multRepl", "alrEM", "bayesMult")
+testmat <- matrix(c(0, 2, 0, 4, 5, 0), nrow = 2)
+rownames(testmat) <- c("sample1", "sample2")
+colnames(testmat) <- c("taxon1", "taxon2", "taxon3")
+
+testmat.pseudo <- NetCoMi:::.zeroTreat(testmat,
+                                       zeroMethod = "pseudo",
+                                       zeroParam = list(pseudocount = 0.25),
+                                       needfrac = FALSE,
+                                       needint = FALSE,
+                                       verbose = 0)
+expect_equal(testmat.pseudo, testmat + 0.25)
+
+testmat.zo <- NetCoMi:::.zeroTreat(testmat,
+                                   zeroMethod = "pseudo",
+                                   zeroParam = list(pseudocount = 0.25,
+                                                    zerosOnly = TRUE),
+                                   needfrac = FALSE,
+                                   needint = FALSE,
+                                   verbose = 0)
+expect_equal(testmat.zo[testmat > 0], testmat[testmat > 0])
+expect_true(all(testmat.zo[testmat == 0] == 0.25))
+
+set.seed(20190101)
+testmat.rand <- NetCoMi:::.zeroTreat(testmat,
+                                     zeroMethod = "pseudo",
+                                     zeroParam = list(pseudocount = 0.25,
+                                                      zerosOnly = TRUE,
+                                                      random = TRUE),
+                                     needfrac = FALSE,
+                                     needint = FALSE,
+                                     verbose = 0)
+
+expect_equal(testmat.rand[testmat > 0], testmat[testmat > 0])
+expect_true(all(testmat.rand[testmat == 0] > 0))
+expect_true(all(testmat.rand[testmat == 0] <= 0.25))
+expect_true(length(unique(testmat.rand[testmat == 0])) > 1)
+
+expect_error(NetCoMi:::.zeroTreat(testmat,
+                                  zeroMethod = "pseudo",
+                                  zeroParam = list(random = TRUE),
+                                  needfrac = FALSE,
+                                  needint = FALSE,
+                                  verbose = 0),
+             "zerosOnly")
+
+expect_warning(testmat.pseudoZO <- NetCoMi:::.zeroTreat(
+  testmat,
+  zeroMethod = "pseudoZO",
+  zeroParam = list(pseudocount = 0.25),
+  needfrac = FALSE,
+  needint = FALSE,
+  verbose = 0
+), "deprecated")
+expect_equal(testmat.pseudoZO, testmat.zo)
+
+expect_error(NetCoMi:::.zeroTreat(testmat,
+                                  zeroMethod = "pseudo",
+                                  zeroParam = list(pseudocount = 0),
+                                  needfrac = FALSE,
+                                  needint = FALSE,
+                                  verbose = 0),
+             "pseudocount")
+expect_error(NetCoMi:::.zeroTreat(testmat,
+                                  zeroMethod = "pseudo",
+                                  zeroParam = list(zerosOnly = c(TRUE, FALSE)),
+                                  needfrac = FALSE,
+                                  needint = FALSE,
+                                  verbose = 0),
+             "zerosOnly")
+expect_error(NetCoMi:::.zeroTreat(testmat,
+                                  zeroMethod = "pseudo",
+                                  zeroParam = list(random = NA),
+                                  needfrac = FALSE,
+                                  needint = FALSE,
+                                  verbose = 0),
+             "random")
+
+zeroMethod <- c("none", "pseudo", "multRepl", "alrEM", "bayesMult")
 
 for (i in 1:length(zeroMethod)) {
   context(zeroMethod[i])

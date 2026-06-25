@@ -31,7 +31,9 @@
 #' amgut_net <- netConstruct(amgut1.filt, measure = "pearson",
 #'                           filtTax = "highestVar",
 #'                           filtTaxPar = list(highestVar = 50),
-#'                           zeroMethod = "pseudoZO", normMethod = "clr",
+#'                           zeroMethod = "pseudo",
+#'                           zeroPar = list(zerosOnly = TRUE),
+#'                           normMethod = "clr",
 #'                           sparsMethod = "threshold", thresh = 0.4)
 #'
 #' amgut_props <- netAnalyze(amgut_net, clustMethod = "cluster_fast_greedy",
@@ -61,7 +63,9 @@
 #'                            filtSampPar = list(highestFreq = n_yes),
 #'                            filtTax = "highestVar",
 #'                            filtTaxPar = list(highestVar = 30),
-#'                            zeroMethod = "pseudoZO", normMethod = "clr")
+#'                            zeroMethod = "pseudo",
+#'                            zeroPar = list(zerosOnly = TRUE),
+#'                            normMethod = "clr")
 #' 
 #' # Object returned by calcGCD()
 #' gcd <- calcGCD(amgut_net2$adjaMat1, amgut_net2$adjaMat2)
