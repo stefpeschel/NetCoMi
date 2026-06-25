@@ -19,6 +19,7 @@
   refinePermPvals = FALSE,
   permApproxParams = list(),
   adjust = "lfdr",
+  adjustIncludeVec = NULL,
   adjust2 = "holm",
   trueNullMethod = "convest",
   alpha = 0.05,
@@ -77,6 +78,10 @@ refined using \code{\link[permApprox]{perm_approx}}.}
 correlated pairs of taxa; possible values are "lfdr" (default) for local
 false discovery rate correction (via \code{\link[fdrtool]{fdrtool}}) or one
 of the methods provided by \code{\link[stats]{p.adjust}}}
+
+\item{adjustIncludeVec}{logical vector indicating which pairwise tests are
+included in multiple testing adjustment. If \code{NULL}, all tests are
+included.}
 
 \item{adjust2}{multiple testing adjustment for the tests if a taxa pair is
 differentially correlated to all other taxa; possible methods are those

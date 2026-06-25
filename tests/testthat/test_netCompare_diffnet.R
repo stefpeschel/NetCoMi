@@ -72,7 +72,7 @@ plot(diff_fisher)
 plot(diff_discord)
 
 
-assonet3 <- netConstruct(assonet2$assoEst1, 
+assonet3 <- netConstruct(assonet2$assoEst1,
                          data2 = assonet2$assoEst2,
                          dataType = "correlation",
                          filtTax = "highestVar",
@@ -94,7 +94,7 @@ diff_fisher <- diffnet(assonet3, diffMethod = "fisherTest", adjust = "none",
 #-------------------------------------------------------------------------------
 context("Small sample size")
 
-suppressWarnings(assonet2 <- netConstruct(amgut1.filt[c(1,2,3,6), ], 
+suppressWarnings(assonet2 <- netConstruct(amgut1.filt[c(1,2,3,6), ],
                                           group = groups_asso[c(1,2,3,6)],
                                           filtTax = "highestVar",
                                           filtTaxPar = list(highestVar = 50),
@@ -109,16 +109,95 @@ assoprops2 <- netAnalyze(assonet2, clustMethod = "cluster_fast_greedy",
 
 netcomp_asso <- netCompare(assoprops2, permTest = FALSE)
 
-expect_error(netcomp_asso <- netCompare(assoprops2, 
-                                        permTest = TRUE, 
+expect_error(netcomp_asso <- netCompare(assoprops2,
+                                        permTest = TRUE,
                                         nPerm = 100, cores = 1L),
              "Possible number of permutations")
 
-expect_error(diff_perm <- diffnet(assonet2, 
-                                  diffMethod = "permute", 
+expect_error(diff_perm <- diffnet(assonet2,
+                                  diffMethod = "permute",
                                   nPerm = 100, cores = 1L,
                                   adjust = "none"),
              "Possible number of permutations")
 
+
+#-------------------------------------------------------------------------------
+context("diffnet adjustment over non-zero associations")
+
+make_diffnet_test_net <- function() {
+  mat1 <- mat2 <- diag(4)
+  dimnames(mat1) <- dimnames(mat2) <- list(paste0("t", 1:4), paste0("t", 1:4))
+
+  mat1[1, 2] <- mat1[2, 1] <- 0
+  mat2[1, 2] <- mat2[2, 1] <- 0
+
+  mat1[1, 3] <- mat1[3, 1] <- -0.4
+  mat2[1, 3] <- mat2[3, 1] <- 0
+
+  mat1[1, 4] <- mat1[4, 1] <- 0
+  mat2[1, 4] <- mat2[4, 1] <- 0.5
+
+  mat1[2, 3] <- mat1[3, 2] <- 0.2
+  mat2[2, 3] <- mat2[3, 2] <- 0.2
+
+  mat1[2, 4] <- mat1[4, 2] <- 0
+  mat2[2, 4] <- mat2[4, 2] <- 0
+
+  mat1[3, 4] <- mat1[4, 3] <- 0
+  mat2[3, 4] <- mat2[4, 3] <- 0
+
+  out <- list(assoEst1 = mat1,
+              assoEst2 = mat2,
+              assoMat2 = mat2,
+              assoType = "association",
+              parameters = list(dataType = "correlation"),
+              normCounts1 = matrix(0, 20, 4),
+              normCounts2 = matrix(0, 20, 4),
+              countMat1 = matrix(0, 20, 4),
+              countMat2 = matrix(0, 20, 4),
+              groups = list(group1 = "1", group2 = "2"))
+  class(out) <- "microNet"
+
+  out
+}
+
+test_that("Fisher adjustment can exclude zero-zero association pairs", {
+  diff_net <- diffnet(make_diffnet_test_net(),
+                      diffMethod = "fisherTest",
+                      adjust = "BH",
+                      adjustNonzeroOnly = TRUE,
+                      n1 = 20,
+                      n2 = 20,
+                      verbose = FALSE)
+
+  expect_equal(diff_net$nTestsTotal, 6)
+  expect_equal(diff_net$nTestsAdjusted, 3)
+  expect_equal(sum(!diff_net$adjustIncludeVec), 3)
+  expect_true(diff_net$adjustIncludeVec[["t3_t1"]])
+  expect_true(is.na(diff_net$pAdjustVec[["t2_t1"]]))
+  expect_true(is.na(diff_net$pAdjustMat["t1", "t2"]))
+  expect_equal(diff_net$diffAdjustMat["t1", "t2"], 0)
+  expect_equal(diff_net$diffAdjustMat["t2", "t4"], 0)
+  expect_equal(diff_net$diffAdjustMat["t3", "t4"], 0)
+})
+
+test_that("supplied permutation p-values use the non-zero adjustment mask", {
+  net <- make_diffnet_test_net()
+  net$parameters$dataType <- "counts"
+
+  diff_net <- diffnet(net,
+                      diffMethod = "permute",
+                      adjust = "BH",
+                      adjustNonzeroOnly = TRUE,
+                      pvalsVec = c(0.01, 0.02, 0.03, 0.9, 0.04, 0.05),
+                      verbose = FALSE)
+
+  expect_equal(diff_net$nTestsTotal, 6)
+  expect_equal(diff_net$nTestsAdjusted, 3)
+  expect_true(diff_net$adjustIncludeVec[["t3_t1"]])
+  expect_true(is.na(diff_net$pAdjustVec[["t2_t1"]]))
+  expect_true(is.na(diff_net$pAdjustVec[["t4_t2"]]))
+  expect_equal(diff_net$diffAdjustMat["t1", "t2"], 0)
+})
 
 

@@ -22,6 +22,7 @@ diffnet(
   seed = NULL,
   alpha = 0.05,
   adjust = "lfdr",
+  adjustNonzeroOnly = FALSE,
   lfdrThresh = 0.2,
   trueNullMethod = "convest",
   pvalsVec = NULL,
@@ -110,6 +111,11 @@ false discovery rate correction (via \code{\link[fdrtool]{fdrtool}}),
 Hochberg, 2000)}, or one of the methods provided by
 \code{\link[stats]{p.adjust}}.}
 
+\item{adjustNonzeroOnly}{logical. If \code{TRUE}, multiple testing adjustment
+is performed only for taxa pairs where at least one of the two association
+matrices has a non-zero value. Raw p-values are still returned for all taxa
+pairs. Defaults to \code{FALSE}.}
+
 \item{lfdrThresh}{defines a threshold for the local fdr if "lfdr" is chosen
 as method for multiple testing correction. Defaults to 0.2 meaning
 that correlations with a corresponding local fdr less than or equal to 0.2
@@ -183,7 +189,9 @@ The function returns an object of class \code{diffnet}. Depending on
   \code{testStatPerm}\tab matrix with test statistics (absolute differences 
   of associations) for the permuted data\cr
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
-  original data)}
+  original data)\cr
+  \code{adjustNonzeroOnly,adjustIncludeVec,nTestsTotal,nTestsAdjusted}\tab
+  metadata describing which tests were included in multiple testing adjustment}
   \strong{Discordant:}
   \tabular{ll}{
   \code{assoMat1,assoMat2}\tab matrices with estimated correlations\cr
@@ -203,7 +211,9 @@ The function returns an object of class \code{diffnet}. Depending on
   \code{pvalsMat}\tab matrix with p-values\cr
   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
-  original data)}
+  original data)\cr
+  \code{adjustNonzeroOnly,adjustIncludeVec,nTestsTotal,nTestsAdjusted}\tab
+  metadata describing which tests were included in multiple testing adjustment}
   \strong{Threshold:}
   \tabular{ll}{
   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the

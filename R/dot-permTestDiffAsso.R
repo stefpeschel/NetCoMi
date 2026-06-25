@@ -32,6 +32,9 @@
 #'   correlated pairs of taxa; possible values are "lfdr" (default) for local
 #'   false discovery rate correction (via \code{\link[fdrtool]{fdrtool}}) or one
 #'   of the methods provided by \code{\link[stats]{p.adjust}}
+#' @param adjustIncludeVec logical vector indicating which pairwise tests are
+#'   included in multiple testing adjustment. If \code{NULL}, all tests are
+#'   included.
 #' @param adjust2 multiple testing adjustment for the tests if a taxa pair is
 #'   differentially correlated to all other taxa; possible methods are those
 #'   provided by \code{\link[stats]{p.adjust}} (a few hundred tests are
@@ -109,6 +112,7 @@
                                refinePermPvals = FALSE,
                                permApproxParams = list(),
                                adjust = "lfdr", 
+                               adjustIncludeVec = NULL,
                                adjust2 = "holm",
                                trueNullMethod = "convest", 
                                alpha = 0.05,
@@ -560,8 +564,13 @@
               appendLF = FALSE)
     }
     
-    pAdjust <- multAdjust(pvals = pvalsVec, adjust = adjust,
-                          trueNullMethod = trueNullMethod, verbose = verbose)
+    pAdjust <- .adjustDiffnetPvals(
+      pvals = pvalsVec,
+      adjust = adjust,
+      adjustIncludeVec = adjustIncludeVec,
+      trueNullMethod = trueNullMethod,
+      verbose = verbose
+    )
     
     if (verbose & adjust != "none") message("Done.")
     

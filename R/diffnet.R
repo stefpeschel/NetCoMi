@@ -17,7 +17,7 @@
 #'   pseudo-count is added to the numerator and denominator in order to avoid
 #'   zero p-values. The p-values should be adjusted for multiple testing.
 #'
-#' @param x an object of class \code{microNet} (returned by 
+#' @param x an object of class \code{microNet} (returned by
 #'   \code{\link{netConstruct}}).
 #' @param diffMethod character string indicating the method used for determining
 #'   differential associations. Possible values are:
@@ -42,8 +42,8 @@
 #'   taxa is differentially correlated between the groups. Taxa pairs with a
 #'   posterior above this threshold are connected in the network. Defaults to
 #'   0.8.
-#' @param n1,n2 integer giving the sample sizes of the two data sets used for 
-#'   network construction. Needed for Fisher's z-test if association matrices 
+#' @param n1,n2 integer giving the sample sizes of the two data sets used for
+#'   network construction. Needed for Fisher's z-test if association matrices
 #'   instead of count matrices were used for network construction.
 #' @param fisherTrans logical. If \code{TRUE} (default), Fisher-transformed
 #'   correlations are used for permutation tests.
@@ -76,6 +76,10 @@
 #'   "adaptBH" for the adaptive Benjamini-Hochberg method \cite{(Benjamini and
 #'   Hochberg, 2000)}, or one of the methods provided by
 #'   \code{\link[stats]{p.adjust}}.
+#' @param adjustNonzeroOnly logical. If \code{TRUE}, multiple testing adjustment
+#'   is performed only for taxa pairs where at least one of the two association
+#'   matrices has a non-zero value. Raw p-values are still returned for all taxa
+#'   pairs. Defaults to \code{FALSE}.
 #' @param lfdrThresh defines a threshold for the local fdr if "lfdr" is chosen
 #'   as method for multiple testing correction. Defaults to 0.2 meaning
 #'   that correlations with a corresponding local fdr less than or equal to 0.2
@@ -90,30 +94,30 @@
 #' @param pvalsVec vector with p-values used for permutation tests. Can be used
 #'   for performing another method for multiple testing adjustment without
 #'   executing the complete permutation process again. See the example.
-#' @param fileLoadAssoPerm character giving the name (without extension) 
-#'   or path of the file storing the "permuted" association/dissimilarity 
-#'   matrices that have been exported by setting \code{storeAssoPerm} to 
-#'   \code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no 
+#' @param fileLoadAssoPerm character giving the name (without extension)
+#'   or path of the file storing the "permuted" association/dissimilarity
+#'   matrices that have been exported by setting \code{storeAssoPerm} to
+#'   \code{TRUE}. Only used for permutation tests. Set to \code{NULL} if no
 #'   existing associations should be used.
-#' @param fileLoadCountsPerm character giving the name (without extension) 
-#'   or path of the file storing the "permuted" count matrices that have been 
-#'   exported by setting \code{storeCountsPerm} to \code{TRUE}. 
-#'   Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}. 
+#' @param fileLoadCountsPerm character giving the name (without extension)
+#'   or path of the file storing the "permuted" count matrices that have been
+#'   exported by setting \code{storeCountsPerm} to \code{TRUE}.
+#'   Only used for permutation tests, and if \code{fileLoadAssoPerm = NULL}.
 #'   Set to \code{NULL} if no existing count matrices should be used.
 #' @param storeAssoPerm logical indicating whether the association (or
 #'   dissimilarity) matrices for the permuted data should be stored in a file.
-#'   The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE}, 
+#'   The filename is given via \code{fileStoreAssoPerm}. If \code{TRUE},
 #'   the computed "permutation" association/dissimilarity matrices can be reused
 #'   via \code{fileLoadAssoPerm} to save runtime. Defaults to \code{FALSE}.
 #' @param fileStoreAssoPerm character giving the file name to store a matrix
-#'   containing a matrix with associations/dissimilarities for the permuted 
+#'   containing a matrix with associations/dissimilarities for the permuted
 #'   data. Can also be a path.
 #' @param storeCountsPerm logical indicating whether the permuted count matrices
 #'   should be stored in an external file. Defaults to \code{FALSE}.
-#' @param fileStoreCountsPerm character vector with two elements giving the 
-#'   names of two files storing the permuted count matrices belonging to the 
+#' @param fileStoreCountsPerm character vector with two elements giving the
+#'   names of two files storing the permuted count matrices belonging to the
 #'   two groups.
-#' @param assoPerm only needed for output generated with NetCoMi v1.0.1! A 
+#' @param assoPerm only needed for output generated with NetCoMi v1.0.1! A
 #'   list with two elements used for the permutation procedure.
 #'   Each entry must contain association matrices for \code{"nPerm"}
 #'   permutations. This can be either the \code{"assoPerm"} value as part of the
@@ -126,16 +130,16 @@
 #'   \tabular{ll}{
 #'   \code{diffMat}\tab matrix with absolute differences of associations that are
 #'   significantly different from zero; optional adjacency matrix\cr
-#'   \code{diffAdjustMat}\tab matrix with absolute differences of associations 
-#'   that are significantly different from zero (after multiple testing 
+#'   \code{diffAdjustMat}\tab matrix with absolute differences of associations
+#'   that are significantly different from zero (after multiple testing
 #'   correction); optional adjacency matrix\cr
 #'   \code{pvalsVec}\tab vector with p-values\cr
 #'   \code{pAdjustVec}\tab vector with adjusted p-values\cr
 #'   \code{pvalsMat}\tab matrix with p-values\cr
 #'   \code{pAdjustMat}\tab matrix with adjusted p-values\cr
-#'   \code{testStatData}\tab vector with test statistics (absolute differences 
+#'   \code{testStatData}\tab vector with test statistics (absolute differences
 #'   of associations) for the original data\cr
-#'   \code{testStatPerm}\tab matrix with test statistics (absolute differences 
+#'   \code{testStatPerm}\tab matrix with test statistics (absolute differences
 #'   of associations) for the permuted data\cr
 #'   \code{assoMat1,assoMat2}\tab matrices with estimated associations (of the
 #'   original data)}
@@ -150,8 +154,8 @@
 #'   \tabular{ll}{
 #'   \code{diffMat}\tab matrix with absolute differences of associations that are
 #'   significantly different from zero; optional adjacency matrix\cr
-#'   \code{diffAdjustMat}\tab matrix with absolute differences of associations 
-#'   that are significantly different from zero (after multiple testing 
+#'   \code{diffAdjustMat}\tab matrix with absolute differences of associations
+#'   that are significantly different from zero (after multiple testing
 #'   correction); optional adjacency matrix\cr
 #'   \code{pvalsVec}\tab vector with p-values\cr
 #'   \code{pAdjustVec}\tab vector with adjusted p-values\cr
@@ -171,21 +175,21 @@
 #' @example man-roxygen/examples/diffnet_ex.R
 #'
 #' @seealso \code{\link{plot.diffnet}}
-#' @references 
-#'   Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false 
-#'   discovery rate in multiple testing with independent statistics.” 
+#' @references
+#'   Benjamini Y, Hochberg Y (2000). “On the adaptive control of the false
+#'   discovery rate in multiple testing with independent statistics.”
 #'   \emph{Journal of Educational and Behavioral Statistics}, 25(1), 60–83.\cr\cr
-#'   Siska C, Kechris K (2016). discordant: The Discordant Method: A Novel 
-#'   Approach for Differential Correlation. R package version 1.2.0, 
+#'   Siska C, Kechris K (2016). discordant: The Discordant Method: A Novel
+#'   Approach for Differential Correlation. R package version 1.2.0,
 #'   https://github.com/siskac/discordant.\cr\cr
-#'   Farcomeni A (2007). “Some results on the control of the false discovery 
-#'   rate under dependence.” \emph{Scandinavian Journal of Statistics}, 
+#'   Farcomeni A (2007). “Some results on the control of the false discovery
+#'   rate under dependence.” \emph{Scandinavian Journal of Statistics},
 #'   34(2), 275–297.\cr\cr
-#'   Fisher RA (1992). “Statistical methods for research workers.” 
+#'   Fisher RA (1992). “Statistical methods for research workers.”
 #'   \emph{Breakthroughs in Statistics}, 66–70. Springer.\cr\cr
-#'   Gill R, Datta S, Datta S (2010). “A statistical framework for differential 
+#'   Gill R, Datta S, Datta S (2010). “A statistical framework for differential
 #'   network analysis from microarray data.” \emph{BMC Bioinformatics}, 11, 95.
-#'   
+#'
 #' @importFrom Biobase ExpressionSet
 #' @importFrom Rdpack reprompt
 #' @importFrom stats p.adjust.methods
@@ -209,6 +213,7 @@ diffnet <- function(x,
                     seed = NULL,
                     alpha = 0.05,
                     adjust = "lfdr",
+                    adjustNonzeroOnly = FALSE,
                     lfdrThresh = 0.2,
                     trueNullMethod = "convest",
                     pvalsVec = NULL,
@@ -222,56 +227,73 @@ diffnet <- function(x,
 
   # Check input arguments
   argsIn <- as.list(environment())
-  
+
   if (verbose) message("Checking input arguments ... \n", appendLF = FALSE)
 
   argsOut <- .checkArgsDiffnet(argsIn)
-  
+
   for (i in 1:length(argsOut)) {
     assign(names(argsOut)[i], argsOut[[i]])
   }
-  
+
   if (verbose) message("Done.")
-  
+
   #-----------------------------------------------------------------------------
 
   countMat1 <- x$countMat1
   countMat2 <- x$countMat2
   countsJoint <- x$countsJoint
-  
+
   normCounts1 <- x$normCounts1
   normCounts2 <- x$normCounts2
-  
+
   assoMat1 <- x$assoEst1
   assoMat2 <- x$assoEst2
-  
+  adjustIncludeVec <- NULL
+  nTestsTotal <- nTestsAdjusted <- NULL
+
+  if (diffMethod %in% c("permute", "fisherTest")) {
+    adjustIncludeVec <- rep(TRUE, sum(lower.tri(assoMat1)))
+    names(adjustIncludeVec) <- .getVecNames(assoMat1)
+
+    if (adjustNonzeroOnly) {
+      assoVec1Tmp <- as.vector(assoMat1[lower.tri(assoMat1)])
+      assoVec2Tmp <- as.vector(assoMat2[lower.tri(assoMat2)])
+      adjustIncludeVec <- assoVec1Tmp != 0 | assoVec2Tmp != 0
+      names(adjustIncludeVec) <- .getVecNames(assoMat1)
+    }
+
+    nTestsTotal <- length(adjustIncludeVec)
+    nTestsAdjusted <- sum(adjustIncludeVec)
+  }
+
   if (is.null(n1)) {
     n1 <- nrow(x$normCounts1)
     n2 <- nrow(x$normCounts2)
   }
-  
+
   if (diffMethod == "threshold") {
-    
+
     if (!is.numeric(diffThresh) || length(diffThresh) != 1 || is.na(diffThresh)) {
       stop("'diffThresh' must be a single, non-missing numeric value.")
     }
     if (diffThresh < 0) stop("'diffThresh' must be >= 0.")
-    
+
     diffMat <- abs(assoMat1 - assoMat2)
     diag(diffMat) <- 0
-    
+
     # Keep only differences strictly larger than the threshold
     diffMat[diffMat <= diffThresh] <- 0
-    
+
     output <- list(
       assoMat1 = assoMat1,
       assoMat2 = assoMat2,
       diffMat = diffMat,
       diffThresh = diffThresh
     )
-    
+
   } else if (diffMethod == "discordant") {
-    
+
     if (!requireNamespace("discordant", quietly = TRUE)) {
 
       message("Installing missing package 'discordant' ...")
@@ -279,28 +301,28 @@ diffnet <- function(x,
       if (!requireNamespace("BiocManager", quietly = TRUE)) {
         utils::install.packages("BiocManager")
       }
-      
+
       BiocManager::install("discordant", dependencies = TRUE)
       message("Done.")
-      
+
       message("Check whether installed package can be loaded ...")
       requireNamespace("discordant")
       message("Done.")
     }
-    
+
     if (!is.null(seed)) set.seed(seed)
-    
+
     if (is.null(countsJoint)) {
       combMat <- rbind(countMat1, countMat2)
     } else {
       combMat <- countsJoint
     }
-    
+
     # Create object of class ExpressionSet
     x_expr <- Biobase::ExpressionSet(assayData = t(combMat))
-    
+
     groups <- c(rep(1, nrow(normCounts1)), rep(2, nrow(normCounts2)))
-    
+
     # Transform correlation matrices to vectors
     lowtri <- lower.tri(assoMat1, diag = FALSE)
     corrVector1 <- assoMat1[lowtri]
@@ -308,32 +330,32 @@ diffnet <- function(x,
     vector_names <- .getVecNames(t(assoMat1))
     names(corrVector1) <- vector_names
     names(corrVector2) <- vector_names
-    
+
     # Get classes with probabilities
     discord <- discordant::discordantRun(corrVector1, corrVector2, x_expr)
-    
+
     # Matrix with assigned classes (with highest probabilities)
     classMat <- discord$classMatrix
     classMat[upper.tri(classMat)] <- t(classMat)[upper.tri(t(classMat))]
     diag(classMat) <- 1
-    
+
     # Matrix with probabilities that correlations are different between the groups
     # (equals sum of probabilities for classes 2,3,4,6,7,8)
     diffProbs <- discord$discordPPMatrix
     diffProbs[upper.tri(diffProbs)] <- t(diffProbs)[upper.tri(t(diffProbs))]
     diag(diffProbs) <- 0
-    
+
     diffMat <- abs(assoMat1 - assoMat2)
     diffMat[diffProbs < discordThresh] <- 0
     output <- list(assoMat1 = assoMat1, assoMat2 = assoMat2,
-                   diffMat = diffMat, classMat = classMat, 
+                   diffMat = diffMat, classMat = classMat,
                    diffProbs = diffProbs)
-    
+
   } else if (diffMethod == "permute") {
-    
+
     matchDesign <- x$matchDesign
     callNetConstr <- x$call
-    
+
     pvalsVecInput <- pvalsVec
 
     if (refinePermPvals && !is.null(pvalsVec)) {
@@ -341,15 +363,15 @@ diffnet <- function(x,
               call. = FALSE)
       refinePermPvals <- FALSE
     }
-    
+
     if (is.null(pvalsVec)) {
-      
+
       cores <- as.integer(cores)
-      
+
       if (cores > 1) {
         if (parallel::detectCores() < cores) cores <- parallel::detectCores()
       }
-      
+
       permResult <- .permTestDiffAsso(
         countMat1 = countMat1,
         countMat2 = countMat2,
@@ -365,6 +387,7 @@ diffnet <- function(x,
         refinePermPvals = refinePermPvals,
         permApproxParams = permApproxParams,
         adjust = adjust,
+        adjustIncludeVec = adjustIncludeVec,
         adjust2 = "none",
         alpha = alpha,
         lfdrThresh = lfdrThresh,
@@ -383,30 +406,39 @@ diffnet <- function(x,
         fileStoreCountsPerm = fileStoreCountsPerm,
         assoPerm = assoPerm
       )
-      
+
       pvalsVec <- permResult$pvalsVec
       pAdjustVec <- permResult$pAdjustVec
       pvalsVecEmpirical <- permResult$pvalsVecEmpirical
       pvalsVecRefined <- permResult$pvalsVecRefined
       pvalsMatEmpiricalPerm <- permResult$pvalsMatEmpirical
       pvalsMatRefinedPerm <- permResult$pvalsMatRefined
-      
+
       testStatData <- permResult$testStatData
       testStatPerm <- permResult$testStatPerm
-      
+
       nExceedsVec <- permResult$nExceedsVec
-      
+
     } else {
-      
+
+      if (is.null(names(pvalsVec))) {
+        names(pvalsVec) <- names(adjustIncludeVec)
+      }
+
       # Adjust for multiple testing
       if (verbose & adjust != "none") {
         message("Adjust for multiple testing using '", adjust, "' ... ",
                 appendLF = FALSE)
       }
-      pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
-                               trueNullMethod = trueNullMethod, verbose = verbose)
+      pAdjustVec <- .adjustDiffnetPvals(
+        pvals = pvalsVec,
+        adjust = adjust,
+        adjustIncludeVec = adjustIncludeVec,
+        trueNullMethod = trueNullMethod,
+        verbose = verbose
+      )
       if (verbose & adjust != "none") message("Done.")
-      
+
       pvalsVecEmpirical <- NULL
       pvalsVecRefined <- NULL
       pvalsMatEmpiricalPerm <- NULL
@@ -414,48 +446,51 @@ diffnet <- function(x,
 
       testStatData <- NULL
       testStatPerm <- NULL
-      
+
       nExceedsVec <- NULL
     }
-    
+
     diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
     diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
-    
+
     # Identify links
     diffVec[pvalsVec > alpha] <- 0
-    
+
+    diffVecAdjust[!adjustIncludeVec] <- 0
+
     if (adjust == "none") {
       diffVecAdjust <- diffVec
+      diffVecAdjust[!adjustIncludeVec] <- 0
     } else if (adjust == "lfdr") {
-      diffVecAdjust[pAdjustVec > lfdrThresh] <- 0
+      diffVecAdjust[is.na(pAdjustVec) | pAdjustVec > lfdrThresh] <- 0
     } else {
-      diffVecAdjust[pAdjustVec > alpha] <- 0
+      diffVecAdjust[is.na(pAdjustVec) | pAdjustVec > alpha] <- 0
     }
-    
+
     diffMat[lower.tri(diffMat)] <- diffVec
     diffMat[upper.tri(diffMat)] <- t(diffMat)[upper.tri(t(diffMat))]
-    
+
     diffAdjustMat[lower.tri(diffAdjustMat)] <- diffVecAdjust
-    diffAdjustMat[upper.tri(diffAdjustMat)] <- 
+    diffAdjustMat[upper.tri(diffAdjustMat)] <-
       t(diffAdjustMat)[upper.tri(t(diffAdjustMat))]
-    
+
     pvalsMat <- diffMat
     pvalsMat[lower.tri(pvalsMat)] <- pvalsVec
     pvalsMat[upper.tri(pvalsMat)] <- t(pvalsMat)[upper.tri(t(pvalsMat))]
-    
+
     pAdjustMat <- diffMat
     pAdjustMat[lower.tri(pAdjustMat)] <- pAdjustVec
     pAdjustMat[upper.tri(pAdjustMat)] <- t(pAdjustMat)[upper.tri(t(pAdjustMat))]
-    
+
     output = list()
-    
+
     output[["diffMat"]] <- diffMat
     output[["diffAdjustMat"]] <- diffAdjustMat
-    
+
     output[["pvalsVec"]] <- pvalsVec
     output[["pAdjustVec"]] <- pAdjustVec
     #output[["nExceedsVec"]] <- nExceedsVec
-    
+
     output[["pvalsMat"]] <- pvalsMat
     if (!is.null(pvalsVecEmpirical)) {
       output[["pvalsVecEmpirical"]] <- pvalsVecEmpirical
@@ -466,124 +501,168 @@ diffnet <- function(x,
       output[["pvalsMatRefined"]] <- pvalsMatRefinedPerm
     }
     output[["pAdjustMat"]] <- pAdjustMat
-    
+
     output[["testStatData"]] <- testStatData
     output[["testStatPerm"]] <- testStatPerm
-    
+
     output[["assoMat1"]] <- assoMat1
     output[["assoMat2"]] <- assoMat2
-    
+
   }else { #Fisher's z-test
-    
+
     assoVec1 <- as.vector(assoMat1[lower.tri(assoMat1)])
     assoVec2 <- as.vector(assoMat2[lower.tri(assoMat2)])
-    
+
     assoVec1[assoVec1 == 1] <- 0.9999
     assoVec2[assoVec2 == 1] <- 0.9999
     assoVec1[assoVec1 == -1] <- -0.9999
     assoVec2[assoVec2 == -1] <- -0.9999
-    
+
     z1 <- atanh(assoVec1)
     z2 <- atanh(assoVec2)
-    
+
     diff_z <- (z1 - z2)/sqrt(1/(n1 - 3) + (1/(n2 - 3)))
-    
+
     pvalsVec <- 2 * (1 - pnorm(abs(diff_z)))
-    
+
     # Adjust for multiple testing
     if (verbose & adjust != "none") {
       message("Adjust for multiple testing using '", adjust, "' ... ",
               appendLF = FALSE)
     }
-    
-    pAdjustVec <- multAdjust(pvals = pvalsVec, adjust = adjust,
-                             trueNullMethod = trueNullMethod, verbose = verbose)
-    
+
+    names(pvalsVec) <- names(adjustIncludeVec)
+
+    pAdjustVec <- .adjustDiffnetPvals(
+      pvals = pvalsVec,
+      adjust = adjust,
+      adjustIncludeVec = adjustIncludeVec,
+      trueNullMethod = trueNullMethod,
+      verbose = verbose
+    )
+
     if (verbose & adjust != "none") message("Done.")
-    
+
     diffMat <- diffAdjustMat <- abs(assoMat1 - assoMat2)
     diag(diffMat) <- diag(diffAdjustMat) <- 0
-    
+
     diffVec <- diffVecAdjust <- diffMat[lower.tri(diffMat)]
-    
+
     diffVec[pvalsVec > alpha] <- 0
-    
+
     # Identify links
+    diffVecAdjust[!adjustIncludeVec] <- 0
+
     if (adjust == "none") {
       diffVecAdjust <- diffVec
-      
+      diffVecAdjust[!adjustIncludeVec] <- 0
+
     } else if (adjust == "lfdr") {
-      diffVecAdjust[pAdjustVec > lfdrThresh] <- 0
+      diffVecAdjust[is.na(pAdjustVec) | pAdjustVec > lfdrThresh] <- 0
     } else {
-      diffVecAdjust[pAdjustVec > alpha] <- 0
+      diffVecAdjust[is.na(pAdjustVec) | pAdjustVec > alpha] <- 0
     }
-    
+
     diffMat[lower.tri(diffMat)] <- diffVec
     diffMat[upper.tri(diffMat)] <- t(diffMat)[upper.tri(t(diffMat))]
-    
+
     diffAdjustMat[lower.tri(diffAdjustMat)] <- diffVecAdjust
-    diffAdjustMat[upper.tri(diffAdjustMat)] <- 
+    diffAdjustMat[upper.tri(diffAdjustMat)] <-
       t(diffAdjustMat)[upper.tri(t(diffAdjustMat))]
-    
-    
+
+
     pvalsMat <- diffMat
     pvalsMat[lower.tri(pvalsMat)] <- pvalsVec
     pvalsMat[upper.tri(pvalsMat)] <- t(pvalsMat)[upper.tri(t(pvalsMat))]
-    
+
     pAdjustMat <- diffMat
     pAdjustMat[lower.tri(pAdjustMat)] <- pAdjustVec
     pAdjustMat[upper.tri(pAdjustMat)] <- t(pAdjustMat)[upper.tri(t(pAdjustMat))]
-    
+
     output <- list()
-    
+
     output[["diffMat"]] <- diffMat
-    
+
     output[["diffAdjustMat"]] <- diffAdjustMat
-    
+
     output[["pvalsVec"]] <- pvalsVec
     output[["pAdjustVec"]] <- pAdjustVec
     #output[["nExceedsVec"]] <- nExceedsVec
-    
+
     output[["pvalsMat"]] <- pvalsMat
     output[["pAdjustMat"]] <- pAdjustMat
-    
+
     output[["assoMat1"]] <- assoMat1
     output[["assoMat2"]] <- assoMat2
-    
+
   }
-  
+
   if (verbose) {
-    
+
     if (diffMethod == "discordant") {
       if (all(diffMat == 0)) message("No differential associations detected.")
-      
+
     } else if (diffMethod == "threshold") {
-      
+
       if (all(output$diffMat == 0)) message("No differential associations detected.")
-      
+
     } else { # Fisher test or permutation test
-      
+
       if (adjust == "none") {
         if (all(diffMat == 0)) {
           message("No significant differential associations detected.")
         }
       } else {
         if (all(diffAdjustMat == 0)) {
-          message("No significant differential associations detected ", 
+          message("No significant differential associations detected ",
                   "after multiple testing adjustment.")
         }
       }
     }
   }
-  
+
   output[["groups"]] <- x$groups
   output[["diffMethod"]] <- diffMethod
   output[["adjusted"]] <- if (diffMethod == "threshold") "none" else adjust
+  output[["adjustNonzeroOnly"]] <- adjustNonzeroOnly
+  output[["adjustIncludeVec"]] <- adjustIncludeVec
+  output[["nTestsTotal"]] <- nTestsTotal
+  output[["nTestsAdjusted"]] <- nTestsAdjusted
+  output[["alpha"]] <- alpha
+  output[["lfdrThresh"]] <- lfdrThresh
   output[["call"]] <- match.call()
-  
+
   class(output) <- "diffnet"
-  
+
   return(output)
 }
 
+#' @keywords internal
+.adjustDiffnetPvals <- function(pvals,
+                                adjust,
+                                adjustIncludeVec,
+                                trueNullMethod,
+                                verbose) {
+  if (is.null(adjustIncludeVec)) {
+    adjustIncludeVec <- rep(TRUE, length(pvals))
+  }
+
+  if (length(adjustIncludeVec) != length(pvals)) {
+    stop("\"adjustIncludeVec\" must have the same length as \"pvals\".")
+  }
+
+  pAdjust <- rep(NA_real_, length(pvals))
+  names(pAdjust) <- names(pvals)
+
+  if (any(adjustIncludeVec)) {
+    pAdjust[adjustIncludeVec] <- multAdjust(
+      pvals = pvals[adjustIncludeVec],
+      adjust = adjust,
+      trueNullMethod = trueNullMethod,
+      verbose = verbose
+    )
+  }
+
+  pAdjust
+}
 
