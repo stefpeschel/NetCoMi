@@ -5,6 +5,11 @@ output: github_document
 
 ### New features
 
+* In `diffnet()`: New argument `adjustNonzeroOnly` can restrict multiple
+testing adjustment to taxa pairs with a non-zero association in at least one of
+the two networks. A new `summary.diffnet()` method summarizes association
+ranges, edge counts, differential associations, and p-values.
+
 * `SpiecEasi` is now available from Bioconductor and NetCoMi depends on
 `SpiecEasi (>= 2.0.0)`. Users no longer need to install `SpiecEasi` from
 GitHub.

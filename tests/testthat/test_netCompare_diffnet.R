@@ -200,4 +200,37 @@ test_that("supplied permutation p-values use the non-zero adjustment mask", {
   expect_equal(diff_net$diffAdjustMat["t1", "t2"], 0)
 })
 
+test_that("diffnet summaries print for p-value, threshold, and discordant outputs", {
+  net <- make_diffnet_test_net()
+
+  diff_fisher <- diffnet(net,
+                         diffMethod = "fisherTest",
+                         adjust = "BH",
+                         adjustNonzeroOnly = TRUE,
+                         n1 = 20,
+                         n2 = 20,
+                         verbose = FALSE)
+  expect_is(summary(diff_fisher), "summary.diffnet")
+  expect_output(print(summary(diff_fisher)), "Differential Network Summary")
+
+  diff_thresh <- diffnet(net,
+                         diffMethod = "threshold",
+                         diffThresh = 0.1,
+                         verbose = FALSE)
+  expect_is(summary(diff_thresh), "summary.diffnet")
+  expect_output(print(summary(diff_thresh)), "Method-specific summary")
+
+  diff_discord <- list(assoMat1 = net$assoEst1,
+                       assoMat2 = net$assoEst2,
+                       diffMat = abs(net$assoEst1 - net$assoEst2),
+                       diffProbs = abs(net$assoEst1 - net$assoEst2),
+                       diffMethod = "discordant",
+                       adjusted = "none",
+                       call = quote(diffnet(net, diffMethod = "discordant")))
+  class(diff_discord) <- "diffnet"
+  expect_is(summary(diff_discord), "summary.diffnet")
+  expect_output(print(summary(diff_discord)), "Method-specific summary")
+})
+
+
 
