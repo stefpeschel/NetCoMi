@@ -387,6 +387,7 @@ diffnet <- function(x,
         refinePermPvals = refinePermPvals,
         permApproxParams = permApproxParams,
         adjust = adjust,
+        adjustNonzeroOnly = adjustNonzeroOnly,
         adjustIncludeVec = adjustIncludeVec,
         adjust2 = "none",
         alpha = alpha,
@@ -427,8 +428,9 @@ diffnet <- function(x,
 
       # Adjust for multiple testing
       if (verbose & adjust != "none") {
-        message("Adjust for multiple testing using '", adjust, "' ... ",
-                appendLF = FALSE)
+        .messageDiffnetAdjust(adjust = adjust,
+                              adjustNonzeroOnly = adjustNonzeroOnly,
+                              adjustIncludeVec = adjustIncludeVec)
       }
       pAdjustVec <- .adjustDiffnetPvals(
         pvals = pvalsVec,
@@ -527,8 +529,9 @@ diffnet <- function(x,
 
     # Adjust for multiple testing
     if (verbose & adjust != "none") {
-      message("Adjust for multiple testing using '", adjust, "' ... ",
-              appendLF = FALSE)
+      .messageDiffnetAdjust(adjust = adjust,
+                            adjustNonzeroOnly = adjustNonzeroOnly,
+                            adjustIncludeVec = adjustIncludeVec)
     }
 
     names(pvalsVec) <- names(adjustIncludeVec)
@@ -664,5 +667,23 @@ diffnet <- function(x,
   }
 
   pAdjust
+}
+
+#' @keywords internal
+.messageDiffnetAdjust <- function(adjust,
+                                  adjustNonzeroOnly,
+                                  adjustIncludeVec = NULL) {
+  if (isTRUE(adjustNonzeroOnly)) {
+    nTestsTotal <- length(adjustIncludeVec)
+    nTestsAdjusted <- sum(adjustIncludeVec)
+    message("Adjust for multiple testing using '", adjust,
+            "' for non-zero association pairs only (",
+            nTestsAdjusted, " of ", nTestsTotal, " tests) ... ",
+            appendLF = FALSE)
+  } else {
+    message("Adjust for multiple testing using '", adjust,
+            "' (", length(adjustIncludeVec), " tests) ... ",
+            appendLF = FALSE)
+  }
 }
 
