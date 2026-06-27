@@ -232,5 +232,22 @@ test_that("diffnet summaries print for p-value, threshold, and discordant output
   expect_output(print(summary(diff_discord)), "Method-specific summary")
 })
 
+test_that("plot.diffnet returns with a message if there is nothing to plot", {
+  net <- make_diffnet_test_net()
+  diff_empty <- list(assoMat1 = net$assoEst1,
+                     assoMat2 = net$assoEst2,
+                     diffMat = matrix(0, 4, 4,
+                                      dimnames = dimnames(net$assoEst1)),
+                     diffAdjustMat = matrix(0, 4, 4,
+                                            dimnames = dimnames(net$assoEst1)),
+                     diffMethod = "fisherTest",
+                     adjusted = "BH")
+  class(diff_empty) <- "diffnet"
+
+  expect_message(out <- plot(diff_empty),
+                 "after multiple testing adjustment")
+  expect_null(out)
+})
+
 
 

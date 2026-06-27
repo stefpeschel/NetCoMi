@@ -14,6 +14,10 @@
   of the two networks. A new `summary.diffnet()` method summarizes association
   ranges, edge counts, differential associations, and p-values.
 
+- In `plot.diffnet()`: Calling `plot()` for a differential network without
+  differential correlations now returns invisibly with a message instead of
+  throwing an error.
+
 - `SpiecEasi` is now available from Bioconductor and NetCoMi depends on
   `SpiecEasi (>= 2.0.0)`. Users no longer need to install `SpiecEasi`
   from GitHub.

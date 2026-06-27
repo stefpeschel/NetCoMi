@@ -197,11 +197,12 @@ plot.diffnet <- function(x,
   
   if (all(diffMat == 0)) {
     if (isAdjust) {
-      stop("There are no differential correlations to plot ",
-           "(after multiple testing adjustment).")
+      message("There are no differential correlations to plot ",
+              "(after multiple testing adjustment).")
     } else {
-      stop("There are no differential correlations to plot.")
+      message("There are no differential correlations to plot.")
     }
+    return(invisible(NULL))
   }
   
   if (edgeFilter != "none") {
