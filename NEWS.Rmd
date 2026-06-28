@@ -11,9 +11,9 @@ output: github_document
   norm one, corresponding to igraph's former `scale = FALSE` behavior.
 
 * In `diffnet()`: New argument `adjustNonzeroOnly` can restrict multiple
-testing adjustment to taxa pairs with a non-zero association in at least one of
-the two networks. A new `summary.diffnet()` method summarizes association
-ranges, edge counts, differential associations, and p-values.
+testing adjustment to taxa pairs with a non-zero sparsified association in at
+least one of the two networks. A new `summary.diffnet()` method summarizes
+association ranges, edge counts, differential associations, and p-values.
 
 * In `plot.diffnet()`: Calling `plot()` for a differential network without
 differential correlations now returns invisibly with a message instead of

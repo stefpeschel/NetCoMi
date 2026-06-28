@@ -112,9 +112,9 @@ Hochberg, 2000)}, or one of the methods provided by
 \code{\link[stats]{p.adjust}}.}
 
 \item{adjustNonzeroOnly}{logical. If \code{TRUE}, multiple testing adjustment
-is performed only for taxa pairs where at least one of the two association
-matrices has a non-zero value. Raw p-values are still returned for all taxa
-pairs. Defaults to \code{FALSE}.}
+is performed only for taxa pairs where at least one of the two sparsified
+association matrices in \code{x} has a non-zero value. Raw p-values are
+still returned for all taxa pairs. Defaults to \code{FALSE}.}
 
 \item{lfdrThresh}{defines a threshold for the local fdr if "lfdr" is chosen
 as method for multiple testing correction. Defaults to 0.2 meaning

@@ -313,7 +313,9 @@ testmat.pseudo <- NetCoMi:::.zeroTreat(testmat,
                                        needfrac = FALSE,
                                        needint = FALSE,
                                        verbose = 0)
-expect_equal(testmat.pseudo, testmat + 0.25)
+testmat.pseudo.expected <- testmat + 0.25
+attr(testmat.pseudo.expected, "scale") <- "pseudo-counts"
+expect_equal(testmat.pseudo, testmat.pseudo.expected)
 
 testmat.zo <- NetCoMi:::.zeroTreat(testmat,
                                    zeroMethod = "pseudo",

@@ -125,30 +125,40 @@ expect_error(diff_perm <- diffnet(assonet2,
 context("diffnet adjustment over non-zero associations")
 
 make_diffnet_test_net <- function() {
-  mat1 <- mat2 <- diag(4)
-  dimnames(mat1) <- dimnames(mat2) <- list(paste0("t", 1:4), paste0("t", 1:4))
+  est1 <- est2 <- diag(4)
+  dimnames(est1) <- dimnames(est2) <- list(paste0("t", 1:4), paste0("t", 1:4))
 
-  mat1[1, 2] <- mat1[2, 1] <- 0
-  mat2[1, 2] <- mat2[2, 1] <- 0
+  est1[1, 2] <- est1[2, 1] <- 0.1
+  est2[1, 2] <- est2[2, 1] <- 0.1
 
-  mat1[1, 3] <- mat1[3, 1] <- -0.4
-  mat2[1, 3] <- mat2[3, 1] <- 0
+  est1[1, 3] <- est1[3, 1] <- -0.4
+  est2[1, 3] <- est2[3, 1] <- 0.05
 
-  mat1[1, 4] <- mat1[4, 1] <- 0
-  mat2[1, 4] <- mat2[4, 1] <- 0.5
+  est1[1, 4] <- est1[4, 1] <- 0.05
+  est2[1, 4] <- est2[4, 1] <- 0.5
 
-  mat1[2, 3] <- mat1[3, 2] <- 0.2
-  mat2[2, 3] <- mat2[3, 2] <- 0.2
+  est1[2, 3] <- est1[3, 2] <- 0.2
+  est2[2, 3] <- est2[3, 2] <- 0.2
 
-  mat1[2, 4] <- mat1[4, 2] <- 0
-  mat2[2, 4] <- mat2[4, 2] <- 0
+  est1[2, 4] <- est1[4, 2] <- 0.1
+  est2[2, 4] <- est2[4, 2] <- 0.1
 
-  mat1[3, 4] <- mat1[4, 3] <- 0
-  mat2[3, 4] <- mat2[4, 3] <- 0
+  est1[3, 4] <- est1[4, 3] <- 0.1
+  est2[3, 4] <- est2[4, 3] <- 0.1
 
-  out <- list(assoEst1 = mat1,
-              assoEst2 = mat2,
-              assoMat2 = mat2,
+  sparse1 <- est1
+  sparse2 <- est2
+  sparse1[1, 2] <- sparse1[2, 1] <- 0
+  sparse2[1, 2] <- sparse2[2, 1] <- 0
+  sparse1[2, 4] <- sparse1[4, 2] <- 0
+  sparse2[2, 4] <- sparse2[4, 2] <- 0
+  sparse1[3, 4] <- sparse1[4, 3] <- 0
+  sparse2[3, 4] <- sparse2[4, 3] <- 0
+
+  out <- list(assoEst1 = est1,
+              assoEst2 = est2,
+              assoMat1 = sparse1,
+              assoMat2 = sparse2,
               assoType = "association",
               parameters = list(dataType = "correlation"),
               normCounts1 = matrix(0, 20, 4),
@@ -174,6 +184,7 @@ test_that("Fisher adjustment can exclude zero-zero association pairs", {
   expect_equal(diff_net$nTestsAdjusted, 3)
   expect_equal(sum(!diff_net$adjustIncludeVec), 3)
   expect_true(diff_net$adjustIncludeVec[["t3_t1"]])
+  expect_false(diff_net$adjustIncludeVec[["t2_t1"]])
   expect_true(is.na(diff_net$pAdjustVec[["t2_t1"]]))
   expect_true(is.na(diff_net$pAdjustMat["t1", "t2"]))
   expect_equal(diff_net$diffAdjustMat["t1", "t2"], 0)
