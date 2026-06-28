@@ -84,8 +84,9 @@
 #'   \code{"highestDiff"} (the first x edges with highest absolute difference
 #'   are shown). x is defined by \code{edgeFilterPar}.
 #' @param edgeFilterPar numeric value specifying the "x" in \code{edgeFilter}.
-#' @param edgeWidth numeric specifying the edge width. See argument
-#'   \code{"edge.width"} of \code{\link[qgraph]{qgraph}}.
+#' @param edgeWidth numeric scaling the plotted edge widths. Differential
+#'   association strengths are rescaled for plotting so weak non-zero edges
+#'   remain visible. Defaults to 1.
 #' @param edgeTransp an integer between 0 and 100 indicating the transparency of
 #'   edge colors. 0 means no transparency (default), 100 means full transparency.
 #' @param edgeCol character vector specifying the edge colors. Must be of length
@@ -118,6 +119,8 @@
 #' @param legendGroupnames a vector with two elements giving the group names
 #'   shown in the legend.
 #' @param legendTitle character specifying the legend title.
+#' @param legendEdgeWidth numeric specifying the width of the edge lines in the
+#'   legend. Defaults to 2.
 #' @param legendArgs list with further arguments passed to
 #'   \code{\link[graphics]{legend}}.
 #' @param cexNodes numeric scaling node sizes. Defaults to 1.
@@ -163,6 +166,7 @@ plot.diffnet <- function(x,
                          legendPos = "topright",
                          legendGroupnames = NULL,
                          legendTitle = NULL,
+                         legendEdgeWidth = 2,
                          legendArgs = NULL,
                          cexNodes = 1,
                          cexLabels = 1,
@@ -361,6 +365,8 @@ plot.diffnet <- function(x,
     edgeColMat <- edgeColMat[kept, kept]
   }
 
+  diffMatPlot <- .scaleDiffnetEdgesForPlot(diffMat)
+
   if (is.matrix(layout)) {
     if (is.null(rownames(layout))) {
       if (nrow(layout) != ncol(diffMat)) {
@@ -419,12 +425,25 @@ plot.diffnet <- function(x,
   #=============================================================================
 
 
-  q <- qgraph(diffMat, layout = layout, color = nodeColor,
-              label.scale = labelScale, labels = labelsout,
-              label.font = labelFont, label.cex = cexLabels, vsize = nodeSize,
-              border.color = borderCol, border.width = borderWidth,
-              edge.color = edgeColMat, edge.width = edgeWidth,
-              repulsion = repulsion, mar = mar, ...)
+  qgraphArgs <- list(...)
+  if (is.null(qgraphArgs$cut)) qgraphArgs$cut <- 0
+  if (is.null(qgraphArgs$maximum)) qgraphArgs$maximum <- 1
+
+  q <- do.call(qgraph, c(list(input = diffMatPlot,
+                              layout = layout,
+                              color = nodeColor,
+                              label.scale = labelScale,
+                              labels = labelsout,
+                              label.font = labelFont,
+                              label.cex = cexLabels,
+                              vsize = nodeSize,
+                              border.color = borderCol,
+                              border.width = borderWidth,
+                              edge.color = edgeColMat,
+                              edge.width = edgeWidth,
+                              repulsion = repulsion,
+                              mar = mar),
+                         qgraphArgs))
 
   if (legend) {
 
@@ -471,7 +490,7 @@ plot.diffnet <- function(x,
     leg_args$cex <- cexLegend
     leg_args$title <- legendTitle
     leg_args$ncol <- 2
-    if (is.null(leg_args$lwd)) leg_args$lwd <- 2
+    if (is.null(leg_args$lwd)) leg_args$lwd <- legendEdgeWidth
 
     do.call("legend", leg_args)
   }
@@ -484,5 +503,24 @@ plot.diffnet <- function(x,
   rownames(lay) <- colnames(diffMat)
   invisible(lay)
 
+}
+
+#' @keywords internal
+.scaleDiffnetEdgesForPlot <- function(diffMat, minWeight = 0.25) {
+  out <- abs(diffMat)
+  diag(out) <- 0
+
+  edgeInd <- out != 0
+
+  if (any(edgeInd)) {
+    maxWeight <- max(out[edgeInd])
+
+    if (maxWeight > 0) {
+      out[edgeInd] <- out[edgeInd] / maxWeight
+      out[edgeInd] <- minWeight + (1 - minWeight) * out[edgeInd]
+    }
+  }
+
+  out
 }
 

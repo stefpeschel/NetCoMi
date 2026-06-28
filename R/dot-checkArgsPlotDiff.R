@@ -235,6 +235,15 @@
   }
 
   #-------------------
+  #legendEdgeWidth
+  errs <- .checkArg(cond = is.numeric(args$legendEdgeWidth) &
+                      length(args$legendEdgeWidth) == 1 &
+                      args$legendEdgeWidth[1] >= 0,
+                    msg = paste0("\"legendEdgeWidth\" must be a single ",
+                                 "numeric value >= 0."),
+                    errs = errs)
+
+  #-------------------
   #legendArgs
   if (!is.null(args$legendArgs)) {
     errs <- .checkArg(cond = is.list(args$legendArgs),

@@ -33,6 +33,7 @@
   legendPos = "topright",
   legendGroupnames = NULL,
   legendTitle = NULL,
+  legendEdgeWidth = 2,
   legendArgs = NULL,
   cexNodes = 1,
   cexLabels = 1,
@@ -145,8 +146,9 @@ are shown). x is defined by \code{edgeFilterPar}.}
 
 \item{edgeFilterPar}{numeric value specifying the "x" in \code{edgeFilter}.}
 
-\item{edgeWidth}{numeric specifying the edge width. See argument
-\code{"edge.width"} of \code{\link[qgraph]{qgraph}}.}
+\item{edgeWidth}{numeric scaling the plotted edge widths. Differential
+association strengths are rescaled for plotting so weak non-zero edges
+remain visible. Defaults to 1.}
 
 \item{edgeTransp}{an integer between 0 and 100 indicating the transparency of
 edge colors. 0 means no transparency (default), 100 means full transparency.}
@@ -186,6 +188,9 @@ legend. See the description of the x and y arguments of
 shown in the legend.}
 
 \item{legendTitle}{character specifying the legend title.}
+
+\item{legendEdgeWidth}{numeric specifying the width of the edge lines in the
+legend. Defaults to 2.}
 
 \item{legendArgs}{list with further arguments passed to
 \code{\link[graphics]{legend}}.}

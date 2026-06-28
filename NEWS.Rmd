@@ -23,6 +23,12 @@ throwing an error.
 plotting a named subset of taxa, including when reusing a named layout matrix
 containing only those taxa.
 
+* In `plot.diffnet()`: Differential association strengths are now rescaled for
+plotting so weaker non-zero edges respond visibly to `edgeWidth`.
+
+* In `plot.diffnet()`: New argument `legendEdgeWidth` controls the width of
+edge lines shown in the legend.
+
 * `SpiecEasi` is now available from Bioconductor and NetCoMi depends on
 `SpiecEasi (>= 2.0.0)`. Users no longer need to install `SpiecEasi` from
 GitHub.

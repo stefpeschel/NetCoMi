@@ -278,5 +278,14 @@ test_that("plot.diffnet matches named layouts after node filtering", {
   expect_equal(rownames(out), c("t1", "t3", "t4"))
 })
 
+test_that("plot.diffnet lifts weak edge weights for width scaling", {
+  net <- make_diffnet_test_net()
+  weight <- .scaleDiffnetEdgesForPlot(abs(net$assoEst1 - net$assoEst2))
+
+  expect_equal(max(weight), 1)
+  expect_true(weight["t1", "t3"] >= 0.25)
+  expect_true(weight["t1", "t3"] < 1)
+})
+
 
 
