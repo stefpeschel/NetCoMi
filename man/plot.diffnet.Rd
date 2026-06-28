@@ -17,6 +17,8 @@
   labelScale = TRUE,
   labelFont = 1,
   rmSingles = TRUE,
+  nodeFilter = "none",
+  nodeFilterPar = NULL,
   nodeColor = "gray90",
   nodeTransp = 60,
   borderWidth = 1,
@@ -41,13 +43,13 @@
 )
 }
 \arguments{
-\item{x}{object of class \code{diffnet} (returned by 
-\code{\link{diffnet}}) containing the adjacency matrix, whose entries are 
+\item{x}{object of class \code{diffnet} (returned by
+\code{\link{diffnet}}) containing the adjacency matrix, whose entries are
 absolute differences between associations.}
 
-\item{adjusted}{logical indicating whether the adjacency matrix based on 
-adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
-the adjacency matrix is based on non-adjusted p-values. Ignored 
+\item{adjusted}{logical indicating whether the adjacency matrix based on
+adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE},
+the adjacency matrix is based on non-adjusted p-values. Ignored
 for the discordant method.}
 
 \item{layout}{indicates the layout used for defining node positions. Can be
@@ -66,7 +68,7 @@ a value lower than 1, nodes are placed further apart}
 \item{labels}{defines the node labels. Can be a character vector with an
 entry for each node. If \code{FALSE}, no labels are plotted. Defaults to
 the row/column names of the association matrices.
-Ignored if node labels are defined via \code{labels}. NetCoMi's function 
+Ignored if node labels are defined via \code{labels}. NetCoMi's function
 \code{\link{editLabels}()} is used for label editing.
 Available options are:
 \describe{
@@ -75,10 +77,10 @@ labels are shortened to length \code{labelLength}, and duplicates are
 removed using \code{labelPattern}.}
 \item{\code{"simple"}}{Elements of \code{charToRm} are  removed and labels
 are shortened to length \code{labelLength}.}
-\item{\code{"none"}}{Default. Original dimnames of the adjacency matrices 
+\item{\code{"none"}}{Default. Original dimnames of the adjacency matrices
 are used.} }}
 
-\item{shortenLabels}{character indicating how to shorten the labels. 
+\item{shortenLabels}{character indicating how to shorten the labels.
 Available options are:
 \describe{
 \item{\code{"intelligent"}}{Elements of \code{charToRm} are removed,
@@ -89,32 +91,39 @@ are shortened to length \code{labelLength}.}
 \item{\code{"none"}}{Default. Labels are not shortened.} }}
 
 \item{labelLength}{integer defining the length to which labels shall
-be shortened if \code{shortenLabels} is set to \code{"simple"} or 
+be shortened if \code{shortenLabels} is set to \code{"simple"} or
 \code{"intelligent"}. Defaults to 6.}
 
-\item{labelPattern}{vector of three or five elements, which is used if 
-argument \code{shortenLabels} is set to \code{"intelligent"}. 
-If cutting a label to length \code{labelLength} leads to duplicates, 
-the label is shortened according to \code{labelPattern}, 
-where the first entry gives the length of the first part, 
+\item{labelPattern}{vector of three or five elements, which is used if
+argument \code{shortenLabels} is set to \code{"intelligent"}.
+If cutting a label to length \code{labelLength} leads to duplicates,
+the label is shortened according to \code{labelPattern},
+where the first entry gives the length of the first part,
 the second entry is used a separator, and the third entry
-is the length of the third part. If \code{labelPattern} has five elements 
-and the shortened labels are still not unique, 
+is the length of the third part. If \code{labelPattern} has five elements
+and the shortened labels are still not unique,
 the fourth element serves as further separator, and the fifth element gives
 the length of the last label part. Defaults to c(5, "'", 3, "'", 3).
 If the data contains, for example, three bacteria "Streptococcus1",
-"Streptococcus2" and "Streptomyces", they are by default shortened to 
+"Streptococcus2" and "Streptomyces", they are by default shortened to
 "Strep'coc'1", "Strep'coc'2", and "Strep'myc".}
 
 \item{charToRm}{vector with characters to remove from node names. Ignored if
 labels are given via \code{labels}.}
 
-\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according 
+\item{labelScale}{logical. If \code{TRUE}, node labels are scaled according
 to node size}
 
 \item{labelFont}{integer defining the font of node labels. Defaults to 1.}
 
 \item{rmSingles}{logical. If \code{TRUE}, unconnected nodes are removed.}
+
+\item{nodeFilter}{character indicating whether and how nodes should be
+filtered. Possible values are \code{"none"} (default) and \code{"names"}.
+If \code{"names"}, only taxa named in \code{nodeFilterPar} are plotted.}
+
+\item{nodeFilterPar}{character vector with taxa names if
+\code{nodeFilter = "names"}.}
 
 \item{nodeColor}{character or numeric value specifying node colors. Can also
 be a vector with a color for each node.}
@@ -168,9 +177,9 @@ colors can be restored by passing
 
 \item{legend}{logical. If \code{TRUE}, a legend is plotted.}
 
-\item{legendPos}{either a character specifying the legend's position or a 
-numeric vector with two elements giving the x and y coordinates of the 
-legend. See the description of the x and y arguments of 
+\item{legendPos}{either a character specifying the legend's position or a
+numeric vector with two elements giving the x and y coordinates of the
+legend. See the description of the x and y arguments of
 \code{\link[graphics]{legend}} for details.}
 
 \item{legendGroupnames}{a vector with two elements giving the group names
@@ -178,7 +187,7 @@ shown in the legend.}
 
 \item{legendTitle}{character specifying the legend title.}
 
-\item{legendArgs}{list with further arguments passed to 
+\item{legendArgs}{list with further arguments passed to
 \code{\link[graphics]{legend}}.}
 
 \item{cexNodes}{numeric scaling node sizes. Defaults to 1.}

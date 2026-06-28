@@ -18,6 +18,10 @@
   differential correlations now returns invisibly with a message instead of
   throwing an error.
 
+- In `plot.diffnet()`: New arguments `nodeFilter` and `nodeFilterPar` allow
+  plotting a named subset of taxa, including when reusing a named layout matrix
+  containing only those taxa.
+
 - `SpiecEasi` is now available from Bioconductor and NetCoMi depends on
   `SpiecEasi (>= 2.0.0)`. Users no longer need to install `SpiecEasi`
   from GitHub.

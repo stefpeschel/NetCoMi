@@ -1,11 +1,11 @@
 #' Plot method for objects of class diffnet
 #'
-#' @param x object of class \code{diffnet} (returned by 
-#'   \code{\link{diffnet}}) containing the adjacency matrix, whose entries are 
+#' @param x object of class \code{diffnet} (returned by
+#'   \code{\link{diffnet}}) containing the adjacency matrix, whose entries are
 #'   absolute differences between associations.
-#' @param adjusted logical indicating whether the adjacency matrix based on 
-#'   adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE}, 
-#'   the adjacency matrix is based on non-adjusted p-values. Ignored 
+#' @param adjusted logical indicating whether the adjacency matrix based on
+#'   adjusted p-values should be used. Defaults to \code{TRUE}. If \code{FALSE},
+#'   the adjacency matrix is based on non-adjusted p-values. Ignored
 #'   for the discordant method.
 #' @param layout indicates the layout used for defining node positions. Can be
 #'   a character with one of the layouts provided by
@@ -23,7 +23,7 @@
 #' @param labels defines the node labels. Can be a character vector with an
 #'   entry for each node. If \code{FALSE}, no labels are plotted. Defaults to
 #'   the row/column names of the association matrices.
-#'   Ignored if node labels are defined via \code{labels}. NetCoMi's function 
+#'   Ignored if node labels are defined via \code{labels}. NetCoMi's function
 #'   \code{\link{editLabels}()} is used for label editing.
 #'   Available options are:
 #'   \describe{
@@ -32,9 +32,9 @@
 #'   removed using \code{labelPattern}.}
 #'   \item{\code{"simple"}}{Elements of \code{charToRm} are  removed and labels
 #'   are shortened to length \code{labelLength}.}
-#'   \item{\code{"none"}}{Default. Original dimnames of the adjacency matrices 
+#'   \item{\code{"none"}}{Default. Original dimnames of the adjacency matrices
 #'   are used.} }
-#' @param shortenLabels character indicating how to shorten the labels. 
+#' @param shortenLabels character indicating how to shorten the labels.
 #'   Available options are:
 #'   \describe{
 #'   \item{\code{"intelligent"}}{Elements of \code{charToRm} are removed,
@@ -44,27 +44,32 @@
 #'   are shortened to length \code{labelLength}.}
 #'   \item{\code{"none"}}{Default. Labels are not shortened.} }
 #' @param labelLength integer defining the length to which labels shall
-#'   be shortened if \code{shortenLabels} is set to \code{"simple"} or 
+#'   be shortened if \code{shortenLabels} is set to \code{"simple"} or
 #'   \code{"intelligent"}. Defaults to 6.
-#' @param labelPattern vector of three or five elements, which is used if 
-#'   argument \code{shortenLabels} is set to \code{"intelligent"}. 
-#'   If cutting a label to length \code{labelLength} leads to duplicates, 
-#'   the label is shortened according to \code{labelPattern}, 
-#'   where the first entry gives the length of the first part, 
+#' @param labelPattern vector of three or five elements, which is used if
+#'   argument \code{shortenLabels} is set to \code{"intelligent"}.
+#'   If cutting a label to length \code{labelLength} leads to duplicates,
+#'   the label is shortened according to \code{labelPattern},
+#'   where the first entry gives the length of the first part,
 #'   the second entry is used a separator, and the third entry
-#'   is the length of the third part. If \code{labelPattern} has five elements 
-#'   and the shortened labels are still not unique, 
+#'   is the length of the third part. If \code{labelPattern} has five elements
+#'   and the shortened labels are still not unique,
 #'   the fourth element serves as further separator, and the fifth element gives
 #'   the length of the last label part. Defaults to c(5, "'", 3, "'", 3).
 #'   If the data contains, for example, three bacteria "Streptococcus1",
-#'   "Streptococcus2" and "Streptomyces", they are by default shortened to 
+#'   "Streptococcus2" and "Streptomyces", they are by default shortened to
 #'   "Strep'coc'1", "Strep'coc'2", and "Strep'myc".
 #' @param charToRm vector with characters to remove from node names. Ignored if
 #'   labels are given via \code{labels}.
-#' @param labelScale logical. If \code{TRUE}, node labels are scaled according 
+#' @param labelScale logical. If \code{TRUE}, node labels are scaled according
 #'   to node size
 #' @param labelFont integer defining the font of node labels. Defaults to 1.
 #' @param rmSingles logical. If \code{TRUE}, unconnected nodes are removed.
+#' @param nodeFilter character indicating whether and how nodes should be
+#'   filtered. Possible values are \code{"none"} (default) and \code{"names"}.
+#'   If \code{"names"}, only taxa named in \code{nodeFilterPar} are plotted.
+#' @param nodeFilterPar character vector with taxa names if
+#'   \code{nodeFilter = "names"}.
 #' @param nodeColor character or numeric value specifying node colors. Can also
 #'   be a vector with a color for each node.
 #' @param nodeTransp an integer between 0 and 100 indicating the transparency of
@@ -106,14 +111,14 @@
 #'   "aquamarine", "black", "hotpink")}.
 #' @param title optional character string for the main title.
 #' @param legend logical. If \code{TRUE}, a legend is plotted.
-#' @param legendPos either a character specifying the legend's position or a 
-#'   numeric vector with two elements giving the x and y coordinates of the 
-#'   legend. See the description of the x and y arguments of 
+#' @param legendPos either a character specifying the legend's position or a
+#'   numeric vector with two elements giving the x and y coordinates of the
+#'   legend. See the description of the x and y arguments of
 #'   \code{\link[graphics]{legend}} for details.
 #' @param legendGroupnames a vector with two elements giving the group names
 #'   shown in the legend.
 #' @param legendTitle character specifying the legend title.
-#' @param legendArgs list with further arguments passed to 
+#' @param legendArgs list with further arguments passed to
 #'   \code{\link[graphics]{legend}}.
 #' @param cexNodes numeric scaling node sizes. Defaults to 1.
 #' @param cexLabels numeric scaling node labels. Defaults to 1.
@@ -142,6 +147,8 @@ plot.diffnet <- function(x,
                          labelScale = TRUE,
                          labelFont = 1,
                          rmSingles = TRUE,
+                         nodeFilter = "none",
+                         nodeFilterPar = NULL,
                          nodeColor = "gray90",
                          nodeTransp = 60,
                          borderWidth = 1,
@@ -163,29 +170,29 @@ plot.diffnet <- function(x,
                          cexLegend = 1,
                          mar = c(2,2,4,6),
                          ...) {
-  
+
   # Check input arguments
   argsIn <- as.list(environment())
-  
+
   argsOut <- .checkArgsPlotDiff(argsIn)
-  
+
   for (i in 1:length(argsOut)) {
     assign(names(argsOut)[i], argsOut[[i]])
   }
-  
+
   #-----------------------------------------------------------------------------
   corrMat1 <- x$assoMat1
   corrMat2 <- x$assoMat2
-  
+
   isAdjust <- FALSE
-  
+
   if (is.null(x$diffAdjustMat)) {
     diffMat <- x$diffMat
-    
+
   } else {
     if (adjusted) {
       diffMat <- x$diffAdjustMat
-      
+
       if (x$adjusted != "none") {
         isAdjust <- TRUE
       }
@@ -194,7 +201,7 @@ plot.diffnet <- function(x,
       diffMat <- x$diffMat
     }
   }
-  
+
   if (all(diffMat == 0)) {
     if (isAdjust) {
       message("There are no differential correlations to plot ",
@@ -204,50 +211,59 @@ plot.diffnet <- function(x,
     }
     return(invisible(NULL))
   }
-  
+
+  if (nodeFilter == "names") {
+    keep <- colnames(diffMat) %in% nodeFilterPar
+    corrMat1 <- corrMat1[keep, keep, drop = FALSE]
+    corrMat2 <- corrMat2[keep, keep, drop = FALSE]
+    diffMat <- diffMat[keep, keep, drop = FALSE]
+  }
+
+  kept <- colnames(diffMat)
+
   if (edgeFilter != "none") {
-    
+
     if (edgeFilter == "highestDiff") {
       diffabssort <- sort(abs(diffMat[lower.tri(diffMat)]), decreasing = TRUE)
       cutval <- diffabssort[edgeFilterPar]
       diffMat[diffMat < cutval] <- 0
     }
-    
+
   }
-  
+
   if (rmSingles) {
     corrMat1.orig <- corrMat1
     corrMat2.orig <- corrMat2
     diffMat.orig <- diffMat
-    
+
     zeros <- sapply(1:nrow(diffMat), function(i) { all(diffMat[i, ] == 0) })
     names(zeros) <- colnames(diffMat)
-    
-    
+
+
     if (any(zeros)) {
       torm <- which(zeros == TRUE)
     } else {
       torm <- NULL
     }
-    
+
     if (length(torm) != 0) corrMat1 <- corrMat1[-torm, -torm]
     if (length(torm) != 0) corrMat2 <- corrMat2[-torm, -torm]
     if (length(torm) != 0) diffMat <- diffMat[-torm, -torm]
-    
-    kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in% 
+
+    kept <- colnames(diffMat.orig)[which(colnames(diffMat.orig) %in%
                                            colnames(diffMat))]
-    
+
   }
-  
+
   if (legend) {
     if (is.null(legendTitle)) {
       legendTitle = "Associations"
     }
     if (is.null(legendGroupnames)) {
-      
+
       legtitle1 <- paste0("group '" , x$groups[1], "'" )
       legtitle2 <- paste0("group '" , x$groups[2], "'" )
-      
+
     } else {
       stopifnot(is.vector(legendGroupnames))
       stopifnot(length(legendGroupnames) == 2)
@@ -255,12 +271,12 @@ plot.diffnet <- function(x,
       legtitle2 <- legendGroupnames[2]
     }
   }
-  
+
   #=============================================================================
   # define edge colors
-  
+
   if (x$diffMethod == "discordant") {
-    
+
     # create color matrix
     if (is.null(edgeCol)) {
       edgeCol <- c("#33A02C", "#2CB7B0", "#56B4E9",
@@ -269,14 +285,14 @@ plot.diffnet <- function(x,
     } else {
       stopifnot(length(edgeCol) == 9)
     }
-    
+
     if (edgeTransp > 0) {
       edgeCol <- colToTransp(edgeCol, edgeTransp)
     }
-    
+
     classMat <- x$classMat
     edgeColMat <- classMat
-    
+
     for (i in 1:nrow(edgeColMat)) {
       for (j in 1:ncol(edgeColMat)) {
         if (classMat[i,j] == 1) edgeColMat[i,j] <- edgeCol[8]
@@ -291,9 +307,9 @@ plot.diffnet <- function(x,
       }
     }
     legendCol <- edgeCol[c(2, 3, 4, 5, 7, 9)]
-    
+
   } else {
-    
+
     if (is.null(edgeCol)) {
       edgeCol <- c("#33A02C", "#2CB7B0", "#56B4E9",
                    "#E69F00", "#D55E00", "#CC79A7",
@@ -301,8 +317,8 @@ plot.diffnet <- function(x,
     } else {
       stopifnot(length(edgeCol) == 9)
     }
-    
-    
+
+
     # transform correlation matrices to vectors
     lowtri <- lower.tri(corrMat1, diag = FALSE)
     corrVec1 <- corrMat1[lowtri]
@@ -310,7 +326,7 @@ plot.diffnet <- function(x,
     vector_names <- .getVecNames(t(corrMat1))
     names(corrVec1) <- vector_names
     names(corrVec2) <- vector_names
-    
+
     colVec <- rep("black", length(corrVec1))
     colVec[corrVec1 > 0 & corrVec2 > 0] <- edgeCol[1]
     colVec[corrVec1 > 0 & corrVec2 == 0] <- edgeCol[2]
@@ -328,23 +344,23 @@ plot.diffnet <- function(x,
     } else {
       legendCol <- edgeCol[c(1, 3, 4, 6)]
     }
-    
+
     if (edgeTransp > 0) {
       colVec <- colToTransp(colVec, edgeTransp)
     }
-    
+
     edgeColMat <- corrMat1
     edgeColMat[lower.tri(edgeColMat)] <- colVec
     edgeColMat <- t(edgeColMat)
     edgeColMat[lower.tri(edgeColMat)] <- colVec
   }
-  
-  
-  
+
+
+
   if (rmSingles) {
     edgeColMat <- edgeColMat[kept, kept]
   }
-  
+
   if (is.matrix(layout)) {
     if (is.null(rownames(layout))) {
       if (nrow(layout) != ncol(diffMat)) {
@@ -363,9 +379,9 @@ plot.diffnet <- function(x,
   }
 
   #=============================================================================
-  
+
   nodeSize <- (7*exp(-ncol(diffMat)/80)+1) * cexNodes
-  
+
   if (is.null(title)) {
     main <- "Differential network"
   } else if (title == FALSE) {
@@ -374,46 +390,46 @@ plot.diffnet <- function(x,
     stopifnot(is.character(title))
     main <- title
   }
-  
+
   #=============================================================================
   # rename taxa
-  
+
   if (is.null(labels)) {
-    
-    labelsout <- editLabels(rownames(diffMat), 
+
+    labelsout <- editLabels(rownames(diffMat),
                             shortenLabels = shortenLabels,
                             labelLength = labelLength,
                             labelPattern = labelPattern,
                             addBrack = TRUE,
                             charToRm = charToRm,
                             verbose = FALSE)
-    
+
   } else if (is.logical(labels)) {
     labelsout <- labels
   } else {
     labelsout <- labels[kept]
   }
-  
+
   #=============================================================================
   # node colors
   if (nodeTransp > 0) {
     nodeColor <- colToTransp(nodeColor, nodeTransp)
   }
-  
+
   #=============================================================================
-  
-  
+
+
   q <- qgraph(diffMat, layout = layout, color = nodeColor,
               label.scale = labelScale, labels = labelsout,
               label.font = labelFont, label.cex = cexLabels, vsize = nodeSize,
               border.color = borderCol, border.width = borderWidth,
               edge.color = edgeColMat, edge.width = edgeWidth,
               repulsion = repulsion, mar = mar, ...)
-  
+
   if (legend) {
-    
+
     leg_args <- as.list(legendArgs)
-    
+
     if (is.character(legendPos)) {
       leg_args$x <- legendPos
       leg_args$y <- NULL
@@ -425,24 +441,24 @@ plot.diffnet <- function(x,
       leg_args$x <- legendPos[1]
       leg_args$y <- legendPos[2]
     }
-    
+
     if (x$diffMethod %in% c("discordant")) {
-      
+
       leg_args$legend <- c(legtitle1, "+", "+", "-", "-", 0, 0,
                            legtitle2, 0, "-", "+", 0, "+", "-")
       leg_args$col <- c("#FFFFFF00", legendCol, rep("#FFFFFF00", 7))
       leg_args$lty <- c(rep(1,7), rep(-1,7))
       leg_args$pch <- c(rep(-1, 7), rep(20,7))
-      
+
     } else {
       if (length(legendCol) == 9) {
-        
+
         leg_args$legend <- c(legtitle1, "+", "+", "+", "-", "-", "-", 0, 0, 0,
                              legtitle2, "+", 0, "-", "+", 0, "-", "+", 0, "-")
         leg_args$col <- c("#FFFFFF00", legendCol, rep("#FFFFFF00", 10))
         leg_args$lty <- c(rep(1,10), rep(-1,10))
         leg_args$pch <- c(rep(-1, 10), rep(20,10))
-        
+
       } else {
         leg_args$legend <- c(legtitle1, "+", "+", "-", "-",
                              legtitle2, "+", "-", "+", "-")
@@ -451,22 +467,22 @@ plot.diffnet <- function(x,
         leg_args$pch <- c(rep(-1, 5), rep(20,5))
       }
     }
-    
+
     leg_args$cex <- cexLegend
     leg_args$title <- legendTitle
     leg_args$ncol <- 2
     if (is.null(leg_args$lwd)) leg_args$lwd <- 2
-    
+
     do.call("legend", leg_args)
   }
-  
+
   if (main != "") {
     title(main = list(main, cex = cexTitle ))
   }
-  
+
   lay <- q$layout
   rownames(lay) <- colnames(diffMat)
   invisible(lay)
-  
+
 }
 

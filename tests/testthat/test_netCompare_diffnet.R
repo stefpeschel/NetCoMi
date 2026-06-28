@@ -249,5 +249,34 @@ test_that("plot.diffnet returns with a message if there is nothing to plot", {
   expect_null(out)
 })
 
+test_that("plot.diffnet matches named layouts after node filtering", {
+  net <- make_diffnet_test_net()
+  diff_filtered <- list(assoMat1 = net$assoEst1,
+                        assoMat2 = net$assoEst2,
+                        diffMat = abs(net$assoEst1 - net$assoEst2),
+                        diffAdjustMat = abs(net$assoEst1 - net$assoEst2),
+                        diffMethod = "fisherTest",
+                        adjusted = "BH",
+                        groups = net$groups)
+  class(diff_filtered) <- "diffnet"
+
+  layout <- matrix(c(0, 0,
+                     1, 0,
+                     0, 1),
+                   ncol = 2,
+                   byrow = TRUE,
+                   dimnames = list(c("t1", "t3", "t4"), NULL))
+  labels <- setNames(c("one", "two", "three", "four"), paste0("t", 1:4))
+
+  expect_silent(out <- plot(diff_filtered,
+                            layout = layout,
+                            labels = labels,
+                            nodeFilter = "names",
+                            nodeFilterPar = c("t1", "t3", "t4"),
+                            rmSingles = FALSE,
+                            legend = FALSE))
+  expect_equal(rownames(out), c("t1", "t3", "t4"))
+})
+
 
 
