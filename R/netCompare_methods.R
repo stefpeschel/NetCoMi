@@ -14,6 +14,9 @@
 #'   values shall be printed. Defaults to 10 meaning that the first 10 taxa
 #'   with highest absolute group difference of the specific centrality
 #'   measure are shown.
+#' @param sortCentr character indicating how centrality results are sorted.
+#'   \code{"absDiff"} (default) sorts by decreasing absolute group difference,
+#'   \code{"pvalue"} sorts by increasing unadjusted permutation p-value.
 #' @param showGlobal logical. If \code{TRUE}, global network properties for the 
 #'   whole network are printed.
 #' @param showGlobalLCC logical. If \code{TRUE}, global network properties for 
@@ -53,6 +56,7 @@ summary.microNetComp <- function(object,
                                  showRand = TRUE,
                                  showGCD = TRUE,
                                  pAdjust = TRUE,
+                                 sortCentr = c("absDiff", "pvalue"),
                                  digits = 3L, 
                                  digitsPval = 6L,
                                  ...) {
@@ -68,6 +72,7 @@ summary.microNetComp <- function(object,
                                                 "betweenness", "closeness", 
                                                 "eigenvector"),
                          several.ok = TRUE)
+  sortCentr <- match.arg(sortCentr)
   
   if ("none" %in% showCentr) stopifnot(length(showCentr) == 1)
   
@@ -424,21 +429,36 @@ summary.microNetComp <- function(object,
   
   topProps <- NULL
   if (showCentr[1] != "none") {
-    topDegNames <- names(sort(abs(object$diffCentr$diffDeg), 
-                              decreasing = TRUE))[1:numbNodes]
-    topBetwNames <- names(sort(abs(object$diffCentr$diffBetw), 
-                               decreasing = TRUE))[1:numbNodes]
-    topCloseNames <- names(sort(abs(object$diffCentr$diffClose), 
-                                decreasing = TRUE))[1:numbNodes]
-    topEigenNames <- names(sort(abs(object$diffCentr$diffEigen), 
-                                decreasing = TRUE))[1:numbNodes]
-    
     hasCentrPvals <- !is.null(object$pvalDiffCentr)
     hasCentrAdjust <- hasCentrPvals &&
       pAdjust &&
       !is.null(object$pvalDiffCentrAdjust) &&
       !is.null(object$callArgs$adjust) &&
       object$callArgs$adjust != "none"
+    
+    if (sortCentr == "pvalue" && !hasCentrPvals) {
+      warning("Centrality results cannot be sorted by p-value because ",
+              "permutation p-values are not available. Sorting by absolute ",
+              "difference instead.", call. = FALSE)
+      sortCentr <- "absDiff"
+    }
+    
+    .getTopCentrNames <- function(diff, pval = NULL) {
+      if (sortCentr == "pvalue") {
+        names(sort(pval, decreasing = FALSE, na.last = TRUE))[1:numbNodes]
+      } else {
+        names(sort(abs(diff), decreasing = TRUE, na.last = TRUE))[1:numbNodes]
+      }
+    }
+    
+    topDegNames <- .getTopCentrNames(object$diffCentr$diffDeg,
+                                     object$pvalDiffCentr$pvalDiffDeg)
+    topBetwNames <- .getTopCentrNames(object$diffCentr$diffBetw,
+                                      object$pvalDiffCentr$pvalDiffBetw)
+    topCloseNames <- .getTopCentrNames(object$diffCentr$diffClose,
+                                       object$pvalDiffCentr$pvalDiffClose)
+    topEigenNames <- .getTopCentrNames(object$diffCentr$diffEigen,
+                                       object$pvalDiffCentr$pvalDiffEigen)
     
     cols <- if (!hasCentrPvals) {
       3
@@ -616,6 +636,7 @@ summary.microNetComp <- function(object,
               gcd = gcd,
               properties = object$properties,
               topProps = topProps,
+              sortCentr = sortCentr,
               pvalDiffCentr = object$pvalDiffCentr,
               is_disconnected = is_disconnected,
               paramsProperties = object$paramsProperties,
@@ -720,14 +741,19 @@ print.summary.microNetComp <- function(x, ...) {
   
   if (!is.null(x$topProps)) {
     cat("\n______________________________")
+    orderTxt <- if (identical(x$sortCentr, "pvalue")) {
+      "In increasing order of unadjusted p-values"
+    } else {
+      "In decreasing order of absolute differences"
+    }
     if (x$is_disconnected && x$paramsProperties$centrLCC) {
       cat("\nCentrality measures")
-      cat("\n- In decreasing order")
+      cat("\n- ", orderTxt, sep = "")
       cat("\n- Centrality of disconnected components is zero\n")
       cat("````````````````````````````````````````````````")
     } else {
       cat("\nCentrality measures")
-      cat("\n- In decreasing order")
+      cat("\n- ", orderTxt, sep = "")
       cat("\n- Computed for the whole network\n")
       cat("````````````````````````````````````")
     }

@@ -16,6 +16,7 @@
   showRand = TRUE,
   showGCD = TRUE,
   pAdjust = TRUE,
+  sortCentr = c("absDiff", "pvalue"),
   digits = 3L,
   digitsPval = 6L,
   ...
@@ -61,6 +62,10 @@ existent) is returned.}
 p-values are shown in an additional column if they are available and
 multiple testing adjustment was applied in \code{\link{netCompare}}.
 Unadjusted p-values are always shown.}
+
+\item{sortCentr}{character indicating how centrality results are sorted.
+\code{"absDiff"} (default) sorts by decreasing absolute group difference,
+\code{"pvalue"} sorts by increasing unadjusted permutation p-value.}
 
 \item{digits}{integer giving the number of decimal places to which the 
 results are rounded. Defaults to 3L.}

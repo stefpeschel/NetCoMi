@@ -105,6 +105,11 @@
 - In `plotHeat()` and `print.GCD()`: Very small p-values are now shown
   in scientific notation when they are printed.
 
+- In `summary.microNetComp()`: Centrality results can now be sorted
+  either by decreasing absolute group difference
+  (`sortCentr = "absDiff"`, default) or by increasing unadjusted
+  p-value (`sortCentr = "pvalue"`).
+
 ### Bug fixes
 
 - In `summary.microNetComp()`: Unadjusted centrality p-values are now
