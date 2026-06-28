@@ -26,8 +26,10 @@
 #'   existent) is returned. 
 #' @param showGCD logical. If \code{TRUE}, the Graphlet Correlation Distance 
 #'   (if existent) is printed.
-#' @param pAdjust logical. The permutation p-values (if existent) are adjusted 
-#'   if \code{TRUE} (default) and not adjusted if \code{FALSE}.
+#' @param pAdjust logical. If \code{TRUE} (default), adjusted permutation
+#'   p-values are shown in an additional column if they are available and
+#'   multiple testing adjustment was applied in \code{\link{netCompare}}.
+#'   Unadjusted p-values are always shown.
 #' @param digits integer giving the number of decimal places to which the 
 #'   results are rounded. Defaults to 3L. 
 #' @param digitsPval integer giving the number of decimal places to which the 
@@ -431,16 +433,28 @@ summary.microNetComp <- function(object,
     topEigenNames <- names(sort(abs(object$diffCentr$diffEigen), 
                                 decreasing = TRUE))[1:numbNodes]
     
-    cols <- ifelse(is.null(object$pvalDiffCentr), 3, 5)
-    if (cols == 3) {
-      cnames <- c(group1, group2, "abs.diff.")
+    hasCentrPvals <- !is.null(object$pvalDiffCentr)
+    hasCentrAdjust <- hasCentrPvals &&
+      pAdjust &&
+      !is.null(object$pvalDiffCentrAdjust) &&
+      !is.null(object$callArgs$adjust) &&
+      object$callArgs$adjust != "none"
+    
+    cols <- if (!hasCentrPvals) {
+      3
+    } else if (hasCentrAdjust) {
+      7
     } else {
-      if (pAdjust) {
-        cnames <- c(group1, group2, "abs.diff.", "adj.p-value", " ")
-      } else {
-        cnames <- c(group1, group2, "abs.diff.", "p-value", " ")
-      }
-      
+      5
+    }
+    
+    if (!hasCentrPvals) {
+      cnames <- c(group1, group2, "abs.diff.")
+    } else if (hasCentrAdjust) {
+      cnames <- c(group1, group2, "abs.diff.", "p-value", " ",
+                  "adj.p-value", " ")
+    } else {
+      cnames <- c(group1, group2, "abs.diff.", "p-value", " ")
     }
     
     # degree
@@ -458,17 +472,23 @@ summary.microNetComp <- function(object,
       topDeg[, 3] <-
         round(abs(object$diffCentr$diffDeg[topDegNames]), digits)
       
-      if (cols == 5) {
-        if (pAdjust) {
-          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffDeg[topDegNames]
-        } else {
-          pvals_top <- object$pvalDiffCentr$pvalDiffDeg[topDegNames]
-        }
+      if (hasCentrPvals) {
+        pvals_top <- object$pvalDiffCentr$pvalDiffDeg[topDegNames]
         topDeg[, 4] <- .formatPval(pvals_top, digitsPval)
         topDeg[, 5] <-
           sapply(1:numbNodes, function(i) {
             .getSigCode(pvals_top[i])
           })
+        
+        if (hasCentrAdjust) {
+          pvals_top_adj <-
+            object$pvalDiffCentrAdjust$pAdjustDiffDeg[topDegNames]
+          topDeg[, 6] <- .formatPval(pvals_top_adj, digitsPval)
+          topDeg[, 7] <-
+            sapply(1:numbNodes, function(i) {
+              .getSigCode(pvals_top_adj[i])
+            })
+        }
       }
     } else {
       topDeg <- NULL
@@ -492,16 +512,21 @@ summary.microNetComp <- function(object,
       topBetw[, 3] <-
         round(abs(object$diffCentr$diffBetw[topBetwNames]), digits)
       
-      if (cols == 5) {
-        if (pAdjust) {
-          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffBetw[topBetwNames]
-        } else {
-          pvals_top <- object$pvalDiffCentr$pvalDiffBetw[topBetwNames]
-        }
+      if (hasCentrPvals) {
+        pvals_top <- object$pvalDiffCentr$pvalDiffBetw[topBetwNames]
         topBetw[, 4] <- .formatPval(pvals_top, digitsPval)
         topBetw[, 5] <- sapply(1:numbNodes, function(i) {
           .getSigCode(pvals_top[i])
         })
+        
+        if (hasCentrAdjust) {
+          pvals_top_adj <-
+            object$pvalDiffCentrAdjust$pAdjustDiffBetw[topBetwNames]
+          topBetw[, 6] <- .formatPval(pvals_top_adj, digitsPval)
+          topBetw[, 7] <- sapply(1:numbNodes, function(i) {
+            .getSigCode(pvals_top_adj[i])
+          })
+        }
       }
     } else {
       topBetw <- NULL
@@ -522,15 +547,19 @@ summary.microNetComp <- function(object,
       topClose[, 3] <-
         round(abs(object$diffCentr$diffClose[topCloseNames]), digits)
       
-      if (cols == 5) {
-        if (pAdjust) {
-          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffClose[topCloseNames]
-        } else {
-          pvals_top <- object$pvalDiffCentr$pvalDiffClose[topCloseNames]
-        }
+      if (hasCentrPvals) {
+        pvals_top <- object$pvalDiffCentr$pvalDiffClose[topCloseNames]
         topClose[, 4] <- .formatPval(pvals_top, digitsPval)
         topClose[, 5] <- sapply(1:numbNodes, function(i) {
           .getSigCode(pvals_top[i])})
+        
+        if (hasCentrAdjust) {
+          pvals_top_adj <-
+            object$pvalDiffCentrAdjust$pAdjustDiffClose[topCloseNames]
+          topClose[, 6] <- .formatPval(pvals_top_adj, digitsPval)
+          topClose[, 7] <- sapply(1:numbNodes, function(i) {
+            .getSigCode(pvals_top_adj[i])})
+        }
       }
     } else {
       topClose <- NULL
@@ -551,17 +580,23 @@ summary.microNetComp <- function(object,
       topEigen[, 3] <-
         round(abs(object$diffCentr$diffEigen[topEigenNames]), digits)
       
-      if (cols == 5) {
-        if (pAdjust) {
-          pvals_top <- object$pvalDiffCentrAdjust$pAdjustDiffEigen[topEigenNames]
-        } else {
-          pvals_top <- object$pvalDiffCentr$pvalDiffEigen[topEigenNames]
-        }
+      if (hasCentrPvals) {
+        pvals_top <- object$pvalDiffCentr$pvalDiffEigen[topEigenNames]
         topEigen[, 4] <- .formatPval(pvals_top, digitsPval)
         topEigen[, 5] <-
           sapply(1:numbNodes, function(i) {
             .getSigCode(pvals_top[i])
           })
+        
+        if (hasCentrAdjust) {
+          pvals_top_adj <-
+            object$pvalDiffCentrAdjust$pAdjustDiffEigen[topEigenNames]
+          topEigen[, 6] <- .formatPval(pvals_top_adj, digitsPval)
+          topEigen[, 7] <-
+            sapply(1:numbNodes, function(i) {
+              .getSigCode(pvals_top_adj[i])
+            })
+        }
       }
     } else {
       topEigen <- NULL

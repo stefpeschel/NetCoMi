@@ -57,8 +57,10 @@ existent) is returned.}
 \item{showGCD}{logical. If \code{TRUE}, the Graphlet Correlation Distance 
 (if existent) is printed.}
 
-\item{pAdjust}{logical. The permutation p-values (if existent) are adjusted 
-if \code{TRUE} (default) and not adjusted if \code{FALSE}.}
+\item{pAdjust}{logical. If \code{TRUE} (default), adjusted permutation
+p-values are shown in an additional column if they are available and
+multiple testing adjustment was applied in \code{\link{netCompare}}.
+Unadjusted p-values are always shown.}
 
 \item{digits}{integer giving the number of decimal places to which the 
 results are rounded. Defaults to 3L.}

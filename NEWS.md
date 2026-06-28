@@ -105,6 +105,14 @@
 - In `plotHeat()` and `print.GCD()`: Very small p-values are now shown
   in scientific notation when they are printed.
 
+### Bug fixes
+
+- In `summary.microNetComp()`: Unadjusted centrality p-values are now
+  always shown when permutation p-values are available. If multiple
+  testing adjustment was applied in `netCompare()`, adjusted p-values
+  are shown in an additional column instead of replacing the unadjusted
+  p-values.
+
 ### References
 
 Badri M, Kurtz ZD, Bonneau R, Mueller CL (2020). Shrinkage improves
