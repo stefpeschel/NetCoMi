@@ -1,8 +1,8 @@
 Package: NetCoMi
 Type: Package
 Title: Network Construction and Comparison for Microbiome Data
-Version: 1.2.0.9000
-Date: 2025-03-14
+Version: 1.3.0
+Date: 2026-07-07
 Authors@R: c(
     person("Stefanie", "Peschel", email = "stefpeschel@gmail.com", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7936-7627")),
