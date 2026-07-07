@@ -67,6 +67,9 @@ together with some information on their implementation in R:
 - Biweight Midcorrelation
   [`bicor()`](https://rdrr.io/cran/WGCNA/man/bicor.html) from `WGCNA`
   package
+- Shrinkage correlation
+  ([`cor.shrink()`](https://www.rdocumentation.org/packages/corpcor/versions/1.1.2/topics/cor.shrink)
+  from `corpcor` package)
 - SparCC ([`sparcc()`](https://rdrr.io/bioc/SpiecEasi/man/sparcc.html)
   from `SpiecEasi` package)
 - CCLasso ([R code on GitHub](https://github.com/huayingfang/CCLasso))
@@ -80,6 +83,10 @@ together with some information on their implementation in R:
 - propr
   ([`propr`](https://cran.r-project.org/web/packages/propr/index.html)
   package)
+- Shrinkage proportionality implemented in `NetCoMi`, following the
+  approach from ([Badri et al. 2020](#ref-badri2020shrinkage)) and the
+  accompanying [NormCorr manuscript
+  repository](https://github.com/MichelleBadri/NormCorr-manuscript))
 
 **Dissimilarity measures:**
 

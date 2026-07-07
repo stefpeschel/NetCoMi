@@ -49,6 +49,7 @@ some information on their implementation in R:
 - Pearson coefficient ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor) from `stats` package)
 - Spearman coefficient ([`cor()`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/cor) from `stats` package)
 - Biweight Midcorrelation [`bicor()`](https://rdrr.io/cran/WGCNA/man/bicor.html) from `WGCNA` package
+- Shrinkage correlation ([`cor.shrink()`](https://www.rdocumentation.org/packages/corpcor/versions/1.1.2/topics/cor.shrink) from `corpcor` package)
 - SparCC ([`sparcc()`](https://rdrr.io/bioc/SpiecEasi/man/sparcc.html) from `SpiecEasi` package)
 - CCLasso ([R code on GitHub](https://github.com/huayingfang/CCLasso))
 - CCREPE ([`ccrepe`](https://bioconductor.org/packages/release/bioc/html/ccrepe.html) package)
@@ -56,6 +57,7 @@ some information on their implementation in R:
 - SPRING ([`SPRING`](https://github.com/GraceYoon/SPRING) package)
 - gCoda ([R code on GitHub](https://github.com/huayingfang/gCoda))
 - propr ([`propr`](https://cran.r-project.org/web/packages/propr/index.html) package)
+- Shrinkage proportionality implemented in `NetCoMi`, following the approach from [@badri2020shrinkage] and the accompanying [NormCorr manuscript repository](https://github.com/MichelleBadri/NormCorr-manuscript))
 
 **Dissimilarity measures:**
 

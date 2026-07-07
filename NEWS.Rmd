@@ -1,33 +1,9 @@
 ---
 output: github_document
 ---
-## NetCoMi 1.2.0.9000
+## NetCoMi 1.3.0
 
 ### New features
-
-* In `netAnalyze()`: The `normEigen` argument is active again. The default
-  `normEigen = TRUE` keeps the current max-normalized eigenvector centrality,
-  while `normEigen = FALSE` returns eigenvector centralities with Euclidean
-  norm one, corresponding to igraph's former `scale = FALSE` behavior.
-
-* In `diffnet()`: New argument `adjustNonzeroOnly` can restrict multiple
-testing adjustment to taxa pairs with a non-zero sparsified association in at
-least one of the two networks. A new `summary.diffnet()` method summarizes
-association ranges, edge counts, differential associations, and p-values.
-
-* In `plot.diffnet()`: Calling `plot()` for a differential network without
-differential correlations now returns invisibly with a message instead of
-throwing an error.
-
-* In `plot.diffnet()`: New arguments `nodeFilter` and `nodeFilterPar` allow
-plotting a named subset of taxa, including when reusing a named layout matrix
-containing only those taxa.
-
-* In `plot.diffnet()`: Differential association strengths are now rescaled for
-plotting so weaker non-zero edges respond visibly to `edgeWidth`.
-
-* In `plot.diffnet()`: New argument `legendEdgeWidth` controls the width of
-edge lines shown in the legend.
 
 * `SpiecEasi` is now available from Bioconductor and NetCoMi depends on
 `SpiecEasi (>= 2.0.0)`. Users no longer need to install `SpiecEasi` from
@@ -55,16 +31,40 @@ proposed by Badri et al. (2020), following code from the accompanying
 which estimates correlations using the Schäfer-Strimmer shrinkage estimator
 implemented in `corpcor::cor.shrink()`.
 
-* In `diffnet()`: New method **"threshold"** available for identifying 
-differential associations by thresholding the absolute differences between 
-association matrices. The threshold can be set via the new argument 
-`diffThresh`.
+* In `netAnalyze()`: The `normEigen` argument is active again. The default
+  `normEigen = TRUE` keeps the current max-normalized eigenvector centrality,
+  while `normEigen = FALSE` returns eigenvector centralities with Euclidean
+  norm one, corresponding to igraph's former `scale = FALSE` behavior.
 
 * In `netCompare()` and `diffnet()`: Permutation p-values can now optionally be
 refined with the `permApprox` package by setting `refinePermPvals = TRUE`.
 Additional arguments for `permApprox::perm_approx()` can be passed via
 `permApproxParams`. In `netCompare()`, this also includes p-values from the
 adjusted Rand index test.
+
+* In `diffnet()`: New argument `adjustNonzeroOnly` can restrict multiple
+testing adjustment to taxa pairs with a non-zero sparsified association in at
+least one of the two networks. A new `summary.diffnet()` method summarizes
+association ranges, edge counts, differential associations, and p-values.
+
+* In `diffnet()`: New method **"threshold"** available for identifying 
+differential associations by thresholding the absolute differences between 
+association matrices. The threshold can be set via the new argument 
+`diffThresh`.
+
+* In `plot.diffnet()`: Calling `plot()` for a differential network without
+differential correlations now returns invisibly with a message instead of
+throwing an error.
+
+* In `plot.diffnet()`: New arguments `nodeFilter` and `nodeFilterPar` allow
+plotting a named subset of taxa, including when reusing a named layout matrix
+containing only those taxa.
+
+* In `plot.diffnet()`: Differential association strengths are now rescaled for
+plotting so weaker non-zero edges respond visibly to `edgeWidth`.
+
+* In `plot.diffnet()`: New argument `legendEdgeWidth` controls the width of
+edge lines shown in the legend.
 
 * In `plot.diffnet()`: The default edge colors were changed to
 `c("#33A02C", "#2CB7B0", "#56B4E9", "#E69F00", "#D55E00", "#CC79A7",
