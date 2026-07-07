@@ -294,8 +294,9 @@ test_that("plot.diffnet lifts weak edge weights for width scaling", {
   weight <- .scaleDiffnetEdgesForPlot(abs(net$assoEst1 - net$assoEst2))
 
   expect_equal(max(weight), 1)
-  expect_true(weight["t1", "t3"] >= 0.25)
-  expect_true(weight["t1", "t3"] < 1)
+  expect_equal(weight["t1", "t3"], 1)
+  expect_true(weight["t1", "t4"] >= 0.25)
+  expect_true(weight["t1", "t4"] < 1)
 })
 
 
